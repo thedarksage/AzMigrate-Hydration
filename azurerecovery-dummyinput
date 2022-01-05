@@ -1,9 +1,0 @@
-PreRecoveryExecutionBlobSasUri=dummyuri
-TestFailover=True
-HostId=d8303bf4-d5f6-4449-81d8-218f1314eb23
-EnableRDP=False
-IsUEFI=False
-ActivePartitionStartingOffset=0
-DiskSignature=0
-[DiskMap]
-6000C291-EEC2-5C88-7757-267B0296B132=0
