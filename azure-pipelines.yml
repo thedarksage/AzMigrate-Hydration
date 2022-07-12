@@ -7,8 +7,6 @@ trigger:
 - master
 - release
 
-pool: default
-
 stages:
 - stage: build
   jobs:
