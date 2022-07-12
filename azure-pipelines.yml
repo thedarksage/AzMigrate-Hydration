@@ -7,6 +7,11 @@ trigger:
 - master
 - release
 
+variables:
+  REPOROOT: $(Build.SourcesDirectory)
+  OUTPUTROOT: $(REPOROOT)\out
+  CDP_BUILD_TAG: azurerecoverytools
+
 stages:
 - stage: build
   jobs:
