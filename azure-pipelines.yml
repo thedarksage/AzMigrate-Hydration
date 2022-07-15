@@ -21,7 +21,8 @@ stages:
   # Windows build job
   - job: windows_build
     pool:
-      type: windows
+      vmImage: windows-latest
+      type: windows-latest
 
     variables:
       WindowsContainerImage: 'cdpxwin1809.azurecr.io/global/vse2019:latest'
