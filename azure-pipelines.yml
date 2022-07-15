@@ -4,8 +4,10 @@
 # https://aka.ms/yaml
 
 trigger:
+- main
 - master
 - release
+- develop
 
 variables:
   REPOROOT: $(Build.SourcesDirectory)
