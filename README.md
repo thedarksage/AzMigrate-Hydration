@@ -1,3 +1,7 @@
+# Build Status
+
+[![Windows Build Status](https://msazure.visualstudio.com/One/_apis/build/status/OneBranch/AzMigrate-Hydration/thedarksage.AzMigrate-Hydration?branchName=main)](https://msazure.visualstudio.com/One/_build/latest?definitionId=281574&branchName=main)
+
 # Project
 This project provides the source code for [Azure Migrate hydration scripts](https://docs.microsoft.com/en-us/azure/migrate/prepare-for-agentless-migration#hydration-process).
 Hydration provides the capability to patch a VM disk brought onto azure with the necessary configuration changes to make the VM bootable on Azure, and necessary adjustments made > for VM to be acquire a connectable state on Azure platform. Hydration aditionally makes confiuration changes to make VM Azure environment friendly by redirectly the console output to Azure's [Serial Console](https://docs.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview), and install the [VM Guest agent](https://docs.microsoft.com/en-us/azure/virtual-machines/extensions/agent-linux), required for VM extensions and post deployment configuration of a VM.
