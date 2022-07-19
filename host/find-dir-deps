@@ -1,0 +1,31 @@
+#!/bin/sh
+
+if [ "$1" = "" ] ; then
+	 echo usage $0 dir
+	 exit 1
+fi
+
+if [ `uname` = "SunOS" ]; then
+	GREPCMD="/usr/xpg4/bin/grep"
+else
+	GREPCMD="grep"
+fi
+
+if [ ! -f $1/dir_deps ] ; then 
+	 DIRS=`find $1 | ${GREPCMD} -e "[.]h$" -e "[.]c$" -e "[.]cpp$" -e "[.]inl$" | grep -v config_release | grep -v config_debug | xargs -l1 dirname | sort |uniq`
+	 PD=
+	 if [ "$DIRS" = "" ] ; then
+		  touch $1/dir_deps
+		  exit 0
+	 fi
+
+	 for d in $DIRS 
+	 do
+		  if [ "$PD" != "$d" ] ; then
+				PD=$d;
+				echo "$d" >> $1/dir_deps
+		  fi
+	 done
+fi
+	 
+	 
