@@ -75,3 +75,49 @@ stages:
           script: |
             New-Item -Path $(REPOROOT) -Name "Symbols" -ItemType "Directory" -Force
             Copy-Item -Path $(REPOROOT)\host\AzureRecoveryUtil\Release\AzureRecoveryUtil.pdb $(REPOROOT)\Symbols
+
+  # Linux build job.
+  - job: linux_build
+    pool:
+      vmImage: ubuntu-latest
+      type: linux
+
+    variables:
+      LinuxContainerImage: 'cdpxlinux.azurecr.io/user/asr-inmage-srcteam/ubuntu-16.04:latest'
+      ob_outputDirectory: '$(Build.SourcesDirectory)/out'
+      ob_linuxSymbolsPublishing_enabled: true
+      ob_linuxSymbolsPublishing_symbolsFolder: '$(REPOROOT)/Symbols'
+
+    steps:
+      # Build AzureRecoveryUtil binary.
+      - task: Bash@3
+        displayName: 'Build AzureRecoveryUtil Binary'
+        inputs:
+          filePath: '$(REPOROOT)/.pipelines/BuildAzureRecoveryUtil.sh'
+          failOnStderr: true
+
+      # Capature symbols for publishing.
+      - task: Bash@3
+        displayName: 'Capature Symbols For Publishing'
+        inputs:
+          targetType: 'inline'
+          script: |
+            mkdir -p $(REPOROOT)/Symbols
+            cp -f $(REPOROOT)/host/Linux_x86_64/AzureRecoveryUtil/release/AzureRecoveryUtil $(REPOROOT)/Symbols
+            cp -f $(REPOROOT)/host/Linux_x86_64/AzureRecoveryUtil/release/AzureRecoveryUtil.dbg $(REPOROOT)/Symbols
+          failOnStderr: true
+
+      # Copy build artifacts.
+      - task: Bash@3
+        displayName: 'Copy Build Artifacts'
+        inputs:
+          targetType: 'inline'
+          script: |
+            mkdir -p $(Build.SourcesDirectory)/out/logs
+            cp -f $(REPOROOT)/host/Linux_x86_64/AzureRecoveryUtil/release/AzureRecoveryUtil $(Build.SourcesDirectory)/out
+            cp -f $(REPOROOT)/host/Linux_x86_64/AzureRecoveryUtil/release/AzureRecoveryUtil.dbg $(Build.SourcesDirectory)/out
+            cp -f $(REPOROOT)/host/AzureRecoveryUtil/Scripts/linux/{*.sh,network,CentOS-Base.repo} $(Build.SourcesDirectory)/out
+            cp -f $(REPOROOT)/thirdparty/setuptools-33.1.1/{*.py,*.zip} $(Build.SourcesDirectory)/out
+            cp -f $(REPOROOT)/host/AzureRecoveryUtilBuild.log $(Build.SourcesDirectory)/out/logs
+          failOnStderr: true
+

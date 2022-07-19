@@ -1,6 +1,7 @@
 # Build Status
-
-[![Windows Build Status](https://msazure.visualstudio.com/One/_apis/build/status/OneBranch/AzMigrate-Hydration/thedarksage.AzMigrate-Hydration?branchName=main)](https://msazure.visualstudio.com/One/_build/latest?definitionId=281574&branchName=main)
+| Platform | Build & Test |
+|---|:-----:|
+|![Win-x64](docs/img/win_os.png) ***Windows x64***|[![Windows Build Status](https://msazure.visualstudio.com/One/_apis/build/status/OneBranch/AzMigrate-Hydration/thedarksage.AzMigrate-Hydration?branchName=main)](https://msazure.visualstudio.com/One/_build/latest?definitionId=281574&branchName=main)
 
 # Project
 This project provides the source code for [Azure Migrate hydration scripts](https://docs.microsoft.com/en-us/azure/migrate/prepare-for-agentless-migration#hydration-process).
