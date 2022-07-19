@@ -94,8 +94,12 @@ stages:
         inputs:
           script: |
             sudo apt-get install g++
-            
-            sudo apt-get install lncurses-dev
+
+            sudo apt-get install build-essential
+
+            sudo apt-get install libncurses-dev
+
+            sudo apt-get install uuid-dev
           failOnStderr: true
 
       # Build AzureRecoveryUtil binary.
