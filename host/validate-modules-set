@@ -1,0 +1,44 @@
+#!/bin/sh
+
+# checks that all the needed lib modules have been set for the given modules lib list
+# all params up to but not including the -m are the list of libraries needed by the modules
+# all the params after the -m are the currently set modules
+# e.g
+# lib1 lib2 lib3 MODULES mod1 mod2 mod3 mod4
+# note the lib names are the module names in this case
+
+# get the list of libraries needed
+while [ "$1" != "-m" ] ; do 
+  libs="${libs} $1"
+  shift 1
+done
+
+shift 1
+
+results=
+
+# if there are libraries needed walk through each of them
+# checking if it is in the currently set modules list
+# check all so that the result can list all missing libraries
+if [ "" != "${libs}" ] ; then
+	 for l in ${libs} ; do
+		  found="false"
+		  for m in $@ ; do 
+				if [ "$l" = "$m" ] ; then 
+					 found="true"
+				fi
+		  done
+
+		  if [ "false" = "${found}" ] ; then
+				if [ "" = "${results}" ] ; then 
+					 results="$l"
+				else
+					 results="${results}, $l"
+				fi
+		  fi
+	 done
+fi
+
+# return list of missing libraries.results will be 
+# empty if all libraries are present
+echo ${results}
