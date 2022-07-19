@@ -1,0 +1,177 @@
+#!/bin/sh
+
+if [ "" = "$1" ] ; then
+	 echo "usage: $0 osname"
+	 exit
+fi
+
+OS_NAME="$1"
+
+# use same arch name as the one in the make files
+if [ "" = "$2" ] ; then 
+	 X_ARCH=`uname -ms | sed -e s"/ /_/g"`
+else
+	 X_ARCH="$2"
+fi
+
+TOP_DIR=`pwd | xargs dirname`
+
+ACE_LIB_DIR="${TOP_DIR}/thirdparty/ace-5.5/ACE_wrappers/lib"
+CURL_LIB_DIR="${TOP_DIR}/thirdparty/curl-7.56.1/lib"
+CDK_LIB_DIR="${TOP_DIR}/thirdparty/cdk-5.0-20060507/lib"
+SQLITE3X_LIB_DIR="${TOP_DIR}/thirdparty/sqlite3x/sqlite3x/lib"
+SQLITE_LIB_DIR="${TOP_DIR}/thirdparty/sqlite-3.3.9/lib"
+
+echo "creating symbolic links..."
+
+# ==============================================================================
+# ACE
+# ==============================================================================
+
+# make sure all the required dirs and files exist
+if [ ! -d "${ACE_LIB_DIR}/${OS_NAME}" ] ; then
+	 echo "error: ${ACE_LIB_DIR}/${OS_NAME} does not exist"
+else
+	 if [ ! -d "${ACE_LIB_DIR}/${OS_NAME}/release" ] ; then
+		  echo "error: ${ACE_LIB_DIR}/${OS_NAME}/release does not exist"
+	 else 
+		  if [ ! -f "${ACE_LIB_DIR}/${OS_NAME}/release/libACE.a" ] ; then
+				echo "error: ${ACE_LIB_DIR}/${OS_NAME}/release/libACE.a does not exist"
+		  else
+            # create symbolic links
+            # note: for now we create a debug symbolink too as we only build thirdparty 
+            # release versions
+				if [ ! -L "${ACE_LIB_DIR}/${X_ARCH}" ] ; then
+					 echo "ln -s ${ACE_LIB_DIR}/${OS_NAME} ${ACE_LIB_DIR}/${X_ARCH}"
+					 ln -s "${ACE_LIB_DIR}/${OS_NAME}" "${ACE_LIB_DIR}/${X_ARCH}"
+				fi 
+
+				if [ ! -L "${ACE_LIB_DIR}/${X_ARCH}/debug" ] ; then
+					 echo "ln -s ${ACE_LIB_DIR}/${OS_NAME}/release ${ACE_LIB_DIR}/${X_ARCH}/debug"
+					 ln -s "${ACE_LIB_DIR}/${OS_NAME}/release" "${ACE_LIB_DIR}/${X_ARCH}/debug"
+				fi
+		  fi
+	 fi
+fi
+
+
+
+
+# ==============================================================================
+# CURL
+# ==============================================================================
+
+# make sure all the required dirs and files exist
+if [ ! -d "${CURL_LIB_DIR}/${OS_NAME}" ] ; then
+	 echo "error: ${CURL_LIB_DIR}/${OS_NAME} does not exist"
+else
+	 if [ ! -d "${CURL_LIB_DIR}/${OS_NAME}/release" ] ; then
+		  echo "error: ${CURL_LIB_DIR}/${OS_NAME}/release does not exist"
+	 else
+		  if [ ! -f "${CURL_LIB_DIR}/${OS_NAME}/release/libcurl.a" ] ; then
+				echo "error: ${CURL_LIB_DIR}/${OS_NAME}/release/libcurl.a does not exist"
+		  else
+            # create symbolic links
+            # note: for now we create a debug symbolink too as we only build thirdparty 
+            # release versions
+				if [ ! -L "${CURL_LIB_DIR}/${X_ARCH}" ] ; then
+					 echo "ln -s ${CURL_LIB_DIR}/${OS_NAME} ${CURL_LIB_DIR}/${X_ARCH}"
+					 ln -s "${CURL_LIB_DIR}/${OS_NAME}" "${CURL_LIB_DIR}/${X_ARCH}"
+				fi
+				
+				if [ ! -L "${CURL_LIB_DIR}/${X_ARCH}/debug" ] ; then
+					 echo "ln -s ${CURL_LIB_DIR}/${OS_NAME}/release ${CURL_LIB_DIR}/${X_ARCH}/debug"
+					 ln -s "${CURL_LIB_DIR}/${OS_NAME}/release" "${CURL_LIB_DIR}/${X_ARCH}/debug"
+				fi
+		  fi
+	 fi
+fi
+
+# ==============================================================================
+# CDK
+# ==============================================================================
+
+# make sure all the required dirs and files exist
+if [ ! -d "${CDK_LIB_DIR}/${OS_NAME}" ] ; then
+	 echo "error: ${CDK_LIB_DIR}/${OS_NAME} does not exist"
+else
+	 if [ ! -d "${CDK_LIB_DIR}/${OS_NAME}/release" ] ; then
+		  echo "error: ${CDK_LIB_DIR}/${OS_NAME}/release does not exist"
+	 else
+		  if [ ! -f "${CDK_LIB_DIR}/${OS_NAME}/release/libcdk.a" ] ; then
+				echo "error: ${CDK_LIB_DIR}/${OS_NAME}/release/libcdk.a does not exist"
+		  else
+            # create symbolic links
+            # note: for now we create a debug symbolink too as we only build thirdparty 
+            # release versions
+				if [ ! -L "${CDK_LIB_DIR}/${X_ARCH}" ] ; then
+					 echo "ln -s ${CDK_LIB_DIR}/${OS_NAME} ${CDK_LIB_DIR}/${X_ARCH}"
+					 ln -s "${CDK_LIB_DIR}/${OS_NAME}" "${CDK_LIB_DIR}/${X_ARCH}"
+				fi
+				
+				if [ ! -L "${CDK_LIB_DIR}/${X_ARCH}/debug" ] ; then
+					 echo "ln -s ${CDK_LIB_DIR}/${OS_NAME}/release ${CDK_LIB_DIR}/${X_ARCH}/debug"
+					 ln -s "${CDK_LIB_DIR}/${OS_NAME}/release" "${CDK_LIB_DIR}/${X_ARCH}/debug"
+				fi
+		  fi
+	 fi
+fi
+
+# ==============================================================================
+# SQLITE3X
+# ==============================================================================
+
+# make sure all the required dirs and files exist
+if [ ! -d "${SQLITE3X_LIB_DIR}/${OS_NAME}" ] ; then
+	 echo "error: ${SQLITE3X_LIB_DIR}/${OS_NAME} does not exist"
+else
+	 if [ ! -d "${SQLITE3X_LIB_DIR}/${OS_NAME}/release" ] ; then
+		  echo "error: ${SQLITE3X_LIB_DIR}/${OS_NAME}/release does not exist"
+	 else
+		  if [ ! -f "${SQLITE3X_LIB_DIR}/${OS_NAME}/release/libsqlite3x.a" ] ; then
+				echo "error: ${SQLITE3X_LIB_DIR}/${OS_NAME}/release/libsqlite3x.a does not exist"
+		  fi
+        # create symbolic links
+        # note: for now we create a debug symbolink too as we only build thirdparty 
+        # release versions
+		  if [ ! -L "${SQLITE3X_LIB_DIR}/${X_ARCH}" ] ; then
+				echo "ln -s ${SQLITE3X_LIB_DIR}/${OS_NAME} ${SQLITE3X_LIB_DIR}/${X_ARCH}"
+				ln -s "${SQLITE3X_LIB_DIR}/${OS_NAME}" "${SQLITE3X_LIB_DIR}/${X_ARCH}"
+		  fi
+		  
+		  if [ ! -L "${SQLITE3X_LIB_DIR}/${X_ARCH}/debug" ] ; then
+				echo "ln -s ${SQLITE3X_LIB_DIR}/${OS_NAME}/release ${SQLITE3X_LIB_DIR}/${X_ARCH}/debug"
+				ln -s "${SQLITE3X_LIB_DIR}/${OS_NAME}/release" "${SQLITE3X_LIB_DIR}/${X_ARCH}/debug"
+		  fi
+	 fi
+fi
+
+# ==============================================================================
+# SQLITE
+# ==============================================================================
+
+# make sure all the required dirs and files exist
+if [ ! -d "${SQLITE_LIB_DIR}/${OS_NAME}" ] ; then
+	 echo "error: ${SQLITE_LIB_DIR}/${OS_NAME} does not exist"
+else
+	 if [ ! -d "${SQLITE_LIB_DIR}/${OS_NAME}/release" ] ; then
+		  echo "error: ${SQLITE_LIB_DIR}/${OS_NAME}/release does not exist"
+	 else
+		  if [ ! -f "${SQLITE_LIB_DIR}/${OS_NAME}/release/libsqlite3.a" ] ; then
+				echo "error: ${SQLITE_LIB_DIR}/${OS_NAME}/release/libsqlite3.a does not exist"
+		  fi
+		  
+        # create symbolic links
+        # note: for now we create a debug symbolink too as we only build thirdparty 
+        # release versions
+		  if [ ! -L "${SQLITE_LIB_DIR}/${X_ARCH}" ] ; then
+				echo "ln -s ${SQLITE_LIB_DIR}/${OS_NAME} ${SQLITE_LIB_DIR}/${X_ARCH}"
+				ln -s "${SQLITE_LIB_DIR}/${OS_NAME}" "${SQLITE_LIB_DIR}/${X_ARCH}"
+		  fi
+		  
+		  if [ ! -L "${SQLITE_LIB_DIR}/${X_ARCH}/debug" ] ; then
+				echo "ln -s ${SQLITE_LIB_DIR}/${OS_NAME}/release ${SQLITE_LIB_DIR}/${X_ARCH}/debug"
+				ln -s "${SQLITE_LIB_DIR}/${OS_NAME}/release" "${SQLITE_LIB_DIR}/${X_ARCH}/debug"
+		  fi
+	 fi
+fi
