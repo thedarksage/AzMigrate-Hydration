@@ -1,0 +1,5 @@
+#!/bin/sh
+
+genericOs=`uname -ms | tr ' ' '_'`
+gccVersion=`g++ --version | grep g++ | cut -d')' -f2 | cut -d' ' -f2`
+echo "${genericOs}_g++_${gccVersion}"
