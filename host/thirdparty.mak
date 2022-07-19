@@ -42,14 +42,9 @@ JQ_ROOT := ../thirdparty/jq-1.6
 # NOTE: boost has its own section (see below)
 # ----------------------------------------------------------------------
 ACE_INCLUDE := -I$(ACE_ROOT)
-CDK_INCLUDE := -I$(CDK_ROOT)/config_$(X_CONFIGURATION)/include -I$(CDK_ROOT)/include
 CURL_INCLUDE := -I$(CURL_ROOT)/config_$(X_CONFIGURATION)/include/curl -I$(CURL_ROOT)/include
 OPENSSL_INCLUDE := -I$(OPENSSL_ROOT)/include
-SQLITE_INCLUDE := -I$(SQLITE3X_ROOT) -I$(SQLITE_ROOT)/config_$(X_CONFIGURATION)
-ZLIB_INCLUDE := -I$(ZLIB_ROOT)
-LIBSSH2_INCLUDE := -I$(LIBSSH2_ROOT)/include
 LIBXML2_INCLUDE := -I$(LIBXML2_ROOT)/config_$(X_CONFIGURATION)/build/include/libxml2
-INM_MD5_INCLUDE := -I$(INM_MD5_ROOT)
 SIGSLOT_INCLUDE := -I$(SIGSLOT_ROOT)
 XENDETECT_INCLUDE := -I$(XENDETECT_ROOT)
 LIBXENSERVER_INCLUDE := -I$(LIBXENSERVER_ROOT)
@@ -63,15 +58,10 @@ ESJSON_INCLUDES := -I$(ESJSON_ROOT)
 # NOTE: boost has its own section (see below)
 # ----------------------------------------------------------------------
 ACE_LIBS := $(ACE_ROOT)/lib/$(X_SPECIFIC)/$(X_CONFIGURATION)/libACE.a
-CDK_LIBS := $(CDK_ROOT)/lib/$(X_SPECIFIC)/$(X_CONFIGURATION)/libcdk.a
 ARES_LIBS := $(CURL_ROOT)/../c-ares-1.18.1/install_$(X_CONFIGURATION)/lib/libcares.a
 CURL_LIBS := $(CURL_ROOT)/lib/$(X_SPECIFIC)/$(X_CONFIGURATION)/libcurl.a
 OPENSSL_LIBS := $(OPENSSL_ROOT)/lib/$(X_SPECIFIC)/$(X_CONFIGURATION)/libssl.a $(OPENSSL_ROOT)/lib/$(X_SPECIFIC)/$(X_CONFIGURATION)/libcrypto.a
-SQLITE_LIBS := $(SQLITE3X_ROOT)/lib/$(X_SPECIFIC)/$(X_CONFIGURATION)/libsqlite3x.a $(SQLITE_ROOT)/lib/$(X_SPECIFIC)/$(X_CONFIGURATION)/libsqlite3.a
-ZLIB_LIBS := $(ZLIB_ROOT)/lib/$(X_SPECIFIC)/$(X_CONFIGURATION)/libz.a
-LIBSSH2_LIBS := $(LIBSSH2_ROOT)/lib/$(X_SPECIFIC)/$(X_CONFIGURATION)/libssh2.a
 LIBXML2_LIBS := $(LIBXML2_ROOT)/config_$(X_CONFIGURATION)/build/lib/libxml2.a
-INM_MD5_LIBS := $(INM_MD5_ROOT)/lib/config_$(X_CONFIGURATION)/libinmmd5.a
 
 # ----------------------------------------------------------------------
 # thirdparty build scripts
@@ -81,15 +71,9 @@ INM_MD5_LIBS := $(INM_MD5_ROOT)/lib/config_$(X_CONFIGURATION)/libinmmd5.a
 # NOTE: boost has its own section (see below)
 # ----------------------------------------------------------------------
 ACE_SCRIPT := $(ACE_ROOT)/inmage_config_build
-CDK_SCRIPT := $(CDK_ROOT)/inmage_config_build
 CURL_SCRIPT := $(CURL_ROOT)/inmage_config_build
 OPENSSL_SCRIPT := $(OPENSSL_ROOT)/inmage_config_build
-SQLITE_SCRIPT := $(SQLITE_ROOT)/inmage_config_build
-SQLITE3X_SCRIPT := $(SQLITE3X_ROOT)/inmage_config_build
-ZLIB_SCRIPT := $(ZLIB_ROOT)/inmage_config_build
-LIBSSH2_SCRIPT := $(LIBSSH2_ROOT)/inmage_config_build
 LIBXML2_SCRIPT := $(LIBXML2_ROOT)/inmage_config_build
-INM_MD5_SCRIPT := $(INM_MD5_ROOT)/inmage_config_build
 
 # ----------------------------------------------------------------------
 # thirdparty dependency dirs
@@ -104,15 +88,8 @@ INM_MD5_SCRIPT := $(INM_MD5_ROOT)/inmage_config_build
 # note for ace we only care about what is under the ace dir as that is all
 # we actually build
 ACE_DIR_DEPS := $(shell ./find-dir-deps $(ACE_ROOT)/ace; cat $(ACE_ROOT)/ace/dir_deps)
-CDK_DIR_DEPS := $(shell ./find-dir-deps $(CDK_ROOT); cat $(CDK_ROOT)/dir_deps)
 CURL_DIR_DEPS := $(shell ./find-dir-deps $(CURL_ROOT); cat $(CURL_ROOT)/dir_deps )
-OPENSSL_DIR_DEPS := $(shell ./find-dir-deps $(OPENSSL_ROOT); cat $(OPENSSL_ROOT)/dir_deps)
-SQLITE_DIR_DEPS := $(shell ./find-dir-deps $(SQLITE_ROOT) ; cat $(SQLITE_ROOT)/dir_deps)
-SQLITE3X_DIR_DEPS := $(shell ./find-dir-deps $(SQLITE3X_ROOT); cat $(SQLITE3X_ROOT)/dir_deps)
-ZLIB_DIR_DEPS := $(shell ./find-dir-deps $(ZLIB_ROOT); cat $(ZLIB_ROOT)/dir_deps)
-LIBSSH2_DIR_DEPS := $(shell ./find-dir-deps $(LIBSSH2_ROOT); cat $(LIBSSH2_ROOT)/dir_deps)
 LIBXML2_DIR_DEPS := $(shell ./find-dir-deps $(LIBXML2_ROOT); cat $(LIBXML2_ROOT)/dir_deps)
-INM_MD5_DIR_DEPS := $(shell ./find-dir-deps $(INM_MD5_ROOT); cat $(INM_MD5_ROOT)/dir_deps)
 
 
 # ----------------------------------------------------------------------
