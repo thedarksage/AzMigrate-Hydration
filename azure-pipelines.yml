@@ -89,6 +89,15 @@ stages:
       ob_linuxSymbolsPublishing_symbolsFolder: '$(REPOROOT)/Symbols'
 
     steps:
+      # install g++ and ncurses-devel
+      - task: CmdLine@2
+        inputs:
+          script: |
+            sudo apt-get install g++
+            
+            sudo apt-get install lncurses-dev
+          failOnStderr: true
+
       # Build AzureRecoveryUtil binary.
       - task: Bash@3
         displayName: 'Build AzureRecoveryUtil Binary'
