@@ -1,0 +1,26 @@
+#!/bin/sh
+
+# generates dependency rules for all the source files passed in
+# $1 contains the the output directory
+# the remainder of the command line contains the list of source files
+# that you want to generate the dependenci
+
+OUTPUT="$1"
+
+DIR=`dirname "$OUTPUT"`
+
+shift 1
+
+if [ "$DIR" != "" ] ; then 
+	 mkdir -p "$DIR"
+fi
+
+case "$DIR" in 
+    "" | ".")
+		  g++ -MM -MG "$@" | sed -e 's@^\(.*\)\.o:@\1.d \1.o:@' > "$OUTPUT"
+		  ;;
+	 *)
+		  g++ -MM -MG "$@" | sed -e "s@^\(.*\)\.o:@$DIR/\1.d $DIR/\1.o:@"  > "$OUTPUT"
+		  ;;
+esac
+

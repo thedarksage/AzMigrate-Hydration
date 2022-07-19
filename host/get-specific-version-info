@@ -1,0 +1,110 @@
+#!/bin/sh
+
+# try to determine the OS version and g++ version
+# these are combined to generate a unique name for where thridparty libs should be
+# located. this way we can build them for each combination, have them checked
+# into cvs and have the make systems use the correct libs for the version/g++ that
+# is being used.
+
+osVersion=
+gccVersion=
+
+osName=`uname`
+
+PrintVersion ()
+{
+	 echo "${osVersion}g++_${gccVersion}"
+}
+
+GetGccVersion () 
+{
+	 if [ `uname` = "Linux" ] ; then
+	 	gccVersion=`g++ --version | grep g++ | grep -o "[0-9]*\.[0-9]*\.[0-9]" | tr -d " "`
+		gccVersion=`echo $gccVersion | cut -d" "  -f1`
+         else
+         	gccVersion=`g++ --version | grep g++ | cut -d' ' -f3`
+         fi
+
+	 if [ -z "${gccVersion}" ] ; then
+		  echo "ERROR: g++ not found"
+		  exit -1
+	 fi
+}
+
+GetVersionLinux ()
+{
+	 suseRelease="/etc/SuSE-release"
+	 redhatRelease="/etc/redhat-release"
+	 debianRelease="/etc/debian_version"
+	 gentooRelease="/etc/gentoo-release"
+	 osRelease="/etc/os-release"
+
+	 if [ -f "${suseRelease}" ] ; then
+		  version=`cat ${suseRelease} | grep -v "^#" | sed -e 's/ \| = /_/g' | sed -e 's/(\|)//g' | tr '\n' '_'`
+	 elif [ -f "${redhatRelease}" ] ; then
+		  version=`cat ${redhatRelease} | sed -e 's/ \| = /_/g' | sed -e 's/(\|)//g' | tr '\n' '_'`;
+	 elif [ -f "${gentooRelease}" ] ; then
+		  version=`cat ${gentooRelease} | sed -e 's/ \| = /_/g' | sed -e 's/(\|)//g' | tr '\n' '_'`;
+	 elif [ -f "${debianRelease}" ] ; then
+		  version="Debian_`cat $debianRelease`"
+	 elif [ -f "${osRelease}" ] ; then
+		  version=`cat ${osRelease} | grep "PRETTY" | cut -d'"' -f2 | sed -e 's/\s/_/g' | sed -e 's/$/_/'`
+	 else
+		  return
+	 fi
+
+	arch=`uname -m`
+	osVersion="${version}${arch}_"
+}
+
+GetVersionHpux ()
+{
+	 osVersion=`uname -r -m | tr '/ ' '__'`
+	 osVersion="${osName}_${osVersion}_"
+}
+
+GetVersionSolaris ()
+{
+	 osVersion=`cat /etc/release | /usr/bin/egrep -i "OpenIndiana|Solaris" | sed 's/^[ \t]*//' | sed -e 's/ /_/g' | sed -e 's/(/_/g' | sed -e 's/)/_/g' | tr '/\n' '__'`
+}
+
+GetVersionAix ()
+{
+	 osVersion=`oslevel`
+
+	 if [ -z "${osVersion}" ] ; then
+		  return
+	 fi
+
+	 osVersion="${osName}_${osVersion}_"
+}
+
+# get gcc version first
+GetGccVersion
+
+# get OS version info
+case "${osName}" in
+	 HP-UX) 
+		  GetVersionHpux
+		  ;;
+	 AIX) 
+		  GetVersionAix
+		  ;;
+	 SunOS) 
+		  GetVersionSolaris
+		  ;;
+	 Linux) 
+		  GetVersionLinux
+		  ;;
+	 *)
+		  echo "ERROR: unsupported OS ${osName}"
+		  exit -1
+		  ;;
+esac
+
+if [ -z "${osVersion}" ] ; then
+	 echo "ERROR could not find version release info for ${osName}"
+	 exit -1
+fi
+
+PrintVersion
