@@ -1,0 +1,381 @@
+#!/bin/sh
+
+###############################################################
+# SECTION: FUNCTIONS USED IN UNINSTALLING AN AGENT => 3.5.2
+###############################################################
+
+# exporting LANG variable
+LANG=C
+export LANG
+
+# FUNCTION : Carries out a command and logs output into an uninstall log
+DO()
+{
+ eval "$1 2>&1 | tee -a $UNINST_LOG"
+}
+
+# FUNCTION : Echoes a command into an uninstall log
+LOG()
+{
+ echo "$1" >> $UNINST_LOG
+}
+
+# FUNCTION : Print message and quit
+SEE_LOG()
+{
+ DO 'echo && echo "Check the log file $UNINST_LOG for detailed diagnostic messages during uninstallation ..."'
+ exit $2
+}
+
+Usage() {
+    echo
+    echo "Usage: $0 [ -Y ] [ -L <Absolute path of the log file (default:/var/log/ua_uninstall.log)> ] [ -h ]"
+    echo && exit 1
+}
+
+# FUNCTION : Set the value for parent dir of startup directory, based on OS
+# Value is same for HP-UX and HP-UX Itanium
+Set_Startup_Parent_Dir()
+{
+ case `uname` in
+   Linux|AIX|SunOS)	STARTUP_PARENT_DIR="/etc";;
+   HP-UX)		STARTUP_PARENT_DIR="/sbin";;
+ esac
+}
+
+# FUNCTION : Deletes any existing symbolic links in the "init" and "rc" or their equivalent folders, based on OS
+Delete_Symbolic_Links()
+{
+  # Call Set_Startup_Parent_Dir here to set the global variable STARTUP_PARENT_DIR
+  Set_Startup_Parent_Dir
+
+  # Handle all OSes
+  case `uname` in
+    Linux|SunOS)        
+        # Remove links from "rc.d" folders
+        if [ -f /etc/lsb-release ] || [ -f /etc/debian_version ]; then
+            if [ -f /etc/debian_version ] && grep -q '6.0.1' /etc/debian_version ; then
+                echo "Removing svagent service using insserv -r."
+                insserv -r svagent
+            else
+                update-rc.d -f svagent remove >> $UNINST_LOG  2>&1
+            fi
+        else
+            chkconfig svagent off >/dev/null 2>&1 
+            chkconfig --del svagent >/dev/null 2>&1
+            find /etc/rc.d/ -type l -name "S*svagent" -exec rm -f {} \; >/dev/null 2>&1
+            find /etc/rc.d/ -type l -name "K*svagent" -exec rm -f {} \; >/dev/null 2>&1
+        
+        fi
+        rm -f /etc/init.d/svagent 2>/dev/null
+    ;;
+    AIX)
+        # Remove fxagent entry from /etc/inittab and remove /usr/local/.start_fxagent.sh.
+        rmitab fxagent
+        rm -f /usr/local/.start_fxagent.sh
+    ;;
+  esac
+}
+
+# FUNCTION : Deletes any job logs from the installation dir
+Delete_Job_Logs()
+{
+ # Grab current installation dir
+ [ -z "$1" ] && DO 'echo "Exiting from Delete_Job_Logs: CURRENT INSTALLATION DIR NOT SPECIFIED!"' && SEE_LOG 1
+ CUR_INST_DIR="$1"
+ # Get count of job logs in current installation dir
+ JOB_LOG_COUNT=`ls ${CUR_INST_DIR}/*_job_*.log 2>/dev/null | wc -l | cut -f2`
+ # If count is non-zero, then prompt user and ask for permission to delete them
+
+ if [ $JOB_LOG_COUNT -ne 0 -a $SILENT_UNINSTALL = "no" ]; then
+        echo "Current Installation has $JOB_LOG_COUNT job log files. Delete them? (Y/N) [default Y]: " | tr -d "\n"
+        read ans && [ -z "$ans" ] && ans='Y'
+
+        until [ "$ans" = "Y" -o "$ans" = "y" -o "$ans" = "n" -o "$ans" = "N" ]
+        do
+                echo "Invalid option ..."
+                echo "Current Installation has $JOB_LOG_COUNT job log files. Delete them? (Y/N) [default Y]: " | tr -d "\n"
+                read ans && [ -z "$ans" ] && ans='Y'
+        done
+ else
+	ans='Y'
+ fi
+
+ case $ans in
+	y|Y) find ${CUR_INST_DIR} -name "*_job_*.log" -exec rm -f {} \; ;;
+ esac
+
+ JOB_LOG_COUNT=`ls ${CUR_INST_DIR}/*_job_*.log 2>/dev/null | wc -l | cut -f2`
+
+}
+
+# FUNCTION : Deletes the metadata from REF_DIR
+Delete_Meta_Data()
+{
+ # Remove /usr/local/.pillar in case of AXIOM AGENT build.
+ AXIOM_AGENT=`grep AXIOM_AGENT ${REF_DIR}/${INST_VERSION_FILE} 2>/dev/null | cut -d'=' -f2`
+ if [ "${AXIOM_AGENT}" = "yes" ]; then
+    rm -f /usr/local/.pillar
+ fi
+
+ LOG "Removing ${REF_DIR}/${INST_VERSION_FILE}..."
+ LOG "Removing ${REF_DIR}/${BUILD_MANIFEST_FILE}..."
+ LOG "Removing ${REF_DIR}/${INST_MANIFEST_FILE}..."
+ rm -f "${REF_DIR}/${INST_VERSION_FILE}" "${REF_DIR}/${BUILD_MANIFEST_FILE}" "${REF_DIR}/${INST_MANIFEST_FILE}" 1>/dev/null 2>/dev/null
+ [ $? -eq 0 ] && DO 'echo "Metadata files removed successfully..."'
+ LOG ""
+}
+
+##########################################################
+# MAIN ENTRY POINT FOR THIS UNINSTALLATION PROGRAM
+##########################################################
+
+
+# Prompt the user to confirm whether to proceed to uninstall the agent really
+#Parse command line options if given
+if echo $1 | grep -q '^-' ; then
+    while getopts :L:hY OPT
+    do
+        case $OPT in
+            L)  LOG_FILE="$OPTARG"
+                if expr "$LOG_FILE" : '-.' > /dev/null; then
+                    echo "Option -$OPT requires an argument." && Usage
+                fi
+            ;;
+            Y)  SILENT_UNINSTALL="yes" ;;
+            h|-*|*) Usage ;;
+        esac
+    done
+elif [ "$1" = "" ]; then
+    SILENT_UNINSTALL="no"
+else
+    Usage
+fi
+
+if  [ -z "$SILENT_UNINSTALL" -o "$SILENT_UNINSTALL" = "no" ] ; then
+    # If no option is specified, then the default is interactive    
+    echo
+    agree=""
+    while [ "X$agree" = "X" ]; do
+        echo -n "Do you really want to uninstall the FX agent? (Y/N) [default N] : "
+        read ans
+        [ -z "$ans" ] && ans="N"
+        case $ans in
+            [Yy]) agree=Yes ;;
+            [Nn]) echo "Bye..." && exit 1 ;;
+            *) echo -e "Error: Invalid input.\n"
+            continue
+            ;;
+        esac
+    done
+fi
+
+##########################################
+# SECTION: VARIABLES USED IN THIS PROGRAM
+##########################################
+STARTUP_PARENT_DIR=
+REF_DIR="BUILDTIME_VALUE_REF_DIR"
+INST_VERSION_FILE="BUILDTIME_VALUE_INST_VERSION_FILE"
+BUILD_MANIFEST_FILE="BUILDTIME_VALUE_BLD_MANIFEST_FILE_NAME"
+INST_MANIFEST_FILE="RUNTIME_VALUE_INST_MANIFEST_FILE_NAME"
+DATE_TIME_SUFFIX=`date +%d_%b_%Y_%H_%M_%S`
+OS="SET_OS_PLACE_HOLER"
+if [ `uname` = "Linux" ]; then
+	if [ -f /etc/SuSE-release ] || [ -f /etc/redhat-release ] ; then	
+        RPM_PACKAGE="BUILDTIME_VALUE_RPM_PACKAGE"
+    fi
+fi
+
+if [ -z "$LOG_FILE" ]; then 
+    if [ ! -d /var/log ]; then 
+       mkdir -p /var/log >/dev/null 2>&1
+    fi
+    UNINST_LOG="/var/log/ua_uninstall.log"
+elif [ "`echo $LOG_FILE | cut -c1`" != "/" ]; then
+    DO 'echo'
+    DO 'echo "Error: Unintallation logfile must be an absolute path (i.e. beginning with a \"/\")."'
+    Usage
+else
+    LOG_FILE_DIR=`dirname "$LOG_FILE"`
+    if [ ! -d "$LOG_FILE_DIR" ]; then
+        mkdir -p "$LOG_FILE_DIR" >/dev/null 2>&1
+    fi
+    UNINST_LOG="$LOG_FILE"
+fi
+
+if [ -f /usr/local/.install_type ] && [ ! -f /usr/local/unified_uninstall ] ; then
+    DO 'echo "This uninstall script can not be executed directly..."'
+    DO 'echo "Please execute uninstall.sh script"'
+    SEE_LOG 1
+fi
+
+# Grab installation dir from REF_DIR/INST_VERSION_FILE
+# Quit if that file cannot be found.....someone must have tampered with the /usr/local folder (for now)
+[ ! -f ${REF_DIR}/${INST_VERSION_FILE} ] && DO 'echo "Cannot find ${REF_DIR}/${INST_VERSION_FILE}"' && SEE_LOG 1
+
+# Read the installation dir and partner values from the version file
+CURRENT_INSTALLATION_DIR=`grep INSTALLATION_DIR ${REF_DIR}/${INST_VERSION_FILE} | cut -d'=' -f2-`
+
+# Get PID of svfrd if running, based on OS and invoke 'stop'
+PID=`ps -ef | grep svfrd | grep -v grep | awk '{print $2}'`
+
+LOG "FX UNINSTALLATION"
+LOG "********************"
+LOG "-----------------------------------"
+LOG "`date`"
+LOG "-----------------------------------"
+
+if `${CURRENT_INSTALLATION_DIR}/status | grep -q 'is running'` ; then
+    if [ -f /usr/local/.pillar ]; then
+            LOG "Stopping FileAgent Service..."
+    else
+            LOG "Stopping FX Agent Service..."
+    fi
+    # To capture service logs we've used systemctl commmand for RHEL7-64 platform
+    if [ "$OS" = "RHEL7-64" ]; then
+        systemctl stop svagent >/dev/null 2>&1
+        if `systemctl -q is-active svagent` ; then
+            FXSTOP_EXIT_STATUS=2
+        fi        
+    else
+        ${CURRENT_INSTALLATION_DIR}/stop >/dev/null 2>&1
+        FXSTOP_EXIT_STATUS=$?
+    fi
+    if [ $FXSTOP_EXIT_STATUS -eq 2 ]; then
+        DO 'echo ""'
+        DO 'echo "-----------------------------------------------------------------------------"'
+        DO 'echo "  Could not stop Fx agent service. Please re-try after sometime. Aborting... "'
+        DO 'echo "-----------------------------------------------------------------------------"'        
+        SEE_LOG 1
+    fi    
+    
+fi
+
+# Invoke 'unregister' to unregister this agent with the server
+
+if [ -f /usr/local/.pillar ]; then
+	LOG "Unregistering FileAgent with Scout..."
+else
+	LOG "Unregistering FX agent..."
+fi
+LOG ""
+${CURRENT_INSTALLATION_DIR}/unregister
+
+# Clean up the symbolic links created during/post install and any job log files
+LOG "Removing the symbolic links..."
+Delete_Symbolic_Links
+
+LOG "Removing the job log files..."
+Delete_Job_Logs $CURRENT_INSTALLATION_DIR
+
+if [ -f ${CURRENT_INSTALLATION_DIR}/../uninstall.sh ]; then
+       rm -f ${CURRENT_INSTALLATION_DIR}/../uninstall.sh
+fi
+
+if [ -f ${CURRENT_INSTALLATION_DIR}/../Third-Party_Notices.txt ]; then
+    rm -f ${CURRENT_INSTALLATION_DIR}/../Third-Party_Notices.txt
+fi
+
+# Call the OS-specific uninstall program
+case `uname` in
+	Linux)
+		if [ -f /etc/SuSE-release ] || [ -f /etc/redhat-release ] ; then
+			if [ -f /usr/local/.pillar ]; then
+				DO 'echo "" && echo "Removing FileAgent RPM package ..."'
+			else
+				DO 'echo "" && echo "Removing the RPM package ..."'
+			fi
+			rpm -e $RPM_PACKAGE
+		fi
+
+		if [ $? -eq 0 ]; then
+			if [ -f /usr/local/.pillar ]; then
+				DO 'echo "FileAgent RPM package was successfully removed from the machine."' 
+			else
+				DO 'echo "RPM package was successfully removed from the machine."'
+			fi
+
+                 	if [ "$CURRENT_INSTALLATION_DIR" != "/" ]; then
+                     		if [ $JOB_LOG_COUNT -ne 0 ]; then
+		        		ls $CURRENT_INSTALLATION_DIR > list_of_files 2>&1
+                        		find $CURRENT_INSTALLATION_DIR -name "*_job_*.log" > files_to_be_left 2>&1
+                       
+		      			for file in `cat list_of_files`
+	              			do
+		        			cat files_to_be_left | grep -q -w $file
+						if [ $? -eq 0 ]; then
+    			  				:
+  						else
+   			  				if [ "$file" = "list_of_files" -o "$file" = "test.sh" ]; then
+        		    					:
+    			  				else
+			    					rm -rf $file 2>/dev/null
+    			  				fi
+  						fi
+		      			done
+		      			rm -f ${CURRENT_INSTALLATION_DIR}/list_of_files ${CURRENT_INSTALLATION_DIR}/files_to_be_left
+                    		else
+					LOG "Removing the Fx installation directory ${CURRENT_INSTALLATION_DIR}..."
+					LOG ""
+                      			[ "${CURRENT_INSTALLATION_DIR}" != "/" ] && rm -rf ${CURRENT_INSTALLATION_DIR}
+                    		fi
+                  	fi
+                	rm -f ${CURRENT_INSTALLATION_DIR}/.fx_*
+                else
+                	DO 'echo "RPM package $RPM_PACKAGE could not be removed successfully from the machine."'
+                        SEE_LOG 1
+
+                fi
+                ;;
+        *)
+                if [ "$CURRENT_INSTALLATION_DIR" != "/" ]; then
+                	for file_item in `cat ${REF_DIR}/${INST_MANIFEST_FILE}`
+                  	do
+                    		[ -f $file_item ] && rm -f $file_item
+                  	done
+                  	if [ $JOB_LOG_COUNT -ne 0 ]; then
+                    		ls $CURRENT_INSTALLATION_DIR > list_of_files 2>&1
+                    		find $CURRENT_INSTALLATION_DIR -name "*_job_*.log" > files_to_be_left 2>&1
+ 
+                    		for file in `cat list_of_files`
+                    		do
+                      			cat files_to_be_left | grep -w $file
+                      		if [ $? -eq 0 ]; then
+                        		:
+                      		else
+                        		if [ "$file" = "list_of_files" -o "$file" = "test.sh" ]; then
+                          			:
+                        		else
+                          			rm -rf $file 2>/dev/null
+                        		fi
+                      		fi
+                    		done
+		    		rm -f ${CURRENT_INSTALLATION_DIR}/list_of_files ${CURRENT_INSTALLATION_DIR}/files_to_be_left
+                  	else
+				cd
+				LOG "Removing the Fx installation directory ${CURRENT_INSTALLATION_DIR}..."
+				LOG ""
+                    		[ "${CURRENT_INSTALLATION_DIR}" != "/" ] && rm -rf ${CURRENT_INSTALLATION_DIR}
+                  	fi
+		  		rm -f ${CURRENT_INSTALLATION_DIR}/.fx_*
+                fi
+                ;;
+esac
+
+Delete_Meta_Data
+
+if [ ! -f /usr/local/.vx_version ]; then
+    rm -rf /usr/local/InMage/{certs,fingerprints,private}
+fi
+
+echo
+
+if [ -f /usr/local/.pillar ]; then
+	DO 'echo "FileAgent uninstallation successful..."'
+else
+	DO 'echo "FX uninstallation successful..."'
+fi
+
+echo
+exit $?
+

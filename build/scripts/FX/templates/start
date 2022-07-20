@@ -1,0 +1,86 @@
+#!/bin/sh
+
+##########################################################################
+## 
+## This script starts the PARTNER_OR_COMPANY Fx Agent
+## New Changes done as per bug 8181
+##########################################################################
+
+RETVAL=0
+
+##########################################################################
+## Set the ROOT DIRECTORY
+##########################################################################
+ROOT_DIRECTORY=${1:-RUNTIME_INSTALL_PATH}
+	
+##########################################################################
+## Get the PID of svfrd, if already running
+##########################################################################
+PID=`ps -ef | grep svfrd | grep -v grep | awk '{print $2}'`
+
+if [ -z "$PID" ]; then
+
+	if [ -f /usr/local/.pillar ]; then
+		echo "Starting FileAgent daemon....."
+	else
+		echo "Starting FX Agent daemon....."
+	fi
+
+	##########################################################################
+	## Get the Operating System. Accordingly set the variables
+	##########################################################################
+
+	##
+	# Export library path
+	##
+
+   case `uname` in
+
+	AIX)
+		LIBPATH=${ROOT_DIRECTORY}/lib:/lib:/usr/lib:/usr/local/lib:$LIBPATH
+		export LIBPATH 
+		;;
+
+        HP-UX)
+		SHLIB_PATH=${ROOT_DIRECTORY}/lib:/lib:/usr/lib:/usr/local/lib:$SHLIB_PATH
+		export SHLIB_PATH
+		;;
+
+       	SunOS)
+		LD_LIBRARY_PATH=${ROOT_DIRECTORY}/lib:/lib:/usr/lib:/usr/local/lib:$LD_LIBRARY_PATH
+		export LD_LIBRARY_PATH 
+		;;
+
+	Linux)
+		if [ -f /etc/redhat-release ] && grep -q 'Red Hat Enterprise Linux AS release 3' /etc/redhat-release ; then
+			cd $ROOT_DIRECTORY
+			LD_LIBRARY_PATH=${ROOT_DIRECTORY}/lib:/lib:/usr/lib:/usr/local/lib:$LD_LIBRARY_PATH
+			export LD_LIBRARY_PATH
+		fi
+		;;
+   esac
+
+	if [ -f /usr/local/.pillar ]; then
+		echo "Starting svfrd"
+	else
+		echo "Running the command : "
+		echo ${ROOT_DIRECTORY}/svfrd ${ROOT_DIRECTORY}/sv.log ${ROOT_DIRECTORY}/config.ini
+	fi
+
+        # Export LANG variable to en_US.UTF-8
+        LANG=C
+        export LANG
+
+	${ROOT_DIRECTORY}/svfrd ${ROOT_DIRECTORY}/sv.log ${ROOT_DIRECTORY}/config.ini
+	RETVAL=$?
+else
+	
+	if [ -f /usr/local/.pillar ]; then
+		echo "Cannot start FileAgent daemon as it is already running!"
+	else
+		echo "Cannot start FX Agent daemon as it is already running!"
+	fi
+fi
+
+[ "$RETVAL" -eq 0 ] && rm -f /usr/local/.norespawn_svagent >/dev/null 2>&1
+exit ${RETVAL}

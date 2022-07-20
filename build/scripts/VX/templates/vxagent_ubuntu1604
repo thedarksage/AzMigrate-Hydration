@@ -1,0 +1,140 @@
+#!/bin/sh
+
+# This is for RHEL systems
+# processname: ScoutVolumeReplicationAgentService
+# chkconfig: 2345 92 92
+# description: This script is the daemon script for volume replication agent
+
+# This is for SLES systems
+### BEGIN INIT INFO
+# Provides: ScoutVolumeReplicationAgentService
+# Required-Start: $network Scout_vCon_service
+# Required-Stop: umountfs
+# X-Stop-After: Scout_vCon_service
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# Description:   This script is the daemon script for volume replication agent
+### END INIT INFO
+
+# This script can be introduced into runlevel directories by just executing this command:
+# "chkconfig --add vxagent"
+# RHEL chkconfig is a binary executable itself and also behaves well, i.e. the start/stop link numbers remain 92
+# SLES chkconfig is a perl wrapper over insserv which is not at all under our control when it comes to link numbers
+# TODO - So for SLES we have to use dependency mechanism
+# For now, after running chkconfig, rename links to S92 and K92
+
+# Adding bin dirs to PATH for 'sleep' command
+PATH=/bin:/sbin:/usr/sbin:/usr/bin:$PATH
+export PATH
+
+get_runlevel()
+{
+    # Check for systemd
+    which systemctl > /dev/null 2>&1
+    if [ $? -eq 0 ]
+    then
+        # The 'runlevel' command in systemd works different than
+        # sysvinit runlevels. On systemd, the a specific runlevel
+        # is only returned when it is reached, while sysvinit would
+        # return it as soon as the switch was requested. IOW, runlevel
+        # is changed at start in sysv init and at the end by systemd
+        # so we cant rely on runlevel command for systemd
+        #
+        # We check if shutdown.target (common for reboot and poweroff)
+        # is currently active to set appropriate runlevel. Current logic
+        # does not distinguish between poweroff and reboot and always
+        # marks runlevel=0 == poweroff. Similarly, it always returns
+        # runlevel=3 == multiuser+nw even for graphical env or single
+        # user mode. This needs to be changed if finer distinction is 
+        # required.
+        #
+        systemctl list-units --type=target | grep start | grep -q "shutdown\.target" && RUNLEVEL=0 || RUNLEVEL=3
+    else
+        # RUNLEVEL variable is set only when this control script is invoked by init
+        # Other times, we have to fetch the runlevel ourselves
+        RUNLEVEL=${RUNLEVEL:-`/sbin/runlevel | cut -d' ' -f2`}
+    fi
+}
+
+#SUSE11 DRIVER LD OPTION
+if [ -f /etc/SuSE-release ] &&  grep -q 'VERSION = 11' /etc/SuSE-release ; then
+        OSN=SLES11
+fi
+
+case "$1" in
+
+	start)
+        get_runlevel
+		case "$RUNLEVEL" in
+			2|3|5)
+				RUNTIME_INSTALL_PATH/bin/start
+				RETVAL=$?
+				;;
+		esac
+
+                # Touch /var/lock/subsys/vxagent only if the OS is non-debian
+                if [ ! -e /etc/debian_version ] ; then
+		   [ ! -f /var/lock/subsys/vxagent ] && mkdir -p /var/lock/subsys && touch /var/lock/subsys/vxagent
+                fi
+		;;
+
+	stop)
+		RUNTIME_INSTALL_PATH/bin/stop
+		RETVAL=$?
+
+        get_runlevel
+		if [ "$RUNLEVEL" = "6" -o "$RUNLEVEL" = "0" ]; then
+
+			# Run the followig script which will takecare of loading drivers
+			# on undated kernels
+			RUNTIME_INSTALL_PATH/bin/check_drivers.sh
+
+			if [ $RETVAL -ne 0 ]; then
+				RUNTIME_INSTALL_PATH/bin/stop force
+				RETVAL=$?
+				rm -f /InMageAgent*
+			fi
+	
+			# To avoid the system hang due to semaphore. Request from Jayesh Shah.
+			# Added by Samyuktha on 20-01-2009.
+			/bin/rm -f /dev/shm/sem.drscoutconfig 2>/dev/null
+	
+			RUNTIME_INSTALL_PATH/bin/cdpcli --vsnap --op=unmountall --softremoval > /dev/null 2>&1
+			RUNTIME_INSTALL_PATH/bin/cdpcli --virtualvolume --op=unmountall --softremoval --checkfortarget=no > /dev/null 2>&1
+                        # Remove /var/lock/subsys/vxagent only if the OS is non-debian
+                        if [ ! -e /etc/debian_version ] ; then
+			   rm -f /var/lock/subsys/vxagent
+                        fi
+
+			/bin/bash /etc/vxagent/bin/involflt.sh preshutdown
+            if [ -f /etc/SuSE-release ] &&  grep -q 'VERSION = 11' /etc/SuSE-release && grep -q "PATCHLEVEL = 3" /etc/SuSE-release
+            then
+			BOOT_INMAGE_SERVICE=`find /etc -name "S*boot.inmage" | xargs basename 2>/dev/null`
+			BOOT_INMAGE_PATH=`find /etc -name "S*boot.inmage" | xargs dirname 2>/dev/null`
+			if [ -n "$BOOT_INMAGE_SERVICE" -a -n "$BOOT_INMAGE_PATH" ] ; then
+				mv $BOOT_INMAGE_PATH/$BOOT_INMAGE_SERVICE $BOOT_INMAGE_PATH/S00boot.inmage
+			fi
+            fi
+		fi
+
+		;;
+
+	restart)
+		RUNTIME_INSTALL_PATH/bin/stop
+		sleep 5
+		RUNTIME_INSTALL_PATH/bin/start
+		RETVAL=$?
+		;;
+
+	status)
+		RUNTIME_INSTALL_PATH/bin/status
+		RETVAL=$?
+		;;
+
+	*)
+		echo "Usage: $0 {start|stop|restart|status}"
+		exit 1
+		;;
+esac
+
+exit $RETVAL

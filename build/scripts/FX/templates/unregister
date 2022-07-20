@@ -1,0 +1,61 @@
+#!/bin/sh
+
+##########################################
+# SECTION: VARIABLES USED IN THIS PROGRAM
+##########################################
+REF_DIR="BUILDTIME_VALUE_REF_DIR"
+INST_VERSION_FILE="BUILDTIME_VALUE_INST_VERSION_FILE"
+
+##########################################################
+# MAIN ENTRY POINT FOR THIS UNREGISTRATION PROGRAM
+##########################################################
+
+# Grab installation dir from REF_DIR/INST_VERSION_FILE
+# Quit if that file cannot be found.....someone must have tampered with the REF_DIR folder
+[ ! -f ${REF_DIR}/${INST_VERSION_FILE} ] && echo "Cannot find ${REF_DIR}/${INST_VERSION_FILE}" && exit 1
+
+# Read the installation dir and partner values from the version file
+CURRENT_INSTALLATION_DIR=`grep INSTALLATION_DIR ${REF_DIR}/${INST_VERSION_FILE} | cut -d'=' -f2-`
+
+# Exit if unregfragent is already running.
+PID=`ps -ef | grep unregfragent | grep -v grep | awk '{print $2}'`
+
+if [ ! -z "$PID" ]; then
+	# unregfragent is already running...so quit!
+	echo && echo "Cannot unregister FX agent as an unregister process ('unregfragent') is already running."
+	exit 1
+else
+	# Trigger an unregister now...
+	# Based on the OS, set library path to default shipped 'lib'
+	# Bug 8181, only setting library paths for unix and it is removed for linux OSes as it is not required. 
+	# as static linking is implemented for all platforms.
+	case `uname` in
+		SunOS)
+			LD_LIBRARY_PATH=${CURRENT_INSTALLATION_DIR}/lib:/lib:/usr/lib:/usr/local/lib:$LD_LIBRARY_PATH
+			export LD_LIBRARY_PATH
+			;;
+		AIX)
+			LIBPATH=${CURRENT_INSTALLATION_DIR}/lib:/lib:/usr/lib:/usr/local/lib:$LIBPATH
+			export LIBPATH 
+			;;
+		HP-UX)
+			SHLIB_PATH=${CURRENT_INSTALLATION_DIR}/lib:/lib:/usr/lib:/usr/local/lib:$SHLIB_PATH
+			export SHLIB_PATH
+			chatr +s enable ${CURRENT_INSTALLATION_DIR}/unregfragent 2>/dev/null
+			;;	
+		Linux)
+			if [ -f /etc/redhat-release ] && grep -q 'Red Hat Enterprise Linux AS release 3' /etc/redhat-release ; then
+				cd ${CURRENT_INSTALLATION_DIR}
+				LD_LIBRARY_PATH=${CURRENT_INSTALLATION_DIR}/lib:/lib:/usr/lib:/usr/local/lib:$LD_LIBRARY_PATH
+				export LD_LIBRARY_PATH
+			fi
+			;;
+
+	esac
+
+	# Invoke unregfragent now
+	${CURRENT_INSTALLATION_DIR}/unregfragent filereplication ${CURRENT_INSTALLATION_DIR}/sv.log ${CURRENT_INSTALLATION_DIR}/config.ini >/dev/null 2>&1 <<EOF
+Y
+EOF
+exit $?
+fi

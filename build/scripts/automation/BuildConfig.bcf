@@ -1,0 +1,19 @@
+BEGIN
+	branch=BRANCH_NAME
+	partner=inmage
+	cvsupdate=no
+	products=ua,asrua,pi,cx,cx_tp,ucx,asrsetup,psmsi
+	srcpath=SRCPATH_VALUE
+	buildcopypath=H:\BUILDS\Daily_Builds\BRANCH_NAME\HOST
+	incremental=INC_VALUE
+	buildphase=GA
+	buildquality=RELEASE
+	majorversion=9
+	minorversion=50
+	patchsetversion=0
+	patchversion=0
+	config=CONFIG_VALUE
+	loadsymbols=yes
+	symbolserverpath=G:\symserv\BRANCH_NAME
+	signing=complete
+END

@@ -1,0 +1,137 @@
+#!/bin/sh
+
+PATH=/bin:/sbin:/usr/sbin:/usr/bin:$PATH
+export PATH
+
+##########################################################################
+## 
+## This script starts the InMage Vx Agent
+##
+##########################################################################
+force_start=$1
+
+RETVAL=0
+
+# Start the below script to initialize and do the boot time stacking
+/etc/vxagent/bin/involflt.sh start flt_start_$(date +%Y%m%d%H%M%S).log
+
+##########################################################################
+## Set the ROOT DIRECTORY
+##########################################################################
+ROOT_DIRECTORY=RUNTIME_INSTALL_PATH
+Agent_Type=`cat ${ROOT_DIRECTORY}/etc/drscout.conf | grep Role | cut -d"=" -f2`
+OS=`grep ^OS_BUILT_FOR /usr/local/.vx_version | cut -d "=" -f2`
+
+verify_status() {
+    . ${ROOT_DIRECTORY}/bin/status
+    if [ "$RET_SVAGENT" = "0" -a "$RET_APP" = "0" ]; then
+       rm -f /usr/local/.norespawn_vxagent >/dev/null 2>&1
+       exit 0
+    fi
+}
+
+verify_status
+
+echo
+
+echo "Starting VX Agent daemon..."
+
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${ROOT_DIRECTORY}/lib
+export LD_LIBRARY_PATH
+
+# Set open files limits to 8192
+ulimit -n 8192
+
+# Set corefile size to unlimited
+ulimit -c unlimited
+
+#From SUSE11 onwards this option is required
+#SUSE11 DRIVER LD OPTION
+if [ -f /etc/SuSE-release ] &&  grep -q 'VERSION = 11' /etc/SuSE-release ; then
+	OSN=SLES11
+	SLES11_DRV_LD_OPTION='--allow-unsupported'
+fi
+
+if [ "$Agent_Type" = "MasterTarget" -a "$OS" = "UBUNTU-16.04-64" ]; then
+    echo "Not trying to load driver as role is MasterTarget and OS is UBUNTU-16.04-64."
+else
+    # Check if involflt is already loaded or not; if not, load it now
+    if ! lsmod | grep -i involflt > /dev/null 2>&1; then
+	bypass_mode=`cat /proc/cmdline | grep -i inmage=0`
+	if [ -z "$bypass_mode" ]; then
+	  echo "Filter driver kernel module is not loaded. Attempting to load it, please wait..."
+	  # Call modprobe to load the kernel module
+	  depmod
+	  if [ "$OSN" = "SLES11" ] ; then
+		modprobe -vs involflt $SLES11_DRV_LD_OPTION
+	  else
+		modprobe -vs involflt > /dev/null 2>&1
+	  fi
+	  # Check whether successfully installed or not
+	  lsmod | grep -i involflt > /dev/null 2>&1
+	  if [ $? -eq 0 ]; then
+	    echo "Filter driver kernel module loaded successfully..."
+	  else
+	    echo "Filter driver kernel module is not loaded..."
+	  fi
+	else
+	  echo "Setup is in bypass mode ..."
+	  if [ ! -z "$force_start" ]; then
+	    echo "Filter driver kernel module is not loaded. Attempting to load it, please wait..."
+	    depmod
+	    cd /lib/modules/`uname -r`/kernel/drivers/char
+	    if [ -e involflt.ko ]; then
+	      insmod involflt.ko > /dev/null 2>&1
+	      lsmod | grep -i involflt > /dev/null 2>&1
+	      if [ $? -eq 0 ]; then
+		echo "Filter driver kernel module loaded successfully..."
+	      else
+		echo "Filter driver kernel module is not loaded..."
+	      fi
+	    fi
+	  else
+	    echo "To load the filter driver execute the start script with argument as "force"  "
+	    exit 0
+	  fi
+	fi
+    fi
+
+    if lsmod | grep -iq involflt; then
+	# Grab the major number of the character device involflt from /proc/devices
+	# Then, create that device here. Minor number is 0.
+	if [ ! -e /dev/involflt ]; then
+		INVOLFLT_MAJ_NUM=`cat /proc/devices | grep involflt | awk '{print $1}'`
+		mknod /dev/involflt c $INVOLFLT_MAJ_NUM 0
+		[ $? -eq 0 ] && echo "Filter device /dev/involflt created successfully..."
+	fi
+    else
+	echo "Filter driver is not loaded. Cannot create /dev/involflt !"
+    fi
+fi
+
+# exporting LANG variable
+LANG=C
+export LANG
+LC_NUMERIC=C
+export LC_NUMERIC
+
+# This is specific to fabric.
+# We are starting the fabricagent along with the svagents
+VX_mode=`cat ${ROOT_DIRECTORY}/etc/drscout.conf | grep AgentMode | cut -d"=" -f2`
+
+if [ "$RET_APP" -eq 1 ] ; then
+    echo "Running the command: "
+    echo ${ROOT_DIRECTORY}/bin/appservice
+    ${ROOT_DIRECTORY}/bin/appservice &
+fi
+
+if [ "$RET_SVAGENT" -eq 1 ]; then
+    echo "Running the command : ${ROOT_DIRECTORY}/bin/svagents"
+    ${ROOT_DIRECTORY}/bin/svagents
+    RETVAL=$?
+fi
+
+echo
+verify_status
+echo
+

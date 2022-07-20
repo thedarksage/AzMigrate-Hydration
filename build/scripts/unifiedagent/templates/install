@@ -1,0 +1,1816 @@
+#!/usr/bin/env bash
+#//--------------------------------------------------------------------
+#//  <copyright file="install" company="Microsoft">
+#//      Copyright (c) Microsoft Corporation. All rights reserved.
+#//  </copyright>
+#//
+#//  <summary>
+#//     This script uses to install linux agent
+#//  </summary>
+#//
+#//--------------------------------------------------------------------
+
+# =====================================================================
+# Global Variable declation
+# =====================================================================
+
+# exporting LANG variable
+export LANG=C
+export LC_NUMERIC=C
+
+starttime=$(date -Iseconds)
+export SETUP_TELEDIR='/var/log/ASRsetuptelemetry'
+export UPLOADED_TELEDIR='/var/log/ASRsetuptelemetry_uploaded'
+export json_file=$SETUP_TELEDIR/ASRinstallsummary_`date '+%Y_%m_%d_%H_%M_%S'`.json
+export televerbose_file=$SETUP_TELEDIR/ASRinstallverbose_`date '+%Y_%m_%d_%H_%M_%S'`.txt
+export installtype="New"
+export DRSCOUT_CONF=""
+export INVOKER="CommandLine"
+export TEMP_SUMMARY_FILE="/tmp/asrinstallsummary.txt"
+THIS_SCRIPT_DIR=`dirname $0`
+export JQPATH="${THIS_SCRIPT_DIR}/jq"
+export exit_code=0
+export RUNID=$(cat /proc/sys/kernel/random/uuid)
+
+umask 0002
+chmod 755 $PWD/OS_details.sh >/dev/null 2>&1
+CURRENT_VERSION="BUILDTIME_CURRENT_VERSION"
+REF_DIR="BUILDTIME_REF_DIR"
+DATE_TIME_STAMP=$(date  +'%d-%b-%Y-%T')
+SCRIPT=`basename $0`
+CURRENT_BLDNUMBER=$(grep -w BUILD_TAG $THIS_SCRIPT_DIR/.vx_version | cut -d'_' -f5)
+CURRENT_BLDVERSION=$(echo $CURRENT_VERSION | awk -F. -v OFS=. '{$3 = "BLDNO"}{ print }' | \
+                    sed -e "s/BLDNO/$CURRENT_BLDNUMBER/g; s/\.//g"|cut -d= -f2)
+tele_current_version=$(awk -F. -v OFS=. '/^VERSION=/{$3 = "BLDNO"}{ print }' $THIS_SCRIPT_DIR/.vx_version | grep -w "^VERSION" | sed -e "s/BLDNO/$CURRENT_BLDNUMBER/g;"|cut -d= -f2)
+OS=$($PWD/OS_details.sh 1)
+HOST_NAME=$(hostname)
+RPM_COMMAND=$(which rpm)
+MIN_ROOT_FREESPACE=2097152
+VX_VERSION_FILE='/usr/local/.vx_version'
+VX_VERSION_BACKUP_FILE='/etc/vxagent/backup/.vx_version'
+FX_VERSION_FILE='/usr/local/.fx_version'
+HOSTID_FILE='/usr/local/.vx_host_id'
+UNIQUE_HOST_ID=""
+INSTALL_LOGFILE='/var/log/ua_install.log'
+DEFAULT_INSTALL_ERRORS_JSON='/var/log/InstallerErrors.json'
+json_errors_file=
+
+# This file contains Telemetry APIs which are common for install and
+# configurator scripts. As each can have its own variable for verbose file
+# expecting those scripts to set VERBOSE_LOGFILE so that common file can
+# access verbose filename using VERBOSE_LOGFILE variable and send to CS
+VERBOSE_LOGFILE="$INSTALL_LOGFILE"
+
+CHOSEN_DEPLOY_DIR='/usr/local/ASR'
+LOCK_FILE="${THIS_SCRIPT_DIR}/.install.lck"
+ACTION_TO_BE_PERFORMED=""
+SILENT_ACTION=false
+UPGRADENOTSUPPORTED=11
+
+FailedWithErrors=97
+SucceededWithWarnings=98
+
+source $THIS_SCRIPT_DIR/teleAPIs.sh
+
+# set_scenario and SetOP sets these values, must be set appropriately
+# before calling RecordOP
+# Note: Don't move these variables to common file teleAPIs.sh because
+# in bash child can only read parent script variables
+SCENARIO_NAME="PreInstall"
+OP_NAME="InstallStarted"
+
+#
+# Function Name: Detect_Platform
+#
+# Description:
+#    This function will detect the VM platform (Azure/VmWare)
+#
+# Parameters:None
+#
+# Return Value:
+#
+# Exceptions:None
+#
+Detect_Platform()
+{
+    trace_log_message -q "Detecting VM Platform."
+    tag=$(cat /sys/devices/virtual/dmi/id/chassis_asset_tag 2>/dev/null)
+    trace_log_message -q "dmi chassis asset tag = $tag"
+    if [ "$tag" = "7783-7084-3265-9085-8269-3286-77" ] && [ ! is_azure_stack_platform ] ; then
+        HW_PLATFORM="Azure"
+    else
+        HW_PLATFORM="VmWare"
+    fi
+    trace_log_message -q "Platform detected by installer: ${HW_PLATFORM}"
+}
+
+#
+# Function Name: Assign_Platform
+#
+# Description:
+#    This function will assign the VM platform (Azure/VmWare) if not 
+#    passed as command line param. For existing installs it reads
+#    from drscout.conf and new installs reads from DMI chassis tag
+#
+# Parameters:None
+#
+# Return Value: 
+#
+# Exceptions:None
+#
+Assign_Platform()
+{
+    # Detect platform and write it into install log.
+    Detect_Platform 
+
+    if [ -z "$VM_PLATFORM" ]; then
+        trace_log_message -q "User did not pass platform."
+    else
+        trace_log_message -q "User passed platform as $VM_PLATFORM"
+        if [ "${HW_PLATFORM}" != "${VM_PLATFORM}" ]; then
+            # this should the case for VMware/Physical VM that failed over to Azure but not an error
+            trace_log_message -q "User passed platform $VM_PLATFORM does not match hardware platform $HW_PLATFORM"
+        fi
+        return
+    fi
+
+    if is_agent_installed "Vx" ; then
+        # Fetch Platform value from drscout.conf during upgrade.
+        # A2A has platform value available in drscout.conf from base version.
+        # Prior to 9.9 for V2A, platform value is not available in drscout.conf, so treating default value as VmWare.
+
+        trace_log_message -q "Assigning platform from drscout.conf."
+        DRSCOUT_PLATFORM=$(grep ^VmPlatform ${vx_instdir}/etc/drscout.conf | cut -d"=" -f2 | tr -d " ")
+        trace_log_message -q "DRSCOUT_PLATFORM = $DRSCOUT_PLATFORM"
+
+        if [ -z "$DRSCOUT_PLATFORM" ]; then
+            VM_PLATFORM="VmWare"
+        else
+            VM_PLATFORM="$DRSCOUT_PLATFORM"
+        fi
+    else
+        trace_log_message -q "Assigning platform to hardware platform."
+        VM_PLATFORM=${HW_PLATFORM}
+        [ "$VM_PLATFORM" = "Azure" ] && AGENT_ROLE="MS"
+    fi
+
+    trace_log_message -q "Platform assigned by setup: ${VM_PLATFORM}"
+}
+
+#
+# Function Name: dump_vxagent_logs
+#
+# Return Value: None
+#
+dump_vxagent_logs() {
+    trace_log_message -q "Running Vx related processes."
+    ps -ef | grep Vx | grep -v grep >> ${INSTALL_LOGFILE} 2>&1
+
+    for process in svagents s2 vacp dataprotection appservice cachemgr cdpmgr evtcollforw DataProtectionSyncRcm
+    do
+        pid=`pgrep ${process}`
+        if [ -z "${pid}" ]; then
+            continue
+        fi
+
+        trace_log_message -q "Process ${process} is still running."
+        if [ -f "/proc/${pid}/stack" ]; then
+            trace_log_message -q "The stack is as follows:"
+            cat /proc/${pid}/stack >> ${INSTALL_LOGFILE} 2>&1
+        fi
+
+        if [ "$1" != "force" ]; then
+            continue
+        fi
+
+        LogDir="/var/log"
+        LogFile="${process}_curr_*.log"
+        case "${process}" in
+            svagents|s2|appservice)
+                ;;
+            evtcollforw)
+                LogFile="evtcollforw.log"
+                ;;
+            cachemgr)
+                LogFile="CacheMgr.log"
+                ;;
+            cdpmgr)
+                LogFile="CDPMgr.log"
+                ;;
+            vacp)
+                LogDir="/var/log/ApplicationPolicyLogs"
+                LogFile="vacp.log"
+                ;;
+            dataprotection|DataProtectionSyncRcm)
+                LogDir="/var/log/vxlogs/resync"
+                ;;
+            *)
+                trace_log_message -q "${process} is not getting tracked for dumping the logs"
+                ;;
+        esac
+
+        if [ ! -e "${LogDir}" ]; then
+            trace_log_message -q "The directory ${LogDir} doesn't exist and so unable to collect the logs for process ${process}"
+            continue
+        fi
+
+        for log_file in `find ${LogDir} -name ${LogFile}`
+        do
+            file_size=`stat -c %s ${log_file}`
+            if [ ${file_size} -eq "0" ]; then
+                continue
+            fi
+
+            trace_log_message -q "Log file ${log_file}"
+            trace_log_message -q "=============START==================="
+            tail -n 50 ${log_file} >> ${INSTALL_LOGFILE} 2>&1
+            trace_log_message -q "==============END===================="
+        done
+    done
+}
+
+# 
+# Function Name: stop_agent_service
+# 
+# Description:
+#    This function stops the Unified agent (Vx/Fx) services. 
+# 
+# Parameters:$agent_name
+# 
+# Return Value: On successful it returns zero, else returns non-zero
+# 
+# Exceptions:None
+# 
+stop_agent_service() {
+    local agent_name="$1"    
+    local return_value=0  
+    
+    case "$agent_name" in
+        Vx)
+            SetOP "StopVxAgent"
+            trace_log_message "Stopping Vx agent service..."
+            touch /usr/local/.norespawn_vxagent >/dev/null 2>&1
+
+            if list_contains "$SYSTEMCTL_DISTRO" "$OS"; then
+                trace_log_message -q "Invoking following command to stop vxagent service - systemctl stop vxagent."
+                systemctl stop vxagent >> ${INSTALL_LOGFILE} 2>&1
+                SVAGENTS_PID=`pgrep svagents`
+                APP_SERVICE_PID=`pgrep appservice`
+                if [ ! -z "$SVAGENTS_PID" ] || [ ! -z "$APP_SERVICE_PID" ]; then
+                    trace_log_message -q "SVAGENT_PID: ${SVAGENTS_PID}, APP_SERVICE_PID: ${APP_SERVICE_PID}"
+                    return_value=2
+                fi
+            else
+                trace_log_message -q "Invoking ${vx_instdir}/bin/stop script to stop vxagent service."
+                ${vx_instdir}/bin/stop >> ${INSTALL_LOGFILE} 2>&1
+                return_value=$?
+            fi
+
+            if [ $return_value -eq 2 ]; then
+                dump_vxagent_logs
+                trace_log_message -q "Passing force argument to stop script."
+                ${vx_instdir}/bin/stop force >> $INSTALL_LOGFILE 2>&1
+                return_value=$?
+                if [ $return_value -eq 2 ]; then
+                    trace_log_message "Could not stop Vx agent service. Please re-try after sometime. Aborting..."
+                    dump_vxagent_logs force
+                    return_value=97
+                    log_to_json_file ASRMobilityServiceInstallerFailedToStopVxagentService "Could not stop Vx agent service"
+                fi
+            fi
+
+            if [ $return_value -eq 0 ]; then
+                RecordOP 0 ""
+            else
+                RecordOP $return_value "Could not stop Vx agent service"
+            fi
+        ;;
+        Fx)
+            SetOP "StopFxAgent"
+            trace_log_message "Stopping Fx agent service..."
+            touch /usr/local/.norespawn_svagent >/dev/null 2>&1
+
+            # Inovke 'systemctl stop svagent' if systemctl exists on the system. Otherwise invoke stop script.
+            which systemctl >/dev/null 2>&1
+            if [ $? -eq 0 ];then
+                trace_log_message -q "Invoking following command to stop svagent service - systemctl stop svagent."
+                systemctl stop svagent >> ${INSTALL_LOGFILE} 2>&1
+                if `systemctl -q is-active svagent` ; then
+                    return_value=2
+                fi
+            else
+                trace_log_message -q "Invoking ${fx_instdir}/stop script to stop svagent service."
+                ${fx_instdir}/stop >> ${INSTALL_LOGFILE} 2>&1
+                return_value=$?
+            fi
+            
+            if [ $return_value -eq 2 ]; then
+                trace_log_message -q "Could not stop Fx agent service. Please re-try after sometime. Aborting..."
+                stopsrv_retval=116
+            fi            
+
+            if [ $return_value -eq 0 ]; then
+                RecordOP 0 ""
+            else
+                RecordOP $return_value "Failed to stop Fx agent service"
+            fi
+        ;;
+    esac
+    trace_log_message -q "$agent_name agent stop service return value : $return_value"
+    return $return_value
+}
+
+# 
+# Function Name: uninstall_agent
+# 
+# Description:
+#    This function uninstall the Fx agent
+#    We have to uninstall Fx agent during upgradation.
+#
+# Parameters:$agent_type
+# 
+# Return Value: On successful it returns zero, else returns non-zero
+# 
+# Exceptions:None
+# 
+uninstall_agent()
+{
+    local agent_name="$1"
+    local install_dir="$2"
+    local return_value=0    
+    
+    case "$agent_name" in
+        Fx)
+            trace_log_message "Uninstalling the $agent_name agent ..."
+            if $($install_dir/uninstall -Y -L $INSTALL_LOGFILE) ; then 
+                trace_log_message "$agent_name agent is uninstalled successfully"                
+            else
+                trace_log_message "$agent_name agent is failed to uninstall."
+                return_value=1
+            fi
+        ;;
+    esac
+    trace_log_message -q "$agent_name agent uninstallation return value : $return_value"
+    return $return_value
+}
+
+get_vx_version_params()
+{
+    trace_log_message -q "ENTERED $FUNCNAME"
+
+    if [ "$#" -ne "1" ]; then
+        trace_log_message -q "Invalid params : $@"
+    fi
+    local VX_FILE=$1
+
+    vx_version=$(grep -w VERSION $VX_FILE | cut -d'=' -f2)
+    vx_instdir=$(grep ^INSTALLATION_DIR $VX_FILE | cut -d"=" -f2 | tr -d " ")
+    INSTALLATION_DIR=${vx_instdir}
+    setup_bldnumber=$(grep -w BUILD_TAG $VX_FILE | cut -d'_' -f5)
+    setup_bldversion=$(awk -F. -v OFS=. '/^VERSION=/{$3 = "BLDNO"}{ print }' $VX_FILE | grep -w "^VERSION" | sed -e "s/BLDNO/$setup_bldnumber/g; s/\.//g"|cut -d= -f2)
+    tele_existing_version=$(awk -F. -v OFS=. '/^VERSION=/{$3 = "BLDNO"}{ print }' $VX_FILE | grep -w "^VERSION" | sed -e "s/BLDNO/$setup_bldnumber/g;"|cut -d= -f2)
+
+    trace_log_message -q "EXITED $FUNCNAME"
+}
+
+check_faulty_driver()
+{
+    trace_log_message -q "ENTERED $FUNCNAME"
+    local ret=0;
+
+    if [ -e $VX_VERSION_FILE ]; then
+        trace_log_message -q "$VX_VERSION_FILE is present"
+        local vx_version=$(grep -w VERSION $VX_VERSION_FILE | cut -d'=' -f2)
+        local agent_ver=`echo $vx_version | cut -f 1-2 -d "."`
+        local setup_bldnumber=$(grep -w BUILD_TAG $VX_VERSION_FILE | cut -d'_' -f5)
+        trace_log_message -q "OS : $OS, kernel version : `uname -r`, agent version : $agent_ver, setup_bldnumber : $setup_bldnumber"
+        trace_log_message -q "agent version : $agent_ver"
+        if [ "$agent_ver" = "9.47" ] || [ "$agent_ver" = "9.48" -a "$setup_bldnumber" -le "6308" ]; then
+            if [ "$OS" = "UBUNTU-20.04-64" -o "$OS" = "DEBIAN10-64" ]; then
+                local ker_maj_ver=`uname -r | cut -f 1 -d "."`
+                local ker_min_ver=`uname -r | cut -f 2 -d "."`
+                if [ "$ker_maj_ver" -eq "5" -a "$ker_min_ver" -ge "8" ]; then
+                    trace_log_message -q "Found faulty driver in OS : $OS"
+                    ret=1
+                fi
+            elif [ "$OS" = "SLES15-64" ]; then
+                if [ -f /etc/SuSE-release ]; then
+                    if grep -q 'VERSION="15-SP3' /etc/SuSE-release; then
+                        trace_log_message -q "Found faulty driver in OS : $OS"
+                        ret=1
+                    fi
+                elif [ -f /etc/os-release ]; then
+                    if grep -q 'VERSION="15-SP3' /etc/os-release; then
+                        trace_log_message -q "Found faulty driver in OS : $OS"
+                        ret=1
+                    fi
+                fi
+            fi
+        fi
+    fi
+
+    trace_log_message -q "EXITED $FUNCNAME"
+    return $ret
+}
+
+#
+# Function Name: is_agent_installed
+# 
+# Description:
+#    This function checks whether Vx/Fx agent is already installed or not
+#    Also this will populates mandatory variables.
+#
+# Parameters:$agent_type
+# 
+# Return Value: On successful it returns zero, else returns non-zero
+# 
+# Exceptions:None
+# 
+is_agent_installed() {
+    local agent_name="$1"    
+    local return_value=0            
+    
+    case "$agent_name" in
+        Vx)
+            if [ -e $VX_VERSION_FILE ]; then
+                installtype="Upgrade"
+                set_scenario "PreUpgrade"
+                trace_log_message -q "$agent_name agent is already installed."
+                get_vx_version_params "$VX_VERSION_FILE"
+
+                DRSCOUT_CONF="${vx_instdir}/etc/drscout.conf"
+                vx_csip=$(grep ^Hostname ${vx_instdir}/etc/drscout.conf | cut -d"=" -f2 | tr -d " ")
+                vx_csport=$(grep ^Port ${vx_instdir}/etc/drscout.conf | cut -d"=" -f2 | tr -d " ")
+                AGENT_ROLE=$(grep "^Role=" ${vx_instdir}/etc/drscout.conf | cut -d= -f2 | tr -d " ")
+            else
+                trace_log_message -q "$agent_name agent is not installed."
+                return_value=1
+            fi
+        ;;
+        Fx)
+            if [ -f $FX_VERSION_FILE  ]; then
+                trace_log_message -q "$agent_name agent is already installed."
+                fx_version=$(grep -w VERSION $FX_VERSION_FILE | cut -d'=' -f2)
+                fx_instdir=$(grep ^INSTALLATION_DIR $FX_VERSION_FILE | cut -d"=" -f2 | tr -d " ")                
+                fx_bldnumber=$(grep -w BUILD_TAG $VX_VERSION_FILE | cut -d'_' -f5)
+                fx_bldversion=$(awk -F. -v OFS=. '/^VERSION=/{$3 = "BLDNO"}{ print }' $VX_VERSION_FILE | grep -w "^VERSION" | sed -e "s/BLDNO/$setup_bldnumber/g; s/\.//g"|cut -d= -f2)
+            else
+                trace_log_message -q "$agent_name agent is not installed."
+                return_value=1
+            fi
+        ;;
+    esac
+    
+    trace_log_message -q "$agent_name agent installation return value : $return_value"
+    return $return_value
+}
+
+#
+# Function Name: cert_generation
+# 
+# Description:
+#    This function will generate requires keys to communicate and get cs fingerprints
+#
+# Parameters:None
+# 
+# Return Value: On successful it returns zero, else returns non-zero
+# 
+# Exceptions:None
+# 
+cert_generation()
+{
+    local return_value=0
+    SetOP "GenerateCertificate"
+    
+    trace_log_message "Generating the certificate."
+    $($PWD/gencert -n ps --dh >> $INSTALL_LOGFILE 2>&1) || return_value=110
+    
+    trace_log_message -q "Certificate generation return value : $return_value"
+    if [ $return_value -eq 0 ]; then
+        RecordOP 0 ""
+    else
+        RecordOP $return_value \
+                 "Certificate generation failed"
+    fi
+    return $return_value    
+}
+
+#
+# Function Name: Disable_Lvm2_lvmetad_Service
+#
+# Description:
+#    This function will disable lvm2-lvmetad service.
+#
+# Parameters:None
+#
+# Return Value: On successfully disabling the service it returns zero, else returns 111 exit code.
+#
+# Exceptions:None
+#
+
+Disable_Lvm2_lvmetad_Service()
+{
+    local return_value=0
+
+    SetOP "DisableLvm2lvmetadService"
+    # Disabling services.
+    for service in lvm2-lvmetad.socket lvm2-lvmetad lvm2-monitor.service
+    do
+        for (( i=0; i<3; i++ ))
+        do
+            trace_log_message -q "Retry count - $i"
+            trace_log_message -q "Stopping $service."
+            systemctl stop $service >> $INSTALL_LOGFILE 2>&1
+            RET_VAL=$?
+            trace_log_message -q "RET_VAL=$RET_VAL"
+            if [ $RET_VAL -eq 0 ];then
+                trace_log_message -q "$service stopped successfully."
+
+                trace_log_message -q "Disabling $service."
+                systemctl disable $service >> $INSTALL_LOGFILE 2>&1
+                Disable_Ret_Val=$?
+                trace_log_message -q "Disable_Ret_Val=$Disable_Ret_Val"
+                if [ $Disable_Ret_Val -eq 0 ];then
+                    trace_log_message -q "$service disabled successfully."
+                    break;
+                else
+                    trace_log_message -q "Unable to disable $service."
+                    sleep 5
+                fi
+            else
+                trace_log_message -q "Unable to stop $service."
+                sleep 5
+            fi
+        done
+
+        # If the services are in running state, exit code 0 is returned.
+        systemctl status $service >> $INSTALL_LOGFILE 2>&1
+        Status_Ret_Val=$?
+        trace_log_message -q "Status_Ret_Val=$Status_Ret_Val"
+        if [ $Status_Ret_Val -eq 0 ];then
+            trace_log_message -q "$service is in running state."
+            return_value=111
+            break;
+        else
+            trace_log_message -q "$service is in inactive state."
+        fi
+    done
+
+    RecordOP $return_value ""
+    trace_log_message -q "Disable_Lvm2_lvmetad_Service return value : $return_value"
+    return $return_value
+}
+
+#
+# Function Name: agent_role_precheck
+# 
+# Description:
+#    This function check whether custom changes are already applied or not
+#
+# Parameters:$AGENT_ROLE
+# 
+# Return Value: On successful it returns zero, else returns non-zero
+# 
+# Exceptions:None
+# 
+agent_role_precheck() {    
+    local agent_role=$AGENT_ROLE
+    local return_value=0
+    SetOP "PreReqMTsupportedOS"
+
+    # Don't allow MT installation if OS is not UBUNTU-20.04-64/UBUNTU-16.04-64/RHEL7.4/CentOS-7.4.
+    if [ "${agent_role}" = "MasterTarget" ] && [ "$OS" != "UBUNTU-16.04-64" ] && [ "$OS" != "UBUNTU-20.04-64" ] && \
+        ! grep -q 'Red Hat Enterprise Linux Server release 7.4\|CentOS Linux release 7.4' /etc/redhat-release ; then
+        trace_log_message "Master Target can not be installed on this platform($OS). Please try installing it on UBUNTU-16.04-64/RHEL7U4-64."
+        return_value=179
+        RecordOP $return_value "Master Target cannot be installed on $OS"
+    return $return_value
+    else
+    trace_log_message -q "Agent role is Master Target and OS is UBUNTU-16.04-64/RHEL7U4-64/CentOS7U4-64. Proceeding ahead."
+        RecordOP 0 ""
+    fi
+   
+    SetOP "PreReqMTCustChanges"
+    if [ "${agent_role}" = "MasterTarget" ]; then
+        trace_log_message "Verifying MasterTarget pre-requisite check..."
+        if [ ! -e /etc/.appliedmtcustomchanges ]; then
+            echo
+            trace_log_message "--------------------------------------------------------------------------------"
+            trace_log_message "ApplyCustomChanges.sh script has to be invoked before installing Master Target. "
+            trace_log_message "Please invoke $PWD/ApplyCustomChanges.sh script and re-try the installation."
+            trace_log_message "--------------------------------------------------------------------------------"
+            return_value=175
+            RecordOP $return_value "ApplyCustomChanges.sh not invoked before installing MT"
+        else
+            trace_log_message -q "Found /etc/.appliedmtcustomchanges. As ApplyCustomChanges.sh is already invoked."
+            RecordOP 0 ""
+        fi
+    else
+        trace_log_message -q "Not checking whether ApplyCustomChanges.sh is invoked or not, as either server is a source agent or it is an upgrade."
+    fi
+    trace_log_message -q "$agent_role role pre-requisite check return value : $return_value"
+    return $return_value
+}
+
+#
+# Function Name: upgrade_prerequisites
+#
+# Description:
+#    This function verifies required prerequisites for agent upgrade.
+#
+# Return Value: On success it returns zero, else returns non-zero
+#
+upgrade_prerequisites() {
+    local return_value=0
+    local errmessage=""
+    SetOP "UpgradePreRequisites"
+
+    DRSCOUT_PLATFORM=$(grep ^VmPlatform ${vx_instdir}/etc/drscout.conf | cut -d"=" -f2 | tr -d " ")
+
+    DrScout_Platform=$(tr [A-Z] [a-z] <<<$DRSCOUT_PLATFORM)
+    Vm_Platform=$(tr [A-Z] [a-z] <<<$VM_PLATFORM)
+
+    DrScout_Platform=`echo $DrScout_Platform | tr -d " "`
+    Vm_Platform=`echo $Vm_Platform | tr -d " "`
+
+    trace_log_message -q "Existing platfrom value: $DrScout_Platform"
+    trace_log_message -q "Platform passed to installer: $Vm_Platform"
+
+    if [ ! -z "$DrScout_Platform" ] && [ "$DrScout_Platform" != "$Vm_Platform" ] ; then
+        trace_log_message -q "User is changing the platform."
+        if [ "$DrScout_Platform" = "vmware" -a "$Vm_Platform" = "azure" ];then
+            trace_log_message -q "Allowing platform change from VmWare to Azure."
+            trace_log_message -q "Setting PlatformChange value to VmWareToAzure in drscout.conf."
+            sed -i -e '/^PlatformChange/d; /^VmPlatform/ a PlatformChange=VmWareToAzure' ${vx_instdir}/etc/drscout.conf
+        else
+            trace_log_message -q "Blocking platform change from Azure to VmWare."
+            trace_log_message "Platform change is not allowed during upgrade."
+            return_value=76
+            errmessage="Platform change not allowed during upgrade"
+        fi
+    elif [ -z "$DrScout_Platform" ]; then
+        trace_log_message -q "Existing platform value is null."
+    else
+        trace_log_message -q "User is upgrading being in the same platform."
+    fi
+
+    if [ "$AGENT_ROLE" = "MasterTarget" -a "$OS" = "UBUNTU-16.04-64" ]; then
+        trace_log_message -q "Checking kernel version"
+        _kernel=`uname -r | cut -f 1-2 -d "."`
+        if [ "$_kernel" != "4.15" ]; then
+            trace_log_message "FAILED: Please retry after upgrading the kernel using following command and rebooting to new kernel"
+            trace_log_message "        apt-get install linux-image-generic-hwe-16.04"
+            return_value=175
+            errmessage="Kernel not upgraded"
+        fi
+    fi
+
+    RecordOP $return_value "$errmessage"
+    trace_log_message -q "Agent upgrade pre-requisite checks return value : $return_value"
+    return $return_value
+}
+
+#
+# Function Name: install_prerequisites
+# 
+# Description:
+#    This function verifies required prerequisites for agent installation
+#      Make sure hostname is not NULL and each hostname entry match with an ip address. Abort if it fails.
+#      Make sure root has at least 2.0 GB of free space . Abort if it fails.
+#      Make sure partition containing the installation directory has at least 250 MB of free space. Abort if it fails.
+#      Make sure installation direcoty has absolute path or full path
+# Parameters:$custom_deploy_path
+# 
+# Return Value: On successful it returns zero, else returns non-zero
+# 
+# Exceptions:None
+# 
+install_prerequisites() {
+    local custom_deploy_path="$1"
+    local return_value=0
+    
+    while true
+    do    
+        # Make sure installation direcoty has absolute path or full path
+        SetOP "PreReqAbsoluteInstallPath"
+        if [ "`echo $custom_deploy_path | cut -c1`" != "/" ]; then
+            trace_log_message -q "Installation directory must be an absolute path (i.e. beginning with a \"/\"). Aborting..."
+            return_value=156
+            RecordOP $return_value "Installation directory must be an absolute path"
+            break
+        fi
+        RecordOP 0 ""
+        
+        # Make sure partition containing the installation directory has at least 250 MB of free space. Abort if it fails.
+        SetOP "PreReqFreeSpaceOnDeployPartition"
+        [ -d "$custom_deploy_path" ] || mkdir -p "$custom_deploy_path" > /dev/null 2>&1
+        deploy_partition=`df $custom_deploy_path | grep "^/" | awk '{print $1}'`
+        free_space_on_deploy_partition=`df -Pk $deploy_partition | sed -n '2p' | awk '{print $4}'`
+        if [ $free_space_on_deploy_partition -lt 256000 ]; then
+            trace_log_message -q "At least 250 MB of free space required on \"$deploy_partition\" to install. Aborting..."
+            [ "${custom_deploy_path}" != "/" ] rm -rf "$custom_deploy_path" >/dev/null 2>&1
+            return_value=97
+            log_to_json_file ASRMobilityServiceInstallerFailedDueToLessSpaceInInstallationDirectory "At least 250 MB of free space required on deploying partition" InstallationDirectory $custom_deploy_path InstallationDevice $deploy_partition AvailableFreeSpace $free_space_on_deploy_partition RequiredFreeSpace 256000
+            RecordOP $return_value "At least 250 MB of free space required on deploying partition"
+            break
+        fi       
+        RecordOP 0 ""
+
+        break
+    done
+    
+    trace_log_message -q "Agent installation pre-requisite checks return value : $return_value"
+    return $return_value  
+}
+
+#
+# Function Name: product_prerequisites
+#
+# Description:
+#    This function validates product pre-requisites.
+# Parameters:$AGENT_ROLE, $INSTALL_ERRORS_JSON
+#
+# Return Value:  0 when all pre-requisites are met, 
+#        99 when one or more pre-requisites are not met,
+#         1 when internal error occurs while validating pre-requisites.
+#
+# Exceptions:None
+#
+product_prerequisites() {
+    local agent_role="$1"
+    local install_errors_json="$2"
+    local return_value=0
+    local Vm_Platform=$(tr [a-z] [A-Z] <<<$VM_PLATFORM)
+    mkdir -p $SETUP_TELEDIR >> $VERBOSE_LOGFILE 2>&1
+    SetOP "ProductPreReqChecks"
+
+    rm -rf $install_errors_json
+    trace_log_message -q ""
+    trace_log_message -q "****** Beginning of pre-requisite checker log **********"
+    ./prereq_check_install.sh -r $agent_role -j $install_errors_json -v $Vm_Platform -l $VERBOSE_LOGFILE >> $VERBOSE_LOGFILE 2>&1
+    RET_VAL=$?
+    trace_log_message -q "****** End of pre-requisite checker log **********"
+    trace_log_message -q ""
+    if [ $RET_VAL -eq 0 ]; then
+        trace_log_message "All product pre-requisties are met."
+    RecordOP 0 ""
+    elif [ $RET_VAL -eq 1 ]; then
+    trace_log_message "One or more product pre-requisites are not met. Please check $install_errors_json file for more details."
+    RecordOP 99 "One or more product pre-requisites are not met"
+    return_value=99
+
+        # Collect summary json file only for V2A command line case. It get pulled by push installer in other cases.
+        if [ "$Vm_Platform" = "VMWARE" ] && [ "$INVOKER" != "pushinstall" ] && [ "$INVOKER" != "vmtools" ]; then
+            trace_log_message -q "Copying ${install_errors_json} to ${SETUP_TELEDIR}."
+            cp -f $install_errors_json $SETUP_TELEDIR/ASRPrereqsSummary_`date '+%Y_%m_%d_%H_%M_%S'`.json
+        fi
+    else
+        trace_log_message "Internal error ocurred while validating product pre-requisites."
+    RecordOP 1 "Internal error ocurred while validating product pre-requisites"
+    return_value=1
+    fi
+
+    return $return_value
+}
+
+#
+#  Function     check_instance()
+#
+#  Description  Ensures that no other instances of this script are 
+#               running.  The results of more than one insctnace of 
+#               this script running simultaneously can produce 
+#               unexpected results.
+#
+#  Notes        If the LOCK_FILE exists, but the process ID does not 
+#               exist, the LOCK_FILE might be errant.  Manually 
+#               confirm that no other instances of the script are 
+#               running before deleting the LOCK_FILE.
+#
+#               The output of the ps -fp command will include a 
+#               header line.  If the number of lines returned from 
+#               the ps command is greater than 1, then the process 
+#               is running.
+#
+# Return Value: On successful it returns zero, else returns non-zero
+#
+check_instance()
+{    
+    trace_log_message -q "Confirming availability through lock file ${LOCK_FILE}"
+    SetOP "CheckAnotherInstanceRunning"
+    local errmessage=""
+    local return_value=0
+
+    if [ -f "${LOCK_FILE}" ]
+    then
+        prev_pid=`cat ${LOCK_FILE}`
+
+        if [ `ps -fp ${prev_pid} | wc -l` -gt 1 ]
+        then
+            trace_log_message "Instance of ${SCRIPT} already running under the process:"
+            ps -fp ${prev_pid} 2>&1 | tee -a ${INSTALL_LOGFILE}
+            return_value=1
+            errmessage="Instance of ${SCRIPT} already running"
+        else
+            trace_log_message "Lock file ${LOCK_FILE} is in an inconsistent state"
+            trace_log_message "Manually check for multiple instances of ${SCRIPT}"
+            trace_log_message "Remove the ${LOCK_FILE} file and re-try OR Kill the previous instance's process and re-try."
+            return_value=1
+            errmessage="Lock file ${LOCK_FILE} is in an inconsistent state"
+        fi
+    else
+        trace_log_message -q "Lock file ${LOCK_FILE} is free, locking file"
+        echo $$ >> ${LOCK_FILE}
+
+        LOCK_FILE_EXISTS=1
+        for (( i=1; i<=3; i++ ))
+        do
+            trace_log_message -q "Retry count - $i."
+            if [ -f ${LOCK_FILE} ]; then
+                trace_log_message -q "Lock file exits."
+                LOCK_FILE_EXISTS=0
+                break;
+            else
+                trace_log_message -q "Lock file didn't exist. Re-trying."
+                sleep 1
+            fi
+        done
+
+        if [ $LOCK_FILE_EXISTS -eq 1 ];then
+            trace_log_message "Could not create lock file. Aborting the installation."
+            RecordOP 1 "Lock file creation failed"
+            return 1
+        fi
+
+        if [ `head -1 ${LOCK_FILE}` = $$ ]
+        then
+            trace_log_message -q "Lock file ${LOCK_FILE} is consistent"
+        else
+            trace_log_message "Lock file ${LOCK_FILE} is in an inconsistent state"
+            trace_log_message "Manually check for multiple instances of ${SCRIPT}."
+            trace_log_message "Remove the ${LOCK_FILE} file and re-try OR Kill the previous instance(s) and re-try."
+            return_value=1
+            errmessage="Lock file ${LOCK_FILE} is in an inconsistent state"
+        fi
+    fi
+
+    RecordOP $return_value "$errmessage"
+    
+    trace_log_message -q "Check instance return value: $return_value"
+    return $return_value    
+}
+
+#
+# Function Name: setup_prerequisites
+# 
+# Description:
+#    This function verifies required prerequisites for agent installation or upgradation
+#       Make sure root user is only allowed to execute the installer script
+#       Make sure operating system is compatible with agent build
+#       Make sure Third-Party_Notices.txt file exists in agent build. Abort if does not exists.
+#       Make sure en_US.utf8 locale is available in host. Abort if does not exists.
+#       
+# Parameters:None
+# 
+# Return Value: On successful it returns zero, else returns non-zero
+# 
+# Exceptions:None
+# 
+setup_prerequisites() {
+    local return_value=0
+
+    while true
+    do    
+        # Make sure root user is only allowed to execute the installer script
+        SetOP "CheckUserPerms"
+        if [ "$EUID" != "0" ] || [ "$(whoami)" != "root" ]; then
+            trace_log_message "Only root user is allowed to install this component. Re-try the installation after logging in as root user."
+            return_value=119
+            RecordOP $return_value \
+                    "Doesn't have permission to install the component"
+            break
+        fi
+        RecordOP 0 ""
+        
+        # Make sure operating system is compatible with agent build
+        SetOP "CheckOSandAgentCompatibility"
+        if [ -z "$OS" ] || ! $(grep -qw $OS$ $PWD/.vx_version); then
+            trace_log_message -q "Current Operating System version: $OS"
+            trace_log_message "Agent you are trying to install/upgrade is not built for $OS, can not be installed on this Operating System. Aborting..."
+            return_value=149
+            RecordOP $return_value \
+                    "Agent not built for running OS $OS"
+            break
+        fi    
+        RecordOP 0 ""
+        
+        # Make sure Third-Party_Notices.txt file exists in agent build. Abort if does not exists.
+        SetOP "CheckThirdPartyNoticesFile"
+        if [ ! -e $PWD/Third-Party_Notices.txt ]; then
+            trace_log_message "Third-Party_Notices.txt file does not exists. Aborting..."
+            return_value=93
+            RecordOP $return_value \
+                    "Third-Party_Notices.txt file does not exists"
+            break
+        fi
+        RecordOP 0 ""
+        
+        # Check for rpm command availability.
+        SetOP "CheckForRPMcmdOnRHELorSLESorOL"
+        if $(echo "$OS" | egrep -q "RHEL|SLES|OL") ; then
+            if [ -z "$RPM_COMMAND" ] ; then 
+                trace_log_message "rpm command does not exist. Install and rpm package and re-try." 
+                return_value=95
+                RecordOP $return_value \
+                         "rpm command does not exist"
+                break
+        else
+            RecordOP 0 ""
+
+        # Check whether rpm database is in consistent state.
+            SetOP "CheckRpmDatabaseState"
+         trace_log_message -q "Verifying rpm database state."    
+
+        "$RPM_COMMAND" --verifydb >> ${INSTALL_LOGFILE} 2>&1
+        if [ $? -eq 0 ]; then
+            trace_log_message -q "RPM database is in consistent state."
+                RecordOP 0 ""
+        else
+            trace_log_message "RPM database is in inconsistent state. Rebuilding..."
+            trace_log_message -q "Verbose output of rpm verify command"
+            "$RPM_COMMAND" -vv --verifydb >> ${INSTALL_LOGFILE} 2>&1
+            trace_log_message -q "The listing of __db* files from /var/lib/rpm"
+            ls /var/lib/rpm/__db* >> ${INSTALL_LOGFILE} 2>&1
+	    trace_log_message -q "Building the RPM database"
+            "$RPM_COMMAND" -vv --rebuilddb >> ${INSTALL_LOGFILE} 2>&1
+
+            "$RPM_COMMAND" --verifydb >> ${INSTALL_LOGFILE} 2>&1
+            if [ $? -eq 0 ]; then
+                trace_log_message -q "RPM database is in consistent state now."
+                RecordOP 0 ""
+            else
+                trace_log_message "RPM database is in inconsistent state. Rebuild it and re-try."
+                log_to_json_file ASRMobilityServiceInstallerRPMDatabaseInconsistent "RPM database is in inconsistent state. Rebuild it and re-try."
+                return_value=$FailedWithErrors
+                RecordOP $return_value \
+                "RPM database is in corrupted state"
+                break
+            fi
+        fi
+            fi
+        fi        
+
+        # Disable Lvm2-lvmetad Service.
+    Agent_Role=$(tr [a-z] [A-Z] <<<$AGENT_ROLE)
+        trace_log_message -q "Agent_Role=${Agent_Role} and OS=$OS"
+    if [ "${Agent_Role}" = "MT" -o "${Agent_Role}" = "MASTERTARGET" ] && [ "$OS" = "UBUNTU-16.04-64" -o "$OS" = "RHEL7-64" ]; then
+            Disable_Lvm2_lvmetad_Service
+            return_value=$?
+            trace_log_message -q "return_value=$return_value"
+            if [ $return_value -ne 0 ]; then
+                break
+            fi
+        fi
+ 
+        break;        
+    done
+    
+    trace_log_message -q "Agent installation common pre-requisite checks return value : $return_value"
+    return $return_value
+}
+
+#
+# Function Name: validate_silent_options
+# 
+# Description:
+#    This function validates command line parameters
+#       
+# Parameters:None
+# 
+# Return Value: On successful it returns zero, else returns non-zero
+# 
+# Exceptions:None
+# 
+validate_silent_options() {
+    local return_value=0
+    local errmessage=""
+
+    SetOP "ValidateCmdLineOptions"
+    
+    while true
+    do    
+        if [ -n "$VM_PLATFORM" ]; then
+            VM_PLATFORM=$(tr [A-Z] [a-z] <<<$VM_PLATFORM) >> ${INSTALL_LOGFILE} 2>&1
+        VM_PLATFORM=`echo $VM_PLATFORM | tr -d " "`
+        trace_log_message -q "VM_PLATFORM=$VM_PLATFORM after translate."
+            if [ "$VM_PLATFORM" != "vmware" -a "$VM_PLATFORM" != "VmWare" -a "$VM_PLATFORM" != "azure" -a "$VM_PLATFORM" != "Azure" ] ; then
+                trace_log_message "Platform can have the values either VmWare|Azure only."
+                return_value=96
+                errmessage="Invalid VM Platform: $VM_PLATFORM"
+                break
+            else
+                [ "$VM_PLATFORM" = "vmware" ] && VM_PLATFORM="VmWare"
+                [ "$VM_PLATFORM" = "azure" ] && VM_PLATFORM="Azure"            
+            fi
+        fi
+        
+        if [ -n "$AGENT_ROLE" ]; then            
+            AGENT_ROLE=$(tr [A-Z] [a-z] <<<$AGENT_ROLE)
+            AGENT_ROLE=`echo $AGENT_ROLE | tr -d " "`
+            if [ "$AGENT_ROLE" != "ms" -a "$AGENT_ROLE" != "mt" ] ; then
+                trace_log_message "Agent Role can have the values either MS|MT only."
+                return_value=98
+                errmessage="Invalid Agent role: $AGENT_ROLE"
+                break
+            else
+                [ "$AGENT_ROLE" = "ms" ] && AGENT_ROLE="Agent"
+                [ "$AGENT_ROLE" = "mt" ] && AGENT_ROLE="MasterTarget"
+            fi
+        else
+            trace_log_message "Agent Role can not be null."
+            return_value=98
+            errmessage="Agent Role cannot be null"
+            break
+        fi
+        
+        if [ -n "$INSTALL_LOGFILE" ]; then
+            if [ ! -e "$INSTALL_LOGFILE" ]; then
+                logfile_path=${INSTALL_LOGFILE%/*}
+                trace_log_message -q "Creating log file direcoty $logfile_path"
+                mkdir -p $logfile_path >/dev/null 2>&1
+            fi
+        fi
+        
+        if [ -n "$CHOSEN_DEPLOY_DIR" ]; then
+            if [ ! -d "$CHOSEN_DEPLOY_DIR" ]; then
+                mkdir -p $CHOSEN_DEPLOY_DIR >/dev/null 2>&1
+            fi                
+        fi
+        
+        trace_log_message -q "Command line validation checks return value : $return_value"
+        break
+    done
+
+    RecordOP $return_value "$errmessage"
+
+    return $return_value
+}
+
+show_app_input_params()
+{
+    trace_log_message -q "ENTERED $FUNCNAME"
+
+    is_agent_installed "Vx"
+    if [ "$CS_TYPE" = "CSPrime" ]; then
+        $INSTALLATION_DIR/bin/AzureRcmCli --getagentconfiginput --logfile $INSTALL_LOGFILE
+    fi
+
+    trace_log_message -q "EXITED $FUNCNAME"
+}
+
+# 
+# Function Name: return_exit_code()
+# 
+# Description:
+#    This function Print message and quit
+# 
+# Parameters:$exit_code
+# 
+# Return Value: On successful it returns zero
+# 
+# Exceptions:None
+# 
+return_exit_code() {
+    exit_code=$1
+    trace_log_message "Check the log file $INSTALL_LOGFILE for detailed diagnostic messages or installation success/failures..."
+    if [ "$exit_code" = "0" -o "$exit_code" = "$SucceededWithWarnings" ]; then
+        show_app_input_params
+        EndSummaryOP "Success"
+    else
+        EndSummaryOP "Failed"
+    fi
+    [ -f $LOCK_FILE ] && rm -f $LOCK_FILE >/dev/null 2>&1
+    trace_log_message "Installer exiting with code: $exit_code"
+    exit $exit_code
+}
+
+#
+# Function Name: trace_log_message()
+# 
+#  Description  Prints date and time followed by all arguments to 
+#               stdout and to LOG_FILE.  If -q is used, only send 
+#               message to log file, not to stdout.  If no arguments 
+#               are given, a blank line is returned to stdout and to 
+#               LOG_FILE.
+#       
+#  Usage        trace_log_message [-q] "Message"
+#
+#  Notes        If -q is used, it must be the first argument.
+# 
+trace_log_message()
+{
+    QUIET_MODE=FALSE
+
+    if [ $# -gt 0 ]
+    then
+        if [ "X$1" = "X-q" ]
+        then
+            QUIET_MODE=TRUE
+            shift
+        fi
+    fi
+
+    if [ $# -gt 0 ]
+    then
+        DATE_TIME=`date '+%m/%d/%Y %H:%M:%S'`
+        
+        if [ "${QUIET_MODE}" = "TRUE" ]
+        then
+            echo "${DATE_TIME}: $*" >> ${INSTALL_LOGFILE}
+        else            
+            echo -e "$@"
+            echo "${DATE_TIME} : $@ " >> ${INSTALL_LOGFILE} 2>&1            
+        fi
+    else
+        if [ "${QUIET_MODE}" = "TRUE" ]
+        then
+            echo "" >> ${INSTALL_LOGFILE}
+        else
+            echo "" | tee -a ${INSTALL_LOGFILE}
+        fi
+    fi
+}
+
+#
+# Function Name: check_input
+# 
+# Description:
+#    This function loop until get valid input from user
+#       
+# Parameters:$message, $validate, $default
+# 
+# Return Value: On successful it returns zero, else returns non-zero 
+#               Also sets value to INPUTTEXT variable.
+# 
+# Exceptions:None
+# 
+check_input() {
+    local message=$1
+    local validate=$2
+    local default=$3
+    local return_value=0    
+    INPUTTEXT=""
+    
+    while [ $? -ne 1 ]
+    do
+        trace_log_message -q "$message "
+        echo -n "$message "
+        read INPUTTEXT < /dev/tty
+        if [ "$INPUTTEXT" = "" -a "$default" != "" ]; then
+            INPUTTEXT=$default
+            return_value=1
+            break
+        fi
+        echo $INPUTTEXT | egrep -qw "$validate" && return_value=1 && break
+        trace_log_message "Invalid input. Please try again."
+    done
+    
+    trace_log_message -q "Check input return value : $return_value"
+    return $return_value
+}
+
+#
+# Function Name: get_installation_dir
+# 
+# Description:
+#    This function loop until get valid installation directory from user
+#       
+# Parameters:None
+# 
+# Return Value: On successful it returns zero, else re-iterates the function 
+#               Also sets value to CHOSEN_DEPLOY_DIR variable.
+# 
+# Exceptions:None
+# 
+get_installation_dir() {
+    local return_value=0
+
+    while true; do        
+        echo -en "\nProvide an agent installation location ? [Default: /usr/local/ASR] : "
+        read installation_dir
+        [ -z "$installation_dir" ] && installation_dir=/usr/local/ASR
+        if [ "$(echo $installation_dir | cut -c1)" != "/" ]; then                        
+            trace_log_message -q "Installation directory must be an absolute path (i.e. beginning with a \"/\")."
+            trace_log_message "Invalid input. Please try again."
+            continue
+        else
+            CHOSEN_DEPLOY_DIR="$installation_dir"
+            break;
+        fi
+    done
+    
+    trace_log_message -q "get installation directory output $CHOSEN_DEPLOY_DIR and return value: $return_value"
+    return $return_value
+}
+
+#
+# Function Name: get_agent_role
+# 
+# Description:
+#    This function loop until get valid agent role from user
+#       
+# Parameters:None
+# 
+# Return Value: On successful it returns zero, else returns non-zero
+#               Also sets value to AGENT_ROLE variable.
+# 
+# Exceptions:None
+# 
+get_agent_role() {
+  local return_value=0
+  
+  echo
+  cat <<EOF
+    Role of the Agent
+    -----------------
+    Select the installation type
+    
+    1. Mobility Service
+        Install Mobility Service on source machines that you want to protect.
+        
+    2. Master Target
+        Install Master Target Server on machines that will act as a target for
+        replicated data from your protected machines.
+        
+EOF
+  check_input "Please make your choice ? (1/2) [Default: 1]" "1|2" "1"
+  [ "$INPUTTEXT" -eq 1 ] && AGENT_ROLE="Agent"
+  [ "$INPUTTEXT" -eq 2 ] && AGENT_ROLE="MasterTarget"
+  agent_role_precheck || return_value=$?
+  
+  trace_log_message -q "get agent role output $AGENT_ROLE and return value: $return_value"
+  return $return_value
+}
+
+#
+# Function Name: InstallAgent
+#
+# Description:
+#    This function will install the Agent.
+#
+# Parameters:None
+#
+# Return Value: It returns installation exit code.
+#
+InstallAgent() {
+    local vx_return_code=0
+
+    set_scenario "Install"
+    SetOP "InstallVxAgent"
+
+    # Initiating Vx agent installation.
+    trace_log_message -q "$PWD/install_vx -A $ACTION_TO_BE_PERFORMED -d $CHOSEN_DEPLOY_DIR -r $AGENT_ROLE -v $VM_PLATFORM -l $INSTALL_LOGFILE -c $CS_TYPE -e $INSTALL_ERRORS_JSON"
+    $PWD/install_vx -A $ACTION_TO_BE_PERFORMED -d $CHOSEN_DEPLOY_DIR -r $AGENT_ROLE -v $VM_PLATFORM -l $INSTALL_LOGFILE -c $CS_TYPE -e $INSTALL_ERRORS_JSON
+    vx_return_code=$?
+    trace_log_message "Vx agent installation exit code : $vx_return_code."
+    if [ "$vx_return_code" -ne 0 ]; then
+        RecordOP $vx_return_code "VxAgent installation failed"
+        return_exit_code $vx_return_code
+    fi
+
+    RecordOP 0 ""
+    return_exit_code $vx_return_code
+}
+
+
+#
+# Function Name: ShouldBlockAgentUpgrade
+#
+# Description:
+#    This function blocks agent upgrade if
+#     - the VM is Azure VM and platform is VmWare and upgrade is to 
+#       version with Linux persistent device name changes, i.e. 9.20
+#     - (add any other rules for later use here)
+#
+# Parameters:None
+#
+# Return Value: It returns 
+#   - 0 if upgrade should be blocked.
+#   - 1 if upgrade should continue.
+#
+ShouldBlockAgentUpgrade() {
+
+    # derived from "9.20.0000.0"
+    MIN_UPGRADE_BLOCKVERSION="92000000" 
+    bau_return_value=1
+    trace_log_message -q "Setup Build Version : $setup_bldversion and Current Build Version : $CURRENT_BLDVERSION"
+    trace_log_message -q "VM_PLATFORM: $VM_PLATFORM and HW_PLATFORM: $HW_PLATFORM"
+
+    if [ "$VM_PLATFORM" = "vmware" ] || [ "$VM_PLATFORM" = "VmWare" ]; then
+        if [ "$HW_PLATFORM" = "Azure" ]; then
+            if [ "$CURRENT_BLDVERSION" -ge "$MIN_UPGRADE_BLOCKVERSION" ]; then
+                if [ "$setup_bldversion" -lt "$MIN_UPGRADE_BLOCKVERSION" ]; then
+                    trace_log_message -q "Blocking upgrade to version ${CURRENT_BLDVERSION} on Azure VM as persistent device names are not supported on installed version ${setup_bldversion}."
+                    bau_return_value=0
+                fi
+            fi
+        fi
+    fi
+
+    return $bau_return_value 
+}
+
+#
+# Function Name: DisableFx
+#
+# Description:
+#    This function will disable Fx service
+#
+# Parameters:None
+#
+# Return Value: None
+#
+DisableFx()
+{
+    trace_log_message -q "Disabling the FX agent service..."
+
+    which systemctl >/dev/null 2>&1
+    if [ $? -eq 0 ];then
+        systemctl disable svagent
+    else
+        chkconfig svagent off
+    fi
+}
+
+check_vx_version_params()
+{
+    trace_log_message -q "ENTERED $FUNCNAME"
+    local ret_val=0
+    if [ -z "$vx_version" ] || [ -z "$vx_instdir" ] || [ -z "$setup_bldversion" ]; then
+        ret_val=1
+    fi
+
+    trace_log_message -q "EXITED $FUNCNAME"
+    return $ret_val
+}
+
+check_vx_file_corruption()
+{
+    trace_log_message -q "ENTERED $FUNCNAME"
+    local ret_val=0
+
+    check_vx_version_params
+    if [ "$?" -ne "0" ]; then
+        trace_log_message -q "$VX_VERSION_FILE is corrupted."
+        if [ -e "$VX_VERSION_BACKUP_FILE" ]; then
+            trace_log_message -q "Using backup file $VX_VERSION_BACKUP_FILE to retrieve entiries."
+            get_vx_version_params "$VX_VERSION_BACKUP_FILE"
+            check_vx_version_params
+            ret_val=$?
+        else
+            trace_log_message -q "Backup file $VX_VERSION_BACKUP_FILE is not present."
+            ret_val=1
+        fi
+    fi
+
+    trace_log_message -q "EXITED $FUNCNAME"
+    return $ret_val
+}
+
+#
+# Function Name: UpgradeAgent
+#
+# Description:
+#    This function will upgrade the Agent.
+#
+# Parameters:None
+#
+# Return Value: It returns installation exit code.
+#
+UpgradeAgent() {
+
+    installtype="Upgrade"
+    set_scenario "PreUpgrade"
+    local fx_return_code=0
+    local vx_return_code=0
+
+    SetOP "IsUpgradeNeeded"
+
+    check_vx_file_corruption
+    if [ "$?" -ne "0" ]; then
+        trace_log_message -q "File $VX_VERSION_FILE contains incorrect detail and may be corrupted."
+        log_to_json_file ASRMobilityServiceInternalError "File $VX_VERSION_FILE contains incorrect detail and may be corrupted."
+        return_exit_code $FailedWithErrors
+    fi
+
+    if ShouldBlockAgentUpgrade ; then
+        RecordOP $UPGRADENOTSUPPORTED "Upgrade not supported from installed version"
+        return_exit_code $UPGRADENOTSUPPORTED
+    fi
+
+    if [ "$VM_PLATFORM" = "vmware" ] || [ "$VM_PLATFORM" = "VmWare" ]; then
+        if is_agent_installed "Fx"; then
+            trace_log_message "Found ${fx_version} Fx Agent and uninstalling the Fx Agent."
+            DisableFx
+            stop_agent_service "Fx" || return_exit_code $?
+            trace_log_message "Uninstalling the FX Agent ..."
+            CURR_WORKING_DIR=${PWD}
+            cd ${fx_instdir}
+            ./uninstall -Y -L ${INSTALL_LOGFILE}
+            cd ${CURR_WORKING_DIR}
+        fi
+
+        trace_log_message -q "Setup Build Version : $setup_bldversion and Current Build Version : $CURRENT_BLDVERSION"
+        if [ $setup_bldversion -gt $CURRENT_BLDVERSION ]; then
+            trace_log_message "Upgrade is not supported as a higher version of the software is already installed."
+            DRSCOUT_CSTYPE=$(grep ^CSType ${vx_instdir}/etc/drscout.conf | cut -d"=" -f2 | tr -d " ")
+            if [ $? -eq "0" ] && [ "$DRSCOUT_CSTYPE" == "CSPrime" ]; then
+                log_to_json_file ASRMobilityServiceInstallerDowngradeAgentNotSupported "Dowgrading agent is not supported, Setup Build Version : ${setup_bldversion} and Current Build Version : ${CURRENT_BLDVERSION}."
+                RecordOP $FailedWithErrors "Downgrade is not supported"
+                return_exit_code $FailedWithErrors
+            fi
+
+            RecordOP 15 "Downgrade is not supported"
+            return_exit_code 15
+        else
+            trace_log_message "Found ${vx_version} Vx Agent."
+       
+            if [ "$SILENT_ACTION" != "true" ]; then 
+                check_input "Do you want to upgrade ? (yes/no) [Default: no]" "yes|no" "no"
+                if [ "$INPUTTEXT" = "yes" ]; then
+                    ACTION_TO_BE_PERFORMED="U"
+                    RecordOP 0 "Upgrade needed, user selected Yes"
+                else
+                    RecordOP 0 "Upgrade needed, user selected No"
+                    return_exit_code 0
+                fi
+            else
+                ACTION_TO_BE_PERFORMED="U"
+                RecordOP 0 "Upgrade needed, running silent upgrade"
+            fi
+        fi
+    else
+        trace_log_message -q "Setup Build Version : $setup_bldversion and Current Build Version : $CURRENT_BLDVERSION"
+        trace_log_message -q "Installer Version : $vx_version "
+        if [ "$vx_version" = "9.5.0.0" ] || [ "$vx_version" = "9.5.1.0" ]; then
+            trace_log_message "Upgrade is not supported from the version installed on the setup."
+            RecordOP $UPGRADENOTSUPPORTED "Upgrade not supported from installed version"
+            return_exit_code $UPGRADENOTSUPPORTED
+        elif [ $setup_bldversion -gt $CURRENT_BLDVERSION ]; then
+            trace_log_message "Upgrade is not supported as a higher version of the software is already installed."
+            RecordOP 15 "Downgrade is not supported"
+            return_exit_code 15
+        else
+            trace_log_message "Found ${vx_version} Vx Agent. Upgrade is supported."
+            if [ "$SILENT_ACTION" != "true" ]; then
+                check_input "Do you want to upgrade ? (yes/no) [Default: no]" "yes|no" "no"
+                if [ "$INPUTTEXT" = "yes" ]; then
+                    ACTION_TO_BE_PERFORMED="U"
+                    RecordOP 0 "Upgrade needed, user selected Yes"
+                else
+                    RecordOP 0 "Upgrade needed, user selected No"
+                    return_exit_code 0
+                fi
+            else
+                ACTION_TO_BE_PERFORMED="U"
+                RecordOP 0 "Upgrade needed, running silent upgrade"
+            fi
+        fi
+    fi
+
+    # Upgrade pre-requisites.
+    upgrade_prerequisites || return_exit_code $?
+
+    set_scenario "Upgrade"
+    if [ $setup_bldversion -le $CURRENT_BLDVERSION ]; then
+        stop_agent_service "Vx" || return_exit_code $?
+        # Initiating Vx agent upgradation.
+        SetOP "UpgradeVxAgent"
+        trace_log_message -q "$PWD/install_vx -A $ACTION_TO_BE_PERFORMED -d $vx_instdir -v $VM_PLATFORM -l $INSTALL_LOGFILE -c $CS_TYPE"
+        $PWD/install_vx -A $ACTION_TO_BE_PERFORMED -d $vx_instdir -v $VM_PLATFORM -l $INSTALL_LOGFILE -c $CS_TYPE
+        vx_return_code=$?
+        trace_log_message -q "Vx agent upgradation exit code : $vx_return_code."
+
+        if [ "$vx_return_code" -ne 0 ]; then
+            RecordOP $vx_return_code "VxAgent upgrade failed"
+            return_exit_code $vx_return_code
+        fi
+        RecordOP 0 ""
+
+    fi
+
+    # Return exit code SucceededWithWarnings when upgrade succeeds. Control will not reach here when VX/FX fails.
+    if [ ${ACTION_TO_BE_PERFORMED} = "U" ] ; then
+        trace_log_message "Upgrade succeeded but requires a restart for some system changes to take effect. Reboot the server during your next maintenance window."
+        RecordOP $SucceededWithWarnings "Upgrade succeeded but requires a restart"
+        log_to_json_file ASRMobiityServiceInstallerLinuxRecommendedReboot  "Upgrade succeeded but requires a restart for some system changes to take effect" SourceIP ${HOST_NAME}
+        return_exit_code $SucceededWithWarnings
+    fi
+}
+
+#
+# Function Name: usage
+# 
+# Description:
+#    This function will provide script usage.
+#       
+# Parameters:None
+# 
+# Return Value: It returns zero,
+# 
+# Exceptions:None
+# 
+usage() {
+    trace_log_message -q   "Usage of the install program."
+    trace_log_message "install [options]"
+    trace_log_message "Options:"    
+    trace_log_message "  -d <Installation Directory>"
+    trace_log_message "  -r <Role of agent MT|MS (MT:MasterTarget, MS:MobilityService> "
+    trace_log_message "  -v <Virtual Machine Platform VmWare|Azure> "
+    trace_log_message "  -l <Install Log Name (absolute path)> "
+    trace_log_message "  -e <Install errors json file path (absolute path)> "
+    trace_log_message "  -q <Quiet> "
+	trace_log_message "  -a <Installation action - Install/Upgrade> "
+	trace_log_message "  -c <CSType - CSLegacy/CSPrime> "
+    exit 0
+}
+
+#
+# Function Name: main
+# 
+# Description:
+#    This function will perform silent or interactive installation/upgradation.
+#       
+# Parameters:None
+# 
+# Return Value: On successful it returns zero, else returns non-zero
+# 
+# Exceptions:None
+#
+
+log_to_json_file()
+{
+    log_to_json_errors_file $json_errors_file "$@"
+}
+
+main() {
+
+    # hidden option m, used by pushinstaller passes "PushInstall", 
+    # indicates pushinstall picks up telemetry files
+    # hidden option j, used by pushinstaller passes json file path
+    if [ $# -ge 1 ] && $(echo $1 | grep -q ^- ); then
+        while getopts :d:r:l:v:m:j:e:a:c:qh  opt
+        do
+            case $opt in
+	    		a) ACTION="$OPTARG"
+				if [ "$ACTION" != "Install" -a "$ACTION" != "Upgrade" ]; then
+					trace_log_message -q "Specify correct installation action in command line parameter"
+					usage && exit 96
+				fi ;;
+                    d) CHOSEN_DEPLOY_DIR="$OPTARG" ;;
+                    r) AGENT_ROLE="$OPTARG" ;;
+                    l) CUSTOM_LOGFILE="$OPTARG" ;;
+                    v) VM_PLATFORM="$OPTARG" ;;
+                    q) SILENT_ACTION=true ;;
+                    m) INVOKER="$OPTARG" ;;
+                    j) json_file="$OPTARG" ;;
+		    c) CS_TYPE="$OPTARG"
+		    	if [ "$CS_TYPE" != "CSLegacy" -a "$CS_TYPE" != "CSPrime" ]; then
+				echo "Incorrect CSType passed. CSType should be either CSLegacy or CSPrime"
+				usage && exit 96
+			fi;;
+             e) INSTALL_ERRORS_JSON="$OPTARG" ;;
+                    h|-*|*)
+                        trace_log_message -q "Specify the installation or upgrade or configuration options to the command-line!"
+                        usage && exit 96
+                    ;;
+            esac
+        done
+    fi
+	
+	echo "$VM_PLATFORM" | grep -qi "vmware" && VM_PLATFORM="VmWare"
+    	echo "$VM_PLATFORM" | grep -qi "azure" && VM_PLATFORM="Azure"
+	if [ -z "$CS_TYPE" ]; then
+		CS_TYPE="CSLegacy"
+	fi
+        
+    if [ -z "$ACTION" ]; then
+		ACTION="Install"
+	fi
+	
+	 # Populate INSTALL_ERRORS_JSON with default value when it is not passed.
+    if [ -z "$INSTALL_ERRORS_JSON" ]; then
+        INSTALL_ERRORS_JSON=$DEFAULT_INSTALL_ERRORS_JSON
+    fi
+
+    # Create INSTALL_ERRORS_JSON file parent directory if it doesn't exist already.
+    JSON_FILE_PARENT_DIR=`dirname $INSTALL_ERRORS_JSON`
+    if [ ! -e "$JSON_FILE_PARENT_DIR" ]; then
+        mkdir -p "$JSON_FILE_PARENT_DIR"
+    fi
+
+    # Make sure INSTALL_ERRORS_JSON file has absolute path.
+    SetOP "InstallErrorJsonFileAbsolutePath"
+    if [ "`echo $INSTALL_ERRORS_JSON | cut -c1`" != "/" ]; then
+        trace_log_message "Install errors json file must be an absolute path (i.e. beginning with a \"/\"). Aborting..."
+        return_value=1
+        RecordOP $return_value "Install errors json file must be an absolute path"
+        exit $return_value
+    fi
+	
+	json_errors_file=$INSTALL_ERRORS_JSON
+	if [ -e "${json_errors_file}" ]; then
+		rm -f ${json_errors_file}
+	fi
+
+    if [ -f libcommon.sh ]; then
+    . ./libcommon.sh
+    else
+        trace_log_message "File not found : libcommon.sh"
+        return_value=1
+        RecordOP $return_value "File not found : libcommon.sh"
+        exit $return_value
+    fi
+
+	if [ $# -ge 1 ] && [ -z "$ACTION" ] && [ "$AGENT_ROLE" = "MS" ]; then
+		#Throw error that mandatory parameter Instalaltion type is not passed
+		arg="InstallationType"
+		log_to_json_file ASRMobilityServiceInstallerCommandLineParametersMissingFailure "Following command line params are missing : ${arg}" MissingCmdArguments ${arg}
+		exit 97
+	fi
+
+    if [ ! -z "$CUSTOM_LOGFILE" ] && [ "$INSTALL_LOGFILE" != "$CUSTOM_LOGFILE" ]; then
+        # Till this point we written log to INSTALL_LOGFILE, but now
+        # user input log file name CUSTOM_LOGFILE, copy log so far
+        # to avoid losing it
+        cp -f $INSTALL_LOGFILE $CUSTOM_LOGFILE
+        # After copying log, switch further logging to user input logfile
+        INSTALL_LOGFILE=$CUSTOM_LOGFILE
+        VERBOSE_LOGFILE=$CUSTOM_LOGFILE
+    fi
+
+    if [ "$CHOSEN_DEPLOY_DIR" != "/usr/local/ASR" ]; then
+        CHOSEN_DEPLOY_DIR="${CHOSEN_DEPLOY_DIR}/ASR"
+    fi
+
+    if [ -z "$INSTALLATION_DIR" ]; then
+        INSTALLATION_DIR=$CHOSEN_DEPLOY_DIR
+    fi
+
+    RecordOP 0 ""
+
+    check_faulty_driver
+    if [ "$?" -ne "0" ]; then
+        local inst_dir=$(grep ^INSTALLATION_DIR $VX_VERSION_FILE | cut -d"=" -f2 | tr -d " ")
+        local uninstall_script_path=`dirname $inst_dir`
+        uninstall_cmd="$uninstall_script_path/uninstall.sh"
+
+        trace_log_message -q "ASR incompatible agent is loaded on the source machine. Running uninstall command : $uninstall_cmd -Y -L $INSTALL_LOGFILE"
+        $uninstall_cmd -Y -L $INSTALL_LOGFILE
+        local uninstall_ret=$?
+        if [ "$uninstall_ret" -ne 0 ]; then
+            trace_log_message -q "Uninstallation failed with return value : $uninstall_ret"
+            log_to_json_file ASRMobilityServiceUninstallationInternalError  "ASR incompatible agent is installed on the system. Uninstallation failed." UninstallCommand "$uninstall_cmd"
+            return_exit_code $FailedWithErrors
+        fi
+    fi
+
+    # Read conf values from vx_version file (needed upfront for telemetry)
+    is_agent_installed "Vx"
+
+    StartSummary
+
+    SetOP "GetCmdArgs"
+    RecordOP 0 ""
+
+    # Make sure all setup pre-requisite checks are met
+    setup_prerequisites || return_exit_code $?
+
+    # Make sure there are no multiple instances running. 
+    check_instance || return_exit_code $?
+
+    Assign_Platform
+ 
+	if is_agent_installed "Vx" ; then
+		DRSCOUT_CSTYPE=$(grep ^CSType ${vx_instdir}/etc/drscout.conf | cut -d"=" -f2 | tr -d " ")
+		if [ ! $? ] || [ -z "$DRSCOUT_CSTYPE" ] || [ "$DRSCOUT_CSTYPE" != "CSLegacy" -a "$DRSCOUT_CSTYPE" != "CSPrime" ]; then
+			DRSCOUT_CSTYPE="CSLegacy"
+		fi
+	else
+		DRSCOUT_CSTYPE="CSLegacy"
+	fi
+	
+    # If SILENT_ACTION is "true" then invoking silent actions else interactive actions
+    if [ "$SILENT_ACTION" = "true" ]; then
+        # Silent installation/upgrade
+        trace_log_message -q "Silent installation"
+
+        if is_agent_installed "Vx" ; then
+            if [ "$AGENT_ROLE" = "Agent" ]; then
+                if [ "$ACTION" = "Install" ] && [ "$VM_PLATFORM" != "Azure" ] && [ "$DRSCOUT_CSTYPE" = "CSLegacy" ] && [ "$CS_TYPE" = "CSPrime" ]; then
+                # Initiating Vx agent upgradation.
+                #Platform change from cs to csprime
+                    trace_log_message -q "Platform upgrade from CSLegacy to CSPrime"
+                    sed -i -e '/^PlatformChangeToCSPrime/d; /^VmPlatform/ a PlatformChangeToCSPrime=true' ${vx_instdir}/etc/drscout.conf
+                    UpgradeAgent
+                elif [ "$VM_PLATFORM" != "Azure" ] && [ "$CS_TYPE" != "$DRSCOUT_CSTYPE" ]; then
+                    #Throw error code for cstype mismatch
+                    log_to_json_file ASRMobilityServiceInstallerCSTypeMismatch "The CSType passed to installer and that detected by installer do not match. CSType passed : ${CS_TYPE} ; CSType detected : ${DRSCOUT_CSTYPE} " CSTypePassed ${CS_TYPE} CSTypeDetected ${DRSCOUT_CSTYPE}
+                    exit 97
+                else
+                    UpgradeAgent
+                fi
+            else
+                UpgradeAgent
+            fi
+        else
+            # Fresh agent installation
+            ACTION_TO_BE_PERFORMED="I"
+
+            if [ "$ACTION" = "Upgrade" -a "$AGENT_ROLE" = "Agent" ]; then
+                #Throw error code for installation type mismatch
+                InsTypeDetected="Install"
+                log_to_json_file ASRMobilityServiceInstallerInstallationTypeMismatch "The installation type passed to installer and that detected by installer do not match. Installation type passed : ${ACTION} ; Installation type detected : ${InsTypeDetected} " InstallationTypePassed ${ACTION} InstallationTypeDetected ${InsTypeDetected}
+                exit 97
+            fi
+
+            validate_silent_options || return_exit_code $?
+
+            install_prerequisites "$CHOSEN_DEPLOY_DIR" "256000" || return_exit_code $?
+
+            if [ "$VM_PLATFORM" = "vmware" ] || [ "$VM_PLATFORM" = "VmWare" ]; then
+                agent_role_precheck || return_exit_code $?
+            fi
+    
+            product_prerequisites "$AGENT_ROLE" "$INSTALL_ERRORS_JSON" || return_exit_code $?
+
+            if [ "$VM_PLATFORM" = "vmware" ] || [ "$VM_PLATFORM" = "VmWare" ]; then
+                cert_generation || return_exit_code $?
+            else
+                mkdir -p /usr/local/InMage/private
+                mkdir -p /usr/local/InMage/certs
+                chmod 600 /usr/local/InMage/private /usr/local/InMage/certs
+            fi
+            # Initiating Vx agent installation.
+            InstallAgent
+        fi
+    else
+        # Interactive installation/upgrade
+        trace_log_message -q "Interactive installation begin"
+
+        if is_agent_installed "Vx" ; then
+			CS_TYPE=$DRSCOUT_CSTYPE
+			UpgradeAgent
+        else
+            # Fresh Agent installation
+            ACTION_TO_BE_PERFORMED="I"
+            
+            # Don't allow interactive installation on Azure VMs.
+            Vm_Platform=$(tr [a-z] [A-Z] <<<$VM_PLATFORM)
+            if [ "$Vm_Platform" = "AZURE" ]; then
+            trace_log_message "Mobility Service Setup is allowed on an Azure VM only in command line mode. Please follow instructions available at "
+            trace_log_message "https://docs.microsoft.com/en-us/azure/site-recovery/site-recovery-vmware-to-azure-install-mob-svc#install-mobility-service-manually-at-a-command-prompt " 
+            trace_log_message "for the command line parameters."
+            return_exit_code 1
+            fi
+
+            install_prerequisites "$CHOSEN_DEPLOY_DIR" "256000" || return_exit_code $?
+
+            get_installation_dir
+            if [ "$VM_PLATFORM" = "vmware" ] || [ "$VM_PLATFORM" = "VmWare" ]; then
+                get_agent_role || return_exit_code $?
+            fi
+
+        Agent_Role=$(tr [a-z] [A-Z] <<<$AGENT_ROLE)
+        trace_log_message -q "Agent_Role=${Agent_Role} and OS=$OS"
+        if [ "${Agent_Role}" = "MT" -o "${Agent_Role}" = "MASTERTARGET" ] && [ "$OS" = "UBUNTU-16.04-64" -o "$OS" = "RHEL7-64" ]; then
+                Disable_Lvm2_lvmetad_Service || return_exit_code $?
+            fi
+
+        product_prerequisites "$AGENT_ROLE" "$INSTALL_ERRORS_JSON" || return_exit_code $?
+
+        if [ "$VM_PLATFORM" = "vmware" ] || [ "$VM_PLATFORM" = "VmWare" ]; then
+            cert_generation || return_exit_code $?
+        else
+            mkdir -p /usr/local/InMage/private
+            mkdir -p /usr/local/InMage/certs
+            chmod 600 /usr/local/InMage/private /usr/local/InMage/certs
+        fi
+            # Initiating Vx agent installation.
+        InstallAgent
+        fi
+    fi
+    return 0
+}
+
+trap "trace_log_message 'Program terminated at user request'; rm -f ${LOCK_FILE}; EndSummaryOP "Aborted"; exit 1" 1 2 3 6 9 15 30
+
+set_scenario "PreInstall"
+
+trace_log_message -q
+trace_log_message -q "Script initiated with the following command:"
+trace_log_message -q "       ${SCRIPT} $@"
+trace_log_message -q
+
+# Main function invocation
+main "$@"
+return_exit_code $?

@@ -1,0 +1,23 @@
+#!/bin/sh
+# Get list of processes related to svagents 
+# and kill each of them
+
+PATH=/bin:/sbin:/usr/sbin:/usr/bin:$PATH
+export PATH
+
+RETVAL=0
+MYPID="$$"
+echo $MYPID
+CPIDS=`pgrep $1`
+
+for cpid in $CPIDS
+do
+    if [ "$cpid" -ne "$1" -a "$cpid" -ne "${MYPID}" ]
+    then
+	echo "Killing process with ID $cpid ..."
+        kill -9 $cpid
+   
+    fi
+done
+
+exit ${RETVAL}

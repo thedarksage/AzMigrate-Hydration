@@ -1,0 +1,116 @@
+{
+    "DEBIAN7-64": { 
+        "SupportedPreviousVersions": [
+            "9.49","9.48","9.47","9.46","9.45","9.43"
+        ],
+        "RebootRequired": false
+    },
+    "DEBIAN8-64": { 
+        "SupportedPreviousVersions": [
+            "9.49","9.48","9.47","9.46","9.45","9.43"
+        ],
+        "RebootRequired": false
+    },
+	"DEBIAN9-64": {
+        "SupportedPreviousVersions": [
+            "9.49","9.48","9.47","9.46","9.45","9.43"
+        ],
+        "RebootRequired": false
+    },
+    "DEBIAN10-64": { 
+        "SupportedPreviousVersions": [
+            "9.49","9.48","9.47","9.46","9.45","9.43"
+        ],
+        "RebootRequired": false
+    },
+    "OL6-64": { 
+        "SupportedPreviousVersions": [
+            "9.49","9.48","9.47","9.46","9.45","9.43"
+        ],
+        "RebootRequired": false
+    },
+    "OL7-64": { 
+        "SupportedPreviousVersions": [
+            "9.49","9.48","9.47","9.46","9.45","9.43"
+        ],
+        "RebootRequired": false
+    },
+    "OL8-64": { 
+        "SupportedPreviousVersions": [
+            "9.49","9.48","9.47","9.46","9.45","9.43"
+        ],
+        "RebootRequired": false
+    },
+    "RHEL5-64": { 
+        "SupportedPreviousVersions": [
+            "9.49","9.48","9.47","9.46","9.45","9.43"
+        ],
+        "RebootRequired": false
+    },
+    "RHEL6-64": { 
+        "SupportedPreviousVersions": [
+            "9.49","9.48","9.47","9.46","9.45","9.43"
+        ],
+        "RebootRequired": false
+    },
+    "RHEL7-64": { 
+        "SupportedPreviousVersions": [
+            "9.49","9.48","9.47","9.46","9.45","9.43"
+        ],
+        "RebootRequired": false
+    },
+    "RHEL8-64": { 
+        "SupportedPreviousVersions": [
+            "9.49","9.48","9.47","9.46","9.45","9.43"
+        ],
+        "RebootRequired": false
+    },
+    "SLES11-SP3-64": { 
+        "SupportedPreviousVersions": [
+            "9.49","9.48","9.47","9.46","9.45","9.43"
+        ],
+        "RebootRequired": false
+    },
+    "SLES11-SP4-64": { 
+        "SupportedPreviousVersions": [
+            "9.49","9.48","9.47","9.46","9.45","9.43"
+        ],
+        "RebootRequired": false
+    },
+    "SLES12-64": { 
+        "SupportedPreviousVersions": [
+            "9.49","9.48","9.47","9.46","9.45","9.43"
+        ],
+        "RebootRequired": false
+    },
+    "SLES15-64": { 
+        "SupportedPreviousVersions": [
+            "9.49","9.48","9.47","9.46","9.45","9.43"
+        ],
+        "RebootRequired": false
+    },
+    "UBUNTU-14.04-64": { 
+        "SupportedPreviousVersions": [
+            "9.49","9.48","9.47","9.46","9.45","9.43"
+        ],
+        "RebootRequired": false
+    },
+    "UBUNTU-16.04-64": { 
+        "SupportedPreviousVersions": [
+            "9.49","9.48","9.47","9.46","9.45","9.43"
+        ],
+        "RebootRequired": false
+    },
+    "UBUNTU-18.04-64": { 
+        "SupportedPreviousVersions": [
+            "9.49","9.48","9.47","9.46","9.45","9.43"
+        ],
+        "RebootRequired": false
+    },
+    "UBUNTU-20.04-64": { 
+        "SupportedPreviousVersions": [
+            "9.49","9.48","9.47","9.46","9.45","9.43"
+        ],
+        "RebootRequired": false
+    }
+}

@@ -1,7 +1,5 @@
 # The global makefile, bottom half (also see top.mak)
 
-include  ../build/scripts/FX/build_params_$(X_PARTNER).mak
--include ../build/scripts/FX/build_params_$(X_PARTNER)_$(X_MINOR_ARCH).mak
 include $(X_ARCH).mak
 
 # list of all the object files needed by this module (don't use lazy evalution)

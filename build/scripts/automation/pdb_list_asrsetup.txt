@@ -1,0 +1,7 @@
+host\\ASRSetup\\ASRResources\\bin\\CONFIG\\ASRResources.pdb
+
+host\\ASRSetup\\SetupFramework\\bin\\CONFIG\\ASRSetupFramework.pdb
+
+host\\ASRSetup\\WrapperSetup\\bin\\x64\\CONFIG\\UnifiedSetup.pdb
+
+host\\ASRSetup\\RemoveUnifiedSetupConfiguration\\bin\\x64\\CONFIG\\RemoveUnifiedSetupConfiguration.pdb

@@ -1,0 +1,107 @@
+[
+	{
+		"Comment": "CheckName - Represents which check to perform",
+		"Comment": "CheckType - It has to be Common, MobilityService or MasterTarget",
+		"Comment": "Params - It is optional based on the check performed."
+	},
+	{
+		"CheckName": "CLocaleAvailable",
+		"CheckType": "Common",
+		"Params": {"Locale":"C"}
+	},
+	{
+		"CheckName": "HostNameSet",
+		"CheckType": "Common"
+	},
+	{
+		"CheckName": "SecureBoot",
+		"CheckType": "MobilityService"
+	},
+	{
+		"CheckName": "FreeSpaceOnRoot",
+		"CheckType": "Common",
+		"Params": {"FreeSpace":"1048576"}
+	},
+	{
+		"CheckName": "LisDriversAvailable",
+		"CheckType": "MobilityService",
+		"Params": {"Drivers":"hv_storvsc.ko"}
+	},
+	{
+		"CheckName": "KernelSupported",
+		"CheckType": "MobilityService"
+	},
+	{
+		"CheckName": "KernelDirectoryExists",
+		"CheckType": "MobilityService"
+	},
+	{
+		"CheckName": "BootDiskAvailable",
+		"CheckType": "MobilityService"
+	},
+	{
+		"CheckName": "LVMPackageInstalled",
+		"CheckType": "MobilityService"
+	},
+	{
+		"CheckName": "BootOnLVMFromMultipleDisks",
+		"CheckType": "MobilityService"
+	},
+	{
+		"CheckName": "BootPartitionMounted",
+		"CheckType": "MobilityService"
+	},
+	{
+		"CheckName": "IsRootFsSupported",
+		"CheckType": "MobilityService",
+		"Params": {"SupportedFileSystems":"ext3,ext4,xfs,btrfs"}
+	},
+	{
+		"CheckName": "IsBootFsSupported",
+		"CheckType": "MobilityService",
+		"Params": {"SupportedFileSystems":"ext2,ext3,ext4,xfs,btrfs"}
+	},
+	{
+		"CheckName": "IsRootFsSupportedAzure",
+		"CheckType": "MobilityService",
+		"Params": {"SupportedFileSystems":"ext3,ext4,xfs,btrfs"}
+	},
+	{
+		"CheckName": "IsBootFsSupportedAzure",
+		"CheckType": "MobilityService",
+		"Params": {"SupportedFileSystems":"ext2,ext3,ext4,xfs,btrfs"}
+	},
+	{
+		"CheckName": "DirsWritable",
+		"CheckType": "MobilityService",
+		"Params": {"Dirs":"/,/boot,/etc,/var"}
+	},
+	{
+		"CheckName": "AcpiEqualsToZeroSet",
+		"CheckType": "MobilityService"
+	},
+	{
+		"CheckName": "DeviceExistInGrubFiles",
+		"CheckType": "MobilityService"
+	},
+	{
+		"CheckName": "GrubDeviceNameChange",
+		"CheckType": "MobilityService"
+	},
+	{
+		"CheckName": "DhcpClientAvailable",
+		"CheckType": "MobilityService"
+	},
+        {
+		"CheckName": "CheckMTKernelVersion",
+		"CheckType": "MasterTarget"
+	},
+	{
+		"CheckName": "OldOnePassEncryption",
+		"CheckType": "MobilityService"
+	},
+	{
+		"CheckName": "RunlevelCommandCheck",
+		"CheckType": "MobilityService"
+	}
+]

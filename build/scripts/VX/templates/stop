@@ -1,0 +1,90 @@
+#!/bin/sh
+
+PATH=/bin:/sbin:/usr/sbin:/usr/bin:$PATH
+export PATH
+
+##########################################################################
+## Set the ROOT DIRECTORY
+##########################################################################
+ROOT_DIRECTORY=RUNTIME_INSTALL_PATH
+Agent_Type=`cat ${ROOT_DIRECTORY}/etc/drscout.conf | grep Role | cut -d"=" -f2`
+. ${ROOT_DIRECTORY}/bin/status
+
+if [ "$RET_SVAGENT" = "1" -a "$RET_APP" = "1" ]; then
+   exit 0
+fi
+
+# Stop uarespawnd, touch /usr/local/.norespawn_vxagent and start uarespawnd.
+# Above is needed to aviod uarespawnd starting vxagent when stop is in progress.
+${ROOT_DIRECTORY}/bin/uarespawnd stop
+if [ $? -eq 0 ]; then
+    echo "Stopped uarespawnd successfully."
+    touch /usr/local/.norespawn_vxagent >/dev/null 2>&1
+    ${ROOT_DIRECTORY}/bin/uarespawnd start >/dev/null 2>&1
+    if [ $? -ne 0 ]; then
+       echo "Failed to start uarespawnd."
+       exit 2
+    fi
+else
+    echo "Failed to stop uarespawnd."
+    exit 2
+fi
+
+echo
+
+[ "$1" = "force" ] && KILL_OPTION="-s KILL"
+[ "$1" = "uninstall" ] && KILL_OPTION="-s USR1"
+
+echo "Stopping VX Agent daemon..."
+
+# Get process IDs
+SVAGENT_PID=`pgrep ^svagents$`
+APP_SERVICE_PID=`pgrep appservice`
+CXPSCTL_PID=`ps -ef | grep cxps | grep -v cxpsctl | grep -v cxpsclient | grep -v grep | awk '{ print $2 }'`
+
+# Get child process IDs
+for c_p_name in s2 dataprotection cachemgr cdpmgr vacp evtcollforw DataProtectionSyncRcm
+do
+    c_p_id=`pgrep ^$c_p_name$`
+    CHILD_PID_LIST="$c_p_id $CHILD_PID_LIST"
+done
+PID_LIST="$CHILD_PID_LIST $SVAGENT_PID $APP_SERVICE_PID $CXPSCTL_PID"
+
+# If uninstall calls this after user permits force kill
+if [ "$1" = "force" ]; then
+    for p_pid in $CHILD_PID_LIST $SVAGENT_PID $APP_SERVICE_PID $CXPSCTL_PID
+    do
+        [ ! -z "$p_pid" ] && kill $KILL_OPTION $p_pid
+    done
+elif [ "$1" = "uninstall" ]; then
+    [ ! -z "$SVAGENT_PID" ] && kill $KILL_OPTION $SVAGENT_PID
+    [ ! -z "$SVAGENT_PID" ] && kill -KILL -`ps -o pgid $SVAGENT_PID | tail -1` >/dev/null 2>&1
+    [ ! -z "$APP_SERVICE_PID" ] && kill $KILL_OPTION $APP_SERVICE_PID
+    [ ! -z "$CXPSCTL_PID" ] && kill $KILL_OPTION $CXPSCTL_PID
+elif [ "$1" = "svagents" ]; then
+    PID_LIST="$CHILD_PID_LIST $SVAGENT_PID"
+    [ ! -z "$SVAGENT_PID" ] && kill $KILL_OPTION $SVAGENT_PID
+else
+    [ ! -z "$SVAGENT_PID" ] && kill $KILL_OPTION $SVAGENT_PID
+    [ ! -z "$APP_SERVICE_PID" ] && kill $KILL_OPTION $APP_SERVICE_PID
+    [ ! -z "$CXPSCTL_PID" ] && kill $KILL_OPTION $CXPSCTL_PID
+fi
+
+# Waiting begins here...
+TOTAL_WAITING_TIME=0
+INITIAL_SECONDS_COUNT=`date +%s`
+
+while [ $TOTAL_WAITING_TIME -le 180 ]
+do
+    # If any of the PIDs is found, return status of 'ps' command becomes 0
+    # Only when all PIDs are absent in output of 'ps' does its return status become non-0
+    ps $PID_LIST > /dev/null 2>&1
+    PID_QUERY_STATUS=$?
+
+    [ $PID_QUERY_STATUS -ne 0 ] && echo "All VX-related processes are successfully terminated!" && exit 0
+
+    DYNAMIC_SECOND_COUNT=`date +%s`
+    TOTAL_WAITING_TIME=$(($DYNAMIC_SECOND_COUNT-$INITIAL_SECONDS_COUNT))
+done
+
+echo && echo "Some of the VX-related processes could not be terminated even after 180s...exiting in this case!" && exit 2

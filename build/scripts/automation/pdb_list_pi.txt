@@ -1,0 +1,13 @@
+host\\pushInstallerCli\\CONFIG\\pushInstallerCli.pdb
+
+host\\PushInstall\\CsBasedPushInstall\\CONFIG\\PushInstall.pdb
+
+host\\PushInstall\\RcmBasedPushInstall\\CONFIG\\RcmBasedPushInstall.pdb
+
+host\\csgetfingerprint\\CONFIG\\csgetfingerprint.pdb
+
+host\\gencert\\CONFIG\\gencert.pdb
+
+host\\genpassphrase\\CONFIG\\genpassphrase.pdb
+
+host\\verifycert\\CONFIG\\verifycert.pdb

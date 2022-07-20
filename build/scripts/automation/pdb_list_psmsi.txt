@@ -1,0 +1,17 @@
+host\\cxps\\x64\\CONFIG\\cxps.pdb
+
+host\\cxpscli\\x64\\CONFIG\\cxpscli.pdb
+
+host\\gencert\\x64\\CONFIG\\gencert.pdb
+
+server\\ProcessServerCore\\bin\\CONFIG\\Microsoft.Azure.SiteRecovery.ProcessServer.Core.pdb
+
+server\\windows\\ProcessServerMonitor\\bin\\CONFIG\\ProcessServerMonitor.pdb
+
+server\\windows\\ProcessServer\\bin\\CONFIG\\ProcessServer.pdb
+
+host\\ASRSetup\\ASRResources\\bin\\CONFIG\\ASRResources.pdb
+
+host\\ASRSetup\\SetupFramework\\bin\\CONFIG\\ASRSetupFramework.pdb
+
+server\\windows\\ProcessServerCustomActions\\bin\\CONFIG\\ProcessServerCustomActions.pdb

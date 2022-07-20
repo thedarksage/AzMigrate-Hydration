@@ -1,0 +1,835 @@
+#!/usr/bin/env bash
+#//--------------------------------------------------------------------
+#//  <copyright file="uninstall" company="Microsoft">
+#//      Copyright (c) Microsoft Corporation. All rights reserved.
+#//  </copyright>
+#//
+#//  <summary>
+#//     This script uses to configure linux agent with CS or RCM service
+#//  </summary>
+#//
+#//--------------------------------------------------------------------
+
+
+#
+#//--------------------------------------------------------------------
+#  Global Variables:
+#//--------------------------------------------------------------------
+#
+
+# exporting LANG variable
+export LANG=C
+
+SCRIPT_DIR=`dirname $0`
+LOCK_FILE="${SCRIPT_DIR}/.uninstall.lck"
+REF_DIR="BUILDTIME_VALUE_REF_DIR"
+INST_VERSION_FILE="BUILDTIME_VALUE_INST_VERSION_FILE"
+INST_MANIFEST_FILE="RUNTIME_VALUE_INST_MANIFEST_FILE_NAME"
+RPM_PACKAGE="BUILDTIME_VALUE_RPM_PACKAGE"
+ROOT_DIRECTORY=RUNTIME_INSTALL_PATH
+UNINST_LOG="/var/log/ua_uninstall.log"
+SILENT_UNINSTALL=false
+OLD_LOGS_PATH="/var/log/InMage_Old_Logs"
+HOSTID_FILE='/usr/local/.vx_host_id'
+
+IS_SLES=false
+if [ -f /etc/os-release ] && grep -q 'SLES' /etc/os-release || [ -f /etc/SuSE-release ]; then
+    IS_SLES=true
+fi
+
+
+#
+# Function Name: trace_log_message()
+# 
+#  Description  Prints date and time followed by all arguments to 
+#               stdout and to UNINST_LOG.  If -q is used, only send 
+#               message to log file, not to stdout.  If no arguments 
+#               are given, a blank line is returned to stdout and to 
+#               UNINST_LOG.
+#       
+#  Usage        trace_log_message [-q] "Message"
+#
+#  Notes        If -q is used, it must be the first argument.
+# 
+trace_log_message()
+{
+    QUIET_MODE=FALSE
+
+    if [ $# -gt 0 ]
+    then
+        if [ "X$1" = "X-q" ]
+        then
+            QUIET_MODE=TRUE
+            shift
+        fi
+    fi
+
+    if [ $# -gt 0 ]
+    then
+        DATE_TIME=`date '+%m/%d/%Y %H:%M:%S'`
+        
+        if [ "${QUIET_MODE}" = "TRUE" ]
+        then
+            echo "${DATE_TIME}: $*" >> ${UNINST_LOG}
+        else            
+            echo -e "$@"
+            echo "${QUIET_MODE} : $@ " >> ${UNINST_LOG} 2>&1            
+        fi
+    else
+        if [ "${QUIET_MODE}" = "TRUE" ]
+        then
+            echo "" >> ${UNINST_LOG}
+        else
+            echo "" | tee -a ${UNINST_LOG}
+        fi
+    fi
+}
+
+#
+# Function Name: see_log
+#
+# Description:
+#    This function Print message and quit
+#
+# Parameters:$exit_code
+#
+# Return Value: None
+#
+# Exceptions:None
+#
+see_log()
+{
+    local exit_code=$?
+    trace_log_message "Check the log file $UNINST_LOG for detailed diagnostic messages during uninstallation ..."
+    [ -f $LOCK_FILE ] && rm -f $LOCK_FILE >/dev/null 2>&1
+    exit $exit_code
+}
+
+#
+# Function Name: usage
+#
+# Description:
+#    This function will provide script usage.
+#
+# Parameters:None
+#
+# Return Value: It returns non-zero,
+#
+# Exceptions:None
+#
+Usage() {
+    echo
+    echo "Usage: $0 [ -Y ] [ -L <Absolute path of the log file (default:/var/log/ua_uninstall.log)> ] [ -h ]"
+    echo && exit 1
+}
+
+#
+# Function Name: remove_kernel_modules
+#
+# Description:
+#    This function will removes the kernel modules from the system after unloading them successfully
+#
+# Parameters:None
+#
+# Return Value: On successful it returns zero, else returns non-zero
+#
+# Exceptions:None
+#
+remove_kernel_modules()
+{
+    DRIVERS="involflt linvsnap"
+    for driver in $DRIVERS
+    do
+        for file in `find /lib/modules/ -name "${driver}.ko" -type f`
+        do
+            if [ ! -z $file -a -e $file ]; then
+            trace_log_message "Removing file $file"
+            rm -f $file
+            k_dir=$(dirname $(dirname $(dirname $(dirname $file))))
+            k_ver=${k_dir##*/}
+            depmod $k_ver
+            fi
+        done
+    done
+
+    # Now clean up the bitmap log files created by the involflt driver
+    # For now, the path for bitmal log files is hardcoded as /root -
+    # this needs to be revisited for a more robust solution
+    rm -f /root/InMage*.VolumeLog
+    return 0
+}
+
+#
+# Function Name: is_driver_modules_unloaded
+#
+# Description:
+#    This function will unload any loaded kernel modules
+#
+# Parameters:None
+#
+# Return Value: On successful it returns zero, else returns non-zero
+#
+# Exceptions:None
+#
+is_driver_modules_unloaded()
+{
+
+    local return_value=0
+    case `uname` in
+    Linux)
+        lsmod | grep -i ^linvsnap >> $UNINST_LOG 2>&1
+        VSNAP_LOADED=$?
+
+        lsmod | grep -i ^involflt >> $UNINST_LOG 2>&1
+        INVOLFLT_LOADED=$?
+
+        # Vsnap driver loaded? Get usage count.
+        # If usage is non-zero, call cdpcli with --unmountall option.
+        if [ $VSNAP_LOADED -eq 0 ]; then
+            VSNAP_LKM_USAGE=`lsmod | grep -i ^linvsnap | awk '{print $3}'`
+            if [ $VSNAP_LKM_USAGE -ne 0 ]; then
+                trace_log_message -q "Usage count is $VSNAP_LKM_USAGE"
+                trace_log_message "Virtual snapshot driver is in use! Unmounting ... "
+                ${INSTALLATION_DIR}/bin/cdpcli --vsnap --op=unmountall
+            fi
+            # Now after the call to cdpcli, usage count must have become 0.
+            # Unload and remove the driver.
+            VSNAP_LKM_USAGE=`lsmod | grep -i ^linvsnap | awk '{print $3}'`
+            if [ $VSNAP_LKM_USAGE -eq 0 ]; then
+                modprobe -rs linvsnap > /dev/null 2>&1
+                lsmod | grep -i ^linvsnap > /dev/null 2>&1
+                if [ $? -ne 0 ]; then
+                    trace_log_message "Unloaded the virtual snapshot driver successfully..."
+                else
+                    trace_log_message "---> Could not unload the virtual snapshot driver!"
+                fi
+            else
+                # In spite of cdpcli --unmountall the usage count didn't go down to 0                
+                trace_log_message -q "---> In spite of issuing a cdpcli --vsnap --op=unmountall the driver usage count is non zero"
+                trace_log_message "Virtual snapshot driver is still in use! Unmounting ..."
+                trace_log_message -q "---> Removing the Virtual volume from the setup ..."
+                trace_log_message "Unmounting the Virtual volume ..."
+                ${INSTALLATION_DIR}/bin/cdpcli --virtualvolume --op=unmountall --checkfortarget=no
+                modprobe -rs linvsnap > /dev/null 2>&1
+            fi
+        fi
+
+        # Filter driver loaded? Get usage count.
+        # If usage is non-zero, unstack all volumes
+        if [ $INVOLFLT_LOADED -eq 0 ]; then
+            if [ -e /etc/vxagent/hotplug_utils/inmshutnotify ] ; then
+                /etc/vxagent/hotplug_utils/inmshutnotify --pre
+            else
+                trace_log_message -q "Inmshutnotify could not be found in /etc/vxagent/hotplug_utils"
+            fi
+
+            INVOLFLT_LKM_USAGE=`lsmod | grep -i ^involflt | awk '{print $3}'`
+            if [ $INVOLFLT_LKM_USAGE -ne 0 ]; then
+                trace_log_message "Filter driver is in use! Unstacking volumes now ..."
+                # Temporary fix for the sync problem - call inmshutnotify
+                # before issuing unstack_all
+                if [ -e /etc/vxagent/hotplug_utils/inmshutnotify ] ; then
+                    /etc/vxagent/hotplug_utils/inmshutnotify
+                else
+                    trace_log_message -q "Inmshutnotify could not be found in /etc/vxagent/hotplug_utils"
+                fi
+
+                ${INSTALLATION_DIR}/bin/inm_dmit --op=unstack_all
+            fi
+
+            # Now the usage count must've come down to 0. Remove the driver
+            INVOLFLT_LKM_USAGE=`lsmod | grep -i ^involflt | awk '{print $3}'`
+            if [ $INVOLFLT_LKM_USAGE -eq 0 ]; then
+                modprobe -rs involflt > /dev/null 2>&1
+                sync; sleep 5
+                lsmod | grep -i ^involflt > /dev/null 2>&1
+                if [ $? -ne 0 ]; then
+                    trace_log_message "Unloaded the filter driver successfully..."
+                else
+                    trace_log_message -q "Usage count is $INVOLFLT_LKM_USAGE"
+                    trace_log_message "---> Could not unload the filter driver!"
+                    trace_log_message "---> Since filter driver module is still persistent in kernel memory, "
+                    trace_log_message "not removing involflt.ko files from under /lib/modules !"
+                    return_value=1
+                fi
+            else
+                # In spite of unstack_all the usage count didn't go down to 0
+                trace_log_message -q "Usage count is $INVOLFLT_LKM_USAGE"
+                trace_log_message -q "---> In spite of issuing an unstack_all the driver usage count is non zero"
+                trace_log_message "Filter driver still in use, it could not be removed!"
+                return_value=1
+            fi
+        fi
+        ;;
+    esac
+
+    trace_log_message -q "Is driver_modules unloaded return value: $return_value"
+    return $return_value
+}
+
+# FUNCTION : Deletes any existing symbolic links in the "init" and "rc" or their equivalent folders, based on OS
+Delete_Symbolic_Links()
+{
+    if [ "$OS" = "UBUNTU-14.04-64" ]; then
+        trace_log_message "Removing service scripts on UBUNTU-14.04-64 server."
+        update-rc.d -f involflt remove >> $UNINST_LOG 2>&1
+        update-rc.d -f vxagent remove >> $UNINST_LOG 2>&1
+        update-rc.d -f vConService_linux remove >> $UNINST_LOG 2>&1
+        update-rc.d -f uarespawnd remove >> $UNINST_LOG 2>&1
+        update-rc.d -f boottimemirroring_phase1 remove >> $UNINST_LOG 2>&1
+        update-rc.d -f boottimemirroring_phase2 remove >> $UNINST_LOG 2>&1
+        rm -f /etc/init/involflt.conf /etc/init.d/involflt >> $UNINST_LOG 2>&1
+    elif [ "$OS" = "UBUNTU-16.04-64" -o "$OS" = "DEBIAN8-64" ]; then
+        trace_log_message "Removing service scripts on UBUNTU-16.04-64/DEBIAN8-64 server."
+        update-rc.d -f boottimemirroring_phase2 remove >> $UNINST_LOG 2>&1
+        update-rc.d -f boottimemirroring_phase1 remove >> $UNINST_LOG 2>&1
+        update-rc.d -f uarespawnd remove >> $UNINST_LOG 2>&1
+        update-rc.d -f vxagent remove >> $UNINST_LOG 2>&1
+        update-rc.d -f vConService_linux remove >> $UNINST_LOG 2>&1
+	systemctl daemon-reload
+    elif [ "$OS" = "DEBIAN7-64" ]; then
+        trace_log_message "Removing service scripts on DEBIAN7-64 server."
+        update-rc.d -f boottimemirroring_phase2 remove >> $UNINST_LOG 2>&1
+        update-rc.d -f boottimemirroring_phase1 remove >> $UNINST_LOG 2>&1
+        update-rc.d -f uarespawnd remove >> $UNINST_LOG 2>&1
+        update-rc.d -f vxagent remove >> $UNINST_LOG 2>&1
+        update-rc.d -f vConService_linux remove >> $UNINST_LOG 2>&1
+        update-rc.d -f involflt remove >> $UNINST_LOG 2>&1
+        update-rc.d -f involflt_start remove >> $UNINST_LOG 2>&1
+	elif [ "$OS" = "SLES15-64" -o "$OS" = "OL8-64" -o "$OS" = "UBUNTU-20.04-64" -o "$OS" = "DEBIAN9-64" -o "$OS" = "DEBIAN10-64" ]; then
+        trace_log_message "Disabling and removing service scripts."
+        systemctl disable vxagent >> $UNINST_LOG 2>&1
+        systemctl disable vConService_linux >> $UNINST_LOG 2>&1
+        systemctl disable uarespawnd >> $UNINST_LOG 2>&1
+        rm -f /etc/systemd/system/{vxagent.service,vConService_linux.service,uarespawnd.service} >> $UNINST_LOG 2>&1
+    else
+        # Common for all flavours
+        chkconfig --del vxagent >> $UNINST_LOG 2>&1
+        chkconfig --del boottimemirroring_phase1 >> $UNINST_LOG 2>&1
+        chkconfig --del boottimemirroring_phase2 >> $UNINST_LOG 2>&1
+
+        # Specific for SuSE flavours
+        if [ $IS_SLES = true ]; then
+            insserv -r boot.inmage >> $UNINST_LOG 2>&1
+            rm -f /etc/init.d/boot.inmage >> $UNINST_LOG 2>&1
+            rm -f /etc/init.d/boot.d/K20boot.inmage >> $UNINST_LOG 2>&1
+        fi
+
+        if  [ -f /etc/redhat-release ] || [ $IS_SLES = true ] ;then
+            # Deleting vConService_linux service
+            trace_log_message -q "Deleting vConService_linux service"
+            chkconfig --del vConService_linux >/dev/null 2>&1
+            rm -f /var/lock/subsys/vConService_linux >/dev/null 2>&1
+
+            #Removing uarespawnd daemon service
+            trace_log_message -q "Deleting uarespawnd daemon service"
+            chkconfig uarespawnd off >> $UNINST_LOG 2>&1
+            chkconfig --del uarespawnd >> $UNINST_LOG 2>&1
+            rm -f /etc/init.d/uarespawnd >/dev/null 2>&1
+        fi
+    fi
+
+    # Commonly removed for all flavours
+    for file in vxagent inmshutnotify inmaged boot.inmage inmaged.modules boottimemirroring_phase1 boottimemirroring_phase2 uarespawnd vConService_linux
+    do
+	[ -f /etc/init.d/${file} ] || [ -h /etc/init.d/${file} ] && rm -f /etc/init.d/${file} >> $UNINST_LOG 2>&1
+    done
+
+    [ -e /etc/vxagent/hotplug_utils/inmshutnotify ] && rm -f /etc/vxagent/hotplug_utils/inmshutnotify
+    [ -e /etc/vxagent/hotplug_utils/inm_dmit ] && rm -f /etc/vxagent/hotplug_utils/inm_dmit
+    [ -d /etc/vxagent/hotplug_utils/ ] && rm -rf /etc/vxagent/hotplug_utils/
+    [ -d /etc/vxagent/bin/ ] && rm -rf /etc/vxagent/bin/
+    [ -d /etc/vxagent/usr/ ] && rm -rf /etc/vxagent/usr/
+
+    # Restoring /etc/multipath.conf ...
+    trace_log_message -q "Restoring /etc/multipath.conf ..."
+    if [ -f /etc/multipath.conf_vx_install_save ] ; then
+        mv /etc/multipath.conf_vx_install_save /etc/multipath.conf
+    fi
+
+    # Remove /etc/udev/rules.d/09-inm_udev.rules and invoke '/sbin/udevcontrol reload_rules'
+    [ -f /etc/udev/rules.d/09-inm_udev.rules ] && rm -f /etc/udev/rules.d/09-inm_udev.rules
+    trace_log_message -q "Invoking /sbin/udevcontrol reload_rules"
+    /sbin/udevcontrol reload_rules >> $UNINST_LOG 2>&1
+
+    trace_log_message -q "Removing the links created for cxpsctl."
+    find /etc/rc*.d -name "*cxpsctl" -exec rm -f {} \; >> $UNINST_LOG 2>&1
+    find /etc/rc*.d -name "*vConService_linux" -exec rm -f {} \; >> $UNINST_LOG 2>&1
+
+    # Disable involflt_start and involflt_stop services
+    if [ "$OS" = "RHEL7-64" -o "$OS" = "RHEL8-64" -o "$OS" = "UBUNTU-16.04-64" -o "$OS" = "DEBIAN8-64" -o "$OS" = "SLES12-64" -o "$OS" = "SLES15-64" -o "$OS" = "OL7-64" -o "$OS" = "OL8-64" -o "$OS" =  "UBUNTU-20.04-64" -o "$OS" = "DEBIAN9-64" -o "$OS" = "DEBIAN10-64" ]; then
+        trace_log_message -q "Disabling involflt_start and involflt_stop services."
+        systemctl disable involflt_start  >> $UNINST_LOG 2>&1
+        systemctl disable involflt_stop >> $UNINST_LOG 2>&1
+        rm -f /etc/systemd/system/{involflt_start.service,involflt_stop.service} >> $UNINST_LOG 2>&1
+    fi
+
+    # Inovke systemctl daemon-reload command if systemctl exists on the system.
+    which systemctl >/dev/null 2>&1
+    if [ $? -eq 0 ];then
+        trace_log_message -q "systemctl command exists. Inoking the following commnad - systemctl daemon-reload"
+        systemctl daemon-reload  >> $UNINST_LOG 2>&1
+        if [ $? -eq 0 ];then
+            trace_log_message -q "systemctl daemon-reload executed successfully."
+        else
+            trace_log_message -q "systemctl daemon-reload execution failed."
+        fi
+    else
+       trace_log_message -q "systemctl command doesn't exist."
+    fi
+}
+
+# FUNCTION : Deletes any files from directories other than installation dir
+Delete_Other_Files()
+{
+    trace_log_message -q
+
+    trace_log_message -q "Removing Job log files from the $INSTALLATION_DIR directory (if any)"
+    rm -f ${INSTALLATION_DIR}/*.log >/dev/null 2>&1
+
+    trace_log_message "Removing agent-related log files from the system ..."
+    LOGFILES="dataprotection.log cdpcli.log InMage_drivers.log appservice.log CDPMgr.log CacheMgr.log s2.log s2.xfer.log svagents.log"
+    mv "$LOGFILES" "$OLD_LOGS_PATH" >/dev/null 2>&1
+
+    trace_log_message -q "Removing /var/log/vxlogs directory ..."
+    rm -rf /var/log/vxlogs
+
+    trace_log_message -q "Removing /etc/vxagent ..."
+    rm -rf /etc/vxagent
+    trace_log_message -q "Removing /var/lock/subsys/vxagent ..."
+    [ -f /var/lock/subsys/vxagent ] && rm -f /var/lock/subsys/vxagent
+
+    if [ -e /etc/modprobe.conf ]; then
+        trace_log_message -q "Restoring /etc/modprobe.conf ..."
+        [ -e /etc/modprobe.conf.vx_install_save ] && rm -f /etc/modprobe.conf.vx_install_save
+        # Remove all lines containing word "involflt" from modprobe.conf
+        sed -e "/involflt/ d" /etc/modprobe.conf > /etc/modprobe.conf.vx_uninstall_time
+        mv /etc/modprobe.conf.vx_uninstall_time /etc/modprobe.conf
+        chmod +x /etc/modprobe.conf
+    fi
+
+    if [ -e /etc/sysconfig/modules/inmaged.modules ]; then
+        trace_log_message "Removing /etc/sysconfig/modules/inmaged.modules ..."
+        rm -f /etc/sysconfig/modules/inmaged.modules
+    fi
+
+    # No need to remove /proc/involflt separately...
+    # We delete the file involflt.ko anyway so after a reboot, the driver won't be loaded and this entry will vanish
+    trace_log_message -q "Not removing /proc/involflt as this will vanish after a reboot after the uninstall ..."
+
+    # Remove ASR SHUTDOWN block from /sbin/halt.local file
+    if [ -e /sbin/halt.local ]; then
+        sed -i -e '/^# START: ASR SHUTDOWN/,/^# END: ASR SHUTDOWN/d' /sbin/halt.local
+        if [ ! -s /sbin/halt.local ]; then
+            rm -f /sbin/halt.local >/dev/null
+        fi
+    fi
+
+    # Clean all other Vx agent related file and directories
+    [ ! -d /var/scst/vdisk ] && mkdir -p /var/scst/vdisk
+    rm -f /dev/involflt /boot/*.img-InMage-Virtual /boot/Configuration.info >/dev/null 2>&1
+    rm -rf /usr/local/InMage/certs /usr/local/InMage/fingerprints >/dev/null 2>&1
+    rm -rf /usr/local/InMage/private /usr/local/InMage/config >/dev/null 2>&1
+    return 0
+}
+
+# FUNCTION : Deletes the metadata from REF_DIR
+Delete_Meta_Data()
+{
+    # Also remove the drscout.conf symlink in /usr/local created during install
+    trace_log_message -q
+    trace_log_message -q "Removing ${REF_DIR}/${INST_VERSION_FILE} ${REF_DIR}/${INST_MANIFEST_FILE} files"
+    rm -f "${REF_DIR}/${INST_VERSION_FILE}" "${REF_DIR}/${INST_MANIFEST_FILE}"
+    trace_log_message -q "Removing ${REF_DIR}/drscout.conf..."
+    rm -f ${REF_DIR}/drscout.conf
+    trace_log_message -q "Removing ${HOSTID_FILE}"
+    rm -f ${HOSTID_FILE}
+    trace_log_message "Metadata files removed successfully..."
+}
+
+#
+is_package_removed() {
+    local return_value=0
+
+        # Remove the filter device first
+        rm -f /dev/InmageFilter >/dev/null 2>&1
+
+        # Move mdadm.conf.bak as mdadm.conf if it exists.
+        [ -f ${INSTALLATION_DIR}/bin/mdadm.conf.bak ] && mv -f ${INSTALLATION_DIR}/bin/mdadm.conf.bak /etc/mdadm/mdadm.conf
+
+	# Remove GUID folders and pendingactions folders under cache directory.
+        CACHE_DIR=`cat ${INSTALLATION_DIR}/etc/drscout.conf | grep ^CacheDirectory | cut -d"=" -f2 | tr -d " "`
+        trace_log_message -q "Cache directory value in drscout.conf - ${CACHE_DIR}."
+        if [ -d ${CACHE_DIR} ]; then
+            trace_log_message -q "Removing the GUID folders under cache directory - ${CACHE_DIR}."
+            CUR_W_D=`pwd`
+            cd ${CACHE_DIR}
+
+            for i in `ls`
+            do
+                if [ -d "$i" ] && echo $i | grep -q '[a-z0-9]\{8\}-[a-z0-9]\{4\}-[a-z0-9]\{4\}-[a-z0-9]\{4\}-[a-z0-9]\{12\}'; then
+                    trace_log_message -q "Removing $i ..."
+                    [ "${i}" != "/" ] &&  rm -rf $i
+                fi
+            done
+
+            cd $CUR_W_D
+            rm -rf ${CACHE_DIR}/pendingactions 2>/dev/null
+        else
+            trace_log_message -q "Cache directory - ${CACHE_DIR} does not exist."
+        fi
+
+        # Uninstall the RPM package
+        if [ $IS_SLES = true ] || [ -f /etc/redhat-release ]
+        then	
+            trace_log_message -q
+            trace_log_message "Removing the Vx agent RPM package(if exists)"
+            if (rpm -qa | grep -q $RPM_PACKAGE)
+            then
+                if (rpm -e --nodeps $RPM_PACKAGE >> $UNINST_LOG 2>&1)
+                then
+                    [ "${INSTALLATION_DIR}" != "/" ] &&  rm -rf ${INSTALLATION_DIR} >/dev/null 2>&1
+                    trace_log_message "Vx agent package was successfully removed from the setup."
+                else                    
+                    trace_log_message "Vx agent package could not be removed successfully from the setup."
+                    return_value=1
+                fi
+            else
+                trace_log_message -q "Vx agent package not found in the setup."
+            fi
+        else
+            # Since installation manifest contains list of files put in, take them and delete
+            rm -f `cat ${REF_DIR}/$INST_MANIFEST_FILE`
+            [ "${INSTALLATION_DIR}" != "/" ] && rm -rf ${INSTALLATION_DIR} >/dev/null 2>&1        
+        fi
+
+
+    trace_log_message -q "Vx agent package remove return value: $return_value"
+    return $return_value
+}
+
+#
+unregister_agent() {
+    local return_value=0
+
+	local cstype=$(grep ^CSType ${INSTALLATION_DIR}/etc/drscout.conf | cut -d"=" -f2 | tr -d " ")
+    if [ "$VM_PLATFORM" = "Azure" ] || [ -n "$cstype" -a "$cstype" = "CSPrime" ]; then
+	trace_log_message "Unregistering source agent with the RCM Server."
+	trace_log_message -q "Executing the command : ${INSTALLATION_DIR}/bin/AzureRcmCli --unregistersourceagent"
+	for (( i=0; i<3; i++ ))
+	do
+	    trace_log_message -q "unregistersourceagent count : $i"
+	    if ! (${INSTALLATION_DIR}/bin/AzureRcmCli --unregistersourceagent >> $UNINST_LOG 2>&1)
+	    then
+		trace_log_message "Failed to unregister source agent with the RCM Server."
+		return_value=1
+	    else
+	        trace_log_message "Successfully unregistered source agent with the RCM Server."
+		break;
+	    fi
+	done
+
+	if [ "$return_value" != "1" ]
+	then
+	    trace_log_message "Unregistering machine  with the RCM Server."
+	    trace_log_message -q "Executing the command : ${INSTALLATION_DIR}/bin/AzureRcmCli --unregistermachine"	    
+	    for (( i=0; i<3; i++ ))
+	    do
+                trace_log_message -q "unregistersourceagent count : $i"
+		if ! (${INSTALLATION_DIR}/bin/AzureRcmCli --unregistermachine >> $UNINST_LOG 2>&1)
+                then
+                    trace_log_message "Failed to unregister machine with the RCM Server."
+		    return_value=1
+                else
+                    trace_log_message "Successfully unregistered machine with the RCM Server."
+                    break;
+                fi
+            done
+	fi
+    else
+        # Invoke 'unregister' to unregister this agent with the server
+        trace_log_message "Unregistering Vx Agent"
+        if ! (${INSTALLATION_DIR}/bin/unregister >> $UNINST_LOG 2>&1)
+        then
+            trace_log_message "Failed to unregister Vx agent with the Configuration Server"
+            return_value=1
+        fi
+    fi
+
+    trace_log_message -q "$Vx agent unregistration return value : $return_value"
+    return $return_value
+}
+
+# 
+# Function Name: is_agent_configured
+# 
+# Description:
+#    This function checks whether agent is already configured or not
+# 
+# Parameters:$agent_type
+# 
+# Return Value: On successful it returns zero, else returns non-zero
+# 
+# Exceptions:None
+# 
+is_agent_configured() {
+    local agent_name="$1"    
+    local return_value=0    
+    
+    case "$agent_name" in
+        Vx)
+	    local agent_configuration=$(grep ^AGENT_CONFIGURATION_STATUS "/usr/local/$INST_VERSION_FILE" | cut -d"=" -f2 | tr -d " ")
+	    if [ "$agent_configuration" == "Succeeded" ]; then
+		trace_log_message -q "$agent_name agent is already configured."
+            else
+                trace_log_message -q "$agent_name agent is not yet configured."
+                return_value=1
+            fi
+        ;;
+    esac
+    trace_log_message -q "Vx agent configuration return value : $return_value"
+    return $return_value
+}
+
+
+#
+# Function Name: stop_services
+#
+# Description:
+#    This function stops the Unified agent (Vx) services.
+#
+# Parameters:None
+#
+# Return Value: On successful it returns zero, else returns non-zero
+#
+# Exceptions:None
+#
+stop_services() {
+    local return_value=0
+
+    while true
+    do
+        # Abort the un-installation if UA Respawn daemon could not be stopped
+        trace_log_message "Stopping the UA Respawn daemon..."
+        if [ "$OS" = "SLES15-64" -o "$OS" = "OL8-64" -o "$OS" = "UBUNTU-20.04-64" -o "$OS" = "DEBIAN9-64" -o "$OS" = "DEBIAN10-64" ]; then
+            systemctl stop uarespawnd >> $UNINST_LOG 2>&1
+            uarespawnd_exit_value=$?
+            if [ $uarespawnd_exit_value -ne 0 ]; then
+                trace_log_message "UA Respawn daemon stop failed with exit value : $uarespawnd_exit_value"
+            fi
+        else
+            if ! (${INSTALLATION_DIR}/bin/uarespawnd stop >> $UNINST_LOG 2>&1)
+            then
+                trace_log_message "Failed to stop UA Respawn daemon"
+                return_value=1
+                break
+            fi
+        fi
+
+        # Abort the un-installation if vxagent could not be stop
+        if `${INSTALLATION_DIR}/bin/status | grep -q 'is running'` ; then
+            trace_log_message "Stopping the Vx agent service..."
+            touch /usr/local/.norespawn_vxagent >/dev/null 2>&1
+
+            # Inovke 'systemctl stop vxagent' if systemctl exists on the system. Otherwise invoke stop script.
+            which systemctl >/dev/null 2>&1
+            if [ $? -eq 0 ];then
+                trace_log_message -q "Invoking following command to stop vxagent service - systemctl stop vxagent."
+                systemctl stop vxagent >> ${UNINST_LOG} 2>&1
+                SVAGENTS_PID=`pgrep svagents`
+                APP_SERVICE_PID=`pgrep appservice`
+                if [ ! -z "$SVAGENTS_PID" ] || [ ! -z "$APP_SERVICE_PID" ]; then
+                    trace_log_message -q "SVAGENT_PID: ${SVAGENTS_PID}, APP_SERVICE_PID: ${APP_SERVICE_PID}"
+                    return_code=2
+                fi
+            else
+                ${INSTALLATION_DIR}/bin/stop uninstall >> ${UNINST_LOG} 2>&1
+                return_code=$?
+            fi
+
+            if [ $return_code -eq 2 ]; then
+                trace_log_message
+                trace_log_message "-----------------------------------------------------------------------------"
+                trace_log_message "Could not stop VX agent. Please try un-installation after sometime. Aborting."
+                trace_log_message "-----------------------------------------------------------------------------"                
+                return_value=1
+                break
+            fi
+        fi
+        break
+    done
+
+    trace_log_message -q "$Vx agent stop service return value : $return_value"
+    return $return_value
+}
+
+#
+# Function Name: check_requisites
+#
+# Description:
+#    This function checks the pre-requisite for uninstall
+#
+# Parameters:None
+#
+# Return Value: On successful it returns zero, else returns non-zero
+#
+# Exceptions:None
+#
+check_requisites() {
+    local return_value=0
+
+    while true
+    do
+        # Make sure root user is only allowed to execute the installer script
+        if [ "$EUID" != "0" ] || [ "$(whoami)" != "root" ]; then
+            trace_log_message "Only root user is allowed to uninstall this component. "
+            trace_log_message "Re-try the uninstallation after logging in as root user."
+            return_value=1
+            break
+        fi
+
+        if [ -f /usr/local/.install_type ] && [ ! -f /usr/local/unified_uninstall ]; then
+            trace_log_message "This uninstall script can not be executed directly..."
+            trace_log_message "Please execute uninstall.sh script"
+            return_value=1
+            break
+        fi
+
+        #// Check for absolute logfile path also creates logfile directory if not exist
+        if [ "`echo $UNINST_LOG | cut -c1`" != "/" ]; then
+            trace_log_message
+            trace_log_message "ERROR: Unintallation logfile must be an absolute path (i.e. beginning with a \"/\")."
+            return_value=1
+            break
+        elif [ ! -e "$UNINST_LOG" ]; then
+            logfile_path=${UNINST_LOG%/*}
+            trace_log_message -q "Creating log file direcoty $logfile_path"
+            mkdir -p $logfile_path >/dev/null 2>&1
+        fi
+
+        # Check for /usr/local/.vx_version file, abort file does not exists.
+        # Someone must have tampered with the /usr/local folder
+        if [ ! -e ${REF_DIR}/${INST_VERSION_FILE} ]; then
+            trace_log_message "Cannot find ${REF_DIR}/${INST_VERSION_FILE}"
+            return_value=1
+            break
+        else
+            source ${REF_DIR}/${INST_VERSION_FILE}
+            OS=$OS_BUILT_FOR
+            # If INSTALLATION_DIR is null, get installation directory from $PWD
+            if [ -z "$INSTALLATION_DIR" ]
+            then
+                case `dirname $0` in
+                    .) INSTALLATION_DIR=${PWD%/*}
+                        ;;
+                    *) INSTALLATION_DIR=`dirname \`dirname $0\`` ;;
+                esac
+                trace_log_message -q "Going ahead with the assumption that the installation directory is $INSTALLATION_DIR ..."
+            fi
+        fi
+
+        break;
+    done
+
+    trace_log_message -q "Agent uninstallation pre-requisite checks return value : $return_value"
+    return $return_value
+}
+
+main() {
+    # Prompt the user to confirm whether to proceed to uninstall the agent really
+    # Parse command line options if given
+
+    if [ $# -ge 1 ] && $(echo $1 | grep -q ^- ); then
+        while getopts :L:hYy OPT
+        do
+            case $OPT in
+                L)  UNINST_LOG="$OPTARG"
+                    if expr "$UNINST_LOG" : '-.' > /dev/null; then
+                        echo "Option -$OPT requires an argument." && Usage
+                    fi
+                    ;;
+                Y|y)  SILENT_UNINSTALL=true ;;
+                h|-*|*) Usage ;;
+            esac
+        done
+    fi
+
+    trace_log_message -q "VX UNINSTALLATION LOG STARTS FROM HERE"
+    trace_log_message -q "**************************************"
+
+    # Make sure all required pre-requisite checks are met
+    check_requisites || see_log $?
+
+    # If no option is specified, then the default is interactive
+    if  [ "$SILENT_UNINSTALL" = "false" ] ; then
+        echo && agree=""
+        while [ "X$agree" = "X" ]; do
+            echo -n "Do you really want to uninstall the VX agent? (Y/N) [default N] : "
+            read ans
+            [ -z "$ans" ] && ans="N"
+            case $ans in
+                [Yy]) agree=yes
+                    ;;
+                [Nn])                    
+                    echo "Bye..." && return 1
+                    ;;
+                *)  echo -e "Error: Invalid input.\n"
+                    continue
+                    ;;
+            esac
+        done
+    fi
+
+    # stop agent services
+    stop_services || see_log $?
+
+    # Unload kernel modules here as first step of uninstallation
+    is_driver_modules_unloaded || see_log $?
+
+    # remove involflt.ko files as filter driver module is unplugged from kernel memory
+    remove_kernel_modules
+
+    # Unregister the agent with CS/RCM
+    if [ "$VM_PLATFORM" = "Azure" ]; then
+        if (is_agent_configured "Vx")
+        then
+            unregister_agent
+        fi
+    else
+	unregister_agent
+    fi
+
+    if [ -f ${INSTALLATION_DIR}/scripts/initrd/install.sh ]; then
+        trace_log_message "Invoking initrd removal script."
+        ${INSTALLATION_DIR}/scripts/initrd/install.sh uninstall >> $UNINST_LOG 2>&1
+        if [ $? -eq 0 ]; then
+            trace_log_message "Initrd removal script completed successfully."
+        else
+            trace_log_message "Initrd removal script failed."
+        fi
+    else
+        trace_log_message -q "Skipping initrd removal script invocation as install.sh doesn't exist in initrd folder."
+    fi
+
+    # Remove Vx agent package
+    is_package_removed || see_log $?
+
+    # Clean up the symbolic links created during/post install and any job log files
+    Delete_Symbolic_Links
+
+    # Remove certs and various log and stale files.
+    Delete_Other_Files
+
+    # Remove the metadata files
+    Delete_Meta_Data
+    
+    return 0
+}
+
+# Main function invocation
+main "$@"
+RCODE=$?
+trace_log_message -q "VX uninstall script exiting with return code: ${RCODE}"
+trace_log_message -q "VX UNINSTALLATION LOG ENDS HERE"
+trace_log_message -q "*******************************"
+exit ${RCODE}

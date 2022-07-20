@@ -33,7 +33,11 @@ chmod +x ./gcc-depend
 
 chmod +x ../thirdparty/zlib-1.2.12/inmage_config_build
 
-chmod +x ../thirdparty/openssl-1.1.1n/inmage_config_build"
+chmod +x ../thirdparty/openssl-1.1.1n/inmage_config_build
+
+chmod +x ../thirdparty/boost/inmage_config_build
+
+chmod +x ../thirdparty/boost/boost_1_78_0/b2.exe
 
 gmake AzureRecoveryUtil X_VERSION_MAJOR=$MajorVersion X_VERSION_MINOR=$MinorVersion X_PATCH_SET_VERSION=$PatchsetVersion X_PATCH_VERSION=$PatchVersion X_VERSION_QUALITY=$BuildQuality X_VERSION_PHASE=$BuildPhase debug=no warnlevel=none verbose=yes partner=inmage > >(tee AzureRecoveryUtilBuild.log) 2>&1
 

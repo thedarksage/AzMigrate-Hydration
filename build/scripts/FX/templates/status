@@ -1,0 +1,28 @@
+#!/bin/sh
+
+##########################################################################
+## 
+## This script checks if the PARTNER_OR_COMPANY FX Agent is running or not
+##
+##########################################################################
+	
+##########################################################################
+## Get the PID of svfrd, if already running
+##########################################################################
+
+PIDS=`ps -ef | grep svfrd | grep -v grep | awk '{print $2}'`
+
+if [ -z "${PIDS}" ]; then
+
+	if [ -f /usr/local/.pillar ]; then
+		echo "FileAgent is not running!"
+	else
+    		echo "FX Agent is not running!"
+	fi
+else
+	if [ -f /usr/local/.pillar ]; then
+		echo "FileAgent is running....."
+	else
+    		echo "FX Agent is running....."
+	fi
+fi 

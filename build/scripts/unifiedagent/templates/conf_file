@@ -1,0 +1,58 @@
+# Specify the type of the Agent to be installed
+#	1. FX for File Replication Agent
+#	2. VX for Volume Replication Agent
+#	3. both for FX and VX
+
+TYPE_OF_THE_AGENT=both
+
+# Specify the Installation Mode
+# Installation mode can be host or fabric
+
+INSTALLATION_MODE=host
+
+# Installation Directory
+
+DEPLOYMENT_DIR=DEFAULT_PARTNER_INSTALL_DIR
+
+# CS IP address
+
+CX_SERVER_IP_ADDRESS=10.0.1.95
+
+# COMMUNICATION_MODE
+
+COMMUNICATION_MODE=https
+
+# CS port
+
+CX_SERVER_PORT_NUMBER=80
+
+# NAT IP address
+
+NAT_IP=
+
+# NAT Hostname
+
+NAT_HOST_NAME=
+
+# Enable Report Full Device option for ESX
+# This is applicable for protecting Virtual Machines resided on ESX/ESXi  
+
+ESX_REPORT_FULL_DEVICE=N
+
+# Start the Agent now
+
+START_AGENT_TYPE=Y
+
+# Log file name to store the log information during Installation
+
+LOG_NAME=
+
+# Action to be performed
+# Default action to be performed is Installation
+# For Upgrade, use U 
+
+ACTION=
+
+# AGENT_ROLE -R MasterTarget|Agent
+
+AGENT_ROLE=Agent

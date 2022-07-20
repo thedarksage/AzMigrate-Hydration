@@ -1,0 +1,802 @@
+#!/bin/sh
+
+############################################
+# SECTION: VARIABLES USED IN THIS PROGRAM
+############################################
+
+# exporting LANG variable
+LANG=C
+export LANG
+
+# Values for variables in this sub-section will be changed at build-packaging time
+
+CURRENT_VERSION="BUILDTIME_CURRENT_VERSION"
+INST_VERSION_FILE="BUILDTIME_INST_VERSION_FILE"
+BUILD_MANIFEST_FILE="BUILDTIME_BUILD_MANIFEST_FILE"
+CURRENT_BLDNUMBER=$(grep -w BUILD_TAG ./$INST_VERSION_FILE | cut -d'_' -f5)
+CURRENT_BLDVERSION=$(echo $CURRENT_VERSION | awk -F. -v OFS=. '{$3 = "BLDNO"}{ print }'  | sed -e "s/BLDNO/$CURRENT_BLDNUMBER/g; s/\.//g"|cut -d= -f2)
+
+if [ `uname` = "Linux" ]; then
+	if [ -f /etc/SuSE-release ] || [ -f /etc/redhat-release ] ; then
+		MAIN_RPM_FILE="BUILDTIME_MAIN_RPM_FILE"
+		MAIN_RPM_PACKAGE="BUILDTIME_MAIN_RPM_PACKAGE"
+	fi
+fi
+
+DEFAULT_UPGRADE_DIR="BUILDTIME_DEFAULT_UPGRADE_DIR"
+REF_DIR="BUILDTIME_REF_DIR"
+
+# Values for variables in this sub-section are fixed
+
+DATE_TIME_SUFFIX=`date +%d`_`date +%b`_`date +%Y`_`date +%H`_`date +%M`_`date +%S`
+INST_MANIFEST_FILE=".fx_install_manifest"
+CUR_W_D=`pwd`
+TEMP_INST_DIR="FX_TEMP_$DATE_TIME_SUFFIX"
+
+if [ `uname` = "Linux" ]; then
+	if [ -f /etc/SuSE-release ] || [ -f /etc/redhat-release ] ; then
+                RPMARCH=`rpm -q --queryformat "%{ARCH}" rpm`
+        fi
+fi
+
+RPM_COMMAND=$(which rpm)
+chmod +x OS_details.sh
+. ./OS_details.sh 1>/dev/null
+
+BUILD_OS=`grep 'OS_BUILT_FOR' $INST_VERSION_FILE | cut -d'=' -f2`
+if [ "$BUILD_OS" = "RHEL6-64" -a "$OS" = "RHEL6U4-64" ]; then
+       TARGET_OS="RHEL6-64" ; OS="RHEL6-64"
+else
+       TARGET_OS=$OS
+fi 
+
+#############################################################
+# SECTION: RE-USABLE FUNCTIONS FOR INSTALL/UPGRADE/RE-INSTALL
+#############################################################
+
+# FUNCTION : Carries out a command and logs output into an install log
+DO()
+{
+ eval "$1 2>> $INST_LOG | tee -a $INST_LOG"
+}
+
+# FUNCTION : Echoes a command into an install log
+LOG()
+{
+ echo "$1" >> $INST_LOG
+}
+
+# FUNCTION : Create deployment directory and install stuff into it
+Install_Into_Deployment_Dir()
+{
+ LOG ""
+ # What is the deployment dir?
+ DEPLOY_DIR=$1
+ # Does it exist already?
+ mkdir -p $DEPLOY_DIR
+ # Based on OS, install through RPM or tar and grant execute permissions on all
+ case `uname` in
+	Linux)
+		case $OS in
+		UBUNTU*|DEBIAN*)
+                        echo && echo "Installing agent files into ${DEPLOY_DIR}/"
+                        # Create temporary folder to untar all contents
+                        mkdir -p $TEMP_INST_DIR
+                        [ $? -ne 0 ] && echo "Could not create temporary directory that is needed for installation..." && exit 195
+                        # Untar contents in temp folder
+                        tarball=`grep TAR_FILE_NAME $INST_VERSION_FILE | cut -d'=' -f2`
+                        cp $tarball ${TEMP_INST_DIR}/
+                        cd $TEMP_INST_DIR
+                        tar -xvf $tarball 1>/dev/null
+			if [ $? -eq 0 ]; then
+				LOG "Extracted the tar into temporary directory"
+			else
+				DO 'echo "Errors while extracting the tar. Aborting..."'
+				[ "$TEMP_INST_DIR" != "/" ] && rm -rf $TEMP_INST_DIR
+				[ "${DEPLOY_DIR}" != "/" ] && rm -rf $DEPLOY_DIR
+				exit 190
+			fi
+                        cp -R * ${DEPLOY_DIR}/ > /dev/null 2>&1
+                        mkdir -p ${DEPLOY_DIR}/loginfo ${DEPLOY_DIR}/ApplicationData 
+			mkdir -p ${DEPLOY_DIR}/ICAT ${DEPLOY_DIR}/loginfo/fabric
+
+                        chmod -R 770 ${DEPLOY_DIR}/ && cd "$CUR_W_D"
+                        # Conditionally remove the temp folder
+                        [ "$TEMP_INST_DIR" != "/" ] && rm -rf $TEMP_INST_DIR
+		;;
+		*)
+			DO 'echo "Installing the FX RPM package..."'
+			rpm -U --nomd5 --relocate /BUILDTIME_PARTNER_SPECIFIC_STRING/Fx=${DEPLOY_DIR} $MAIN_RPM_FILE
+			if $($RPM_COMMAND -qa | grep -q "$MAIN_RPM_PACKAGE" ) ; then
+                            LOG "New RPM package $MAIN_RPM_PACKAGE has been successfully installed."
+                        else
+                            LOG "---> FX RPM installation has failed. Aborting..."
+                            exit 159
+                        fi
+
+			LOG "Creating the required directories..."
+			mkdir -p ${DEPLOY_DIR}/ApplicationData ${DEPLOY_DIR}/loginfo
+			mkdir -p ${DEPLOY_DIR}/loginfo/fabric ${DEPLOY_DIR}/ICAT
+
+			chmod -R 770 ${DEPLOY_DIR}/
+			chmod -R 750 ${DEPLOY_DIR}/loginfo/fabric
+
+		;;
+		esac
+
+		;;
+	*)
+                echo && DO 'echo "Installing agent files into ${DEPLOY_DIR}/"'
+                tarball=`grep TAR_FILE_NAME $INST_VERSION_FILE | cut -d'=' -f2`
+                cp $tarball ${DEPLOY_DIR}/
+
+                cd ${DEPLOY_DIR}
+                tar -xvf $tarball 1>/dev/null
+                if [ $? -eq 0 ]; then
+                        LOG "Extracted the tar into installation directory"
+                else
+                        DO 'echo "Errors while extracting the tar"'
+			[ "${DEPLOY_DIR}" != "/" ] && rm -rf ${DEPLOY_DIR}
+                        exit 190
+                fi
+                rm -f ${DEPLOY_DIR}/${tarball}
+
+		LOG "Creating the required directories..."
+		mkdir -p ${DEPLOY_DIR}/loginfo ${DEPLOY_DIR}/ICAT
+		mkdir -p ${DEPLOY_DIR}/loginfo/fabric
+		
+		chmod -R 770 ${DEPLOY_DIR}/ && chmod -R 750 ${DEPLOY_DIR}/loginfo/fabric && cd "$CUR_W_D"
+		[ -d ${DEPLOY_DIR}/tools/failover_data ] && chmod -R 770 ${DEPLOY_DIR}/tools/failover_data
+		;;
+ esac
+}
+
+# FUNCTION : Set the directory under which "init" program resides
+Set_Init_Dir()
+{
+ LOG ""
+ LOG "Setting the init directories..."
+ # Values are same for all flavours of currently supported Linuses, namely, RHEL3, RHEL4 and SuSE9
+ # Values are also same for HP-UX 32-bit and HP-UX 64-bit (Itanium)
+ case `uname` in
+	AIX|Linux|SunOS)	INIT_DIRECTORY="/etc";;
+	HP-UX)			INIT_DIRECTORY="/sbin";;
+ esac
+}
+
+# FUNCTION : Change some files to reflect installation path
+Edit_Files()
+{
+ LOG ""
+ LOG "Changing the files to reflect the installation path..."
+ # Grab the deployment dir
+ DEPLOY_DIR=$1
+
+ # config.ini
+ LOG "Replacing RUNTIME_INSTALL_PATH with Installation directory in the file config.ini"
+ sed -e "s|RUNTIME_INSTALL_PATH|$DEPLOY_DIR|g" ${DEPLOY_DIR}/config.ini > ${DEPLOY_DIR}/config.ini.new
+ mv ${DEPLOY_DIR}/config.ini.new ${DEPLOY_DIR}/config.ini
+
+ # start and stop
+ LOG "Replacing RUNTIME_INSTALL_PATH with Installation directory in the start and stop scripts"
+ sed -e "s|RUNTIME_INSTALL_PATH|$DEPLOY_DIR|g" ${DEPLOY_DIR}/start > ${DEPLOY_DIR}/start.new
+ mv ${DEPLOY_DIR}/start.new ${DEPLOY_DIR}/start
+ sed -e "s|RUNTIME_INSTALL_PATH|$DEPLOY_DIR|g" ${DEPLOY_DIR}/stop > ${DEPLOY_DIR}/stop.new
+ mv ${DEPLOY_DIR}/stop.new ${DEPLOY_DIR}/stop
+
+ # svagent
+ LOG "Replacing RUNTIME_INSTALL_PATH with Installation directory in the file svagent"
+ sed -e "s|RUNTIME_INSTALL_PATH|$DEPLOY_DIR|g" ${DEPLOY_DIR}/svagent > ${DEPLOY_DIR}/svagent.new
+ mv ${DEPLOY_DIR}/svagent.new ${DEPLOY_DIR}/svagent
+
+ # uninstall
+ LOG "Replacing RUNTIME_INSTALL_PATH with Installation directory in uninstall script"
+ sed -e "s|RUNTIME_INSTALL_PATH|$DEPLOY_DIR|g" ${DEPLOY_DIR}/uninstall | \
+ sed -e "s|RUNTIME_VALUE_INST_MANIFEST_FILE_NAME|$INST_MANIFEST_FILE|" | \
+ sed -e "s|SET_OS_PLACE_HOLER|$OS|" > ${DEPLOY_DIR}/uninstall.new
+ mv ${DEPLOY_DIR}/uninstall.new ${DEPLOY_DIR}/uninstall
+ 
+ # unregister
+ LOG "Replacing RUNTIME_INSTALL_PATH with Installation directory in unregister script"
+ sed -e "s|RUNTIME_INSTALL_PATH|$DEPLOY_DIR|g" ${DEPLOY_DIR}/unregister > ${DEPLOY_DIR}/unregister.new
+ mv ${DEPLOY_DIR}/unregister.new ${DEPLOY_DIR}/unregister
+
+ # start_fxagent.sh
+ if [ "`uname`" = "AIX" ]; then
+    LOG "Replacing RUNTIME_INSTALL_PATH with Installation directory in start_fxagent.sh script"
+    sed -e "s|RUNTIME_INSTALL_PATH|$DEPLOY_DIR|g" ${DEPLOY_DIR}/start_fxagent.sh > ${DEPLOY_DIR}/start_fxagent.sh.new
+    mv ${DEPLOY_DIR}/start_fxagent.sh.new ${DEPLOY_DIR}/start_fxagent.sh
+ fi
+
+ if [ -f /etc/debian_version ] && grep -q '6.0.1' /etc/debian_version ; then
+        LOG "OS is debian 6.0.1. Replacing network with \$network"
+        sed -i -e "s|network|\$network|g" ${DEPLOY_DIR}/svagent
+ fi
+
+ # fx.sh - specific to Pillar
+ if [ -f ${DEPLOY_DIR}/tools/bin/fx.sh ]; then
+    LOG "Replacing RUNTIME_INSTALL_PATH with Installation directory in fx.sh script"
+    sed -e "s|RUNTIME_INSTALL_PATH|$DEPLOY_DIR|g" ${DEPLOY_DIR}/tools/bin/fx.sh > ${DEPLOY_DIR}/tools/bin/fx.sh.new
+    mv ${DEPLOY_DIR}/tools/bin/fx.sh.new ${DEPLOY_DIR}/tools/bin/fx.sh
+    chmod +x ${DEPLOY_DIR}/tools/bin/fx.sh
+ fi
+
+ if [ `uname` = 'SunOS' ]; then
+     # Replacing RUNTIME_INSTALL_PATH in fx64.sh
+     if [ -f ${DEPLOY_DIR}/fx64.sh ]; then
+         LOG "Replacing RUNTIME_INSTALL_PATH with Installation directory in fx64.sh script"
+         sed -e "s|RUNTIME_INSTALL_PATH|$DEPLOY_DIR|g" ${DEPLOY_DIR}/fx64.sh > ${DEPLOY_DIR}/fx64.sh.new
+         mv ${DEPLOY_DIR}/fx64.sh.new ${DEPLOY_DIR}/fx64.sh
+         chmod +x ${DEPLOY_DIR}/fx64.sh
+     fi
+
+     if [ -f ${DEPLOY_DIR}/transport/fx64.sh ]; then
+         LOG "Replacing RUNTIME_INSTALL_PATH with Installation directory in fx64.sh script"
+         sed -e "s|RUNTIME_INSTALL_PATH|$DEPLOY_DIR|g" ${DEPLOY_DIR}/transport/fx64.sh > ${DEPLOY_DIR}/transport/fx64.sh.new
+         mv ${DEPLOY_DIR}/transport/fx64.sh.new ${DEPLOY_DIR}/transport/fx64.sh
+         chmod +x ${DEPLOY_DIR}/transport/fx64.sh
+     fi
+ fi
+
+ if [ `uname` = 'AIX' ]; then
+     LIBPATH=${CHOSEN_DEPLOY_DIR}/lib64:
+
+     # Replacing SET_LIBPATH in fx64.sh
+     if [ -f ${DEPLOY_DIR}/transport/fx64.sh ]; then
+         LOG "Replacing SET_LIBPATH with LIBPATH in fx64.sh script"
+         sed -e "s|SET_LIBPATH|$LIBPATH|g" ${DEPLOY_DIR}/transport/fx64.sh > ${DEPLOY_DIR}/transport/fx64.sh.new
+         mv ${DEPLOY_DIR}/transport/fx64.sh.new ${DEPLOY_DIR}/transport/fx64.sh
+         chmod +x ${DEPLOY_DIR}/transport/fx64.sh
+     fi
+
+     if [ -f ${DEPLOY_DIR}/fx64.sh ]; then
+         LOG "Replacing SET_LIBPATH with LIBPATH in fx64.sh script"
+         sed -e "s|SET_LIBPATH|$LIBPATH|g" ${DEPLOY_DIR}/fx64.sh > ${DEPLOY_DIR}/fx64.sh.new
+         mv ${DEPLOY_DIR}/fx64.sh.new ${DEPLOY_DIR}/fx64.sh
+         chmod +x ${DEPLOY_DIR}/fx64.sh
+     fi
+ fi
+
+ # In case of AIX, set InmSyncGID value to system
+ if [ `uname` = "AIX" ]; then
+     LOG "Setting InmSyncGID parameter value to system in config.ini"
+     sed "s|InmSyncGID = root|InmSyncGID = system|g" ${DEPLOY_DIR}/config.ini > ${DEPLOY_DIR}/config.ini.new
+     mv ${DEPLOY_DIR}/config.ini.new ${DEPLOY_DIR}/config.ini
+ fi
+}
+
+# FUNCTION : Delete any existing symbolic links to svagent from the INIT_DIRECTORY
+Delete_Symbolic_Links()
+{
+ LOG ""
+ LOG "Deleting the Symbolic links..."
+ # Handle all OSes
+ case `uname` in
+    Linux|SunOS)
+        chkconfig svagent off >/dev/null 2>&1  
+        chkconfig --del svagent >/dev/null 2>&1
+
+        rm -f /etc/init.d/svagent >/dev/null 2>&1
+        find /etc/rc.d/ -type l -name "S*svagent" -exec rm -f {} \; >/dev/null 2>&1
+        find /etc/rc.d/ -type l -name "K*svagent" -exec rm -f {} \; >/dev/null 2>&1
+    ;;
+    AIX)
+        # Remove fxagent entry from /etc/inittab.
+        rmitab fxagent >/dev/null 2>&1
+    ;;
+ esac
+}
+
+# FUNCTION : Create new symbolic links to svagent in the INIT_DIRECTORY
+Create_Symbolic_Links()
+{
+ LOG ""
+ LOG "Creating the symbolic links..."
+ # Grab the deployment dir
+ DEPLOY_DIR=$1
+ # Handle all OSes
+ case `uname` in
+    Linux)
+        ln -f -s ${DEPLOY_DIR}/svagent ${INIT_DIRECTORY}/init.d/svagent        
+        chmod +x ${DEPLOY_DIR}/svagent ${INIT_DIRECTORY}/init.d/svagent        
+    
+        # For RHEL7 platform, made below changes to copy svagent service script into /etc/init.d directory 
+        # as systemd service manager not starting service(s) due to symlinks durig boot time.
+        # Also removed SLES related LSB headers from svagent service script as its' not starting services(s) during boot time.
+
+        if [ "$OS" = "RHEL7-64" ]; then
+            rm -f ${INIT_DIRECTORY}/init.d/svagent >> $INST_LOG 2>&1
+            sed -i -e '/# This is for SLES systems/,/### END INIT INFO/d' ${DEPLOY_DIR}/svagent
+            cp -f ${DEPLOY_DIR}/svagent ${INIT_DIRECTORY}/init.d/svagent
+            chmod 755 ${INIT_DIRECTORY}/init.d/svagent
+        fi
+
+        if [ -f /etc/redhat-release ] || [ -f /etc/oracle-release ]; then
+            # RHEL or CentOS or Oracle Linux
+            chkconfig --add svagent >> $INST_LOG 2>&1
+            chkconfig svagent on >> $INST_LOG 2>&1
+        elif [ -f /etc/SuSE-release ]; then            
+            chkconfig --add svagent >> $INST_LOG 2>&1
+            chkconfig svagent on >> $INST_LOG 2>&1
+        elif [ -f /etc/lsb-release ] || [ -f /etc/debian_version ]; then
+            # DEBIAN or UBUNTU
+            if [ -f /etc/debian_version ] && grep -q '6.0.1' /etc/debian_version ; then
+                LOG "OS is debian 6.0.1. Running insserv svagent"
+                insserv svagent >> $INST_LOG 2>&1
+                if [ $? -eq 0 ];then
+                    LOG "svagent service installed successfully"
+                else
+                    DO 'echo "Failed to create svagent service. Aborting..."'
+                    exit 196;
+                fi
+            else
+                update-rc.d svagent start 97 1 2 3 4 5 . stop 97 0 6 . >> $INST_LOG 2>&1
+            fi
+        fi
+    ;;
+    SunOS)
+        ln -f -s ${DEPLOY_DIR}/svagent ${INIT_DIRECTORY}/init.d/svagent
+        ln -f -s ${INIT_DIRECTORY}/init.d/svagent ${INIT_DIRECTORY}/rc3.d/S91svagent
+        ln -f -s ${INIT_DIRECTORY}/init.d/svagent ${INIT_DIRECTORY}/rc3.d/K91svagent
+    ;;
+    AIX)
+        # Prior to Scout 7.1 release, inmagefilerep was used. Remove it as fxagent is being used now.
+        rmitab inmagefilerep >/dev/null 2>&1
+    
+        # Copy start_fxagent.sh to /usr/local as .start_fxagent.sh and create fxagent entry in /etc/inittab.
+        # .start_fxagent.sh inturn invokes fxagent start script.
+        cp -f ${DEPLOY_DIR}/start_fxagent.sh /usr/local/.start_fxagent.sh
+        chmod +x /usr/local/.start_fxagent.sh
+        mkitab "fxagent:2:boot:/usr/local/.start_fxagent.sh >> /var/log/start_fxagent.log 2>&1" >> $INST_LOG 2>&1
+    ;;
+ esac
+}
+
+# FUNCTION : Without prompting the user to choose whether to start the agent on a reboot of this box
+Restart_On_Reboot()
+{
+ LOG ""
+ # Grab the deployment dir
+ DEPLOY_DIR=$1
+
+ Delete_Symbolic_Links $DEPLOY_DIR
+ Create_Symbolic_Links $DEPLOY_DIR
+}
+
+# FUNCTION : Disables the FX service
+Disable_Agent()
+{
+ LOG ""
+ DO 'echo "Disabling the FX agent service..."'
+
+ which systemctl >/dev/null 2>&1
+ if [ $? -eq 0 ];then
+   systemctl disable svagent
+ else
+   chkconfig svagent off
+ fi
+}
+
+# FUNCTION : Prompt the user to choose whether to start the agent now
+Start_Agent()
+{
+ LOG ""
+ DO 'echo "Starting the FX agent daemon..."'
+ # Grab the deployment dir
+ DEPLOY_DIR=$1
+
+ # Make all binaries executable
+ chmod 770 ${DEPLOY_DIR}/start ${DEPLOY_DIR}/stop ${DEPLOY_DIR}/svagent ${DEPLOY_DIR}/uninstall ${DEPLOY_DIR}/unregister ${DEPLOY_DIR}/config.ini
+
+ START_AGENT="N"
+ if [ -z "$START_AGENT" -o "$START_AGENT" = "Y" -o "$START_AGENT" = "y" ]; then
+   # To capture service logs we've used systemctl commmand for RHEL7-64 platform
+   if [ "$OS" = "RHEL7-64" ]; then
+        LOG "Starting the svagent service using the command ---> systemctl start svagent"
+        systemctl start svagent
+        sleep 5; ${INIT_DIRECTORY}/init.d/svagent status
+   else
+        LOG "Executing the start script..."
+        ${DEPLOY_DIR}/start ${DEPLOY_DIR}
+   fi
+ fi
+
+ chmod -R 750 ${DEPLOY_DIR}/loginfo
+}
+
+# Create links to all 3 metadata files in DEPLOY_DIR
+Metadata()
+{
+ LOG ""
+ LOG "Creating the links..."
+ # Grab the deployment dir
+ DEPLOY_DIR=$1
+ # Does REF_DIR exist?
+ [ ! -d $REF_DIR ] && mkdir -p $REF_DIR
+ # Edit version file and overwrite the new one on the old one
+ sed -e "s|RUNTIME_INSTALL_PATH|$DEPLOY_DIR|g" $INST_VERSION_FILE > ${INST_VERSION_FILE}_new
+ # Copy _new file to REF_DIR first
+ cp -f ${INST_VERSION_FILE}_new ${DEPLOY_DIR}/$INST_VERSION_FILE
+ # Remove the _new file
+ rm -f ${INST_VERSION_FILE}_new
+ # Copy stuff
+ cp -f $BUILD_MANIFEST_FILE ${DEPLOY_DIR}
+ # Form install manifest
+ find $DEPLOY_DIR -type f > ${DEPLOY_DIR}/$INST_MANIFEST_FILE
+ # Link metadata files
+ ln -f -s ${DEPLOY_DIR}/$INST_VERSION_FILE ${REF_DIR}/$INST_VERSION_FILE >/dev/null 2>&1
+ ln -f -s ${DEPLOY_DIR}/$INST_MANIFEST_FILE ${REF_DIR}/$INST_MANIFEST_FILE >/dev/null 2>&1
+ ln -f -s ${DEPLOY_DIR}/$BUILD_MANIFEST_FILE ${REF_DIR}/$BUILD_MANIFEST_FILE >/dev/null 2>&1
+}
+
+# FUNCTION : Function that calls all other functions during a fresh install
+Fresh_Install()
+{
+    CHOSEN_DEPLOY_DIR=${CHOSEN_DEPLOY_DIR}/Fx
+    LOG "Deployment directory for this FX instance : $CHOSEN_DEPLOY_DIR"
+
+    Install_Into_Deployment_Dir $CHOSEN_DEPLOY_DIR
+    Metadata $CHOSEN_DEPLOY_DIR
+    Set_Init_Dir
+    Edit_Files $CHOSEN_DEPLOY_DIR
+    Restart_On_Reboot $CHOSEN_DEPLOY_DIR
+    Start_Agent $CHOSEN_DEPLOY_DIR
+    Disable_Agent
+
+    # Set permissions.
+    LOG "Adding 770 permissions to main installation directory."
+    MAIN_INST_DIR="${CHOSEN_DEPLOY_DIR}"/..
+    chmod -R 770 $MAIN_INST_DIR /usr/local/InMage/private /usr/local/InMage/config >> $INST_LOG 2>&1
+    [ -d ${CHOSEN_DEPLOY_DIR}/failover_data ] && chmod -R 750 ${CHOSEN_DEPLOY_DIR}/failover_data
+
+    echo && DO 'echo "Installation process has finished."'
+    exit 0
+}
+
+# FUNCTION : Function that calls other functions required to do an upgrade/reinstall of agents
+Upgrade_New_Agent()
+{
+ LOG ""
+ INSTALLED_FX_VERSION=`grep "^VERSION=" ${REF_DIR}/$INST_VERSION_FILE | cut -d= -f2`
+
+ if [ -f /usr/local/.fx_version ]; then
+    FX_VERSION=`grep -w VERSION /usr/local/.fx_version | cut -d'=' -f2`
+    SETUP_BLDNUMBER=$(grep -w BUILD_TAG /usr/local/.fx_version | cut -d'_' -f5)
+    SETUP_BLDVERSION=$(awk -F. -v OFS=. '/^VERSION=/{$3 = "BLDNO"}{ print }' /usr/local/.fx_version | grep -w "^VERSION" | sed -e "s/BLDNO/$SETUP_BLDNUMBER/g; s/\.//g"|cut -d= -f2)                
+
+    if [ $SETUP_BLDVERSION -gt $CURRENT_BLDVERSION ]; then
+        DO 'echo "The latest version of Fx Agent is already installed."'
+        DO 'echo "Upgrade is not supported from the current version."'
+        exit 0
+    else
+        LOG "Found ${FX_VERSION} FX. Upgrade is supported."
+    fi
+ fi
+ 
+ ans=$ACTION_TO_BE_PERFORMED
+
+ case $ans in
+  r|R) CHOICE="Reinstallation" ;;
+  u|U) CHOICE="Upgrade" ;;
+ esac
+
+ case $ans in
+   r|R|u|U)
+
+	CUR_WD=`pwd`
+        echo
+        DO 'echo "Beginning $CHOICE process..."'
+        DO 'echo "All the job log files shall be preserved and a tar ball of the existing installation"'
+        DO 'echo "is created as backup in ${CUR_W_D}/TEMP"'
+
+        # To find the path where the installation was done
+        EX_INST_DIR=`grep INSTALLATION_DIR ${REF_DIR}/${INST_VERSION_FILE} | cut -d'=' -f2`
+        DO 'echo "Existing installation directory is $EX_INST_DIR"'
+
+        # Stopping the services of the Existing Installation directory
+	LOG "Stopping the FX service(this takes a while)..."
+        cd ${EX_INST_DIR}
+        if `${EX_INST_DIR}/status | grep -q 'is running'` ; then
+            ./stop >/dev/null 2>&1
+            FX_STOP_EXIT_CODE=$?
+
+            if [ "$FX_STOP_EXIT_CODE" -eq 0 ]; then
+                LOG "FX service is stopped completely..."
+            elif [ "$FX_STOP_EXIT_CODE" -eq 2 ]; then
+                DO 'echo "Could not stop FX service within 6 mins. Aborting..."'
+                exit 193
+            fi
+        fi
+
+        case $OS in
+        AIX*)
+                set PATH=/usr/bin:/etc:/bin:/usr/sbin:$PATH
+                export PATH
+                slibclean
+        ;;
+        esac
+
+	rm -f ${EX_INST_DIR}/Xiotech_*.tar 2>/dev/null
+
+        # Taking the backup of the job log files
+        [ ! -d "${CUR_W_D}"/TEMP ] && mkdir "$CUR_W_D"/TEMP
+        # Taking the backup of the existing installation directory and metadata files
+	
+	LOG "Taking the backup of the existing installation directory and metadata files..."
+        tar -cvf "$CUR_W_D"/TEMP/FX_Old_Install_Backup_${DATE_TIME_SUFFIX}.tar ${EX_INST_DIR} 1>/dev/null 2>/dev/null
+        gzip "$CUR_W_D"/TEMP/FX_Old_Install_Backup_${DATE_TIME_SUFFIX}.tar 1>/dev/null 2>&1
+
+        # Remove metadata files from REF_DIR and their symlinks in EX_INST_DIR
+ 	LOG "Removing the metadata files from the reference directory /usr/local..."
+        rm -f ${REF_DIR}/${INST_VERSION_FILE} ${REF_DIR}/${BUILD_MANIFEST_FILE} ${REF_DIR}/${INST_MANIFEST_FILE}
+        rm -f ${EX_INST_DIR}/${INST_VERSION_FILE} ${EX_INST_DIR}/${BUILD_MANIFEST_FILE} ${EX_INST_DIR}/${INST_MANIFEST_FILE}
+
+        # Taking the backup of the config.ini file
+	LOG "Taking the backup of the config.ini file..."
+        cp config.ini "$CUR_W_D"/TEMP/config.ini
+
+	# Adding a new line at the end so that the Hostid field will not contain any other fields in this line.
+	echo >>"$CUR_W_D"/TEMP/config.ini
+
+        # Based on OS, do either an rpm upgrade or simple overwrite
+        case `uname` in
+        Linux)
+
+		case $OS in
+		DEBIAN*|UBUNTU*)
+		
+                        cd $CUR_WD
+                        mkdir -p ${EX_INST_DIR} 2>/dev/null
+                        cd ${EX_INST_DIR}
+
+                	# Untar contents in existing installation directory
+                	cp "${CUR_W_D}"/*FX*.tar ${EX_INST_DIR}/
+			LOG "Copying the required binaries to ${EX_INST_DIR}..."
+			for tarball in *FX*.tar; do tar -xvf $tarball 1>/dev/null; done
+
+                	LOG "Creating the required directories..."
+
+                	chmod -R 770 ${EX_INST_DIR}/scripts/ ${EX_INST_DIR}/lib 2>/dev/null
+                	rm -f install *.tar
+		;;
+
+		*)
+			LOG "Upgrading the rpm..."
+                	rpm -U --nomd5 --force --relocate /BUILDTIME_PARTNER_SPECIFIC_STRING/Fx=${EX_INST_DIR} "$CUR_W_D"/$MAIN_RPM_FILE
+		
+		;;
+		esac
+
+		LOG "Creating the required directories..."
+		mkdir -p ${EX_INST_DIR}/ApplicationData ${EX_INST_DIR}/ICAT
+		mkdir -p ${EX_INST_DIR}/loginfo
+
+		list_of_files=`ls ${EX_INST_DIR} | grep -v key_*`
+		for file in $list_of_files
+		do
+		     chmod 770 $file
+		done
+		chmod -R 770 ${EX_INST_DIR}/scripts/
+
+                ;;
+        *)
+                # remove old tars if there are any.
+                rm -rf ${EX_INST_DIR}/*.tar
+                rm -rf ${EX_INST_DIR}/lib
+
+                # Untar contents in temp folder
+                cp "${CUR_W_D}"/*FX*.tar ${EX_INST_DIR}/
+                for tarball in *.tar; do tar -xvf $tarball 1>/dev/null; done
+
+		LOG "Creating the required directories..."
+                mkdir -p ${EX_INST_DIR}/ApplicationData ${EX_INST_DIR}/ICAT
+                mkdir -p ${EX_INST_DIR}/loginfo
+
+                list_of_files=`ls ${EX_INST_DIR} | grep -v key_*`
+                for file in $list_of_files
+                do
+                     chmod 770 $file
+                done
+		chmod -R 770 ${EX_INST_DIR}/scripts/ ${EX_INST_DIR}/lib 2>/dev/null
+		[ -d ${EX_INST_DIR}/tools/failover_data ] && chmod -R 770 ${EX_INST_DIR}/tools/failover_data
+                rm -f install *.tar 
+		;;
+        esac
+
+        # Change directories to CUR_W_D
+        cd "$CUR_W_D"
+
+        # Do post-upgrade steps
+        Metadata ${EX_INST_DIR}
+        Edit_Files ${EX_INST_DIR}
+
+        if [ -f /etc/debian_version ]; then
+                Set_Init_Dir
+                Create_Symbolic_Links ${EX_INST_DIR}
+        fi
+
+	LOG "Comparing the configuration files..."
+
+        #########################################################################################################
+        # Comparing the new configuration file and old configuration file using the comparison Key=Value pair.
+        # If the Key is available in both the files, it will compare the values and write the old value to the new conf file
+        # If the key is available in the new conf file, and the same is missing in the old conf file, it will add the entry in the new file.
+        # If the key is present only in the old file and if it missing in the new file, it will not write the entry in the new conf file.
+        # Only the extra field that will be added to the new conf file is the HostId, if this entry is available in the old conf file.
+        ##########################################################################################################
+
+        if [ "`uname`" = "Linux" ] ; then
+                OLDFILE="${CUR_W_D}"/TEMP/config.ini
+                NEWFILE=${EX_INST_DIR}/config.ini
+                REPLACEMENT_FILE="replacement_details.lst"
+                REPLACEMENT_CMD="sed "
+
+                : > $REPLACEMENT_FILE
+
+                newline_counter=0
+
+                while read newline
+                do
+                        newline_counter=`expr $newline_counter + 1`
+
+                        if ! echo $newline | grep -q "^[[:space:]]*.\+[[:space:]]*=[[:space:]]*.\+[[:space:]]*$" ; then
+                                continue
+                        else
+                                 modified_newline=`echo $newline | sed 's/ //g'`
+                                 key=`echo $modified_newline | cut -d= -f1`
+                                 new_value=`echo $modified_newline | cut -d= -f2`
+
+                                 if grep -q "^[[:space:]]*$key[[:space:]]*=[[:space:]]*.\+[[:space:]]*$" $OLDFILE ; then
+                                         modified_oldline=`grep "^[[:space:]]*$key[[:space:]]*=[[:space:]]*.\+[[:space:]]*$" $OLDFILE | sed 's/ //g'`
+                                         old_value=`echo $modified_oldline | cut -d= -f2`
+
+                                         if [ "$new_value" != "$old_value" ]; then
+                                                 echo "$newline_counter $key $old_value" >> $REPLACEMENT_FILE
+                                         fi
+                                 fi
+                        fi
+                done < $NEWFILE
+
+                while read line
+                do
+                         line_num=`echo $line | cut -d' ' -f1`
+                         key=`echo $line | cut -d' ' -f2`
+                         value=`echo $line | cut -d' ' -f3`
+                         REPLACEMENT_CMD="$REPLACEMENT_CMD -e \"$line_num s|.*|$key=$value|g\" "
+                done < $REPLACEMENT_FILE
+
+                eval $REPLACEMENT_CMD $NEWFILE > ${NEWFILE}.new
+                mv ${NEWFILE}.new ${NEWFILE}
+                rm -f $REPLACEMENT_FILE
+        else
+                OLDFILE="${CUR_W_D}"/TEMP/config.ini
+                NEWFILE=${EX_INST_DIR}/config.ini
+
+                while read newline
+                do
+                        if echo $newline | grep "=" >/dev/null 2>&1 ; then
+                                key=`echo $newline | cut -d= -f1`
+                                if grep -w $key $OLDFILE >/dev/null 2>&1 ; then
+                                        :
+                                else
+                                        echo "$newline" >> $OLDFILE
+                                fi
+                        fi
+                done < $NEWFILE
+                cp ${OLDFILE} ${NEWFILE}
+        fi
+
+        ########################################################################################
+        # Taking the Host id value from the old configuration file and
+        # If present,re-utilizing the same for the current installation and
+        # If the HostId key is not available in the old conf file, we will create new host id.
+        ########################################################################################
+
+  	LOG "Taking the HostId value from the old configuration file if present..."
+
+        if [ "`uname`" = "Linux" ] ; then
+        	cat "${CUR_W_D}"/TEMP/config.ini | grep "HostId" > ${EX_INST_DIR}/host_id
+        	cat ${EX_INST_DIR}/host_id >> ${EX_INST_DIR}/config.ini
+        	rm -f ${EX_INST_DIR}/host_id
+        fi
+
+	LOG "Taking https value from the old configuation file if present and writing into new configuration file."
+	HTTPS_ENTRY=`grep -w "^Https" "${CUR_W_D}"/TEMP/config.ini`
+	if [ -z "$HTTPS_ENTRY" ]; then
+		LOG "Did not find https entry in old configuration file."
+	else
+		LOG "Writing $HTTPS_ENTRY into ${EX_INST_DIR}/config.ini."
+		echo "$HTTPS_ENTRY" >> ${EX_INST_DIR}/config.ini
+	fi
+
+	LOG "Adding IsFxUpgraded = 1 parameter to config.ini file"
+	echo >> ${EX_INST_DIR}/config.ini
+        echo "IsFxUpgraded = 1" >> ${EX_INST_DIR}/config.ini
+
+        # Fix for bug 5108
+        sed -e "s/EnableDeleteOptions[ ]*=.*$/EnableDeleteOptions = 3255/" ${EX_INST_DIR}/config.ini > \
+                ${EX_INST_DIR}/config.ini.new
+        mv ${EX_INST_DIR}/config.ini.new ${EX_INST_DIR}/config.ini
+        chmod +x ${EX_INST_DIR}/config.ini
+
+        Set_Init_Dir
+        Restart_On_Reboot ${EX_INST_DIR}
+
+	if [ -f ${EX_INST_DIR}/patch.log ]; then
+		mv ${EX_INST_DIR}/patch.log ${EX_INST_DIR}/patch.log.old
+	fi
+
+        Start_Agent ${EX_INST_DIR}
+        Disable_Agent
+
+	# Adding 770 permissions to main installation directory.
+        LOG "Adding 770 permissions to main installation directory."
+        MAIN_INST_DIR="${EX_INST_DIR}"/..
+        chmod -R 770 $MAIN_INST_DIR >> $INST_LOG 2>&1
+	chmod -R 770 /usr/local/InMage/private >> $INST_LOG 2>&1
+
+      	echo && DO 'echo "$CHOICE process has finished."'
+
+        exit 0
+        ;;
+ *)
+        DO 'echo "Invalid value passed to the installer. Aborting..."'
+        exit 197
+        ;;
+ esac
+}
+
+usage() {
+    echo "Usage: $0 [ -d <Installation Directory> ] [ -l <Log file name in absolute path> ] \
+            [ -r <Role of agent - Agent|MasterTarget> ] [ -s <Start the agent Y|N> ] \
+            [ -A <Action to be performed -  Install or Upgrade I|U> ]"
+}
+
+####################################################################################
+# MAIN ENTRY POINT OF INSTALL PROGRAM: MAKE INSTALL/REINSTALL/UPGRADE DECISION HERE
+####################################################################################
+
+# Verify and Validate the command-line arguments
+    # ==============================================
+    if [ $# -gt 1 ] && $(echo $1 | grep -q ^- ); then
+	while getopts :h:d:s:L:A: opt
+        do
+            case $opt in
+                d) CHOSEN_DEPLOY_DIR="$OPTARG" ;;
+                s) START_AGENT="$OPTARG" ;;
+                L) LOG_FILE_NAME="$OPTARG" ;;
+		A) ACTION_TO_BE_PERFORMED="$OPTARG" ;;
+                h|-*|*) usage && exit 179
+            ;;
+            esac
+        done
+
+    else
+        echo "Specify the valid installation options on the command-line."
+        usage && exit 179
+    fi
+
+
+ # Verify if the LOG name is specified or not.
+ # If not assign the default log name.
+ if [ -z "$LOG_FILE_NAME" ]; then
+    LOG_FILE_NAME="/var/log/ua_install.log"
+ fi
+ INST_LOG="$LOG_FILE_NAME"
+
+ LOG " "
+ LOG "FX INSTALLATION"
+ LOG "********************"
+ LOG "-----------------------------------"
+ LOG "`date`"
+ LOG "-----------------------------------"
+
+# Performing required operations based on ACTION_TO_BE_PERFORMED parameter
+# I --> INSTALLATION
+if [ "$ACTION_TO_BE_PERFORMED" = "I" ]; then
+    Fresh_Install
+
+# U --> UPGRADE
+elif [ "$ACTION_TO_BE_PERFORMED" = "U" ]; then
+    Upgrade_New_Agent
+fi

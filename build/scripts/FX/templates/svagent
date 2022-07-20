@@ -1,0 +1,52 @@
+#!/bin/sh
+
+# This is for RHEL systems
+# processname: ScoutFileReplicationAgentService
+# chkconfig: 2345 91 91
+# description: This script is the daemon script for File replication agent
+
+# This is for SLES systems
+### BEGIN INIT INFO
+# Provides: ScoutFileReplicationAgentService
+# Required-Start: $network $Scout_vCon_service
+# Required-Stop: $null
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# Description:   This script is the daemon script for File replication agent
+### END INIT INFO
+
+# Adding bin dirs to PATH for 'sleep' command
+PATH=/bin:/sbin:/usr/sbin:/usr/bin:$PATH
+export PATH
+
+case "$1" in
+
+	start)
+		RUNTIME_INSTALL_PATH/start RUNTIME_INSTALL_PATH
+		RETVAL=$?
+		;;
+
+	stop)
+		RUNTIME_INSTALL_PATH/stop
+		RETVAL=$?
+		;;
+
+	restart)
+		RUNTIME_INSTALL_PATH/stop
+		sleep 5
+		RUNTIME_INSTALL_PATH/start RUNTIME_INSTALL_PATH
+		RETVAL=$?
+		;;
+
+	status)
+		RUNTIME_INSTALL_PATH/status RUNTIME_INSTALL_PATH
+		RETVAL=$?
+		;;
+
+	*)
+		echo "Usage: $0 {start|stop|restart|status}"
+		exit 1
+		;;
+esac
+
+exit $RETVAL

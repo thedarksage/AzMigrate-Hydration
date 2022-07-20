@@ -1,0 +1,19 @@
+#!/bin/sh
+# Get list of processes related to svfrd 
+# and kill each of them
+
+RETVAL=0
+MYPID="$$"
+echo $MYPID
+CPIDS=`ps -ef | grep $1 | grep -v grep | awk '{print $2}'`
+
+for cpid in $CPIDS
+do
+    if [ "$cpid" -ne "$1" -a "$cpid" -ne "${MYPID}" ]
+    then
+        kill -9 $cpid
+   
+    fi
+done
+
+exit ${RETVAL}

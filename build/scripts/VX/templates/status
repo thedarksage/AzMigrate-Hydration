@@ -1,0 +1,36 @@
+#!/bin/sh
+
+PATH=/bin:/sbin:/usr/sbin:/usr/bin:$PATH
+export PATH
+
+##########################################################################
+## 
+## This script checks if the PARTNER_OR_COMPANY VX Agent is running or not
+##
+##########################################################################
+	
+##########################################################################
+## Get the PID of svagents, if already running
+##########################################################################
+
+SVAGENT_PID=`pgrep svagents`
+APP_SERVICE_PID=`pgrep appservice`
+INST_DIR=`grep "^INSTALLATION_DIR=" /usr/local/.vx_version|awk -F "=" '{ print $2 }'`
+Agent_Type=`cat ${INST_DIR}/etc/drscout.conf | grep Role | cut -d"=" -f2`
+
+
+if [ -z "${SVAGENT_PID}" ]; then
+	echo "VX Agent daemon is not running!"
+	RET_SVAGENT=1
+else
+	echo "VX Agent daemon is running..."
+	RET_SVAGENT=0
+fi
+
+if [ -z "${APP_SERVICE_PID}" ]; then
+    	echo "appservice daemon is not running!"
+    	RET_APP=1
+else
+    	echo "appservice daemon is running..."
+    	RET_APP=0
+fi

@@ -1,0 +1,90 @@
+#!/bin/sh
+# This is for RHEL/CentOS/OL systems
+# processname: uarespawnd
+# chkconfig: 345 99 10
+# description: This script is the daemon script to start Fx/Vx services when it dies abnormally
+
+# This is for SLES systems
+### BEGIN INIT INFO
+# Provides:         uarespawnd
+# Required-Start:   $ALL ScoutVolumeReplicationAgentService
+# Required-Stop:    $null
+# Default-Start:    2 3 4 5
+# Default-Stop:     0 1 6
+# Description:      This script is the daemon script to start Fx/Vx services when it dies abnormally
+#### END INIT INFO
+
+PID_FILE="/var/run/uarespawnd.pid"
+LOCKFILE=/var/lock/subsys/uarespawnd
+LOG_FILE="/var/log/uarespawnd.log"
+
+if [ ! -d /var/lock/subsys ]; then
+    mkdir -p /var/lock/subsys
+fi
+
+# Log function
+LOG() {
+    echo "$(date "+%b  %d %T"): $(hostname): uarespawndagent[$(cat $PID_FILE )]: ${*}" >> $LOG_FILE 2>&1
+}
+
+check_pid() {
+     RESPAWND_PID=$(ps -ef | grep uarespawndagent | grep -v grep | awk '{print $2}')
+     [ -n "$RESPAWND_PID" ] && return 0 || return 1
+}
+
+status_uarespawnd() {
+    if check_pid ; then
+        echo "UA Respawn daemon is running..."
+    else
+        echo "UA Respawn daemon is not running."
+    fi
+
+}
+
+stop_uarespawnd() {
+    if check_pid ; then
+        echo "Stopping UA Respawn daemon..."
+        LOG "Stopping UA Respawn daemon..."
+        kill -15 "${RESPAWND_PID}" >/dev/null 2>&1
+        rm -f $PID_FILE $LOCKFILE >/dev/null 2>&1
+    else
+        echo "UA Respawn daemon is not running."
+    fi
+}
+
+start_uarespawnd() {
+    if check_pid ; then
+        echo "UA Respawn daemon is already running."
+    else
+        echo "Starting UA Respawn daemon..."
+        rm -f $PID_FILE >/dev/null 2>&1
+        RUNTIME_INSTALL_PATH/bin/uarespawndagent
+        LOG "Starting UA Respawn daemon..."
+        touch $LOCKFILE >/dev/null 2>&1
+    fi
+}
+
+usage () {
+    echo "Usage: $0 [ start | stop | status | restart ] "
+}
+
+case "$1" in
+    start)
+        start_uarespawnd
+        ;;
+    stop)
+        stop_uarespawnd
+        ;;
+    status)
+        status_uarespawnd
+        ;;
+    restart)
+        stop_uarespawnd
+        start_uarespawnd
+        ;;
+    *)
+        usage
+        ;;
+esac
+
+### END ###

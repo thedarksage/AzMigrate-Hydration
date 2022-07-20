@@ -1,0 +1,18 @@
+#  systemd config for ASR
+
+[Unit]
+Description=Configuration file for uarespawnd service
+Requires=vxagent.service
+After=vxagent.service
+
+[Service]
+Type=forking
+ExecStart=/bin/bash /etc/vxagent/bin/uarespawnd start
+ExecStop=/bin/bash /etc/vxagent/bin/uarespawnd stop
+Restart=always
+StandardOutput=syslog+console
+StandardError=syslog+console
+
+[Install]
+WantedBy=default.target
+

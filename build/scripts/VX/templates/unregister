@@ -1,0 +1,45 @@
+#!/bin/sh
+
+PATH=/bin:/sbin:/usr/sbin:/usr/bin:$PATH
+export PATH
+
+##########################################
+# SECTION: VARIABLES USED IN THIS PROGRAM
+##########################################
+REF_DIR="BUILDTIME_VALUE_REF_DIR"
+INST_VERSION_FILE="BUILDTIME_VALUE_INST_VERSION_FILE"
+
+##########################################################
+# MAIN ENTRY POINT FOR THIS UNREGISTRATION PROGRAM
+##########################################################
+
+# Grab installation dir from REF_DIR/INST_VERSION_FILE
+# Quit if that file cannot be found.....someone must have tampered with the REF_DIR folder
+[ ! -f ${REF_DIR}/${INST_VERSION_FILE} ] && echo "Cannot find ${REF_DIR}/${INST_VERSION_FILE}" && exit 1
+
+# Read the installation dir and partner values from the version file
+CURRENT_INSTALLATION_DIR=`grep INSTALLATION_DIR ${REF_DIR}/${INST_VERSION_FILE} | cut -d'=' -f2-`
+
+# Exit if unregagent is already running.
+PID=`pgrep unregagent`
+
+if [ ! -z "$PID" ]; then
+	# unregagent is already running...so quit!
+	echo && echo "Cannot unregister VX agent as an unregister process ('unregagent') is already running."
+	exit 1
+else
+	# Trigger an unregister now...
+	# Based on the OS, set library path to default shipped 'lib'
+	case `uname` in
+		Linux|SunOS)
+			LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${CURRENT_INSTALLATION_DIR}/lib
+			export LD_LIBRARY_PATH
+			;;
+	esac
+
+	echo
+
+	# Invoke unregagent now
+	${CURRENT_INSTALLATION_DIR}/bin/unregagent Vx Y
+	exit $?
+fi

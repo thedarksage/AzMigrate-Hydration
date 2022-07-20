@@ -1,0 +1,7 @@
+# FX_VERSION="4.1.0" # obsolete, use X_VERSION_DOTTED instead
+VERSION_FILE_NAME=.fx_version
+BUILD_MANIFEST_FILE_NAME=.fx_build_manifest
+METADATA_REF_DIR=/usr/local
+DEFAULT_UPG_DIR=/usr/local/ASR
+DEFAULT_INSTALL_DIR=/usr/local/ASR
+PARTNER_SPECIFIC_STRING=InMage

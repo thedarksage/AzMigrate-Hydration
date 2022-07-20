@@ -1,0 +1,99 @@
+#!/bin/bash
+# Monitor unified agent services (svagent & vxagent) and start when it dies abnormally.
+#######################################################################################
+
+# exporting LANG variable
+export LANG=C
+export LC_NUMERIC=C
+
+umask 0002
+PID_FILE="/var/run/uarespawnd.pid"
+
+# Unified Agent Services 
+SERVICES="vxagent"
+
+# Check for every 360 seconds
+INTERVAL="360"
+
+# Log File
+LOG_FILE="/var/log/uarespawnd.log"
+
+# Log function
+LOG() {
+    echo "$(date "+%b  %d %T"): $(hostname): uarespawndagent[$(cat $PID_FILE )]: ${*}" >> $LOG_FILE 2>&1
+}
+
+# Rotating logfile if LOG_FILE size exceeds 10 MB
+logrotate() {
+    MAXSIZE=10240
+    ACTUALSIZE=$(du -k "$LOG_FILE" | cut -f1)
+    if [ $ACTUALSIZE -ge $MAXSIZE ]; then
+        ARCHIVE_FILE="/var/log/uarespawnd_$(date +%d%b%Y_%H:%M:%S).log.tar.gz"
+        tar -zcvf $ARCHIVE_FILE $LOG_FILE > /dev/null 2>&1
+        echo > $LOG_FILE
+        LOG "Log file reached 10 MB size. Archived $LOG_FILE as $ARCHIVE_FILE file."
+    fi
+}
+
+# Services Check function to monitor and start Fx/Vx services when it dies abnormally.
+service_check() {
+    while true
+    do
+        for Service in `echo $SERVICES`; 
+        do
+            COUNTER=1; SRVSTATUS=0
+            path=/etc/init.d
+            if [ ! -e "$path/$Service" ]; then
+                LOG "No $Service Script in $path directory. Changing path to /etc/vxagent/bin"
+                path=/etc/vxagent/bin
+            fi
+            
+            # If service exists, get status
+            if [ -e "$path/$Service" ]; then
+                # If is not running, try to start
+                NOTRUNSRV=$($path/$Service status | grep 'is not running!')
+                if [ -n "$NOTRUNSRV" ]; then
+                    if [ ! -e /usr/local/.norespawn_$Service ]; then
+                        while [ $COUNTER -le 2 ]
+                        do
+                            LOG "Iteration: $COUNTER"
+                            LOG "$NOTRUNSRV"
+                            LOG "$Service service is in stopped state. Respawning."
+                            $path/$Service start > /dev/null 2>&1
+                            sleep 30
+                            if $($path/$Service status | grep -q 'is not running!'); then
+                                COUNTER=$(expr $COUNTER + 1)
+                                [ $COUNTER -gt 2 ] && touch /usr/local/.norespawn_$Service > /dev/null 2>&1
+                                sleep 30
+                                SRVSTATUS=1 && continue
+                            else                                
+                                LOG "Respwaned $Service service successfully."
+                                SRVSTATUS=0 && break
+                            fi                    
+                        done
+                        
+                        if [ $SRVSTATUS -ne 0 ]; then
+                            LOG "Unable to respwan $Service service."                            
+                        fi                        
+                    else
+                        LOG "Bypassing $Service service check, as /usr/local/.norespawn_$Service file exists."
+                    fi                    
+                else                    
+                    LOG "$Service service is running..."
+                fi
+            else
+                LOG "Could not find $Service service script in $path directory."
+            fi
+        done
+
+        sleep $INTERVAL
+        logrotate  
+    done
+}
+
+## Main ##
+service_check &
+echo "$!" > "$PID_FILE" 
+
+## End ##
+
