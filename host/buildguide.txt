@@ -1,0 +1,13 @@
+cvs -d:pserver:kqn@cvs:/src checkout build host
+cvs -d:pserver:kqn@cvs:/thirdparty checkout thirdparty
+
+open host project in visual studio .net
+
+right click on the following projects and select "Build"
+    involflt
+    incdskfl
+    setup_vxagent (for VX)
+    setup_filerep (for FX)
+
+Look in host/setup/{Debug,Release} for setup binaries.
+
