@@ -133,7 +133,7 @@ stages:
             mkdir -p $(Build.SourcesDirectory)/out/logs
             cp -f $(REPOROOT)/host/Linux_x86_64/AzureRecoveryUtil/release/AzureRecoveryUtil $(Build.SourcesDirectory)/out
             cp -f $(REPOROOT)/host/Linux_x86_64/AzureRecoveryUtil/release/AzureRecoveryUtil.dbg $(Build.SourcesDirectory)/out
-            cp -f $(REPOROOT)/host/AzureRecoveryUtil/Scripts/linux/{*.sh,network,CentOS-Base.repo} $(Build.SourcesDirectory)/out
+            cp -f $(REPOROOT)/host/AzureRecoveryUtil/Scripts/linux/{*.sh,network,*.repo} $(Build.SourcesDirectory)/out
             cp -f $(REPOROOT)/thirdparty/setuptools-33.1.1/{*.py,*.zip} $(Build.SourcesDirectory)/out
             cp -f $(REPOROOT)/host/AzureRecoveryUtilBuild.log $(Build.SourcesDirectory)/out/logs
           failOnStderr: true

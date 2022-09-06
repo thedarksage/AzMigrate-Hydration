@@ -39,6 +39,32 @@ chmod +x ../thirdparty/boost/inmage_config_build
 
 chmod +x ../thirdparty/boost/boost_1_78_0/b2.exe
 
+chmod +x ../thirdparty/boost/boost_1_78_0/tools/build/src/engine/build.sh
+
+chmod +x ../thirdparty/cdk-5.0.4/inmage_config_build
+
+chmod +x ../thirdparty/sqlite3x/sqlite3x/inmage_config_build
+
+chmod +x ../thirdparty/ace-6.4.6/ACE_wrappers/inmage_config_build
+
+chmod +x ../thirdparty/sqlite3x/sqlite3x/inmage_config_build
+
+chmod +x ../thirdparty/sqlite-3.36.0/inmage_config_build
+
+chmod +x ../thirdparty/openssl-1.1.1n/inmage_config_build
+
+chmod +x ../thirdparty/libxml2/libxml2-2.9.13/inmage_config_build
+
+chmod +x ../thirdparty/inm_md5/inmage_config_build
+
+chmod +x ../thirdparty/cdk-5.0.4/inmage_config_build
+
+mkdir -p ../host/Linux_x86_64/AzureRecoveryLib/release/resthelper/
+
+mkdir -p ../host/Linux_x86_64/AzureRecoveryLib/config/
+
+mkdir -p ../host/Linux_x86_64/config
+
 gmake AzureRecoveryUtil X_VERSION_MAJOR=$MajorVersion X_VERSION_MINOR=$MinorVersion X_PATCH_SET_VERSION=$PatchsetVersion X_PATCH_VERSION=$PatchVersion X_VERSION_QUALITY=$BuildQuality X_VERSION_PHASE=$BuildPhase debug=no warnlevel=none verbose=yes partner=inmage > >(tee AzureRecoveryUtilBuild.log) 2>&1
 
 if [ $? -eq 0 ]; then
