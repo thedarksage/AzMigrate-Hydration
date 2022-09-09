@@ -93,15 +93,17 @@ stages:
       - task: CmdLine@2
         inputs:
           script: |
-            sudo apt-get install make
+            sudo apt-get install make -y
 
-            sudo apt-get install g++
+            sudo apt-get install g++ -y
 
-            sudo apt-get install build-essential
+            sudo apt-get install build-essential -y
 
-            sudo apt-get install libncurses-dev
+            sudo apt-get install libncurses-dev -y
 
-            sudo apt-get install uuid-dev
+            sudo apt-get install uuid-dev -y
+
+            sudo apt-get install python-dev -y
 
             sudo ln -s -T /usr/bin/make /usr/bin/gmake
           failOnStderr: true
