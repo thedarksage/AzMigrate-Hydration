@@ -71,6 +71,14 @@ mkdir -p ../host/Linux_x86_64/AzureRecoveryLib/release/common/
 
 mkdir -p ../host/Linux_x86_64/AzureRecoveryLib/release/config/
 
+mkdir -p ../host/Linux_x86_64/AzureRecoveryLib/release/linux/
+
+mkdir -p ../host/Linux_x86_64/securitylib/release/
+
+mkdir -p ../host/Linux_x86_64/securitylib/release/linux/
+
+mkdir -p ../host/Linux_x86_64/securitylib/release/unix/
+
 gmake AzureRecoveryUtil X_VERSION_MAJOR=$MajorVersion X_VERSION_MINOR=$MinorVersion X_PATCH_SET_VERSION=$PatchsetVersion X_PATCH_VERSION=$PatchVersion X_VERSION_QUALITY=$BuildQuality X_VERSION_PHASE=$BuildPhase debug=no warnlevel=none verbose=yes partner=inmage > >(tee AzureRecoveryUtilBuild.log) 2>&1
 
 if [ $? -eq 0 ]; then
