@@ -110,7 +110,7 @@ OPENSSL_DIR_DEPS := $(shell ./find-dir-deps $(OPENSSL_ROOT); cat $(OPENSSL_ROOT)
 SQLITE_DIR_DEPS := $(shell ./find-dir-deps $(SQLITE_ROOT) ; cat $(SQLITE_ROOT)/dir_deps)
 SQLITE3X_DIR_DEPS := $(shell ./find-dir-deps $(SQLITE3X_ROOT); cat $(SQLITE3X_ROOT)/dir_deps)
 ZLIB_DIR_DEPS := $(shell ./find-dir-deps $(ZLIB_ROOT); cat $(ZLIB_ROOT)/dir_deps)
-LIBSSH2_DIR_DEPS := $(shell ./find-dir-deps $(LIBSSH2_ROOT); cat $(LIBSSH2_ROOT)/dir_deps)
+#LIBSSH2_DIR_DEPS := $(shell ./find-dir-deps $(LIBSSH2_ROOT); cat $(LIBSSH2_ROOT)/dir_deps)
 LIBXML2_DIR_DEPS := $(shell ./find-dir-deps $(LIBXML2_ROOT); cat $(LIBXML2_ROOT)/dir_deps)
 INM_MD5_DIR_DEPS := $(shell ./find-dir-deps $(INM_MD5_ROOT); cat $(INM_MD5_ROOT)/dir_deps)
 
