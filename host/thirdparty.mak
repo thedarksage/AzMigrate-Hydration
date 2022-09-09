@@ -224,15 +224,15 @@ $(CURL_ROOT)/build_curl: $(CURL_ROOT)/config_curl $(CURL_ROOT) $(CURL_DIR_DEPS) 
 	$(VERBOSE)touch $@
 	$(RULE_SEPARATOR)
 
-$(LIBSSH2_ROOT)/config_libssh2: $(LIBSSH2_SCRIPT)
-	$(VERBOSE)$(LIBSSH2_SCRIPT) --clean
-	$(VERBOSE)touch $@
-	$(RULE_SEPARATOR)
+#$(LIBSSH2_ROOT)/config_libssh2: $(LIBSSH2_SCRIPT)
+#	$(VERBOSE)$(LIBSSH2_SCRIPT) --clean
+#	$(VERBOSE)touch $@
+#	$(RULE_SEPARATOR)
 
-$(LIBSSH2_ROOT)/build_libssh2: $(LIBSSH2_ROOT)/config_libssh2 $(LIBSSH2_ROOT) $(LIBSSH2_DIR_DEPS) $(THIRDPARTY_MAK)
-	$(VERBOSE)$(LIBSSH2_SCRIPT)
-	$(VERBOSE)touch $@
-	$(RULE_SEPARATOR)
+#$(LIBSSH2_ROOT)/build_libssh2: $(LIBSSH2_ROOT)/config_libssh2 $(LIBSSH2_ROOT) $(LIBSSH2_DIR_DEPS) $(THIRDPARTY_MAK)
+#	$(VERBOSE)$(LIBSSH2_SCRIPT)
+#	$(VERBOSE)touch $@
+#	$(RULE_SEPARATOR)
 
 $(LIBXML2_ROOT)/config_libxml2: $(LIBXML2_SCRIPT)
 	$(VERBOSE)$(LIBXML2_SCRIPT) --clean
@@ -347,13 +347,13 @@ clean_curl:
 	$(VERBOSE)rm -f $(CURL_ROOT)/../c-ares-1.18.1/release/ran_config
 	$(RULE_SEPARATOR)
 
-.PHONY: clean_libssh2
-clean_libssh2:
-	$(VERBOSE)$(LIBSSH2_SCRIPT) --clean
-	$(VERBOSE)rm -f $(LIBSSH2_ROOT)/dep_dirs
-	$(VERBOSE)rm -f $(LIBSSH2_ROOT)/build_libssh2
-	$(VERBOSE)rm -f $(LIBSSH2_ROOT)/config_libssh2
-	$(RULE_SEPARATOR)
+#.PHONY: clean_libssh2
+#clean_libssh2:
+#	$(VERBOSE)$(LIBSSH2_SCRIPT) --clean
+#	$(VERBOSE)rm -f $(LIBSSH2_ROOT)/dep_dirs
+#	$(VERBOSE)rm -f $(LIBSSH2_ROOT)/build_libssh2
+#	$(VERBOSE)rm -f $(LIBSSH2_ROOT)/config_libssh2
+#	$(RULE_SEPARATOR)
 
 .PHONY: clean_libxml2
 clean_libxml2:
