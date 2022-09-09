@@ -176,7 +176,7 @@ BOOST_DIR_DEPS := $(shell ./find-dir-deps $(BOOST_ROOT)/boost; cat $(BOOST_ROOT)
 # ----------------------------------------------------------------------
 # make sure all thirdparty packages are built
 # ----------------------------------------------------------------------
-thirdparty_build: $(THIRDPARTY_MAK) $(ZLIB_ROOT)/build_zlib $(OPENSSL_ROOT)/build_openssl $(BOOST_ROOT)/build_boost_$(X_CONFIGURATION) $(SQLITE_ROOT)/build_sqlite $(SQLITE3X_ROOT)/build_sqlite3x $(CDK_ROOT)/build_cdk $(CURL_ROOT)/build_curl $(ACE_ROOT)/build_ace $(LIBSSH2_ROOT)/build_libssh2 $(LIBXML2_ROOT)/build_libxml2 $(INM_MD5_ROOT)/build_inm_md5 thirdparty_links
+thirdparty_build: $(THIRDPARTY_MAK) $(ZLIB_ROOT)/build_zlib $(OPENSSL_ROOT)/build_openssl $(BOOST_ROOT)/build_boost_$(X_CONFIGURATION) $(CDK_ROOT)/build_cdk $(CURL_ROOT)/build_curl $(ACE_ROOT)/build_ace $(LIBXML2_ROOT)/build_libxml2 $(INM_MD5_ROOT)/build_inm_md5 thirdparty_links
 	$(VERBOSE)touch $@
 	$(RULE_SEPARATOR)
 
