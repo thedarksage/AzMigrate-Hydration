@@ -254,27 +254,27 @@ $(OPENSSL_ROOT)/build_openssl: $(OPENSSL_ROOT)/config_openssl $(OPENSSL_ROOT) $(
 	$(VERBOSE)touch $@
 	$(RULE_SEPARATOR)
 
-$(SQLITE_ROOT)/config_sqlite: $(SQLITE_SCRIPT)
-	$(VERBOSE) chmod +x $(SQLITE_SCRIPT)
-	$(VERBOSE)$(SQLITE_SCRIPT)  --clean
-	$(VERBOSE)touch $@
+#$(SQLITE_ROOT)/config_sqlite: $(SQLITE_SCRIPT)
+#	$(VERBOSE) chmod +x $(SQLITE_SCRIPT)
+#	$(VERBOSE)$(SQLITE_SCRIPT)  --clean
+#	$(VERBOSE)touch $@
+#	$(RULE_SEPARATOR)
+
+#$(SQLITE_ROOT)/build_sqlite: $(SQLITE_ROOT)/config_sqlite $(SQLITE_ROOT) $(SQLITE_DIR_DEPS) #$(THIRDPARTY_MAK)
+#	$(VERBOSE) chmod +x $(SQLITE_SCRIPT)
+#	$(VERBOSE)$(SQLITE_SCRIPT)
+#	$(VERBOSE)touch $@
 	$(RULE_SEPARATOR)
 
-$(SQLITE_ROOT)/build_sqlite: $(SQLITE_ROOT)/config_sqlite $(SQLITE_ROOT) $(SQLITE_DIR_DEPS) $(THIRDPARTY_MAK)
-	$(VERBOSE) chmod +x $(SQLITE_SCRIPT)
-	$(VERBOSE)$(SQLITE_SCRIPT)
-	$(VERBOSE)touch $@
-	$(RULE_SEPARATOR)
+#$(SQLITE3X_ROOT)/config_sqlite3x: $(SQLITE3X_SCRIPT)
+#	$(VERBOSE)$(SQLITE3X_SCRIPT)  --clean
+#	$(VERBOSE)touch $@
+#	$(RULE_SEPARATOR)
 
-$(SQLITE3X_ROOT)/config_sqlite3x: $(SQLITE3X_SCRIPT)
-	$(VERBOSE)$(SQLITE3X_SCRIPT)  --clean
-	$(VERBOSE)touch $@
-	$(RULE_SEPARATOR)
-
-$(SQLITE3X_ROOT)/build_sqlite3x: $(SQLITE3X_ROOT)/config_sqlite3x $(SQLITE3X_ROOT) $(SQLITE3X_DIR_DEPS) $(THIRDPARTY_MAK)
-	$(VERBOSE)$(SQLITE3X_SCRIPT)
-	$(VERBOSE)touch $@
-	$(RULE_SEPARATOR)
+#$(SQLITE3X_ROOT)/build_sqlite3x: $(SQLITE3X_ROOT)/config_sqlite3x $(SQLITE3X_ROOT) $(SQLITE3X_DIR_DEPS) #$(THIRDPARTY_MAK)
+#	$(VERBOSE)$(SQLITE3X_SCRIPT)
+#	$(VERBOSE)touch $@
+#	$(RULE_SEPARATOR)
 
 $(ZLIB_ROOT)/config_zlib: $(ZLIB_SCRIPT)
 	$(VERBOSE)$(ZLIB_SCRIPT) --clean
@@ -306,7 +306,7 @@ thirdparty_links: thirdparty_links.sh
 # ----------------------------------------------------------------------
 # clean all thirdparty packages
 # ----------------------------------------------------------------------
-clean_thirdparty: clean_ace clean_boost clean_cdk clean_curl clean_openssl clean_sqlite clean_sqlite3x clean_zlib clean_libssh2 clean_libxml2 clean_inm_md5 clean_thirdparty_links
+clean_thirdparty: clean_ace clean_boost clean_cdk clean_curl clean_openssl clean_zlib clean_libxml2 clean_inm_md5 clean_thirdparty_links
 	$(VERBOSE)rm -f $@
 	$(RULE_SEPARATOR)
 
@@ -371,21 +371,21 @@ clean_openssl:
 	$(VERBOSE)rm -f $(OPENSSL_ROOT)/config_openssl
 	$(RULE_SEPARATOR)
 
-.PHONY: clean_sqlite
-clean_sqlite:
-	$(VERBOSE)$(SQLITE_SCRIPT) --clean
-	$(VERBOSE)rm -f $(SQLITE_ROOT)/dep_dirs
-	$(VERBOSE)rm -f $(SQLITE_ROOT)/build_sqlite
-	$(VERBOSE)rm -f $(SQLITE_ROOT)/config_sqlite
-	$(RULE_SEPARATOR)
+#.PHONY: clean_sqlite
+#clean_sqlite:
+#	$(VERBOSE)$(SQLITE_SCRIPT) --clean
+#	$(VERBOSE)rm -f $(SQLITE_ROOT)/dep_dirs
+#	$(VERBOSE)rm -f $(SQLITE_ROOT)/build_sqlite
+#	$(VERBOSE)rm -f $(SQLITE_ROOT)/config_sqlite
+#	$(RULE_SEPARATOR)
 
-.PHONY: clean_sqlite3x
-clean_sqlite3x:
-	$(VERBOSE)$(SQLITE3X_SCRIPT) --clean
-	$(VERBOSE)rm -f $(SQLITE3X_ROOT)/dep_dirs
-	$(VERBOSE)rm -f $(SQLITE3X_ROOT)/build_sqlite3x
-	$(VERBOSE)rm -f $(SQLITE3X_ROOT)/config_sqlite3x
-	$(RULE_SEPARATOR)
+#.PHONY: clean_sqlite3x
+#clean_sqlite3x:
+#	$(VERBOSE)$(SQLITE3X_SCRIPT) --clean
+#	$(VERBOSE)rm -f $(SQLITE3X_ROOT)/dep_dirs
+#	$(VERBOSE)rm -f $(SQLITE3X_ROOT)/build_sqlite3x
+#	$(VERBOSE)rm -f $(SQLITE3X_ROOT)/config_sqlite3x
+#	$(RULE_SEPARATOR)
 
 .PHONY: clean_zlib
 clean_zlib:
