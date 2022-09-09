@@ -31,7 +31,8 @@ X_CFLAGS = \
 	$(BOOST_INCLUDE) \
 	$(ZLIB_INCLUDE) \
 	$(OPENSSL_INCLUDE) \
-	$(LIBXML2_INCLUDE)
+	$(LIBXML2_INCLUDE) \
+	-I../thirdparty/libxml2/libxml2-2.19.13/config_release/build/include/libxml
 
 X_LIBS = 
 
