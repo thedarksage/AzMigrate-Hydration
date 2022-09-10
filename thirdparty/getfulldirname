@@ -1,0 +1,19 @@
+#!/bin/sh
+
+Input=$1
+Pwd=`pwd`
+
+FirstEntry=`echo $Input | cut -d'/' -f1`
+
+if [ "$FirstEntry" = "." ] ; then
+	Output=`echo $Input | sed "s|^$FirstEntry|$Pwd|"`
+elif [ "$FirstEntry" = ".." ] ; then
+	BaseDirOfPwd=`dirname $Pwd`
+	Output=`echo $Input | sed "s|^$FirstEntry|$BaseDirOfPwd|"`
+elif [ -n "$FirstEntry" ] ; then
+	Output="${Pwd}/$Input"
+else
+	Output=$Input
+fi
+
+echo $Output
