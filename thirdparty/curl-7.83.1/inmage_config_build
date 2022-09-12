@@ -22,6 +22,8 @@ DIR="`dirname $0`"
 DIR="`sh ${DIR}/../getfulldirname $DIR`"
 cd "$DIR"
 
+echo "$DIR"
+
 # play it safe and make sure configure is executable
 chmod 777 ./configure
 
@@ -143,9 +145,15 @@ do
 		 LDFLAGS="-L${THIRDPARTY_DIR}/openssl-1.1.1n/lib/${SPECIFIC_VERSION}/$bldconfig -L${THIRDPARTY_DIR}/zlib-1.2.12/${SPECIFIC_VERSION}/lib/$bldconfig ${DEFAULT_LDFLAGS}"
 		 export CPPFLAGS CFLAGS LDFLAGS LIBS
 		 
+		 echo "PWD "
+		 pwd
+		 
+		 echo "ARES $aresinstalldir \n"
+		 
 		 ../configure --enable-shared=no --enable-debug=no --prefix=$aresinstalldir $EXTRA_CONFIGURE_FLAGS --enable-tests=no
 		if [ 0 -ne $? ] ; then
 			cd $DIR
+			echo "$DIR"
 			gmake distclean
 			cd $aresconfigdir
 			../configure --enable-shared=no --enable-debug=no --prefix=`pwd` $EXTRA_CONFIGURE_FLAGS
