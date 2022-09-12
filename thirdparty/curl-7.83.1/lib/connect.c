@@ -165,6 +165,30 @@ singleipconnect(struct Curl_easy *data,
                 const struct Curl_addrinfo *ai, /* start connecting to this */
                 int tempindex);          /* 0 or 1 among the temp ones */
 
+/* Socket buffer is set to 1 MB to get maximum out of the band width
+   available.
+   Modifications done by BSR, to improve the performance and remove
+   the dependency
+   on TCP Window size set on each host */
+
+int Curl_sndrecvbuffer(curl_socket_t sockfd)
+{
+    /* These setsockopt()s must happen before the accept() */
+    /* TODO: need to handle error cases of this call
+        I will add them if I see any performance improvement
+      with this code changes */
+    int sendwsz = Curl_getsendwindowsize();
+    int recvwsz = Curl_getrecvwindowsize();
+    setsockopt(sockfd, SOL_SOCKET, SO_SNDBUF,
+        (char *)&sendwsz, sizeof(sendwsz));
+
+    setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF,
+        (char *)&recvwsz, sizeof(recvwsz));
+
+    return 0; /*indicates success*/
+
+}
+
 /*
  * Curl_timeleft() returns the amount of milliseconds left allowed for the
  * transfer/connection. If the value is 0, there's no timeout (ie there's
@@ -1266,6 +1290,8 @@ static CURLcode singleipconnect(struct Curl_easy *data,
     }
   }
 
+  /* change socket buffer size*/
+  Curl_sndrecvbuffer(sockfd);
   /* set socket non-blocking */
   (void)curlx_nonblock(sockfd, TRUE);
 

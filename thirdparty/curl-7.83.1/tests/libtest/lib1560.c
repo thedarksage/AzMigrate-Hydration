@@ -268,7 +268,7 @@ static const struct testcase get_parts_list[] ={
   {"imap://user:pass;option@server/path",
    "imap | user | pass | option | server | [15] | /path | [16] | [17]",
    0, 0, CURLUE_OK},
-  {"http://user:pass;option@server/path",
+  {"",
    "http | user | pass;option | [13] | server | [15] | /path | [16] | [17]",
    0, 0, CURLUE_OK},
   {"file:/hello.html",

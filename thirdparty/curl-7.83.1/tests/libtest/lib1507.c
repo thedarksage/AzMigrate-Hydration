@@ -30,7 +30,7 @@
  * This is the list of basic details you need to tweak to get things right.
  */
 #define USERNAME "user@example.com"
-#define PASSWORD "123qwerty"
+#define PASSWORD ""
 #define RECIPIENT "<1507-recipient@example.com>"
 #define MAILFROM "<1507-realuser@example.com>"
 
