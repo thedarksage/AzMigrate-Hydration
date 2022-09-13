@@ -105,6 +105,8 @@ stages:
 
             sudo apt-get install python-dev -y
 
+            sudo apt-get install gettext -y
+
             sudo ln -s -T /usr/bin/make /usr/bin/gmake
           failOnStderr: true
 
