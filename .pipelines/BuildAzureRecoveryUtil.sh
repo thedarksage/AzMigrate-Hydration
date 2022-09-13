@@ -31,6 +31,9 @@ chmod +x ./get-specific-version-info
 
 chmod +x ./gcc-depend
 
+
+chmod +x ./thirdparty_links.sh
+
 chmod +x ../thirdparty/zlib-1.2.12/inmage_config_build
 
 chmod +x ../thirdparty/openssl-1.1.1n/inmage_config_build
