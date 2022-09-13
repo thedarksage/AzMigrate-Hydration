@@ -107,6 +107,8 @@ stages:
 
             sudo apt-get install gettext -y
 
+            sudo apt-get install dc -y
+
             sudo ln -s -T /usr/bin/make /usr/bin/gmake
           failOnStderr: true
 
