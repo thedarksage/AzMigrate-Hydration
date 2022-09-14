@@ -1,0 +1,1002 @@
+# Make System #
+
+The make system currently supports Unix/Linux platforms and requires
+GNU Make. The kernel code uses its own make file setup and windows
+uses Microsoft Visual Studio for building the code.
+
+## Basics ##
+
+Get the entire source from cvs (at a minimum you will need the following)
+
+	cvs -dP :pserver:<userid>@cvs/src co host
+	cvs -dP :pserver:<userid>@cvs/thirdparty co thirdparty
+
+cd to the host directory and run
+
+	gmake
+
+Note this document uses gmake as that is the official name of GNU
+Make. But on Linux (possibly other) platforms make is gmake. So you
+can just run make if you prefer.
+
+By default you will see output for thirdparty packages (we don't
+control what they output, just if they need to be configured and
+built), gcc default warnings and errors (and success/failure for the
+"ar" command).
+
+There are 3 options that you can specify when running gmake.
+
+	1. verbose=no|yes (optional. defaults to no)
+
+		no : do not print commands as they are being executed.
+		yes: print commands as they are being executed.
+
+		again this does not affect thirdparty packages being built, you
+		will always get what every they normally output
+
+	2. debug=yes|no (optional. defaults to yes)
+
+		yes: create debug version. This includes symbols, defines
+		     DEBUG, and puts object files, libraries, and final
+		     binaries under their X_MODULE/debug directory.
+		no : create release version. This includes symbols (but puts
+		     them in a separate file. Note because of optimizations,
+		     when using release symbols to debug, don't expect them to
+		     be 100% acurate), defines NDEBUG and puts object files,
+		     libraries, and final binaries under their X_MODULE/release
+		     directory.
+
+	3. warnlevel=none|warn|error (optional. defaults to none)
+
+		none : use the compiler's default warning level. I.e. don't
+		       add any additional warning flags.
+		warn : adds additional warnings (see section
+		       "host/X_ARCH-rules.mak" for details on the additional
+		       flags)
+		error: same as warn plus treats warnings as errors.
+
+You use them like so
+
+	gmake debug=no verbose=yes warnlevel=warn
+
+You can also make specific modules by listing the target module(s) on
+the command line
+
+	gmake <module name> [<module name>]*
+
+In this case the module name is the subdirectory under host
+
+To clean all InMage code run
+
+	gmake clean
+
+To clean specific module(s); both debug and release configurations use
+
+	gmake clean_<module name>_all [clean_<module name>_all]*
+
+To clean a particular configuration leave the _all of the target and
+either leave the debug option off for debug configuration or use the
+debug option to specify the configuration (note using the debug option
+is the only way to clean just the release configuration)
+
+	gmake clean_<modulename> debug=no
+
+To clean all thirdparty packages run
+
+	gmake clean_thirdparty
+
+for individual thirdparty package(s) run
+
+	gmake clean_<thirdparty package name> [clean_<thirdparty package name>]*
+
+where <thirdparty package name> is the name of the thirdparty
+packages. In this case the directory is not used. Instead use one
+of the following:
+
+	* ace
+	* cdk
+	* curl
+	* openssl
+	* sqlite
+	* sqlite3x
+	* wxwidgets
+	* zlib
+
+Finally if you want to clean everything, (thirdparty and InMage) run
+
+	gmake clean_all
+
+Note: when ever cleaning any thirdparty package (no matter what method
+was used) it will clean both debug and release as well as do a
+distclean. That means the next time you build the cleaned thirdparty
+package(s) will be re-configured and rebuilt, both debug and release.
+
+You may also create "tag" files. Note these are not created by default.
+
+for vim run
+
+	gmake ctags
+
+In vim, use :set tags=./tags. Then you may go to the definition of an
+identifier with Ctrl-]; pop back with Ctrl-t.
+
+for emacs run
+
+	gmake etags
+
+In emacs, use M-. on the tag to jump to its definition. Pop back with M-*.
+
+## Directory Structure ##
+
+The directory structure uses the following conventions:
+
+   * Platform independent code goes directly under the module
+     directory.
+   * Code that is major architecture specific but works across all the
+     minor architectures goes under that major architecture. This
+     corresponds to the X_MAJOR_ARCH make file variable. Do *not*
+     include the major architecture name in the file names.
+   * Code that is minor architecture specific goes under the minor
+     architecture directory. This corresponds to the X_MINOR_ARCH make
+     file variable. Do *not* include the minor architecture name in
+     file names
+
+Note: you can have platform independent sub-directories under the module
+directory. Under those directories you would follow the conventions as
+stated above
+
+Generically it is something like this
+
++ <directory name of your choice>
+  + host
+    + <module dir>
+       all module platform independent code goes here
+       + <X_MAJOR_ARCH dir>
+          all module X_MAJOR_ARCH specific code goes here (code
+          that only works for this X_MAJOR_ARCH, but across all of
+          its X_MINOR_ARCHs)
+       + <X_MINOR_ARCH dir>
+          all module X_MINOR_ARCH specific code goes here
+		 + <sub module dir>
+          all sub module platform independent code goes here
+          + <X_MAJOR_ARCH dir>
+             all sub module X_MAJOR_ARCH specific code goes here (code
+				 that only works for this X_MAJOR_ARCH, but across all of
+				 its X_MINOR_ARCHs)
+          + <X_MINOR_ARCH dir>
+             all sub module X_MINOR_ARCH specific code goes here
+  + thirdparty
+     <thirdparty package>
+
+E.g.
+a module called mymodule has
+   * foo.cpp and foo.h that are platform independent
+   * bar.cpp and bar.h that are unix specific but work for all minor
+     archs.
+   * baz.cpp and baz.h which are minor platform specific
+
+The directory would look something like the following:
+
++ head
+  + host
+    + mymodule
+      + aix
+         baz.cpp
+         baz.h
+      + hpux
+         baz.cpp
+         baz.h
+      + linux
+         baz.cpp
+         baz.h
+      + sun
+         baz.cpp
+         baz.h
+      + unix
+         bar.cpp
+         bar.h
+      + win
+         baz.cpp
+         baz.h
+      foo.cpp
+      foo.h
+  + thirdparty
+      ...
+
+The following names should used for the architectures.
+
+* Major Architecture
+  * All Unices and Linux
+      X_MAJOR_ARCH=unix
+      * Minor architectures under unix
+        * X_MINOR_ARCH=aix
+        * X_MINOR_ARCH=hpux
+        * X_MINOR_ARCH=linux
+        * X_MINOR_ARCH=sun
+  * Windows
+      X_MAJOR_ARCH=win
+      * Minor architectures under windows
+        * X_MINOR_ARCH=win
+
+Note: in the future we may need more then just "win" for the windows
+minor architecture. E.g. win32 or win64
+
+There maybe rare cases where the code under the major architecture
+directory works for most of the minor architectures but where there is
+at least one minor architecture that needs its own implementation. In
+this case, besides having the file under the major architecture
+directory with the implementation, a file of the same name is created
+under all the minor architecture directories. For those that need
+their own implementation you would add it in that file. For those that
+can use the major architecture implementation, they would just include
+the file from the major architecture directory.
+
+E.g.
+you have a file called example.cpp that works on all Unices but not on
+Linux. You would create the following (leaving all other info out
+but example.cpp)
+
++ head
+  + host
+    + mymodule
+      + aix
+         example.cpp
+      + hpux
+         example.cpp
+      + linux
+         example.cpp
+      + sun
+         example.cpp
+      + unix
+         example.cpp
+
+* In the unix/example.cpp you would have the full implementation code
+  for unix.
+* in the linux/example.cpp you would have the full implementation
+  code for linux
+* in aix/example.cpp, hpux/example.cpp, sun/example.cpp, you would have
+  the following
+
+    #include "../unix/example.cpp"
+
+The reason this is needed is so that the modules make file uses the
+correct file(s) when building. See the section X_MODULE/Makefile for
+details on including the correct files when building.
+
+Note: There are other ways to handle this issue, but this seemed to be the
+simpliest to implement and maintain in the long run.
+
+## Make Framework ##
+
+The make frame work consists of several files:
+
+	* GNU Makefiles
+         o Makefile
+         o once.mak
+         o top.mak
+         o bottom.mak
+         o thirdparty.mak
+         o rules.mak
+         o <X_ARCH>-thirdparty.mak
+         o X_ARCH.mak
+         o X_ARCH-rules.mak
+         o <X_MODULE>/Makefile
+
+	* scripts
+         o gcc-depend
+         o get-specific-version-info
+         o thirdparty_links.sh
+         o find-dir-deps
+         o validate-modules-set
+         o is-generated-header
+         o <thirdparty dir>/inmage_config_build
+
+The X_ARCH represents the OS and architecture gmake is running
+on. This is a generic name not the specific distro name and generic
+machine architecture. E.g. Linux_i686 is the architecture name on
+Linux 32-bit distros.
+
+The X_MODULE represents the individual modules that will be made. This
+is just the name of the various projects under host. E.g. config,
+common, s2, etc. They correspond to the directory name for that
+module.
+
+<thirdparty dir> is the thirdparty package directory
+
+### GNU Make Files ###
+
+#### Makefile ####
+
+The Makefile is the top level Makefile that drives everything. It
+specifies which modules should be built when running make.
+
+If you add a new module that needs to be made, you will need to add
+its name to either the REQUIRED_BY_ALL_MODULES variable or the MODULES
+variable.
+
+There is a check to see if the X_ARCH was specified on the command
+line. This is used for projects where the X_ARCH target is different
+then the X_ARCH of the current machine. This so that you get the
+correct X_ARCH-rules.mak, X_ARCH.mak and X_ARCH-thirdparty.mak
+files. This is used for cross platform builds (see the section "Cross
+Platform Builds" for more details) E.g. to build for brocade
+you would run  (note the X_ARCH and X_SPECIFIC are just examples the
+actual values may vary)
+
+		gmake X_ARCH=brocade X_SPECIFIC=brocade_1.2.3_g++_4.0.1
+
+If you are working on a project where you need to use a different
+X_ARCH, you would add that architecture check to this file to make
+sure the correct files and modules are used.
+
+See Makefile for details.
+
+#### once.mak ####
+
+The once.mak is included by the top level Makefile. It contains
+several settings that only need to be done once. This file needs to be
+modified only when adding some feature to the make system that will be
+needed by all platforms and is platform independent.
+
+This is where the product version number is specified. If you
+need to override the current version number, you may do this:
+
+    gmake X_VERSION_MAJOR=5 X_VERSION_MINOR=0 \
+        X_VERSION_PATCH=3 X_VERSION_QUALITY=RELEASE
+
+
+#### top.mak ####
+
+top.mak is included at the top of each module's Makefile. It sets up
+various variables needed for the make process that change depending on
+the individual module. In general, you should not have to make any
+modifications to this file. This file needs to be modified only when
+adding some feature to the make system that will be needed by all
+platforms and is platform independent.
+
+See top.mak for details.
+
+#### bottom.mak ####
+
+bottom..mak is included at the bottom of each module's Makefile. It
+sets up various variables needed for the make process that change
+depending on the individual module. But needs to do this after other
+variables have been set. This file needs to be modified only when
+adding some feature to the make system that will be needed by all
+platforms and is platform independent.
+
+See bottom.mak for details.
+
+#### X_ARCH-thirdparty.mak ####
+
+X_ARCH-thirdparty.mak is just a simple file that includes the
+thirdparty package make file that builds the thirdparty packages
+needed for this X_ARCH. If one exists that does what is needed,
+included it in this file. If one does not exist you will need to create
+one and include it in this file.
+
+See one of the X_ARCH-thirdparty.mak files for details.
+
+#### thirdparty.mak ####
+
+thirdparty.mak contains the rules to make all the thirdparty
+packages. This is used as most platforms want to make all the
+thirdparty packages.
+
+If there are some platforms that need to build a different set of
+thirdparty packages, then a new thirdparty.mak (with a name that
+reflects its' needs) should be created.
+
+See thirdparty.mak for details.
+
+#### rules.mak ####
+
+rules.mak contains the rules and actions that will be taken to build
+the source code. It is included at the end of each X_ARCH-rules.mak
+file.
+
+If for some reason these rules don't work on a particular platform
+then a rules.mak for that platform should be created.
+
+See one of the rules.mak files for details
+
+#### X_ARCH.mak ####
+
+X_ARCH.mak is included by bottom.mak and allows you to set some X_ARCH
+specific variables. If you are porting to a new X_ARCH, then you will
+need to create a X_ARCH.mak for that X_ARCH and set
+the variables appropriately.
+
+	* X_OBJEXT - specifies the object extension (if any) to use
+	* X_LIBPRE - specifies a library prefix (if any) to use
+	* X_LIBEXT - specifies a library extension (if any) to use
+	* X_EXEEXT - specifies an executable extension (if any) to use
+	* X_MAJOR_ARCH - specifies the major architecture of the X_ARCH
+	* X_MINOR_ARCH - specifies the minor architecture of the X_ARCH
+
+For variables that are not needed, set them to blank.
+E.g. traditionally Linux executables don't have an extension so
+X_EXEEXT is set to nothing as follows:
+
+	X_EXEEXT =
+
+See one of the X_ARCH.mak files for details.
+
+#### X_ARCH-rules.mak ####
+
+X_ARCH-rules.mak contains the X_ARCH specific rules used in the
+rules.mak that is included at the end of this file.
+
+It will also include platform specific options that maybe needed by
+one or more modules when building on this platform.
+
+You need to create one for each X_ARCH that the make system will run
+on. You can copy an existing one and make any needed changes for the
+specific X_ARCH.
+
+See one of the X_ARCH-rules.mak files for details
+
+#### X_MODULE/Makefile ####
+
+This is the file you will most likely deal with the most. Each module
+gets its own Makefile. It determines exactly what code will be
+compiled and if the final result is an executable or a library. It
+also specifies all the specific platform independent settings for this
+module. Platform dependent settings would defined in in the
+X_ARCH-rules.mak file and the variable would be used in this file.
+
+If you are adding a new module you will need to create a Makefile for
+that module. The best way is to just copy another module's Makefile
+and modify it as needed. Don't forget to add the new module's name to
+the top level Makefile to make sure it gets made.
+
+Let's cover the complete Makefile
+
+You must include top.mak and it must appear before anything else in
+the file (except for any comments).
+
+	include top.mak
+
+Add all the source files that need to be compiled to SRCS. If there
+are sources under the major and/or minor architecture directory then
+you will need to use the X_MAJOR_ARCH and/or the X_MINOR_ARCH
+variables. E.g.
+
+	SRCS = mysrc1.cpp \
+		mysrc2.cpp \
+		$(X_MAJOR_ARCH)/bar.cpp \
+		$(X_MINOR_ARCH)/baz.cpp
+
+
+Add all module specific include directories and special compiler
+platform independent flags (e.g. additional defines) needed to
+X_CFLAGS. For including files from other modules you don't need to
+specify the full path. Just start with the module directory. If you
+are using thirdparty headers, don't forget to use the thirdparty
+include variables. See the file that is included by the
+X_ARCH-thirdparty.mak for a list of the thirdparty include
+variables. Also check the X_ARCH-rules.mak CFLAGS to avoid
+duplication as well as for any plaftform specific options you may want
+to use in the module's makefile. If needed you may also need to add
+X_MAJOR_ARCH and or X_MINOR_ARCH E.g.
+
+	X_CFLAGS = -DMY_DEFINE \
+		-Iconfig \
+		-Iconfig/$(X_MAJOR_ARCH) \
+		-Iconfig/$(X_MINOR_ARCH) \
+		$(ACE_INCLUDE)
+
+Add host module specific libraries to X_LIBS. This is for host module
+libraries only. This is only needed when building a binary executable. When
+specifying the libraries use the module name (i.e. the directory name)
+of the library. You do not need to specify any paths. Do not use the
+the -l option before the library name. E.g.
+
+	X_LIBS = \
+		config \
+		common
+
+Add thirdparty libraries to X_THIRDPARTY_LBIS. Use thirdparty LIBS
+variable to specify the thirdpary libraries to use. E.g.
+
+	X_THIRDPARTY_LIBS = \
+		$(ACE_LIBS) \
+		$(CURL_LIBS)
+
+Add all module specific system libraries to X_SYSTEM_LIBS. This is
+only needed when building a binary executable.  These are the system
+libraries that will be found in the default library search
+path. Often they are platform specific so you usually need to create
+a special variable in all the X_ARCH-rules.mak files. You don't need
+to specify the library dir, just the library name. In this case you
+use the standard library option of -l<name> with out the prefix nor
+the suffix. You should also check the X_ARCH-rules.mak SYSTEM_LIBS to
+avoid duplication and for any existing variables for these
+libraries. E.g. if you need to link against the ncurses library (which
+is platform specific) you would specify
+
+	X_SYSTEM_LIBS = $(LIBCURSES)
+
+Add all module specific platform independent linker flags to
+X_LDFLAGS. Make sure to check X_ARCH-rules.mak LDFLAGS to avoid
+duplication. Also add platform specific linker flags. Currently
+no modules have any specific LDFLAGS, so it is left empty. E.g
+
+	X_LDFLAGS =
+
+Set the BINARY and BINARY_EXT appropriately for the type of binary
+being generated. Make sure to use the values X_EXEEXT for executables
+and X_LIBPREE and X_LIBEXT for libraries. E.g. an executable would use
+
+	BINARY = dataprotection
+	BINARY_EXT = $(X_EXEEXT)
+
+and a library would use
+
+	BINARY = $(LIBPRE)config
+	BINARY_EXT = $(X_LIBEXT)
+
+Finally, always include bottom.mak last (except for any comments you
+may want to add at the end)
+
+	include bottom.mak
+
+See any one of the module Makefiles for details.
+
+### Scripts ###
+
+#### gcc-depend ####
+
+gcc_depend.sh uses gcc to generate a gmake rule that includes all the
+dependencies needed by each source file. It puts that rule in a
+<outdir/source file name>.d file that is included by the
+X_ARCH-rules.mak file. This tires to make sure that any changes to
+dependencies causes the correct things to be compiled and linked.
+
+#### get-specific-version-info ####
+
+get-specific-version-info is used to combine the distro and gcc
+versions into a single name that is used as part of the full path
+location for thirdparty libraries.
+
+#### thirdparty_links.sh ####
+
+thirdparty_links.sh is used to setup links to the thirdparty packaged
+needed when building installers as they assume specific locations.
+
+#### find-dir-deps ####
+
+find-dir-deps is used to find all the directories for a given
+thirdparty package that has source code. That list is added to that
+thirparty packages build rule so that if any code is changed under
+those directories, that thirdparty pacakage's build will be run.
+
+#### validate-modules-sets ####
+
+validate-modules-set is used to make sure that all the needed modules
+are being built prior to a given module needing it. If there are any
+missing modules, it will list the missing modules and report it as an
+error. 
+
+#### is-generated-header ####
+
+is-generated-header is used to determine if include paths are missing
+in a modules files. It will report an error indicating that if it is
+not a generated header file. It alos provides information on how to
+correct this issue. 
+
+#### <thirdparty dir>/inmage_config_build ####
+
+<thirdparty dir>/inmage_config_build is used to configure and build thirdparty packages.
+
+## Thirdparty Packages ##
+
+Thirdparty packages are configured and made (release and debug) using
+the inmage_config_build script located under the thirdparty directory.
+
+The inmage_config_build script will configure and make both release
+and debug versions. I.e. there are no options to tell it to just build
+release or debug.
+
+Once inmage_config_build is run, any additional runs will skip the
+configuration and just run make. If you need to re-configure (this is
+needed at times when trying to get the inmage_config_build script
+working for new and/or updated packages), you can run
+
+	./inmage_config_build --clean
+
+and then run
+
+	./inmage_config_build
+
+If you make changes a thirdparty source file you can just run
+
+	./inmage_config_build
+
+from the thirdparty directory. That will re-make the thirdparty
+package picking up the changes.
+
+If you do make a change to thirdparty source files, then make sure to
+send out a special email (i.e. more then just the check-in email that
+is automatically sent) informing everyone that they will need to
+update their thirdparty directory. It would be best if the email
+included just the files that were modified so that one could just
+update those files with out having to check everything.
+
+Once you have the updates, then running the top level make file should
+cause any thirdparty package that had changes to be rebuilt. If for
+some reason you do not see that happen (besides reporting the
+issue), you can can either do a gmake clean for those thirdparty
+packages or before running the top level make, first run
+
+    <thirdparty package dir>/inmage_config_build
+
+That will re-make the thirdparty package picking up the changes. Then
+you can run gmake.
+
+If you need to add or upgrade a thirdparty package then you will need
+to make sure you set it up correctly. This assumes you are not porting
+anything to a new platform. If you are porting to a new platform see
+the section "Porting to a New Platform".
+
+First you need to make sure the thirdparty package will build
+correctly. To do that requires an inmage_config_build script to be
+setup correctly for that thirdparty package.
+
+If you are upgrading, copy the existing inmage_config_build from a
+previous version of that thirdparty package and update it as needed
+for the new version
+
+If you are adding a new thirdparty package, then you can copy an
+inmage_config_build script from another thirdparty package and modify
+it. Note you should test if the new thirdparty package allows you to
+run configure from a subdirectory or if it needs to alwasy be run in
+the top level directory. This is important as the inmage_config_script
+does different things depending on running in a subdir or the top level
+dir. The ace inmage_config_build script is an example of a thirdparty
+package that lets you run configure in a subdir. While the zlib
+inmage_config_build script is an example that requires you to run
+configure from the top level directory.
+
+Note when modifying the inmage_config_build script, each thirdparty
+package does things slightly differently so you need to pay close
+attention to how the thirdparty package you are trying to build works
+and modify the script accordingly. There are too many variables to
+give all the details in this document, but the things to look at in
+the inmage_config_build script would be
+
+	* variables being exported from the script
+	* --options used when running ./configure (or ./config)
+	* gmake command line options being used
+
+Check the thirdparty package's documentation for details.
+
+After you have the inmage_config_build script ready to go you need to
+make sure it works correctly. You can do this by just running
+
+	./inmage_config_build
+
+If there are no errors you should be done. If there are errors you
+will need to figure out what the problem is and try again. In that
+case you should run
+
+  ./inmage_config_build --clean
+  ./inmage_config_build
+
+Once you have the inmage_config_build script working correctly you
+need to do the following:
+
+	1. look in all the X_ARCH-thirdparty.mak files to find all the
+		files that they inlcude.
+	2. edit each of the files found in step 1 to reflect the
+		thirdparty package information correctly
+		* For an upgraded package, update the existing ROOT variable
+		  and possibly the  _LIBS variable to reflect any new or
+		  renamed libraries
+		* For a new package create new variables and rules using the
+		  existing ones as a guide
+
+Check in all your changes.
+
+You should now be ready to use the thirdparty package.
+
+## Porting To A New Platform ##
+
+If you need to port to a new platform follow these steps
+
+	1. set up your new platform. Make sure that GNU Make 3.8 or
+		later and gcc 3.3.3 or later, automake 1.9.6 or later,
+		autoconf 2.61 or later, m4 1.4.10 or later, and libtool
+		1.5.26 or later are all available. If you need to
+		install any of them, grab the latest versions.
+
+	2. get all the code from cvs
+
+	3. if needed, create a new X_ARCH-rules.mak for the
+		platform. You need to create a new one if there are no
+		X_ARCH-rules.mak where the X_ARCH matches the output
+		from running
+
+			 uname -ms | sed -e s"/ /_/g"
+
+		or the machine you are building on is not the target machine.
+
+	4. if you needed to create a new X_ARCH-rules.mak then you need to
+		create a new X_ARCH.mak for the platform
+
+	5. if you needed to create a new X_ARCH-rules.mak then you need
+      to create a new X_ARCH-thirdparty.mak
+
+	6. Make sure that all the thirdparty packages that will be
+		built by the X_ARCH-thirdparty-rules.mak actually build.
+
+		At a minimum you will need to modify the thirdparty
+		inmage_config_build scripts for this new platform.
+
+		The main modification is to make sure that the proper
+		compiler options are setup. Search for
+
+		    echo platform $SYSTEM not supported yet
+
+		You need to add a case statement to that case construct that
+		properly sets the compiler options that are being set in the
+		exiting cases. To get the case label run
+
+		   uname
+
+		and copy the output exactly as the case label.
+
+      If this platform doesn't need a particular compiler option
+		just set the variable to blank. E.g we use the -nosse2 option
+		for linux, but that is only valid for intel/amd ia32/x64
+		instruction set. So for sun it is set to blank as follows
+
+		    NOSSE2=
+
+	   After adding support for this platform, make sure that all
+		the thirdparty packages that will be built by the
+		X_ARCH-thirdparty.mak actually build. If any fail you will
+		need to get them to build. That may require additional
+		modifications to the inmage_config_build script. Make sure
+		you don't break it for the existing platforms
+
+
+		At a minimum need to modify the thirdparty
+		inmage_config_build scripts for this new platform.
+
+		The main modification is to make sure that the proper
+		compiler options are setup. Search for
+
+		    echo platform $SYSTEM not supported yet
+
+		You need to add a case statement to that case construct that
+		properly sets the compiler options that are being set in the
+		exiting cases. In this case (no pun intended) the label will
+		be the same as the X_ARCH that is being used when building.
+
+		That means even if you are doing cross builds for mulitple
+		targets from the same machine, you will need to add a case
+		statement for each individual X_ARCH that is being used.
+
+      If this platform doesn't need a particular compiler option
+		just set the variable to blank. E.g we use the -nosse2 option
+		for linux, but that is only valid for intel/amd ia32/x64
+		instruction set. So for sun it is set to blank as follows
+
+		    NOSSE2=
+
+	   After adding support for this platform, make sure that all
+		the thirdparty packages that will be built by the
+		X_ARCH-thirdparty.mak actually build. If any fail you will
+		need to get them to build. That may require additional
+		modifications to the inmage_config_build script. Make sure
+		you don't break it for the existing platforms
+
+	7. run gmake
+
+	8. fix any issues
+
+Check in all your changes.
+
+You should now be ready to use that platform.
+
+## Cross Platform Builds ##
+
+At times you may need to do a build on one platform but target a
+different platform. This is referred to as cross platform build. This
+is very similar to porting to a new platform, but does have some
+differences.
+
+The biggest difference is the scripts used to determine the X_ARCH and
+X_SPECIFIC (obtained by the get-specific-version-info script) will not
+be correct as they will return the values for the platform you are
+building on and not the target platform values. In that case you need
+to tell the make system those values when you are running make. This is
+done by providing the X_ARCH and X_SPECIFIC values on the command
+line. These values don't have to actually match the ones from the
+target machine, but should be unique to the target platform. E.g. for
+brocade you could use
+
+	  X_ARCH=brocade
+	  X_SPECIFIC=brocade_<brocade_version>_g++_<g++version>
+
+where
+	<brocade version> is the version of the brocade switch that is
+	being targeted.
+
+	<g++version> is the version of the cross compiler being used.
+
+This way you could build for 2 different brocade versions on the same
+machine if you needed to do different things for different brocade
+versions.
+
+You can also use the specific target platform values if you want. You
+can get them as follows.
+
+to get the X_ARCH value you would logon to the target platform and run
+
+   shell uname -ms | sed -e s"/ /_/g"
+
+The output will be used for the X_ARCH.
+
+To get the X_SPECIFIC value depends partly on the actual target
+platform. You will need to use what ever method is provided by the
+target platform for reporting the platform version. See the
+get-specific-version-info script for the various ways that is
+determined for the various platforms listed. Note ignore the
+gccVersion portion as that will be obtained from the actual cross
+compiler being used.
+
+Finally to get the gcc version, logon to the platform where the build
+will be done. Run the cross compiler that will be used giving it the
+option to report the version. E.g. if using a GNU cross compiler you
+would just run the compiler.
+
+	/usr/local/mycrosscompiler/g++ --version
+
+You want just the version number.
+
+Now that you have the version info from the target platform and the
+compiler version you need to combine them into a single string to form
+the X_SPECIFIC value. This is done as follows
+
+	 <specific platform version><compiler name><compiler version>
+
+where
+	<specific platform version> is the version info you got from the
+	target.
+
+   <compiler name> is the name of the compiler used. E.g. g++. You
+   don't need to full path just the binary name.
+
+   <compiler version> is the version number reported.
+
+Note you need to replace all spaces with underscores ('_').
+
+Now you have X_ARCH and X_SPECIFIC
+
+To build you would run the following
+
+	gmake X_ARCH=<arch> X_SPECIFIC=<specific>
+
+where <arch> is the value you got for X_ARCH and <specific> is the
+value you got for X_SPECIFIC as described above.
+
+As with porting to a new platform, you need to create the proper files
+for this cross platform.
+
+	1. set up your new platform. Make sure that GNU Make 3.8 or
+		later, your cross compiler (and any additional tools needed
+		for cross compiling), automake 1.9.6 or later, autoconf 2.61
+		or later, m4 1.4.10 or later, and libtool 1.5.26 or later are
+		all available. If you need to install any of them, grab the
+		latest versions.
+
+	2. get all the code from cvs
+
+	3. if needed, create a new X_ARCH-rules.mak for the target
+		platform using the X_ARCH name that you plan to use when
+		invoking make.
+
+	4. if you needed to create a new X_ARCH-rules.mak, then you need
+		to create a new X_ARCH.mak
+
+   5. if needed, create a new X_ARCH-thirdparty-rules.mak that will
+  	   build all the thirdparty packages needed for the target
+  	   platform.
+
+   6. if you needed to create a new X_ARCH-thirdparty-rules.mak, then
+     	you need to create a new X_ARCH-thridparty.mak file that
+     	includes the new X_ARCH-thirdparty.mak
+
+	7. At a minimum need to modify the thirdparty
+		inmage_config_build scripts for this new platform.
+
+		The main modification is to make sure that the proper
+		compiler options are setup. Search for
+
+		    echo platform $SYSTEM not supported yet
+
+		You need to add a case statement to that case construct that
+		properly sets the compiler options that are being set in the
+		exiting cases. In this case (no pun intended) the label will
+		be the same as the X_ARCH that is being used when building.
+
+		That means even if you are doing cross builds for mulitple
+		targets from the same machine, you will need to add a case
+		statement for each individual X_ARCH that is being used.
+
+      If this platform doesn't need a particular compiler option
+		just set the variable to blank. E.g we use the -nosse2 option
+		for linux, but that is only valid for intel/amd ia32/x64
+		instruction set. So for sun it is set to blank as follows
+
+		    NOSSE2=
+
+	   After adding support for this platform, make sure that all
+		the thirdparty packages that will be built by the
+		X_ARCH-thirdparty.mak actually build. If any fail you will
+		need to get them to build. That may require additional
+		modifications to the inmage_config_build script. Make sure
+		you don't break it for the existing platforms
+
+	8. If this plartform is going to build a different set of
+		modules then the default one, you need to update the top
+		level Makfile to check for the specific X_ARCH and create
+		MODULES variable that lists all the modules needed for this
+		platform. E.g.
+
+		ifeq (brocade,$(X_ARCH))
+			  MODULES : = $(REQUIRED_BY_ALL_MODULES) brocadehelper brocadetst
+	   else
+			   MODULES := $(REQUIRED_BY_ALL_MODULES) common s2libs  ...
+		endif
+
+		Note you should also check the REQUIRED_BY_ALL_MODULES
+		variable to make sure what is listed is really required for
+		this platform. If there is any modules listed there that are
+		not need, then remove them from that variable and add them to
+		all MOULDUES lists that have REQUIRED_BY_ALL_MODULES
+		listed. Or if the list is short, just leave the
+		REQUIRED_BY_ALL_MODULES off of this platforms MOULDES list
+		and list them inidividually.
+
+	9. run gmake X_ARCH=<arch> X_SPECIFIC=<specific> as described above.
+
+  10. fix any issues
+
+Check in all your changes.
+
+You should now be ready to use that cross platform.
+
+## Bugs/Features ##
+
+The make system uses more dependency checking then some maybe are used
+to. It not only checks dependencies for executables, libraries,
+objects, source and header changes, it also checks against changes to
+the make files and scripts themselves. That way any changes will cause
+the proper thing to be done without having to do a clean and rebuild
+everything. E.g. if you change a module's Makefile, you will see that
+module re-compiled and linked. If you change a top level make file or
+script, you may see the whole system being rebuilt.
+
+However, being that this is a work in progress, it is likely that
+somethings have been over looked. There may also be some feature(s)
+that are missing. E.g at one point the make system did not support
+Makfiles in subdirs of modules. That has since been fixed. Or you have
+to be in the top level directory when runing gmake.
+
+So if you notice things not working as they should
+
+	* most importantly things not getting built that should have
+	  (especially after something was changed). I.e. the dependency
+	  checks are missing things.
+
+	* things being built that didn't need to be after some change
+
+	* missing feature
+
+	* etc.
+
+report them in Bugzilla using the component "Make System" so that they
+can be fixed.

@@ -1,0 +1,9 @@
+#!/bin/sh
+
+sed -e "s/LogOption = 0/LogOption = 1/" ../build/scripts/VX/templates/drscout.conf > ../build/scripts/VX/templates/drscout.conf.new
+chmod +x ../build/scripts/VX/templates/drscout.conf.new
+
+#Adding the new key S2StrictMode for debug build only
+vx_sec_ln=`grep -ni "\[vxagent\]" ../build/scripts/VX/templates/drscout.conf.new | cut -d":" -f1`
+vx_next_ln=`expr $vx_sec_ln + 1`
+sed "${vx_next_ln}i\S2StrictMode = 1" ../build/scripts/VX/templates/drscout.conf.new > ../build/scripts/VX/templates/drscout.conf.new.new

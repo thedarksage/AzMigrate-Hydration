@@ -349,8 +349,8 @@ static int userauth(byte authtype,
 {
   struct Curl_easy *data = ctx;
   DEBUGF(infof(data, "wolfssh callback: type %s",
-               authtype == WOLFSSH_USERAUTH_PASSWORD ? "PASSWORD" :
-               "PUBLICCKEY"));
+               authtype == WOLFSSH_USERAUTH_PASSWORD ? "" :
+               ""));
   if(authtype == WOLFSSH_USERAUTH_PASSWORD) {
     authdata->sf.password.password = (byte *)data->conn->passwd;
     authdata->sf.password.passwordSz = (word32) strlen(data->conn->passwd);

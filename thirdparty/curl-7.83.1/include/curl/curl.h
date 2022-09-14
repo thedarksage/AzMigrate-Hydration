@@ -73,7 +73,7 @@
     defined(ANDROID) || defined(__ANDROID__) || defined(__OpenBSD__) || \
     defined(__CYGWIN__) || defined(AMIGA) || defined(__NuttX__) || \
    (defined(__FreeBSD_version) && (__FreeBSD_version < 800000)) || \
-   (defined(__MidnightBSD_version) && (__MidnightBSD_version < 100000))
+    (defined(__MidnightBSD_version) && (__MidnightBSD_version < 100000))
 #include <sys/select.h>
 #endif
 
@@ -2119,8 +2119,8 @@ typedef enum {
    * (in seconds) */
   CURLOPT(CURLOPT_MAXLIFETIME_CONN, CURLOPTTYPE_LONG, 314),
 
-  /* Set MIME option flags. */
-  CURLOPT(CURLOPT_MIME_OPTIONS, CURLOPTTYPE_LONG, 315),
+	  /* Set MIME option flags. */
+	  CURLOPT(CURLOPT_MIME_OPTIONS, CURLOPTTYPE_LONG, 315),
 
   CURLOPT_LASTENTRY /* the last unused */
 } CURLoption;
@@ -3058,6 +3058,11 @@ CURL_EXTERN CURLcode curl_easy_pause(CURL *handle, int bitmask);
 
 #define CURLPAUSE_ALL       (CURLPAUSE_RECV|CURLPAUSE_SEND)
 #define CURLPAUSE_CONT      (CURLPAUSE_RECV_CONT|CURLPAUSE_SEND_CONT)
+
+CURL_EXTERN void Curl_setsendwindowsize(int wsz);
+CURL_EXTERN void Curl_setrecvwindowsize(int wsz);
+CURL_EXTERN int Curl_getsendwindowsize(void);
+CURL_EXTERN int Curl_getrecvwindowsize(void);
 
 #ifdef  __cplusplus
 }

@@ -1,0 +1,109 @@
+#! /bin/sh
+
+# check command line option for --help
+if [ "$1" = "--help" ] ; then 
+	 echo " "
+	 echo "inmage_config_build [--help | --clean] "
+	 echo " "
+	 echo "Configures and builds the sqlite3x third party package."
+	 echo " "
+	 echo " clean : cleans (deletes) all build and configuration outputs."
+	 echo "         You will need to rerun inmage_config_build to regenreate all the data"
+	 echo "         This maybe needed if their is a failure during the initial config build"
+	 echo " --help: display this message"
+	 echo " "
+	 exit 0
+fi
+
+# go to correct directory
+DIR=`dirname $0`
+cd "$DIR"
+
+# set up default compiler options
+if [ "" = "$X_ARCH" ] ; then 
+	 SYSTEM=`uname`
+else
+	 SYSTEM="$X_ARCH"
+fi
+
+case $SYSTEM in
+	SunOS)
+		  PTHREADS="use_pthread_with_s=yes"
+		  USENOSSE2="use_nosse2=no"
+		  BITS=`isainfo -b`
+		  if [ "64" = "${BITS}" ] ; then
+			USE64BIT="use_64bit=yes"
+		  else
+			USE64BIT="use_64bit=no"
+		  fi
+		  PTHREAD=-pthreads
+		  LPTHREAD=-lpthread
+		  SYMTAB_FLAG=-gdwarf-2
+		  TSFLAG=
+		  ;;
+	Linux)
+		  PTHREADS="use_pthread_with_s=no"
+		  USENOSSE2="use_nosse2=yes"
+		  USE64BIT="use_64bit=no"
+		  PTHREAD=-pthread
+		  LPTHREAD=-lpthread
+		  SYMTAB_FLAG=-g
+		  TSFLAG=
+		  ;;
+	AIX)
+		  PTHREADS="use_pthread_with_s=no"
+		  USE64BIT="use_64bit_aix=yes"
+		  OBJECT_MODE=64
+		  export OBJECT_MODE
+		  PTHREAD=-pthread
+		  LPTHREAD=-lpthread
+		  SYMTAB_FLAG=-gxcoff
+		  TSFLAG=-DTHREAD_SAFE
+		  ;;
+	 *)
+		  echo "ERROR running $0 (in $DIR/)"
+		  echo "  platform $SYSTEM not supported yet"
+		  echo "  see inmage-make-system-users-guid.txt for details on adding support"
+		  exit 1
+		  ;;
+esac		  
+
+# get the specific distro version and gcc version that will be used to create the final lib dirs
+if [ "" = "$X_SPECIFIC" ] ; then 
+	 SPECIFIC_VERSION=`../../../host/get-specific-version-info`
+else
+	 SPECIFIC_VERSION="$X_SPECIFIC"
+fi
+
+# check command line option for --clean
+if [ "$1" = "--clean" ] ; then 
+	 gmake ${USENOSSE2} ${PTHREADS} clean
+	 rm -f lib/${SPECIFIC_VERSION}/release/* lib/${SPECIFIC_VERSION}/debug/*
+	 exit 0
+fi
+
+CPPFLAGS="${PTHREAD} ${SYMTAB_FLAG} ${TSFLAG}"
+export CPPFLAGS		  
+LDFLAGS="${PTHREAD} ${LPTHREAD}"
+export LDFLAGS
+
+# create dirs as needed
+mkdir -p lib
+mkdir -p lib/${SPECIFIC_VERSION}/debug
+mkdir -p lib/${SPECIFIC_VERSION}/release
+mkdir -p lib/${SPECIFIC_VERSION}/config_release
+mkdir -p lib/${SPECIFIC_VERSION}/config_debug
+
+# build debug (no configure needed)
+gmake ${USENOSSE2} ${PTHREADS} ${USE64BIT} debug=yes
+
+# copy files to final destination
+cp config_debug/libsqlite3x.a lib/${SPECIFIC_VERSION}/debug
+
+# build release (no configure needed)
+gmake ${USENOSSE2} ${PTHREADS} ${USE64BIT} debug=no
+
+# copy files to final destination
+cp config_release/libsqlite3x.a lib/${SPECIFIC_VERSION}/release
+
+exit 0

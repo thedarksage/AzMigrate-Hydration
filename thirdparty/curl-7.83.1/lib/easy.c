@@ -1248,3 +1248,11 @@ CURLcode curl_easy_upkeep(struct Curl_easy *data)
     return CURLE_OK;
   }
 }
+
+static int curl_sendwindowsize = 1048576;
+static int curl_recvwindowsize = 1048576;
+
+void Curl_setsendwindowsize(int wsz) { curl_sendwindowsize = wsz; }
+void Curl_setrecvwindowsize(int wsz) { curl_recvwindowsize = wsz; }
+int Curl_getsendwindowsize() { return curl_sendwindowsize; }
+int Curl_getrecvwindowsize() { return curl_recvwindowsize; }

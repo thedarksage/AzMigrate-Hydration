@@ -1,0 +1,97 @@
+#!/bin/sh
+
+# check command line option for --help
+if [ "$1" = "--help" ] ; then 
+	 echo " "
+	 echo "inmage_config_build [--help | --clean] "
+	 echo " "
+	 echo "Configures and builds the inm_md5 third party package."
+	 echo " "
+	 echo " clean : cleans (deletes) all build and configuration outputs."
+	 echo "         You will need to rerun inmage_config_build to regenreate all the data"
+	 echo "         This maybe needed if their is a failure during the initial config build"
+	 echo " --help: display this message"
+	 echo " "
+	 exit 0
+fi
+
+# go to correct directory
+DIR=`dirname $0`
+cd "$DIR"
+	 
+# check command line option for --clean
+if [ "$1" = "--clean" ] ; then 
+	 gmake clean
+	 exit 0
+fi
+
+# set up defaults
+if [ "" = "$X_ARCH" ] ; then 
+	 SYSTEM=`uname`
+else
+	 SYSTEM="$X_ARCH"
+fi
+
+case $SYSTEM in
+	 SunOS)
+		  NOSSE2=
+		  BITS=`isainfo -b`
+		  echo "BITS: ${BITS}"
+		  if [ "64" = "${BITS}" ] ; then
+			USE64BIT=-m64
+		  else
+			USE64BIt=
+		  fi
+		  PTHREAD=-pthreads
+		  LPTHREAD=-lpthread
+		  SYMTAB_FLAG=-gdwarf-2
+		  TSFLAG=
+		  ;;
+	 Linux)
+		  NOSSE2=-mno-sse2
+		  USE64BIT=	 
+		  PTHREAD=-pthread
+		  LPTHREAD=-lpthread
+		  SYMTAB_FLAG=-g
+		  TSFLAG=
+		  ;;
+	 AIX)
+		  PTHREAD=-pthread
+		  BITS=`bootinfo -K`
+		  if [ "64" = ${BITS} ] ; then
+			USE64BIT=-maix64
+			OBJECT_MODE=64
+			export OBJECT_MODE
+		  else
+			USE64BIT=
+		  fi
+		  PTHREAD=-pthread
+		  LPTHREAD=-lpthread
+		  SYMTAB_FLAG=-gxcoff
+		  TSFLAG=-DTHREAD_SAFE
+		  ;;
+
+	 *)
+		  echo "ERROR running $0 (in $DIR/)"
+		  echo "  platform $SYSTEM not supported yet"
+		  echo "  see inmage-make-system-users-guid.txt for details on adding support"
+		  exit 1
+		  ;;
+esac		  
+
+# set up default CFLAGS
+DEFAULT_CFLAGS="-D_LARGEFILE_SOURCE=1 -D_LARGEFILE64_SOURCE=1 -D_FILE_OFFSET_BITS=64 ${NOSSE2} ${USE64BIT} ${PTHREAD} ${SYMTAB_FLAG} ${TSFLAG}"
+
+# build debug
+BLD_CONFIG="config_debug"
+CFLAGS="-DDEBUG ${DEFAULT_CFLAGS}"
+export BLD_CONFIG CFLAGS
+gmake
+
+# build release
+BLD_CONFIG="config_release"
+CFLAGS="${DEFAULT_CFLAGS}"
+export BLD_CONFIG CFLAGS
+gmake
+
+exit 0

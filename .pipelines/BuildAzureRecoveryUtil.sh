@@ -31,6 +31,9 @@ chmod +x ./get-specific-version-info
 
 chmod +x ./gcc-depend
 
+
+chmod +x ./thirdparty_links.sh
+
 chmod +x ../thirdparty/zlib-1.2.12/inmage_config_build
 
 chmod +x ../thirdparty/openssl-1.1.1n/inmage_config_build
@@ -38,6 +41,46 @@ chmod +x ../thirdparty/openssl-1.1.1n/inmage_config_build
 chmod +x ../thirdparty/boost/inmage_config_build
 
 chmod +x ../thirdparty/boost/boost_1_78_0/b2.exe
+
+chmod +x ../thirdparty/boost/boost_1_78_0/tools/build/src/engine/build.sh
+
+chmod +x ../thirdparty/cdk-5.0.4/inmage_config_build
+
+chmod +x ../thirdparty/sqlite3x/sqlite3x/inmage_config_build
+
+chmod +x ../thirdparty/ace-6.4.6/ACE_wrappers/inmage_config_build
+
+chmod +x ../thirdparty/sqlite3x/sqlite3x/inmage_config_build
+
+chmod +x ../thirdparty/sqlite-3.36.0/inmage_config_build
+
+chmod +x ../thirdparty/openssl-1.1.1n/inmage_config_build
+
+chmod +x ../thirdparty/libxml2/libxml2-2.9.13/inmage_config_build
+
+chmod +x ../thirdparty/inm_md5/inmage_config_build
+
+chmod +x ../thirdparty/cdk-5.0.4/inmage_config_build
+
+mkdir -p ../host/Linux_x86_64/AzureRecoveryLib/release/resthelper/
+
+mkdir -p ../host/Linux_x86_64/AzureRecoveryLib/config/
+
+mkdir -p ../host/Linux_x86_64/config
+
+mkdir -p ../host/Linux_x86_64/AzureRecoveryUtil/release
+
+mkdir -p ../host/Linux_x86_64/AzureRecoveryLib/release/common/
+
+mkdir -p ../host/Linux_x86_64/AzureRecoveryLib/release/config/
+
+mkdir -p ../host/Linux_x86_64/AzureRecoveryLib/release/linux/
+
+mkdir -p ../host/Linux_x86_64/securitylib/release/
+
+mkdir -p ../host/Linux_x86_64/securitylib/release/linux/
+
+mkdir -p ../host/Linux_x86_64/securitylib/release/unix/
 
 gmake AzureRecoveryUtil X_VERSION_MAJOR=$MajorVersion X_VERSION_MINOR=$MinorVersion X_PATCH_SET_VERSION=$PatchsetVersion X_PATCH_VERSION=$PatchVersion X_VERSION_QUALITY=$BuildQuality X_VERSION_PHASE=$BuildPhase debug=no warnlevel=none verbose=yes partner=inmage > >(tee AzureRecoveryUtilBuild.log) 2>&1
 

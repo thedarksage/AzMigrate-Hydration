@@ -209,6 +209,14 @@ endif
 # ----------------------------------------------------------------------
 LDFLAGS :=
 
+ifeq (yes,$(intel))
+include vx_intel_setup.mak
+else
+include fx_setup.mak
+include vx_setup.mak
+include ua_setup.mak
+endif
+
 # ----------------------------------------------------------------------
 # include the rules that this platform should use
 # this must be the very last thing in this file

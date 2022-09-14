@@ -1,0 +1,42 @@
+#!/bin/sh
+
+if [ `uname` = "SunOS" ]; then
+        GREPCMD="/usr/xpg4/bin/grep"
+else
+        GREPCMD="grep"
+fi
+
+FILE=`basename $2 | ${GREPCMD} -v '^serialize' | ${GREPCMD} -v '^xmlize'`
+if [ "" = "$FILE" ] ; then
+	 touch "$2"
+	 echo "$2" >> dellist
+	 touch dodelete
+	 exit 0
+fi
+
+echo ""
+echo "***** ERROR: $2 was not found and is not a generated file"
+echo ""
+echo "this can happen if a module's Makefile has not added/removed the location of"
+echo "the missing file(s) to/from its X_CFLAGS. It is also possible that the missing"
+echo "file(s) was removed, moved to a new location or it was not checked-in to source "
+echo "control"
+echo ""
+echo "The following should be a list of files that reference the missing file(s)"
+echo "(they will be deleted automatically)"
+
+echo "dir: $1 - file: $2"
+files=`find $1 | ${GREPCMD} "[.]d" | xargs ${GREPCMD} -l -E "(^|[ ][ ]*)$2([ ][ ]*|$)"`
+for f in $files ; do 
+	 echo $f
+done
+
+echo ""
+echo "Make sure to update the Makefile(s) of the module(s) listed above by either "
+echo "removing or adding the full path of the missing file(s). Once that has been done,"
+echo "re-run gmake. If it continues to fail you may need to do gmake clean and then gmake"
+echo ""
+
+echo $files | xargs rm -f
+
+exit 1
