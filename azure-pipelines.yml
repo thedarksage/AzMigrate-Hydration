@@ -42,7 +42,7 @@ extends:
           - msbuild
           - visualstudio
           vmImage: windows-latest
-          type: windows-latest
+          type: windows
 
         variables:
           WindowsContainerImage: 'cdpxwin1809.azurecr.io/global/vse2019:latest'
