@@ -1,8 +1,8 @@
 # Build Status
 | Platform | Build & Test |
 |---|:-----:|
-|![Win-x64](docs/img/win_logo.png) ***Windows x64***|[![Windows Build Status](https://msazure.visualstudio.com/One/_apis/build/status/OneBranch/AzMigrate-Hydration/thedarksage.AzMigrate-Hydration?branchName=master)](https://msazure.visualstudio.com/One/_build/latest?definitionId=281574&branchName=master)
-|![Ubuntu-20.04-x64](docs/img/linux_logo.png) ***Ubuntu 20.04***|[![Linux Build Status](https://msazure.visualstudio.com/One/_apis/build/status/OneBranch/AzMigrate-Hydration/thedarksage.AzMigrate-Hydration?branchName=main)](https://msazure.visualstudio.com/One/_build/latest?definitionId=281574&branchName=main)
+|![Win-x64](docs/img/win_logo.png) ***Windows x64***|[![Windows Build Status](https://msazure.visualstudio.com/One/_apis/build/status/OneBranch/AzMigrate-Hydration/thedarksage.AzMigrate-Hydration?branchName=develop)](https://msazure.visualstudio.com/One/_build/latest?definitionId=281574&branchName=develop)](https://msazure.visualstudio.com/One/_build/latest?definitionId=281574&branchName=master)
+|![Ubuntu-20.04-x64](docs/img/linux_logo.png) ***Ubuntu 20.04***|[![Linux Build Status](https://msazure.visualstudio.com/One/_apis/build/status/OneBranch/AzMigrate-Hydration/thedarksage.AzMigrate-Hydration?branchName=develop)](https://msazure.visualstudio.com/One/_build/latest?definitionId=281574&branchName=develop)
 
 # Project
 This project provides the source code for [Azure Migrate hydration scripts](https://docs.microsoft.com/en-us/azure/migrate/prepare-for-agentless-migration#hydration-process).
