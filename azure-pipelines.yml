@@ -1,4 +1,5 @@
 # Starter pipeline
+
 # Start with a minimal pipeline that you can customize to build and deploy your code.
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
@@ -156,3 +157,73 @@ stages:
             cp -f $(REPOROOT)/host/AzureRecoveryUtilBuild.log $(Build.SourcesDirectory)/out/logs
           failOnStderr: true
 
+# Packaging job
+  - job: packaging
+    dependsOn:
+      - windows_build
+      - linux_build
+    pool:
+      type: windows
+
+    variables:
+      WindowsContainerImage: 'cdpxwin1809.azurecr.io/global/vse2019:latest'
+      ob_outputDirectory: '$(Build.SourcesDirectory)\out'
+
+    steps:
+    # Download Windows build artifacts.
+    - task: DownloadPipelineArtifact@2
+      displayName: 'Download Windows Build Artifacts'
+      inputs:
+        path: $(Build.SourcesDirectory)\SourceFiles
+        artifact: drop_build_windows_build
+
+    # Download Linux build artifacts.
+    - task: DownloadPipelineArtifact@2
+      displayName: 'Download Linux Build Artifacts'
+      inputs:
+        path: $(Build.SourcesDirectory)\SourceFiles
+        artifact: drop_build_linux_build
+
+    # Copy AzureRecoveryTools related files.
+    - task: CopyFiles@2
+      displayName: 'Copy AzureRecoveryTools Related Files'
+      inputs:
+        SourceFolder: $(Build.SourcesDirectory)\SourceFiles
+        Contents: |
+          **/*
+          !**/StartupScript.sh
+          !**/*.dbg
+          !**/*.pdb
+          !logs/**/*
+          !**/build.manifest*
+          !**/*.cvrp
+          !cvdata/**/*
+        TargetFolder: $(Build.SourcesDirectory)\AzureRecoveryTools
+
+    # Create AzureRecoveryTools.zip
+    - task: ArchiveFiles@2
+      displayName: 'Create AzureRecoveryTools.zip'
+      inputs:
+        rootFolderOrFile: $(Build.SourcesDirectory)\AzureRecoveryTools
+        archiveFile: $(Build.ArtifactStagingDirectory)\out\AzureRecoveryTools.zip
+        includeRootFolder: false
+
+    - task: PublishPipelineArtifact@1
+      displayName: 'Publish release archives'
+      inputs:
+        targetPath: $(Build.ArtifactStagingDirectory)
+        artifactName: AzureRecoveryUtil
+    - task: GitHubRelease@1
+      inputs:
+        gitHubConnection: 'thedarksage'
+        repositoryName: '$(Build.Repository.Name)'
+        action: 'create'
+        target: '$(Build.SourceVersion)'
+        tagSource: 'gitTag'
+        tagPattern: 'v*.*.*'
+        title: 'AzureRecoveryUtil'
+        releaseNotesSource: 'inline'
+        releaseNotesInline: 'AzureRecoveryUtil Initial Build'
+        isPreRelease: true
+        changeLogCompareToRelease: 'lastFullRelease'
+        changeLogType: 'commitBased'
