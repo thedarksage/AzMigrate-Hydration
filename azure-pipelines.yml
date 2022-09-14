@@ -105,6 +105,22 @@ stages:
 
             sudo apt-get install python-dev -y
 
+            sudo apt-get install gettext -y
+
+            sudo apt-get install dc -y
+
+            sudo apt-get install dos2unix -y
+
+            sudo apt-get install less -y
+
+            sudo apt-get install  zlib1g-dev -y
+
+            sudo apt-get install libcurl4-openssl-dev -y
+
+            sudo apt-get install liblzma-dev -y
+
+            sudo apt-get install libexpat1-dev -y
+
             sudo ln -s -T /usr/bin/make /usr/bin/gmake
           failOnStderr: true
 
