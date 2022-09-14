@@ -1,5 +1,4 @@
 # Starter pipeline
-
 # Start with a minimal pipeline that you can customize to build and deploy your code.
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
@@ -14,216 +13,145 @@ variables:
   REPOROOT: $(Build.SourcesDirectory)
   OUTPUTROOT: $(REPOROOT)\out
   CDP_BUILD_TAG: azurerecoverytools
+  
+resources:
+  repositories: 
+    - repository: templates
+      type: git
+      name: OneBranch.Pipelines/GovernedTemplates
+      ref: refs/heads/main
 
-stages:
-- stage: build
-  jobs:
+extends:
+  template: v2/OneBranch.Official.CrossPlat.yml@templates
+  parameters:
+    cloudvault:
+      enabled: true
+      runmode: stage
+      artifacts:
+        - drop_build_windows_build
+        - drop_build_packaging
 
-  # Windows build job
-  - job: windows_build
-    pool:
-      demands:
-      - msbuild
-      - visualstudio
-      vmImage: windows-latest
-      type: windows-latest
+    stages:
+    - stage: build
+      jobs:
 
-    variables:
-      WindowsContainerImage: 'cdpxwin1809.azurecr.io/global/vse2019:latest'
-      ob_outputDirectory: '$(Build.SourcesDirectory)\Out'
-      ob_symbolsPublishing_enabled: true
-      ob_symbolsPublishing_symbolsFolder: '$(REPOROOT)\Symbols'
+      # Windows build job
+      - job: windows_build
+        pool:
+          demands:
+          - msbuild
+          - visualstudio
+          vmImage: windows-latest
+          type: windows-latest
 
-    steps:
-      # Restore host NuGet packages.
-      - task: NuGetCommand@2
-        displayName: 'Restore Host NuGet Packages'
-        inputs:
-          command: 'restore'
-          restoreSolution: '$(REPOROOT)\host\host.sln'
-          feedsToUse: 'config'
-          nugetConfigPath: '$(REPOROOT)\.config\NuGet.config'
+        variables:
+          WindowsContainerImage: 'cdpxwin1809.azurecr.io/global/vse2019:latest'
+          ob_outputDirectory: '$(Build.SourcesDirectory)\Out'
+          ob_symbolsPublishing_enabled: true
+          ob_symbolsPublishing_symbolsFolder: '$(REPOROOT)\Symbols'
 
-      # Build AzureRecoveryUtil.exe.
-      - task: MSBuild@1
-        displayName: 'Build AzureRecoveryUtil.exe'
-        inputs: 
-          solution: '$(REPOROOT)\host\host.sln'
-          msbuildLocationMethod: 'location'
-          msbuildLocation: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe'
-          platform: 'win32'
-          configuration: 'release'
-          msbuildArguments: '-t:AzureRecoveryUtil /v:n /nr:false /flp1:Verbosity=n;LogFile=$(OUTPUTROOT)\logs\AzureRecoveryUtil.log;Encoding=UTF-8 /flp2:logfile=$(OUTPUTROOT)\logs\AzureRecoveryUtil.err;errorsonly /p:Configuration="LIB release - LIB OpenSSL"'
-          clean: false
-          maximumCpuCount: true
-          logProjectEvents: true
+        steps:
+          # Restore host NuGet packages.
+          - task: NuGetCommand@2
+            displayName: 'Restore Host NuGet Packages'
+            inputs:
+              command: 'restore'
+              restoreSolution: '$(REPOROOT)\host\host.sln'
+              feedsToUse: 'config'
+              nugetConfigPath: '$(REPOROOT)\.config\NuGet.config'
 
-      # Copy build artifacts.
-      - task: PowerShell@2
-        displayName: 'Copy Build Artifacts'
-        inputs:
-          targetType: 'inline'
-          script: |
-            Copy-Item -Path $(REPOROOT)\host\AzureRecoveryUtil\Release\AzureRecoveryUtil.exe $(OUTPUTROOT)\
-            Copy-Item -Path $(REPOROOT)\host\AzureRecoveryUtil\Release\AzureRecoveryUtil.pdb $(OUTPUTROOT)\
-          workingDirectory: '$(REPOROOT)'
+          # Build AzureRecoveryUtil.exe.
+          - task: MSBuild@1
+            displayName: 'Build AzureRecoveryUtil.exe'
+            inputs: 
+              solution: '$(REPOROOT)\host\host.sln'
+              msbuildLocationMethod: 'location'
+              msbuildLocation: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe'
+              platform: 'win32'
+              configuration: 'release'
+              msbuildArguments: '-t:AzureRecoveryUtil /v:n /nr:false /flp1:Verbosity=n;LogFile=$(OUTPUTROOT)\logs\AzureRecoveryUtil.log;Encoding=UTF-8 /flp2:logfile=$(OUTPUTROOT)\logs\AzureRecoveryUtil.err;errorsonly /p:Configuration="LIB release - LIB OpenSSL"'
+              clean: false
+              maximumCpuCount: true
+              logProjectEvents: true
 
-      # Capture symbol files.
-      - task: PowerShell@2
-        displayName: 'Capture Symbol Files'
-        inputs:
-          targetType: 'inline'
-          script: |
-            New-Item -Path $(REPOROOT) -Name "Symbols" -ItemType "Directory" -Force
-            Copy-Item -Path $(REPOROOT)\host\AzureRecoveryUtil\Release\AzureRecoveryUtil.pdb $(REPOROOT)\Symbols
+          # Copy build artifacts.
+          - task: PowerShell@2
+            displayName: 'Copy Build Artifacts'
+            inputs:
+              targetType: 'inline'
+              script: |
+                Copy-Item -Path $(REPOROOT)\host\AzureRecoveryUtil\Release\AzureRecoveryUtil.exe $(OUTPUTROOT)\
+                Copy-Item -Path $(REPOROOT)\host\AzureRecoveryUtil\Release\AzureRecoveryUtil.pdb $(OUTPUTROOT)\
+              workingDirectory: '$(REPOROOT)'
 
-  # Linux build job.
-  - job: linux_build
-    pool:
-      vmImage: ubuntu-latest
-      type: linux
+          # Capture symbol files.
+          - task: PowerShell@2
+            displayName: 'Capture Symbol Files'
+            inputs:
+              targetType: 'inline'
+              script: |
+                New-Item -Path $(REPOROOT) -Name "Symbols" -ItemType "Directory" -Force
+                Copy-Item -Path $(REPOROOT)\host\AzureRecoveryUtil\Release\AzureRecoveryUtil.pdb $(REPOROOT)\Symbols
 
-    variables:
-      LinuxContainerImage: 'cdpxlinux.azurecr.io/user/asr-inmage-srcteam/ubuntu-16.04:latest'
-      ob_outputDirectory: '$(Build.SourcesDirectory)/out'
-      ob_linuxSymbolsPublishing_enabled: true
-      ob_linuxSymbolsPublishing_symbolsFolder: '$(REPOROOT)/Symbols'
+    # Packaging job
+      - job: packaging
+        dependsOn:
+          - windows_build
+        pool:
+          type: windows
 
-    steps:
-      # install g++ and ncurses-devel
-      - task: CmdLine@2
-        inputs:
-          script: |
-            sudo apt-get install make -y
+        variables:
+          WindowsContainerImage: 'cdpxwin1809.azurecr.io/global/vse2019:latest'
+          ob_outputDirectory: '$(Build.SourcesDirectory)\out'
 
-            sudo apt-get install g++ -y
+        steps:
+        # Download Windows build artifacts.
+        - task: DownloadPipelineArtifact@2
+          displayName: 'Download Windows Build Artifacts'
+          inputs:
+            path: $(Build.SourcesDirectory)\SourceFiles
+            artifact: drop_build_windows_build
 
-            sudo apt-get install build-essential -y
+        # Copy AzureRecoveryTools related files.
+        - task: CopyFiles@2
+          displayName: 'Copy AzureRecoveryTools Related Files'
+          inputs:
+            SourceFolder: $(Build.SourcesDirectory)\SourceFiles
+            Contents: |
+              **/*
+              !**/StartupScript.sh
+              !**/*.dbg
+              !**/*.pdb
+              !logs/**/*
+              !**/build.manifest*
+              !**/*.cvrp
+              !cvdata/**/*
+            TargetFolder: $(Build.SourcesDirectory)\AzureRecoveryTools
 
-            sudo apt-get install libncurses-dev -y
+        # Create AzureRecoveryTools.zip
+        - task: ArchiveFiles@2
+          displayName: 'Create AzureRecoveryTools.zip'
+          inputs:
+            rootFolderOrFile: $(Build.SourcesDirectory)\AzureRecoveryTools
+            archiveFile: $(Build.ArtifactStagingDirectory)\out\AzureRecoveryTools.zip
+            includeRootFolder: false
 
-            sudo apt-get install uuid-dev -y
-
-            sudo apt-get install python-dev -y
-
-            sudo apt-get install gettext -y
-
-            sudo apt-get install dc -y
-
-            sudo apt-get install dos2unix -y
-
-            sudo apt-get install less -y
-
-            sudo apt-get install  zlib1g-dev -y
-
-            sudo apt-get install libcurl4-openssl-dev -y
-
-            sudo apt-get install liblzma-dev -y
-
-            sudo apt-get install libexpat1-dev -y
-
-            sudo ln -s -T /usr/bin/make /usr/bin/gmake
-          failOnStderr: true
-
-      # Build AzureRecoveryUtil binary.
-      - task: Bash@3
-        displayName: 'Build AzureRecoveryUtil Binary'
-        inputs:
-          filePath: '$(REPOROOT)/.pipelines/BuildAzureRecoveryUtil.sh'
-          failOnStderr: true
-
-      # Capature symbols for publishing.
-      - task: Bash@3
-        displayName: 'Capature Symbols For Publishing'
-        inputs:
-          targetType: 'inline'
-          script: |
-            mkdir -p $(REPOROOT)/Symbols
-            cp -f $(REPOROOT)/host/Linux_x86_64/AzureRecoveryUtil/release/AzureRecoveryUtil $(REPOROOT)/Symbols
-            cp -f $(REPOROOT)/host/Linux_x86_64/AzureRecoveryUtil/release/AzureRecoveryUtil.dbg $(REPOROOT)/Symbols
-          failOnStderr: true
-
-      # Copy build artifacts.
-      - task: Bash@3
-        displayName: 'Copy Build Artifacts'
-        inputs:
-          targetType: 'inline'
-          script: |
-            mkdir -p $(Build.SourcesDirectory)/out/logs
-            cp -f $(REPOROOT)/host/Linux_x86_64/AzureRecoveryUtil/release/AzureRecoveryUtil $(Build.SourcesDirectory)/out
-            cp -f $(REPOROOT)/host/Linux_x86_64/AzureRecoveryUtil/release/AzureRecoveryUtil.dbg $(Build.SourcesDirectory)/out
-            cp -f $(REPOROOT)/host/AzureRecoveryUtil/Scripts/linux/{*.sh,network,*.repo} $(Build.SourcesDirectory)/out
-            cp -f $(REPOROOT)/thirdparty/setuptools-33.1.1/{*.py,*.zip} $(Build.SourcesDirectory)/out
-            cp -f $(REPOROOT)/host/AzureRecoveryUtilBuild.log $(Build.SourcesDirectory)/out/logs
-          failOnStderr: true
-
-# Packaging job
-  - job: packaging
-    dependsOn:
-      - windows_build
-      - linux_build
-    pool:
-      type: windows
-
-    variables:
-      WindowsContainerImage: 'cdpxwin1809.azurecr.io/global/vse2019:latest'
-      ob_outputDirectory: '$(Build.SourcesDirectory)\out'
-
-    steps:
-    # Download Windows build artifacts.
-    - task: DownloadPipelineArtifact@2
-      displayName: 'Download Windows Build Artifacts'
-      inputs:
-        path: $(Build.SourcesDirectory)\SourceFiles
-        artifact: drop_build_windows_build
-
-    # Download Linux build artifacts.
-    - task: DownloadPipelineArtifact@2
-      displayName: 'Download Linux Build Artifacts'
-      inputs:
-        path: $(Build.SourcesDirectory)\SourceFiles
-        artifact: drop_build_linux_build
-
-    # Copy AzureRecoveryTools related files.
-    - task: CopyFiles@2
-      displayName: 'Copy AzureRecoveryTools Related Files'
-      inputs:
-        SourceFolder: $(Build.SourcesDirectory)\SourceFiles
-        Contents: |
-          **/*
-          !**/StartupScript.sh
-          !**/*.dbg
-          !**/*.pdb
-          !logs/**/*
-          !**/build.manifest*
-          !**/*.cvrp
-          !cvdata/**/*
-        TargetFolder: $(Build.SourcesDirectory)\AzureRecoveryTools
-
-    # Create AzureRecoveryTools.zip
-    - task: ArchiveFiles@2
-      displayName: 'Create AzureRecoveryTools.zip'
-      inputs:
-        rootFolderOrFile: $(Build.SourcesDirectory)\AzureRecoveryTools
-        archiveFile: $(Build.ArtifactStagingDirectory)\out\AzureRecoveryTools.zip
-        includeRootFolder: false
-
-    - task: PublishPipelineArtifact@1
-      displayName: 'Publish release archives'
-      inputs:
-        targetPath: $(Build.ArtifactStagingDirectory)
-        artifactName: AzureRecoveryUtil
-    - task: GitHubRelease@1
-      inputs:
-        gitHubConnection: 'thedarksage'
-        repositoryName: '$(Build.Repository.Name)'
-        action: 'create'
-        target: '$(Build.SourceVersion)'
-        tagSource: 'gitTag'
-        tagPattern: 'v*.*.*'
-        title: 'AzureRecoveryUtil'
-        releaseNotesSource: 'inline'
-        releaseNotesInline: 'AzureRecoveryUtil Initial Build'
-        isPreRelease: true
-        changeLogCompareToRelease: 'lastFullRelease'
-        changeLogType: 'commitBased'
+        - task: PublishPipelineArtifact@1
+          displayName: 'Publish release archives'
+          inputs:
+            targetPath: $(Build.ArtifactStagingDirectory)
+            artifactName: AzureRecoveryUtil
+        - task: GitHubRelease@1
+          inputs:
+            gitHubConnection: 'thedarksage'
+            repositoryName: '$(Build.Repository.Name)'
+            action: 'create'
+            target: '$(Build.SourceVersion)'
+            tagSource: 'gitTag'
+            tagPattern: 'v*.*.*'
+            title: 'AzureRecoveryUtil'
+            releaseNotesSource: 'inline'
+            releaseNotesInline: 'AzureRecoveryUtil Initial Build'
+            isPreRelease: true
+            changeLogCompareToRelease: 'lastFullRelease'
+            changeLogType: 'commitBased'
