@@ -88,48 +88,48 @@ stages:
       ob_outputDirectory: '$(Build.SourcesDirectory)\out'
 
     steps:
-    # Download Windows build artifacts.
-    - task: DownloadPipelineArtifact@2
-      displayName: 'Download Windows Build Artifacts'
-      inputs:
-        path: $(Build.SourcesDirectory)\SourceFiles
-        artifact: drop_build_windows_build
+      # Download Windows build artifacts.
+      - task: DownloadPipelineArtifact@2
+        displayName: 'Download Windows Build Artifacts'
+        inputs:
+          path: $(Build.SourcesDirectory)\SourceFiles
+          artifact: drop_build_windows_build
 
-    # Copy AzureRecoveryTools related files.
-    - task: CopyFiles@2
-      displayName: 'Copy AzureRecoveryTools Related Files'
-      inputs:
-        SourceFolder: $(Build.SourcesDirectory)\SourceFiles
-        Contents: |
-          **/*
-          !**/StartupScript.sh
-          !**/*.dbg
-          !**/*.pdb
-          !logs/**/*
-          !**/build.manifest*
-          !**/*.cvrp
-          !cvdata/**/*
-        TargetFolder: $(Build.SourcesDirectory)\AzureRecoveryTools
+      # Copy AzureRecoveryTools related files.
+      - task: CopyFiles@2
+        displayName: 'Copy AzureRecoveryTools Related Files'
+        inputs:
+          SourceFolder: $(Build.SourcesDirectory)\SourceFiles
+          Contents: |
+            **/*
+            !**/StartupScript.sh
+            !**/*.dbg
+            !**/*.pdb
+            !logs/**/*
+            !**/build.manifest*
+            !**/*.cvrp
+            !cvdata/**/*
+          TargetFolder: $(Build.SourcesDirectory)\AzureRecoveryTools
 
-    # Create AzureRecoveryTools.zip
-    - task: ArchiveFiles@2
-      displayName: 'Create AzureRecoveryTools.zip'
-      inputs:
-        rootFolderOrFile: $(Build.SourcesDirectory)\AzureRecoveryTools
-        archiveFile: $(Build.ArtifactStagingDirectory)\out\AzureRecoveryTools.zip
-        includeRootFolder: false
+      # Create AzureRecoveryTools.zip
+      - task: ArchiveFiles@2
+        displayName: 'Create AzureRecoveryTools.zip'
+        inputs:
+          rootFolderOrFile: $(Build.SourcesDirectory)\AzureRecoveryTools
+          archiveFile: $(Build.ArtifactStagingDirectory)\out\AzureRecoveryTools.zip
+          includeRootFolder: false
 
-    - task: GitHubRelease@1
-      inputs:
-        gitHubConnection: 'thedarksage'
-        repositoryName: '$(Build.Repository.Name)'
-        action: 'create'
-        target: '$(Build.SourceVersion)'
-        tagSource: 'gitTag'
-        tagPattern: 'v*.*.*'
-        title: 'AzureRecoveryUtil'
-        releaseNotesSource: 'inline'
-        releaseNotesInline: 'AzureRecoveryUtil Initial Build'
-        isPreRelease: true
-        changeLogCompareToRelease: 'lastFullRelease'
-        changeLogType: 'commitBased'
+      - task: GitHubRelease@1
+        inputs:
+          gitHubConnection: 'thedarksage'
+          repositoryName: '$(Build.Repository.Name)'
+          action: 'create'
+          target: '$(Build.SourceVersion)'
+          tagSource: 'gitTag'
+          tagPattern: 'v*.*.*'
+          title: 'AzureRecoveryUtil'
+          releaseNotesSource: 'inline'
+          releaseNotesInline: 'AzureRecoveryUtil Initial Build'
+          isPreRelease: true
+          changeLogCompareToRelease: 'lastFullRelease'
+          changeLogType: 'commitBased'
