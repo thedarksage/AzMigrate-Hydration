@@ -136,11 +136,6 @@ extends:
             archiveFile: $(Build.ArtifactStagingDirectory)\out\AzureRecoveryTools.zip
             includeRootFolder: false
 
-        - task: PublishPipelineArtifact@1
-          displayName: 'Publish release archives'
-          inputs:
-            targetPath: $(Build.ArtifactStagingDirectory)
-            artifactName: AzureRecoveryUtil
         - task: GitHubRelease@1
           inputs:
             gitHubConnection: 'thedarksage'
