@@ -32,7 +32,7 @@ else
 ifeq ($(X_OS), SLES11-SP4-64)
         X_SYSTEM_LIBS = -llzma
 else
-	X_SYSTEM_LIBS =
+	X_SYSTEM_LIBS = -llzma
 endif
 endif
 
