@@ -85,7 +85,7 @@ stages:
 
       - task: PublishBuildArtifacts@1
         inputs:
-          PathtoPublish: '$(Build.SourcesDirectory)\out'
+          PathtoPublish: '$(OUTPUTROOT)'
           ArtifactName: 'drop_build_windows_build'
           publishLocation: 'Container'
 
