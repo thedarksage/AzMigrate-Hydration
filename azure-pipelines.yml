@@ -34,7 +34,21 @@ stages:
       ob_symbolsPublishing_symbolsFolder: '$(REPOROOT)\Symbols'
 
     steps:
-    
+      - task: PowerShell@2
+        inputs:
+          targetType: 'inline'
+          script: |
+            # Write your PowerShell commands here.
+            
+            Write-Host "Hello World"
+            
+            Write-Host "$(Build.SourcesDirectory)\Out"
+            
+            Write-Host "$(Build.SourcesDirectory)\SourceFiles"
+            
+            Write-Host "$(OUTPUTROOT)"
+            
+            Write-Host "$(Build.ArtifactStagingDirectory)"\
       
       # Restore host NuGet packages.
       - task: NuGetCommand@2
@@ -121,7 +135,7 @@ stages:
       displayName: 'Create AzureRecoveryTools.zip'
       inputs:
         rootFolderOrFile: $(Build.SourcesDirectory)\AzureRecoveryTools
-        archiveFile: $(Build.ArtifactStagingDirectory)\out\AzureRecoveryTools.zip
+        archiveFile: out\AzureRecoveryTools.zip
         includeRootFolder: false
 
     - task: GitHubRelease@1
