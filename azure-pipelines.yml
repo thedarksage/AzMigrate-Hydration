@@ -118,7 +118,7 @@ stages:
     - task: CopyFiles@2
       displayName: 'Copy AzureRecoveryTools Related Files'
       inputs:
-        SourceFolder: $(Build.SourcesDirectory)\SourceFiles
+        SourceFolder: $(OUTPUTROOT)
         Contents: |
           **/*
           !**/StartupScript.sh
@@ -143,7 +143,7 @@ stages:
         gitHubConnection: 'thedarksage'
         repositoryName: 'thedarksage/AzMigrate-Hydration'
         action: 'create'
-        target: '$(Build.SourceVersion)'
+        target: '$(Build.SourceVersion)\out\AzureRecoveryTools.zip'
         tagSource: 'gitTag'
         tagPattern: 'v*.*.*'
         title: 'AzureRecoveryUtil'
