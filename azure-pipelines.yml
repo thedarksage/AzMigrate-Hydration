@@ -34,6 +34,8 @@ stages:
       ob_symbolsPublishing_symbolsFolder: '$(REPOROOT)\Symbols'
 
     steps:
+    
+      
       # Restore host NuGet packages.
       - task: NuGetCommand@2
         displayName: 'Restore Host NuGet Packages'
@@ -67,6 +69,12 @@ stages:
             Copy-Item -Path $(REPOROOT)\host\AzureRecoveryUtil\Release\AzureRecoveryUtil.pdb $(OUTPUTROOT)\
           workingDirectory: '$(REPOROOT)'
 
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: '$(Build.SourcesDirectory)\SourceFiles'
+          ArtifactName: 'drop_build_windows_build'
+          publishLocation: 'Container'
+
       # Capture symbol files.
       - task: PowerShell@2
         displayName: 'Capture Symbol Files'
@@ -89,7 +97,7 @@ stages:
     - task: DownloadPipelineArtifact@2
       displayName: 'Download Windows Build Artifacts'
       inputs:
-        path: $(Build.SourcesDirectory)\SourceFiles
+        path: $(OUTPUTROOT)
         artifact: drop_build_windows_build
 
     # Copy AzureRecoveryTools related files.
