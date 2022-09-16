@@ -173,6 +173,7 @@ stages:
   - job: packaging
     dependsOn:
       - windows_build
+      - linux_build
     pool:
       vmImage: windows-latest
       type: windows
@@ -187,7 +188,7 @@ stages:
 
     # Download Windows build artifacts.
     - task: DownloadPipelineArtifact@2
-      displayName: 'Download Windows Build Artifacts'
+      displayName: 'Download Linux Build Artifacts'
       inputs:
         path: $(Build.StagingDirectory)
         artifact: drop_build_linux_build
