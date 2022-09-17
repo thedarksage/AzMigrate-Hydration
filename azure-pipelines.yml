@@ -225,7 +225,7 @@ stages:
 
     - task: GitHubRelease@1
       inputs:
-        gitHubConnection: 'thedarksage'
+        gitHubConnection: 'Prot2Hydration-Github-Connection'
         repositoryName: 'thedarksage/AzMigrate-Hydration'
         action: 'create'
         target: '$(Build.SourceVersion)'
