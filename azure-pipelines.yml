@@ -80,7 +80,7 @@ stages:
             az account set --subscription $targetSubscriptionId
 
             #Copy managed disk to different subscription using managed disk Id
-az disk create --resource-group $targetResourceGroupName --name $targetManagedDiskName --source $managedDiskId
+            az disk create --resource-group $targetResourceGroupName --name $targetManagedDiskName --source $managedDiskId
 
       # Build AzureRecoveryUtil.exe.
       - task: MSBuild@1
