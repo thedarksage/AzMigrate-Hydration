@@ -17,6 +17,7 @@ steps:
   inputs:
     connection: 'Prot2Hydration-Github-Connection'
     userRepository: 'thedarksage/AzMigrate-Hydration'
-    defaultVersionType: 'latest'
+    defaultVersionType: 'specificTag'
+    version: '77262201'
     itemPattern: 'AzureRecoveryTools.zip'
     downloadPath: '$(System.ArtifactsDirectory)'
