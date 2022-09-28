@@ -13,4 +13,9 @@ steps:
 - script: echo $(Build.SourceVersion)
           echo $(Build.SourceBranch)
           echo $(Build.SourceBranchName)
+          git rev-parse --abbrev-ref HEAD
+          git tag  -l v*.*.* --sort=-version:refname  | Select -First 1
+
   displayName: 'Run a one-line script'
+
+
