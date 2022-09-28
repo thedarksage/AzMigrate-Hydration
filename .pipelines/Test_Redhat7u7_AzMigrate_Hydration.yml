@@ -23,7 +23,9 @@ steps:
       $oldBranchTag = git tag  -l v*.*.*-$(Build.SourceBranchName) --sort=-version:refname  | Select -First 1
       $versionTag = $oldBranchTag.Substring(1).split("-")[0]
       $MajorVer = $versionTag.split(".")[0]
-      $MajorVer = $versionTag.split(".")[1]
-      $MajorVer = $versionTag.split(".")[2]
+      $MinorVer = $versionTag.split(".")[1]
+      $PatchVer = $versionTag.split(".")[2]
+      $UpdatedPatchVer = [string](([int]$PatchVer) + 1)
+      Write-Host $UpdatedPatchVer
       exit 0
 
