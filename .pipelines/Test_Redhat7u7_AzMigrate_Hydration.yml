@@ -26,8 +26,8 @@ steps:
       $MinorVer = $versionTag.split(".")[1]
       $PatchVer = $versionTag.split(".")[2]
       $UpdatedPatchVer = [string](([int]$PatchVer) + 1)
-      Write-Host $UpdatedPatchVer
-      git tag "v"+$MajorVer+$MinorVer+$UpdatedPatchVer+"-"+$(Build.SourceBranchName) $(Build.SourceVersion)
-      git push origin "v"+$MajorVer+$MinorVer+$UpdatedPatchVer+"-"+$(Build.SourceBranchName)
+      $newBranchTag = "v"+$MajorVer+"."+$MinorVer+"."+$UpdatedPatchVer+"-"+$(Build.SourceBranchName)
+      git tag $newBranchTag $(Build.SourceVersion)
+      git push origin $newBranchTag
       exit 0
 
