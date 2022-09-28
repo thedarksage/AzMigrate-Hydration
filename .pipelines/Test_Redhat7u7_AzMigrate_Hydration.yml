@@ -10,11 +10,7 @@ pool:
   vmImage: windows-latest
 
 steps:
-- script: echo Hello, world!
+- script: echo $(Build.SourceVersion)
+          echo $(Build.SourceBranch)
+          echo $(Build.SourceBranchName)
   displayName: 'Run a one-line script'
-
-- task: DownloadGitHubRelease@0
-  inputs:
-    connection: 'Prot2Hydration-Github-Connection'
-    userRepository: 'thedarksage/AzMigrate-Hydration'
-    downloadPath: '$(System.ArtifactsDirectory)'
