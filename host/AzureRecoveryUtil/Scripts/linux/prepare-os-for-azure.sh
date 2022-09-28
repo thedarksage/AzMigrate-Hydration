@@ -1230,7 +1230,7 @@ verify_generate_initrd_images()
     trace "$(ls -d ${chroot_path}/lib/modules/*)"
     
     # Version sort the kernel images.
-    latest_kernel_in_use=$(ls $chroot_path/boot/vmlinuz* | sed 's/\/mnt\/sms_azure_chroot\/boot\/vmlinuz-//' | sed 's/[.-][[:alpha:]][[:alnum:][:punct:]]*//' | sort -V | tail -n 1)
+    latest_kernel_in_use=$(ls $chroot_path/boot/vmlinuz-* | sed 's/\/mnt\/sms_azure_chroot\/boot\/vmlinuz-//' | sed 's/[.-][[:alpha:]][[:alnum:][:punct:]]*//' | sort -V | tail -n 1)
     trace "Latest Kernel in use: $latest_kernel_in_use"
 
     add_am_hydration_log "Latest Kernel" "$latest_kernel_in_use"

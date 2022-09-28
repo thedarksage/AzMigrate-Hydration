@@ -57,9 +57,13 @@ $global:AzureRecoveryUtil            = "AzureRecoveryUtil.exe"
 
 [int]$global:retCode = 0
 
+# Operation Names
 [string]$global:Scenario_Migration = "migration"
+[string]$global:Scenario_Migration_Test = "migrationtest"
 [string]$global:Scenario_Recovery = "recovery"
+[string]$global:Scenario_Recovery_Test = "recoverytest"
 [string]$global:Scenario_GenConversion = "genconversion"
+[string]$global:Scenario_GenConversion_Test = "genconversiontest"
 
 #
 # Trace Log helper functions
@@ -93,12 +97,17 @@ function Trace ( [string]$msg )
 
 function IsMigration ()
 {
-    return $Scenario -ieq $global:Scenario_Migration;
+    return $Scenario -ieq $global:Scenario_Migration -Or $Scenario -ieq $global:Scenario_Migration_Test;
 }
 
 function IsGenConversion ()
 {
-    return $Scenario -ieq $global:Scenario_GenConversion;
+    return $Scenario -ieq $global:Scenario_GenConversion -Or $Scenario -ieq $global:Scenario_GenConversion_Test;
+}
+
+function IsTestScenario()
+{
+    return $Scenario -like "*test";
 }
 
 #
@@ -149,7 +158,7 @@ function Verify-Downloaded-Files ( [string]$hostid )
 #
 # Create directory, if it already exist then delete it and then create a new.
 #
-function Force-Create-Dorectory ( [string]$dir_name )
+function Force-Create-Directory ( [string]$dir_name )
 {
     #
     # Check wheather dir exists
@@ -257,6 +266,27 @@ function Update-Status-To-Blob ()
 }
 
 #
+# Invoke the Recovery tool to update status to a local file.
+#
+function Update-Status-To-TestFile ()
+{
+    $StatusCmdAgrs = @("--operation"       ,"statusupdatetest",
+                       "--recoveryinfofile",$global:AzureRecoveryInfoFile,
+                       "--status"          ,$global:Exec_Status,
+                       "--errorcode"       ,$global:Exec_Error,
+                       "--progress"        ,$global:Exec_Progress,
+                       "--taskdescription" ,$global:Exec_Task_Desc,
+                       "--errormsg"        ,$global:Exec_ErrorMsg
+                       )
+    
+    Trace "$global:Working_Dir\$global:AzureRecoveryUtil $StatusCmdAgrs"
+
+    &"$global:Working_Dir\$global:AzureRecoveryUtil" $StatusCmdAgrs
+
+    return $?
+}
+
+#
 # Invke the Recovery tool to upload the log
 #
 function Upload-Execution-Log ()
@@ -276,11 +306,11 @@ function Upload-Execution-Log ()
 #
 # Prepare Evnvironment to run the azure pre-recovery steps
 #
-function Prepare-Environmet ( [string]$hostid )
+function Prepare-Environment ( [string]$hostid )
 {
     Write-Host "Preparing Environment ..."
 
-    if ( !$(Force-Create-Dorectory "$Working_Dir") )
+    if ( !$(Force-Create-Directory "$Working_Dir") )
     {
         Write-Error "Error creating working directory $global:Working_Dir"
 
@@ -358,30 +388,61 @@ function Execute-Recovery-Steps ()
     Trace "Starting Pre-Recovery execution steps"
 
     $RecCmdArgs = $("")
-    if ( IsMigration )
+    if ( IsTestScenario )
     {
-        $RecCmdArgs = @("--operation"       , "migration", 
-                        "--recoveryinfofile", $global:AzureRecoveryInfoFile,
-                        "--workingdir"      , $global:Working_Dir,
-                        "--hydrationconfigsettings"  , hydrationConfigSettings
-                       )
+        if ( IsMigration )
+        {
+            $RecCmdArgs = @("--operation"       , "migrationtest", 
+                            "--recoveryinfofile", $global:AzureRecoveryInfoFile,
+                            "--workingdir"      , $global:Working_Dir,
+                            "--hydrationconfigsettings"  , hydrationConfigSettings
+                           )
+        }
+	    elseif ( IsGenConversion )
+	    {
+	        $RecCmdArgs = @("--operation"       , "genconversiontest", 
+                            "--recoveryinfofile", $global:AzureRecoveryInfoFile,
+                            "--workingdir"      , $global:Working_Dir,
+                            "--hydrationconfigsettings"  , hydrationConfigSettings
+                           )
+	    }
+        else
+        {
+            $RecCmdArgs = @("--operation"       , "recoverytest", 
+                            "--recoveryinfofile", $global:AzureRecoveryInfoFile,
+                            "--hostinfofile"    , $global:HostInfoFile,
+                            "--workingdir"      , $global:Working_Dir,
+                            "--hydrationconfigsettings"  , hydrationConfigSettings
+                           )
+        }
     }
-	elseif ( IsGenConversion )
-	{
-	    $RecCmdArgs = @("--operation"       , "genconversion", 
-                        "--recoveryinfofile", $global:AzureRecoveryInfoFile,
-                        "--workingdir"      , $global:Working_Dir,
-                        "--hydrationconfigsettings"  , hydrationConfigSettings
-                       )
-	}
     else
     {
-        $RecCmdArgs = @("--operation"       , "recovery", 
-                        "--recoveryinfofile", $global:AzureRecoveryInfoFile,
-                        "--hostinfofile"    , $global:HostInfoFile,
-                        "--workingdir"      , $global:Working_Dir,
-                        "--hydrationconfigsettings"  , hydrationConfigSettings
-                       )
+        if ( IsMigration )
+        {
+            $RecCmdArgs = @("--operation"       , "migration", 
+                            "--recoveryinfofile", $global:AzureRecoveryInfoFile,
+                            "--workingdir"      , $global:Working_Dir,
+                            "--hydrationconfigsettings"  , hydrationConfigSettings
+                           )
+        }
+	    elseif ( IsGenConversion )
+	    {
+	        $RecCmdArgs = @("--operation"       , "genconversion", 
+                            "--recoveryinfofile", $global:AzureRecoveryInfoFile,
+                            "--workingdir"      , $global:Working_Dir,
+                            "--hydrationconfigsettings"  , hydrationConfigSettings
+                           )
+	    }
+        else
+        {
+            $RecCmdArgs = @("--operation"       , "recovery", 
+                            "--recoveryinfofile", $global:AzureRecoveryInfoFile,
+                            "--hostinfofile"    , $global:HostInfoFile,
+                            "--workingdir"      , $global:Working_Dir,
+                            "--hydrationconfigsettings"  , hydrationConfigSettings
+                           )
+        }
     }
 
     Trace "$global:Working_Dir\$global:AzureRecoveryUtil $RecCmdArgs"
@@ -443,7 +504,10 @@ function Execute-Recovery-Steps ()
                 Trace "Process $($recProc.Id) has exited"
 
                 #upload the available log.
-                Upload-Execution-Log
+                if ( !$( IsTestScenario ) )
+                {
+                    Upload-Execution-Log
+                }
 
                 if ( $retry -lt $MaxRetryCount )
                 {
@@ -480,7 +544,7 @@ function Main ( )
     {
         Write-Error "Argument error: host-id or scenario is missing"
 
-        Write-Host "Usage : StartupScript.ps1 <host-id> <recovery/migration/genconversion> [-MaxRetryCount <value>] [-MaxProcessWaitTimeSec <value>] [-MaxWaitForKillTimeSec <value>]"
+        Write-Host "Usage : StartupScript.ps1 <host-id> <recovery/migration/genconversion/recoverytest/migrationtest/genconversiontest> [-MaxRetryCount <value>] [-MaxProcessWaitTimeSec <value>] [-MaxWaitForKillTimeSec <value>]"
 
         exit 1
     }
@@ -488,7 +552,7 @@ function Main ( )
     #
     # Prepare Environment
     #
-    if( !$(Prepare-Environmet $hostid) )
+    if( !$(Prepare-Environment $hostid) )
     {
         Write-Error "Error Preparing Environment."
 
@@ -505,21 +569,22 @@ function Main ( )
     #
     # Update status
     #
-    if ( Update-Status-To-Blob )
+    if(!$(IsTestScenario))
     {
-        Trace "Successfuly updated prepare-environment status"
-    }
-    else
-    {
-        Trace_Error "Error updating prepare-environment status"
+        if ( Update-Status-To-Blob )
+        {
+            Trace "Successfuly updated prepare-environment status"
+        }
+        else
+        {
+            Trace_Error "Error updating prepare-environment status"
 
-        Write-Error "Status update failed"
-
-        #exit 1
+            Write-Error "Status update failed"
+        }
     }
 
     #
-    # Start Recovery
+    # Start Recovery/Migration
     #
     Execute-Recovery-Steps
     if( $global:retCode -ne 0 )
@@ -529,10 +594,20 @@ function Main ( )
         $global:Exec_ErrorMsg  = "Recovery tool exited unexpectedly"
         $global:Exec_Status    = "Failed"
         $global:Exec_Error     = 1
-                
-        if ( !$(Update-Status-To-Blob) ) { exit 1 }
 
-        if ( !$(Upload-Execution-Log) ) { exit 1 }
+        if( IsTestScenario)
+        {
+            if ( !$(Update-Status-To-TestFile) ) 
+            {
+                Trace_Error "Status update on local file failed."
+            }
+        }
+        else
+        {
+            if ( !$(Update-Status-To-Blob) ) { exit 1 }
+
+            if ( !$(Upload-Execution-Log) ) { exit 1 }
+        }
     }
 }
 

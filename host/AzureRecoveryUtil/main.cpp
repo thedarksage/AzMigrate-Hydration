@@ -45,6 +45,45 @@ void Usage(po::options_description& options, const std::string& optype = "")
 }
 
 /*
+Method      : UpdateMetadataStatus
+
+Description : Uploads the Metadata status to blob or local test file.
+
+Parameters  : [in] operationScenario: OperationScenario.
+
+Return code : true is update is successful, false otherwise.
+*/
+bool UpdateMetadataStatus(const std::string& operationScenario)
+{
+    if (boost::iequals(operationScenario, OPERATION::GENCONVERSION) || 
+        boost::iequals(operationScenario, OPERATION::RECOVERY) || 
+        boost::iequals(operationScenario, OPERATION::MIGRATION))
+    {
+        if (UpdateStatusToBlob(GetCurrentStatus()))
+        {
+            std::cerr << "Status update error" << std::endl;
+        }
+        else
+        {
+            return true;
+        }
+    }
+    else
+    {
+        if (UpdateStatusToTestFile(GetCurrentStatus()))
+        {
+            std::cerr << "Status update to local file failed." << std::endl;
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/*
 Method      : StartStatusUpdate
 
 Description : Updates the status information specified on command line options to status blob.
@@ -53,7 +92,7 @@ Parameters  : command line arguments
 
 Return code : 0 on success, any other interger on failure.
 */
-int StartStatusUpdate(int argc, char* argv[], bool help)
+int StartStatusUpdate(int argc, char* argv[], const std::string& operationScenario, bool help)
 {
     std::string rec_conf_file;
     std::string task_desc;
@@ -145,7 +184,7 @@ int StartStatusUpdate(int argc, char* argv[], bool help)
     statusUpdate.ErrorMsg = error_msg;
     statusUpdate.Status = execution_status;
     statusUpdate.Progress = progress;
-    statusUpdate.TaskDescriptoin = task_desc;
+    statusUpdate.TaskDescription = task_desc;
 
     return UpdateStatusToBlob(statusUpdate);
 }
@@ -160,7 +199,7 @@ Parameters  : command line arguments
 Return code : 0 on success, any other interger on failure. Even on recovery steps execution failure
               the function still returns 0, but the status would be set to failed on status blob.
 */
-int StartRecovery(int argc, char* argv[], bool help)
+int StartRecovery(int argc, char* argv[], const std::string& operationScenario, bool help)
 {
     std::string hostinfo_file;
     std::string recv_info_file;
@@ -240,9 +279,10 @@ int StartRecovery(int argc, char* argv[], bool help)
         int ret_code = InitRecoveryConfig(recv_info_file, hostinfo_file, working_dir, hydration_config_settings);
 
         //
-        // Update the current execution status to status-blob
+        // Update the current execution status to status-blob if it's a production scenario.
         //
-        if (UpdateStatusToBlob(GetCurrentStatus()))
+        if (boost::iequals(operationScenario, OPERATION::RECOVERY) &&
+            UpdateStatusToBlob(GetCurrentStatus()))
         {
             std::cerr << "Status update error" << std::endl;
         }
@@ -256,32 +296,26 @@ int StartRecovery(int argc, char* argv[], bool help)
         //
         StartRecovery();
 
-
         //
-        // Upload the log file content to status blob
+        // Upload the log file content to status blob.
+        // Do not call for tests.
         //
-        UploadCurrentTraceLog(LogFile);
+        if (boost::iequals(operationScenario, OPERATION::RECOVERY))
+        {
+            UploadCurrentTraceLog(LogFile);
+        }
 
         //
         // Update the current execution status to status-blob
         //
         int retryCount = 3;
-        while (retryCount > 0)
+        while (retryCount-- > 0)
         {
-            retryCount--;
+            UpdateMetadataStatus(operationScenario);
 
-            if (UpdateStatusToBlob(GetCurrentStatus()))
+            if (retryCount == 0)
             {
-                std::cerr << "Status update error" << std::endl;
-
-                if (retryCount == 0)
-                {
-                    return 1;
-                }
-            }
-            else
-            {
-                break;
+                return 1;
             }
         }
 
@@ -372,11 +406,12 @@ Method      : StartMigration
 Description : Starts the migration steps execution if the command line options are valid.
 
 Parameters  : command line arguments
+              operationScenario: Differentiates between Production and Test scenarion for Status and Hydration log updates.
 
-Return code : 0 on success, any other interger on failure. Even on recovery steps execution failure
+Return code : 0 on success, any other integer on failure. Even on recovery steps execution failure
               the function still returns 0, but the status would be set to failed on status blob.
 */
-int StartMigration(int argc, char* argv[], bool help)
+int StartMigration(int argc, char* argv[], const std::string& operationScenario, bool help)
 {
     std::string recv_info_file;
     std::string working_dir;
@@ -450,7 +485,8 @@ int StartMigration(int argc, char* argv[], bool help)
         //
         // Update the current execution status to status-blob
         //
-        if (UpdateStatusToBlob(GetCurrentStatus()))
+        if (boost::iequals(operationScenario, OPERATION::MIGRATION) &&
+            UpdateStatusToBlob(GetCurrentStatus()))
         {
             std::cerr << "Status update error" << std::endl;
         }
@@ -468,30 +504,25 @@ int StartMigration(int argc, char* argv[], bool help)
         //
         // Upload the log file content to status blob
         //
-        UploadCurrentTraceLog(LogFile);
+        if (boost::iequals(operationScenario, OPERATION::MIGRATION))
+        {
+            UploadCurrentTraceLog(LogFile);
+        }
 
         //
         // Update the current execution status to status-blob
         //
 
         int retryCount = 3;
-        while (retryCount > 0)
+        while (retryCount-- > 0)
         {
-            retryCount--;
+            UpdateMetadataStatus(operationScenario);
 
-            if (UpdateStatusToBlob(GetCurrentStatus()))
+            if (retryCount == 0)
             {
-                std::cerr << "Status update error" << std::endl;
+                return 1;
+            }
 
-                if (retryCount <= 0)
-                {
-                    return 1;
-                }
-            }
-            else
-            {
-                break;
-            }
         }
 
     } while (false);
@@ -509,7 +540,7 @@ Parameters  : command line arguments
 Return code : 0 on success, any other interger on failure. Even on failure the function
               returns 0, but the status would be set to failed on status blob.
 */
-int StartGenConversion(int argc, char* argv[], bool help)
+int StartGenConversion(int argc, char* argv[], const std::string& operationScenario, bool help)
 {
     std::string recv_info_file;
     std::string working_dir;
@@ -583,7 +614,8 @@ int StartGenConversion(int argc, char* argv[], bool help)
         //
         // Update the current execution status to status-blob
         //
-        if (UpdateStatusToBlob(GetCurrentStatus()))
+        if (boost::iequals(operationScenario, OPERATION::GENCONVERSION) &&
+            UpdateStatusToBlob(GetCurrentStatus()))
         {
             std::cerr << "Status update error" << std::endl;
         }
@@ -601,29 +633,23 @@ int StartGenConversion(int argc, char* argv[], bool help)
         //
         // Upload the log file content to status blob
         //
-        UploadCurrentTraceLog(LogFile);
+        if (boost::iequals(operationScenario, OPERATION::GENCONVERSION))
+        {
+            UploadCurrentTraceLog(LogFile);
+        }
 
         //
         // Update the current execution status to status-blob
         // Retry a maximum of three times.
         //
         int retryCount = 3;
-        while (retryCount > 0)
+        while (retryCount-- > 0)
         {
-            retryCount--;
+            UpdateMetadataStatus(operationScenario);
 
-            if (UpdateStatusToBlob(GetCurrentStatus()))
+            if (retryCount == 0)
             {
-                std::cerr << "Status update error" << std::endl;
-
-                if (retryCount <= 0)
-                {
-                    return 1;
-                }
-            }
-            else
-            {
-                break;
+                return 1;
             }
         }
     } while (false);
@@ -664,11 +690,11 @@ int main(int argc, char* argv[])
 
         if (boost::iequals(operationtype, OPERATION::RECOVERY))
         {
-            ret_code = StartRecovery(argc, argv, bHelp);
+            ret_code = StartRecovery(argc, argv, (std::string)OPERATION::RECOVERY, bHelp);
         }
         else if (boost::iequals(operationtype, OPERATION::UPDATE_STATUS))
         {
-            ret_code = StartStatusUpdate(argc, argv, bHelp);
+            ret_code = StartStatusUpdate(argc, argv, (std::string)OPERATION::UPDATE_STATUS, bHelp);
         }
         else if (boost::iequals(operationtype, OPERATION::UPLOAD_LOG))
         {
@@ -676,11 +702,27 @@ int main(int argc, char* argv[])
         }
         else if (boost::iequals(operationtype, OPERATION::MIGRATION))
         {
-            ret_code = StartMigration(argc, argv, bHelp);
+            ret_code = StartMigration(argc, argv, (std::string)OPERATION::MIGRATION ,bHelp);
         }
         else if (boost::iequals(operationtype, OPERATION::GENCONVERSION))
         {
-            ret_code = StartGenConversion(argc, argv, bHelp);
+            ret_code = StartGenConversion(argc, argv, (std::string)OPERATION::GENCONVERSION,bHelp);
+        }
+        else if (boost::iequals(operationtype, OPERATION::MIGRATION_TEST))
+        {
+            ret_code = StartMigration(argc, argv, (std::string)OPERATION::MIGRATION_TEST, bHelp);
+        }
+        else if (boost::iequals(operationtype, OPERATION::GENCONVERSION_TEST))
+        {
+            ret_code = StartGenConversion(argc, argv, (std::string)OPERATION::GENCONVERSION_TEST, bHelp);
+        }
+        else if (boost::iequals(operationtype, OPERATION::RECOVERY_TEST))
+        {
+            ret_code = StartRecovery(argc, argv, (std::string)OPERATION::RECOVERY_TEST, bHelp);
+        }
+        else if (boost::iequals(operationtype, OPERATION::STATUS_UPDATE_TEST))
+        {
+            ret_code = StartStatusUpdate(argc, argv, (std::string)OPERATION::STATUS_UPDATE_TEST, bHelp);
         }
         else
         {
