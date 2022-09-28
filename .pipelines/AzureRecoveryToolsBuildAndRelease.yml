@@ -252,7 +252,7 @@ stages:
       displayName: 'Create AzureRecoveryTools.zip'
       inputs:
         rootFolderOrFile: $(Build.StagingDirectory)\AzureRecoveryTools
-        archiveFile: out\AzureRecoveryTools.zip
+        archiveFile: $(Build.StagingDirectory)\out\AzureRecoveryTools.zip
         includeRootFolder: false
 
     - task: GitHubRelease@1
