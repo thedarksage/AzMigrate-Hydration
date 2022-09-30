@@ -10,12 +10,16 @@ pool:
   vmImage: windows-latest
 
 steps:
+- checkout: self
+  clean: true
+  persistCredentials: true
+
 - task: PowerShell@2
   inputs:
     targetType: 'inline'
     script: |
       # Write your PowerShell commands here.
-      
+      git config --global user.name "AzureDevOps Agent"
       Write-Host $(Build.SourceVersion)
       Write-Host $(Build.SourceBranch)
       Write-Host $(Build.SourceBranchName)
