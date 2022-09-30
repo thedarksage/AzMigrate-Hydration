@@ -31,7 +31,8 @@ steps:
       $PatchVer = $versionTag.split(".")[2]
       $UpdatedPatchVer = [string](([int]$PatchVer) + 1)
       $newBranchTag = "v"+$MajorVer+"."+$MinorVer+"."+$UpdatedPatchVer+"-"+"$(Build.SourceBranchName)"
+      git checkout $(Build.SourceBranchName) -b $(Build.SourceBranchName)-$(Build.SourceVersion)
       git tag $newBranchTag $(Build.SourceVersion)
-      git push origin $newBranchTag
+      git push origin $newBranchTag -f
       exit 0
 
