@@ -32,6 +32,6 @@ steps:
     scriptType: 'ps'
     scriptLocation: 'scriptPath'
     scriptPath: '$(Build.StagingDirectory)/HydrationTestTools/PerformHydration.ps1'
-    arguments: '-ResourceGroupName $(GithubGQL-TargetMDName) -Location  $(Location) -SubscriptionId $(SubscriptionId) -OSType $(OSType) -OSDiskName $(OSDiskName) -TargetVM_VirtualNetworkName $(TargetVM_VirtualNetworkName) -TargetVM_VirtualMachineName $(TargetVM_VirtualMachineName) -TargetVM_VirtualMachineSize $(TargetVM_VirtualMachineSize) -GithubBranch ""'
+    arguments: '-ResourceGroupName $(GithubGQL-TargetMDName) -Location  $(Location) -SubscriptionId $(SubscriptionId) -OSType $(OSType) -OSDiskName $(GithubGQL-TargetMDName) -TargetVM_VirtualNetworkName $(TargetVM_VirtualNetworkName) -TargetVM_VirtualMachineName $(TargetVM_VirtualMachineName) -TargetVM_VirtualMachineSize $(TargetVM_VirtualMachineSize) -GithubBranch ""'
     powerShellErrorActionPreference: 'continue'
     addSpnToEnvironment: true
