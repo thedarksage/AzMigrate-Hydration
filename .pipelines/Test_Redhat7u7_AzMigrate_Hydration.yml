@@ -18,21 +18,11 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      # Write your PowerShell commands here.
-      git config --global user.name "AzureDevOps Agent"
-      Write-Host $(Build.SourceVersion)
-      Write-Host $(Build.SourceBranch)
-      Write-Host $(Build.SourceBranchName)
-      git rev-parse --abbrev-ref HEAD
-      $oldBranchTag = git tag  -l v*.*.*-$(Build.SourceBranchName) --sort=-version:refname  | Select -First 1
-      $versionTag = $oldBranchTag.Substring(1).split("-")[0]
-      $MajorVer = $versionTag.split(".")[0]
-      $MinorVer = $versionTag.split(".")[1]
-      $PatchVer = $versionTag.split(".")[2]
-      $UpdatedPatchVer = [string](([int]$PatchVer) + 1)
-      $newBranchTag = "v"+$MajorVer+"."+$MinorVer+"."+$UpdatedPatchVer+"-"+"$(Build.SourceBranchName)"
-      git checkout $(Build.SourceBranchName) -b $(Build.SourceBranchName)-$(Build.SourceVersion)
-      git tag $newBranchTag $(Build.SourceVersion)
-      git push origin $newBranchTag -f
+      Invoke-WebRequest -Uri "https://github.com/thedarksage/AzMigrate-Hydration/releases/download/v1.0.5/HydrationTestTools.zip" -Out "$(Build.StagingDirectory)/HydrationTestTools.zip"
       exit 0
+
+- task: unzip@0
+  inputs:
+    pathToZipFile: '$(Build.StagingDirectory)/HydrationTestTools.zip'
+    pathToZipFolder: '$(Build.StagingDirectory)/HydrationTestTools/'
 
