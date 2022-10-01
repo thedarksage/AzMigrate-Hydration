@@ -26,12 +26,10 @@ steps:
     pathToZipFile: '$(Build.StagingDirectory)/HydrationTestTools.zip'
     pathToZipFolder: '$(Build.StagingDirectory)/HydrationTestTools/'
 
-- task: AzureCLI@2
+- task: AzurePowerShell@5
   inputs:
     azureSubscription: 'AADProt2-Hydration-GQLValidations'
-    scriptType: 'ps'
-    scriptLocation: 'scriptPath'
-    scriptPath: '$(Build.StagingDirectory)/HydrationTestTools/PerformHydration.ps1'
-    arguments: '-ResourceGroupName $(GithubGQL-TargetMDName) -Location  $(Location) -SubscriptionId $(SubscriptionId) -OSType $(OSType) -OSDiskName $(GithubGQL-TargetMDName) -TargetVM_VirtualNetworkName $(TargetVM_VirtualNetworkName) -TargetVM_VirtualMachineName $(TargetVM_VirtualMachineName) -TargetVM_VirtualMachineSize $(TargetVM_VirtualMachineSize) -GithubBranch ""'
-    powerShellErrorActionPreference: 'continue'
-    addSpnToEnvironment: true
+    ScriptType: 'FilePath'
+    ScriptPath: '$(Build.StagingDirectory)/HydrationTestTools/PerformHydration.ps1'
+    ScriptArguments: '-ResourceGroupName $(GithubGQL-TargetMDName) -Location  $(Location) -SubscriptionId $(SubscriptionId) -OSType $(OSType) -OSDiskName $(GithubGQL-TargetMDName) -TargetVM_VirtualNetworkName $(TargetVM_VirtualNetworkName) -TargetVM_VirtualMachineName $(TargetVM_VirtualMachineName) -TargetVM_VirtualMachineSize $(TargetVM_VirtualMachineSize) -GithubBranch'
+    azurePowerShellVersion: 'LatestVersion'
