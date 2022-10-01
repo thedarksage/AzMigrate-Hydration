@@ -31,5 +31,5 @@ steps:
     azureSubscription: 'AADProt2-Hydration-GQLValidations'
     ScriptType: 'FilePath'
     ScriptPath: '$(Build.StagingDirectory)/HydrationTestTools/PerformHydration.ps1'
-    ScriptArguments: '-ResourceGroupName $(GithubGQL-TargetMDName) -Location  $(Location) -SubscriptionId $(SubscriptionId) -OSType $(OSType) -OSDiskName $(GithubGQL-TargetMDName) -TargetVM_VirtualNetworkName $(TargetVM_VirtualNetworkName) -TargetVM_VirtualMachineName $(TargetVM_VirtualMachineName) -TargetVM_VirtualMachineSize $(TargetVM_VirtualMachineSize) -GithubBranch $(Build.SourceBranchName)'
+    ScriptArguments: '-ResourceGroupName $(GithubGQL-TargetRGName) -Location  $(Location) -SubscriptionId $(SubscriptionId) -OSType $(OSType) -OSDiskName $(GithubGQL-TargetMDName) -TargetVM_VirtualNetworkName $(TargetVM_VirtualNetworkName) -TargetVM_VirtualMachineName $(TargetVM_VirtualMachineName) -TargetVM_VirtualMachineSize $(TargetVM_VirtualMachineSize) -GithubBranch $(Build.SourceBranchName)'
     azurePowerShellVersion: 'LatestVersion'
