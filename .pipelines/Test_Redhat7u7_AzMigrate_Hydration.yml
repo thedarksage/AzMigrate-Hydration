@@ -26,3 +26,11 @@ steps:
     pathToZipFile: '$(Build.StagingDirectory)/HydrationTestTools.zip'
     pathToZipFolder: '$(Build.StagingDirectory)/HydrationTestTools/'
 
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: 'AADProt2-Hydration-GQLValidations'
+    scriptType: 'ps'
+    scriptLocation: 'scriptPath'
+    scriptPath: '$(Build.StagingDirectory)/HydrationTestTools/CallPerformHydration.ps1'
+    powerShellErrorActionPreference: 'continue'
+    addSpnToEnvironment: true
