@@ -6,6 +6,12 @@
 trigger:
 - none
 
+resources:
+  pipelines:
+  - pipeline: Test_Linux_Redhat7u7_EFI
+    source: Build_AzureRecoveryTools_AzMigrate_Hydration
+    trigger: true
+
 pool:
   vmImage: windows-latest
 
