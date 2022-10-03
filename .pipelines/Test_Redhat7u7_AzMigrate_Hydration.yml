@@ -10,6 +10,7 @@ resources:
   pipelines:
   - pipeline: Test_Linux_Redhat7u7_EFI
     source: Build_AzureRecoveryTools_AzMigrate_Hydration
+    project: thedarksage/AzMigrate-Hydration
     trigger: true
 
 pool:
