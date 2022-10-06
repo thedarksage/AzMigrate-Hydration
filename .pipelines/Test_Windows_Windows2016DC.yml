@@ -6,13 +6,6 @@
 trigger:
 - none
 
-resources:
-  pipelines:
-  - pipeline: Test_Windows_Windows2016DC
-    source: Build_AzureRecoveryTools_AzMigrate_Hydration
-    project: thedarksage/AzMigrate-Hydration
-    trigger: true
-
 pool:
   vmImage: windows-latest
 
