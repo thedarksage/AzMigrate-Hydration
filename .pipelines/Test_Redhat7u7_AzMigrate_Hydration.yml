@@ -35,11 +35,11 @@ steps:
 - task: AzureCLI@2
   inputs:
     azureSubscription: 'AADProt2-Hydration-GQLValidations'
-    scriptType: 'bash'
+    scriptType: 'ps'
     scriptLocation: 'inlineScript'
     inlineScript: |
       az account set --subscription $(SubscriptionId)
-      
+            
       az disk create --resource-group $(GithubGQL-TargetRGName) --name $(GithubGQL-TargetMDName)-$(RandomSuffix) --source /subscriptions/$(SubscriptionId)/resourceGroups/$(GithubGQL-SourceRGName)/providers/Microsoft.Compute/disks/$(GithubGQL-SourceMDName)
 
 - task: AzurePowerShell@5
