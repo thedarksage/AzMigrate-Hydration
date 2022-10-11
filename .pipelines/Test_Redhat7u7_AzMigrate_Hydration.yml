@@ -38,7 +38,7 @@ steps:
     scriptType: 'bash'
     scriptLocation: 'scriptPath'
     scriptPath: '$(Build.StagingDirectory)/HydrationTestTools/HydrationManagedDiskCopy.sh'
-    arguments: '$(SubscriptionId) $(SubscriptionId) $(GithubGQL-SourceRGName) $(GithubGQL-TargetRGName) $(GithubGQL-SouceMDName) $(GithubGQL-TargetMDName)-$(RandomSuffix)'
+    arguments: '$(SubscriptionId) $(SubscriptionId) $(GithubGQL-SourceRGName) $(GithubGQL-TargetRGName) $(GithubGQL-SourceMDName) $(GithubGQL-TargetMDName)-$(RandomSuffix)'
 
 - task: AzurePowerShell@5
   inputs:
