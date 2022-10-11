@@ -33,6 +33,14 @@ steps:
     pathToZipFile: '$(Build.StagingDirectory)/HydrationTestTools.zip'
     pathToZipFolder: '$(Build.StagingDirectory)/HydrationTestTools/'
 
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: 'AADProt2-Hydration-GQLValidations'
+    scriptType: 'bash'
+    scriptLocation: 'scriptPath'
+    scriptPath: '$(Build.StagingDirectory)/HydrationTestTools/HydrationManagedDiskCopy.sh'
+    arguments: '$(SubscriptionId) $(SubscriptionId) $(GithubGQL-SourceRGName) $(GithubGQL-TargetRGName) $(GithubGQL-SouceMDName) $(GithubGQL-TargetMDName)-$(RandomSuffix)'
+
 - task: AzurePowerShell@5
   inputs:
     azureSubscription: 'AADProt2-Hydration-GQLValidations'
