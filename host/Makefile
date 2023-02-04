@@ -30,7 +30,15 @@ $(shell ln -sf tests/DITests/DITestUtil tests_DITests_DITestUtil)
 # if you get the wrong order you will see an error message telling you 
 # the order is in correct
 # ----------------------------------------------------------------------
-MODULES := $(REQUIRED_BY_ALL_MODULES) securitylib curlwrapperlib cxpslib AzureRecoveryLib AzureRecoveryUtil
+MODULES := $(REQUIRED_BY_ALL_MODULES) remoteapilib scheduler common s2libs inmpipeline conversionlib cdplibs vacplibs vsnaplib virtualvolumelib appdevicelib dplibs deviceidinformer  platforminfo dirbasename executecommand scsicommandissuer volumeinfocollector npwwn xslibs backups2lib backups2lib-cs cdpapplylib cdpapplylibRcm localdirectsynclib volumescopier securitylib simplelogger genericprofiler curlwrapperlib cxpslib cxtransportlib cxps cxpscli AzureRecoveryLib cxpsclient iscsiinterface validatesvdfile disklayoutmgr AzureADAuthProviderLib AzureRcmLib AzureRcmCli CommitTagLib service service-cs dataprotection DataProtectionSyncRcm cdpmgr s2 s2-cs cachemgr cdpcli unregagent hostconfig customdevicecli svdcheck vacpunix unlockVolumes testexecutecommand gfdisk testvolumeinfocollector testvolumescopier fr_log fr_common fr_config fragent frdaemon runundervalgrind tools/inmlimit fr_unregagent fabricagent cxcli pushInstallerCli storagefailover EsxUtil appframeworklib applicationagent  FailoverCommadUtil inm_scsi_id configmergetool inmexec ScoutTuning inmsync csgetfingerprint gencert viewcert genpassphrase CSScheduler sslsign AzureRecoveryUtil tests_common tests_DITests_DITestUtil AzureRcmTest EvtCollForw
+
+ifeq (SunOS,$(X_SUNOS))
+MODULES := $(REQUIRED_BY_ALL_MODULES) remoteapilib scheduler common s2libs inmpipeline conversionlib cdplibs vacplibs vsnaplib virtualvolumelib appdevicelib dplibs deviceidinformer  platforminfo dirbasename executecommand scsicommandissuer volumeinfocollector npwwn xslibs backups2lib cdpapplylib cdpapplylibRcm localdirectsynclib volumescopier securitylib simplelogger genericprofiler curlwrapperlib cxpslib cxtransportlib cxps cxpscli cxpsclient iscsiinterface validatesvdfile service dataprotection DataProtectionSyncRcm cdpmgr s2 cachemgr cdpcli unregagent hostconfig customdevicecli svdcheck vacpunix testexecutecommand testvolumeinfocollector testvolumescopier cxcli pushInstallerCli inmzpool appframeworklib applicationagent FailoverCommadUtil inm_scsi_id configmergetool inmexec inmsync csgetfingerprint gencert viewcert genpassphrase sslsign
+endif
+
+ifeq (AIX,$(X_OS))
+MODULES := $(REQUIRED_BY_ALL_MODULES) remoteapilib common s2libs inmpipeline conversionlib cdplibs vacplibs vsnaplib virtualvolumelib appdevicelib scheduler dplibs deviceidinformer  platforminfo dirbasename executecommand scsicommandissuer volumeinfocollector npwwn xslibs backups2lib cdpapplylib cdpapplylibRcm localdirectsynclib volumescopier cxpslib cxtransportlib cxps cxpscli cxpsclient iscsiinterface validatesvdfile service dataprotection DataProtectionSyncRcm cdpmgr s2 cachemgr cdpcli unregagent customdevicecli svdcheck vacpunix testexecutecommand testvolumeinfocollector testvolumescopier fr_log fr_common fr_config fragent frdaemon fr_unregagent cxcli pushInstallerCli appframeworklib applicationagent  FailoverCommadUtil inm_scsi_id configmergetool inmexec inmsync p2vutil
+endif
 
 ifeq (yes,$(FX_VACP))
 MODULES := conversionlib vacplibs vacpunix
