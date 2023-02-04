@@ -167,6 +167,8 @@ stages:
             sudo apt-get install libexpat1-dev -y
 
             sudo ln -s -T /usr/bin/make /usr/bin/gmake
+
+            exit 0
           failOnStderr: true
 
       # Build AzureRecoveryUtil binary.
