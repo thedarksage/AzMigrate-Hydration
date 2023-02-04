@@ -85,7 +85,7 @@ stages:
   # Linux build job.
   - job: linux_build
     pool:
-      vmImage: ubuntu-latest
+      vmImage: ubuntu-20.04
       type: linux
 
     variables:
