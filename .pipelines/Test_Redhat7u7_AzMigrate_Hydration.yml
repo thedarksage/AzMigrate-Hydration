@@ -24,6 +24,7 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
+      Write-Output $(Build.SourceVersion)
       git tag --contains $(Build.SourceVersion)
       #Invoke-WebRequest -Uri "https://github.com/thedarksage/AzMigrate-Hydration/releases/download/v1.0.5/HydrationTestTools.zip" -Out "$(Build.StagingDirectory)/HydrationTestTools.zip"
       exit 0
