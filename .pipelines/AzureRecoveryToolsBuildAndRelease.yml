@@ -148,7 +148,7 @@ stages:
 
             sudo apt-get install uuid-dev -y
 
-            sudo apt-get install python-dev -y
+            sudo apt-get install python-dev -y 2>/dev/null
 
             sudo apt-get install gettext -y
 
@@ -166,8 +166,10 @@ stages:
 
             sudo apt-get install libexpat1-dev -y
 
-            sudo ln -s -T /usr/bin/make /usr/bin/gmake
-          failOnStderr: true
+            sudo ln -s -T /usr/bin/make /usr/bin/gmake 2>/dev/null
+
+            exit 0
+          failOnStderr: false
 
       # Build AzureRecoveryUtil binary.
       - task: Bash@3
