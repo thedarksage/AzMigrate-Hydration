@@ -63,8 +63,18 @@ stages:
         inputs:
           targetType: 'inline'
           script: |
+            New-Item -Path $(OUTPUTROOT) -Name "StartupScript" -ItemType "Directory" -Force
+            New-Item -Path $(OUTPUTROOT) -Name "HydrationTestTools" -ItemType "Directory" -Force
             Copy-Item -Path $(REPOROOT)\host\AzureRecoveryUtil\Release\AzureRecoveryUtil.exe $(OUTPUTROOT)\
             Copy-Item -Path $(REPOROOT)\host\AzureRecoveryUtil\Release\AzureRecoveryUtil.pdb $(OUTPUTROOT)\
+            Copy-Item -Path $(REPOROOT)\host\AzureRecoveryUtil\Scripts\win32\StartupScript.ps1 $(OUTPUTROOT)\StartupScript\
+            Copy-Item -Path $(REPOROOT)\HydrationTestTools\CallPerformHydration.ps1 $(OUTPUTROOT)\HydrationTestTools\
+            Copy-Item -Path $(REPOROOT)\HydrationTestTools\ErrorCodes.xml $(OUTPUTROOT)\HydrationTestTools\
+            Copy-Item -Path $(REPOROOT)\HydrationTestTools\GetErrorCode.ps1 $(OUTPUTROOT)\HydrationTestTools\
+            Copy-Item -Path $(REPOROOT)\HydrationTestTools\GetErrorCode.sh $(OUTPUTROOT)\HydrationTestTools\
+            Copy-Item -Path $(REPOROOT)\HydrationTestTools\HydrationManagedDiskCopy.ps1 $(OUTPUTROOT)\HydrationTestTools\
+            Copy-Item -Path $(REPOROOT)\HydrationTestTools\Input.json $(OUTPUTROOT)\HydrationTestTools\
+            Copy-Item -Path $(REPOROOT)\HydrationTestTools\PerformHydration.ps1 $(OUTPUTROOT)\HydrationTestTools
           workingDirectory: '$(REPOROOT)'
 
       - task: PublishBuildArtifacts@1
@@ -196,10 +206,12 @@ stages:
           targetType: 'inline'
           script: |
             mkdir -p $(Build.SourcesDirectory)/out/logs
+            mkdir -p $(Build.SourcesDirectory)/out/StartupScript
             cp -f $(REPOROOT)/host/Linux_x86_64/AzureRecoveryUtil/release/AzureRecoveryUtil $(Build.SourcesDirectory)/out
             cp -f $(REPOROOT)/host/Linux_x86_64/AzureRecoveryUtil/release/AzureRecoveryUtil.dbg $(Build.SourcesDirectory)/out
             cp -f $(REPOROOT)/host/AzureRecoveryUtil/Scripts/linux/{*.sh,network,*.repo} $(Build.SourcesDirectory)/out
             cp -f $(REPOROOT)/thirdparty/setuptools-33.1.1/{*.py,*.zip} $(Build.SourcesDirectory)/out
+            cp -f $(REPOROOT)/host\AzureRecoveryUtil\Scripts\linux\StartupScript.sh $(Build.SourcesDirectory)/out/StartupScript
             cp -f $(REPOROOT)/host/AzureRecoveryUtilBuild.log $(Build.SourcesDirectory)/out/logs
           failOnStderr: true
 
@@ -257,6 +269,23 @@ stages:
         archiveFile: $(Build.StagingDirectory)\out\AzureRecoveryTools.zip
         includeRootFolder: false
 
+    # Create HydrationTestTools.zip
+    - task: ArchiveFiles@2
+      displayName: 'Create HydrationTestTools.zip'
+      inputs:
+        rootFolderOrFile: $(Build.StagingDirectory)\HydrationTestTools
+        archiveFile: $(Build.StagingDirectory)\out\HydrationTestTools.zip
+        includeRootFolder: false
+
+    # Copy AzureRecoveryTools related files.
+    - task: CopyFiles@2
+      displayName: 'Copy AzureRecoveryTools Related Files'
+      inputs:
+        SourceFolder: $(Build.StagingDirectory)\StartupScript
+        Contents: |
+          **/*
+        TargetFolder: $(Build.StagingDirectory)\out\
+
     - task: GitHubRelease@1
       inputs:
         gitHubConnection: 'Prot2Hydration-Github-Connection'
@@ -268,8 +297,8 @@ stages:
         title: 'AzureRecoveryUtil'
         releaseNotesSource: 'inline'
         releaseNotesInline: 'AzureRecoveryUtil Initial Build'
-        assets: '$(Build.StagingDirectory)\out\AzureRecoveryTools.zip'
-        isPreRelease: true
+        assets: '$(Build.StagingDirectory)\out\*.*'
+        isPreRelease: false
         changeLogCompareToRelease: 'lastFullRelease'
         changeLogType: 'commitBased'
 
