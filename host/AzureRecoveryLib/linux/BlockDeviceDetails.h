@@ -279,36 +279,92 @@ namespace AzureRecovery
                 bMatching = boost::iequals(device_name, "LABEL=" + label);
             else
             {
-                // LVM Nomenclature ({vgname}: Volume Group Name, {lvname}: Logical Volume Name)
-                // Device Manager generated name: /dev/mapper/{vgname}-{lvname}
-                // LVM2 generated symbolic name structure: /dev/{vgname}/{lvname}
                 bMatching = boost::iequals(device_name, name);
 
                 if (!bMatching)
                 {
-                    size_t dn_mapPos = device_name.find("mapper");
-                    size_t feName_mapPos = name.find("mapper");
-
-                    // Check for different naming conventions.
-                    if (dn_mapPos != std::string::npos &&
-                        feName_mapPos == std::string::npos &&
-                        device_name.find("-") != std::string::npos)
+                    if (boost::istarts_with(device_name, "/dev/mapper") ||
+                        boost::istarts_with(name, "/dev/mapper"))
                     {
-                        // fstab entry name is of Device Manager generated format while device_name is not.
-                        std::string dnModifiedName = "/dev/" + (device_name.substr(dn_mapPos + 7)).replace
-                        ((device_name.substr(dn_mapPos + 7)).find("-"), 1, "/");
+                        // LVM Nomenclature ({vgname}: Volume Group Name, {lvname}: Logical Volume Name)
+                        // Device Manager generated name: /dev/mapper/{vgname}-{lvname}
+                        // LVM2 generated symbolic name structure: /dev/{vgname}/{lvname}
+                        size_t dn_mapPos = device_name.find("mapper");
+                        size_t feName_mapPos = name.find("mapper");
 
-                        bMatching = boost::iequals(dnModifiedName, name);
+                        // Check for different naming conventions.
+                        if (dn_mapPos != std::string::npos &&
+                            feName_mapPos == std::string::npos &&
+                            device_name.find("-") != std::string::npos)
+                        {
+                            // fstab entry name is of Device Manager generated format while device_name is not.
+                            std::string dnModifiedName = "/dev/" + (device_name.substr(dn_mapPos + 7)).replace
+                            ((device_name.substr(dn_mapPos + 7)).find("-"), 1, "/");
+
+                            bMatching = boost::iequals(dnModifiedName, name);
+                        }
+                        else if (device_name.find("mapper") == std::string::npos &&
+                            name.find("mapper") != std::string::npos &&
+                            name.find("-") != std::string::npos)
+                        {
+                            // fstab entry name is of Device Manager generated format while device_name is not.
+                            std::string feModifiedName = "/dev/" + (name.substr(feName_mapPos + 7)).replace
+                            ((name.substr(feName_mapPos + 7)).find("-"), 1, "/");
+
+                            bMatching = boost::iequals(device_name, feModifiedName);
+                        }
                     }
-                    else if (device_name.find("mapper") == std::string::npos &&
-                        name.find("mapper") != std::string::npos &&
-                        name.find("-") != std::string::npos)
+                    else if (boost::istarts_with(device_name, "/dev/disk/by-uuid") ||
+                        boost::istarts_with(name, "/dev/disk/by-uuid"))
                     {
-                        // fstab entry name is of Device Manager generated format while device_name is not.
-                        std::string feModifiedName = "/dev/" + (name.substr(dn_mapPos + 7)).replace
-                            ((name.substr(dn_mapPos + 7)).find("-"), 1, "/");
+                        // Device Manager generated name: /dev/disk/by-uuid/<guid>
+                        // LVM2 generated symbolic name structure: UUID=<guid>
+                        size_t dn_mapPos = device_name.find("disk/by-uuid");
+                        size_t feName_mapPos = name.find("disk/by-uuid");
 
-                        bMatching = boost::iequals(device_name, feModifiedName);
+                        // Check for different naming conventions.
+                        if (dn_mapPos != std::string::npos &&
+                            feName_mapPos == std::string::npos)
+                        {
+                            // fstab entry name is of Device Manager generated format while device_name is not.
+                            std::string dnModifiedName = "UUID=" + (device_name.substr(dn_mapPos + 13));
+
+                            bMatching = boost::iequals(dnModifiedName, name);
+                        }
+                        else if (device_name.find("disk/by-uuid") == std::string::npos &&
+                            name.find("disk/by-uuid") != std::string::npos)
+                        {
+                            // fstab entry name is of Device Manager generated format while device_name is not.
+                            std::string feModifiedName = "UUID=" + (name.substr(feName_mapPos + 13));
+
+                            bMatching = boost::iequals(device_name, feModifiedName);
+                        }
+                    }
+                    else if (boost::istarts_with(device_name, "/dev/disk/by-label") ||
+                        boost::istarts_with(name, "/dev/disk/by-label"))
+                    {
+                        // Device Manager generated name: /dev/disk/by-label/<label>
+                        // LVM2 generated symbolic name structure: LABEL=<label>
+                        size_t dn_mapPos = device_name.find("disk/by-label");
+                        size_t feName_mapPos = name.find("disk/by-label");
+
+                        // Check for different naming conventions.
+                        if (dn_mapPos != std::string::npos &&
+                            feName_mapPos == std::string::npos)
+                        {
+                            // fstab entry name is of Device Manager generated format while device_name is not.
+                            std::string dnModifiedName = "LABEL=" + (device_name.substr(dn_mapPos + 14));
+
+                            bMatching = boost::iequals(dnModifiedName, name);
+                        }
+                        else if (device_name.find("disk/by-label") == std::string::npos &&
+                            name.find("disk/by-label") != std::string::npos)
+                        {
+                            // fstab entry name is of Device Manager generated format while device_name is not.
+                            std::string feModifiedName = "LABEL=" + (name.substr(feName_mapPos + 14));
+
+                            bMatching = boost::iequals(device_name, feModifiedName);
+                        }
                     }
                 }
             }

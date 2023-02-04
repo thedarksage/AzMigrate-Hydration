@@ -109,6 +109,34 @@ public:
     }
 };
 
+/// \brief health issues for a protected cluster
+class SourceAgentClusterProtectionHealthMessage
+{
+public:
+    std::vector<HealthIssue>                    HealthIssues;
+
+    /// \brief a serializer method for JSON
+    void serialize(JSON::Adapter& adapter)
+    {
+        JSON::Class root(adapter, "SourceAgentClusterProtectionHealthMessage", false);
+        JSON_T(adapter, HealthIssues);
+    }
+};
+
+/// \brief health issues for virtual node
+class SourceAgentSharedDiskReplicationHealthMessage
+{
+public:
+    std::map < std::string, std::vector<HealthIssue> >    SharedDiskHealthDetailsMap;
+
+    /// \brief a serializer method for JSON
+    void serialize(JSON::Adapter& adapter)
+    {
+        JSON::Class root(adapter, "SourceAgentSharedDiskReplicationHealthMessage", false);
+        JSON_KV_T(adapter, "SharedDiskHealthDetailsMap", SharedDiskHealthDetailsMap);
+    }
+};
+
 // a <key, value> pair of Health IssueCode and a serialized object of HealthIssue or AgentDiskLevelHealthIssue
 typedef std::map<std::string, std::string> HealthIssueMap_t;
 

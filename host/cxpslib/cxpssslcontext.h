@@ -33,7 +33,7 @@
 #include "cxpslogger.h"
 
 #define USER_CERT_STORE             L"My"
-#define GUID_REGEX     "[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}"
+#define GUID_REGEX     "^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$"
 #endif
 
 inline int opensslVerifyCallback(int preverifyOk, X509_STORE_CTX* ctx);
@@ -257,6 +257,16 @@ public:
         return m_caCertThumbprint;
     }
 
+    std::string getCertBiosId()
+    {
+        return m_certBiosId;
+    }
+
+    void setCertBiosId(std::string biosId)
+    {
+        m_certBiosId = biosId;
+    }
+
 protected:
     /// \breif gets the passphrase needed to access certifcates
     ///
@@ -276,6 +286,7 @@ private:
 
     std::string m_caCertThumbprint; ///< thumbprint used to validate server cert in client
 
+    std::string m_certBiosId;
 };
 
 inline int opensslVerifyCallback(int preverifyOk, X509_STORE_CTX* ctx)
@@ -428,9 +439,14 @@ inline int opensslVerifyClientCertCallback(int preverifyOk, X509_STORE_CTX* ctx)
         return preverifyOk;
     }
 
-    std::string certificateBiosId = certSubjectName.substr(3);
+    std::string certificateBiosId;
+    size_t biosIdIndex = certSubjectName.find_first_of("=");
+    if (std::string::npos != biosIdIndex) {
+        certificateBiosId = certSubjectName.substr(biosIdIndex + 1);
+    }
+
     boost::regex guidRegex(GUID_REGEX);
-    if (!boost::regex_search(certificateBiosId, guidRegex))
+    if (!boost::regex_match(certificateBiosId, guidRegex))
     {
         CXPS_LOG_ERROR(AT_LOC<<"guid not found in subject name="<<certSubjectName);
         return preverifyOk;
@@ -538,6 +554,7 @@ inline int opensslVerifyClientCertCallback(int preverifyOk, X509_STORE_CTX* ctx)
     preverifyOk = 1;
     X509_STORE_CTX_set_error(ctx, X509_V_OK);
 
+    cxpsctx->setCertBiosId(certificateBiosId);
     CXPS_LOG_MONITOR(MONITOR_LOG_LEVEL_1, AT_LOC<<"client cert verification successful");
 
 #endif

@@ -216,8 +216,7 @@ int StartRecovery()
 
         if (EnableSerialConsole(srcOsInstallPath) != ERROR_SUCCESS)
         {
-            retcode = E_RECOVERY_ENABLE_SERIAL_CONSOLE_FAILED;
-
+            // Log within HydrationLogs.
             errStream << "Could not enable serial console for the VM. ";
 
             TRACE_ERROR("%s\n", errStream.str().c_str());
@@ -338,31 +337,27 @@ int StartRecovery()
             break;
         }
 
-        if (boost::iequals(GetHydrationConfigValue(
-            GetHydrationConfigSettings(), HydrationConfig::EnableWindowsGAInstallationDR), "true"))
+        std::stringstream wingaErrSteam;
+        if (VerifyRegistrySettingsForWinGA(srcOsInstallPath.substr(0, srcOsInstallPath.size() - 17), wingaErrSteam))
         {
-            std::stringstream wingaErrSteam;
-            if (VerifyRegistrySettingsForWinGA(srcOsInstallPath.substr(0,2), wingaErrSteam))
+            // Not throwing any error since we do not have soft failures in DR.
+            errStream << "Guest agent installation was skipped as the VM already has a Guest Agent present. ";
+            TRACE_WARNING("%s\n", errStream.str().c_str());
+
+            break;
+        }
+        else
+        {
+            if (!AddWindowsGuestAgent(srcOsInstallPath.substr(0, srcOsInstallPath.size() - 16), wingaErrSteam))
             {
-                // Not throwing any error since we do not have soft failures in DR.
-                errStream << "Guest agent installation was skipped as the VM already has a Guest Agent present. ";
+                // Log error code and do not fail.
+                errStream
+                    << "VM has successfully failed over but Guest agent installation has failed"
+                    << ". Please manually install the guest agent on the VM. ";
+
                 TRACE_WARNING("%s\n", errStream.str().c_str());
 
                 break;
-            }
-            else
-            {
-                if (!AddWindowsGuestAgent(srcOsInstallPath.substr(0, 3), wingaErrSteam))
-                {
-                    // Log error code and do not fail.
-                    errStream
-                        << "VM has successfully failed over but Guest agent installation has failed"
-                        << ". Please manually install the guest agent on the VM. ";
-
-                    TRACE_WARNING("%s\n", errStream.str().c_str());
-
-                    break;
-                }
             }
         }
 
@@ -527,8 +522,7 @@ int StartMigration()
 
             if (EnableSerialConsole(srcOsInstallPath.str()) != ERROR_SUCCESS)
             {
-                retcode = E_RECOVERY_ENABLE_SERIAL_CONSOLE_FAILED;
-
+                // Log within HydrationLogs.
                 std::stringstream scErrStream;
                 scErrStream << "Could not update serial console for the VM. ";
 
@@ -679,8 +673,7 @@ int StartGenConversion()
                 // Enable serial console on BIOS BCD Path as the VM has been converted.
                 if (EnableSerialConsole(srcOsInstallPath.str()) != ERROR_SUCCESS)
                 {
-                    retcode = E_RECOVERY_ENABLE_SERIAL_CONSOLE_FAILED;
-
+                    // Log within HydrationLogs.
                     errStream << "Could not update serial console for the VM. ";
 
                     // Do not fail.
@@ -3460,46 +3453,38 @@ namespace AzureRecovery
 
             // Mark Success here to not fail the call if further calls fail.
             bSuccess = true;
-            if (boost::iequals(GetHydrationConfigValue(
-                GetHydrationConfigSettings(), HydrationConfig::EnableWindowsGAInstallation), "true"))
+            std::stringstream wingaErrSteam;
+            if (VerifyRegistrySettingsForWinGA(srcOsVol, wingaErrSteam))
             {
-                std::stringstream wingaErrSteam;
-                if (VerifyRegistrySettingsForWinGA(srcOsVol, wingaErrSteam))
+                // Let customer know that Agent installation was skipped.
+                if (retcode == E_RECOVERY_SUCCESS)
                 {
-                    // Let customer know that Agent installation was skipped.
+                    retcode = E_RECOVERY_GUEST_AGENT_ALREADY_PRESENT;
+                }
+
+                errStream << "Guest agent installation was skipped as the VM already has a Guest Agent present. ";
+                TRACE_WARNING("%s\n", errStream.str().c_str());
+
+                break;
+            }
+            else
+            {
+                if (!AddWindowsGuestAgent(srcOsVol, wingaErrSteam))
+                {
+                    // Log error code and do not fail.
                     if (retcode == E_RECOVERY_SUCCESS)
                     {
-                        retcode = E_RECOVERY_GUEST_AGENT_ALREADY_PRESENT;
+                        retcode = E_RECOVERY_GUEST_AGENT_INSTALLATION_FAILED;
                     }
 
-                    errStream << "Guest agent installation was skipped as the VM already has a Guest Agent present. ";
+                    errStream
+                        << "VM was successfully migrated but Guest Agent installation has failed"
+                        << ". Please manually install the guest agent on migrated VM. ";
+
                     TRACE_WARNING("%s\n", errStream.str().c_str());
 
                     break;
                 }
-                else
-                {
-                    if (!AddWindowsGuestAgent(srcOsVol, wingaErrSteam))
-                    {
-                        // Log error code and do not fail.
-                        if (retcode == E_RECOVERY_SUCCESS)
-                        {
-                            retcode = E_RECOVERY_GUEST_AGENT_INSTALLATION_FAILED;
-                        }
-
-                        errStream
-                            << "VM was successfully migrated but Guest Agent installation has failed"
-                            << ". Please manually install the guest agent on migrated VM. ";
-
-                        TRACE_WARNING("%s\n", errStream.str().c_str());
-
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                TRACE_INFO("Windows guest agent installation config has been turned off.\n");
             }
 
         } while (false);

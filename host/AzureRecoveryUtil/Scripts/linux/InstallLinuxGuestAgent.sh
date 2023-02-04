@@ -129,6 +129,7 @@ linux_distro=$1
 base_linuxga_dir="$2"
 setup_tools_install="$3"
 
+GetServiceBinaryName
 CheckValidPythonVersion
 echo "Python version is $pythonversion"
 

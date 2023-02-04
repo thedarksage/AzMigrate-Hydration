@@ -21,6 +21,7 @@ _AM_SCRIPT_LOG_FILE_="/var/log/${_AM_STARTUP_}.log"
 _AZURE_ASSET_TAG_="7783-7084-3265-9085-8269-3286-77"
 ###End: Constants
 
+
 unset _DISTRO_
 find_distro()
 {
@@ -30,7 +31,9 @@ if [ -f /etc/oracle-release ] && [ -f /etc/redhat-release ] ; then
     elif grep -q 'Oracle Linux Server release 7.*' /etc/oracle-release ; then
         _DISTRO_="OL7"
     elif grep -q 'Oracle Linux Server release 8.*' /etc/oracle-release ; then
-		_DISTRO_="OL8"
+        _DISTRO_="OL8"
+    elif grep -q 'Oracle Linux Server release 9.*' /etc/oracle-release ; then
+        _DISTRO_="OL9"
     fi
 elif [ -f /etc/redhat-release ]; then
     if grep -q 'Red Hat Enterprise Linux Server release 6.*' /etc/redhat-release || \
@@ -55,20 +58,18 @@ elif [ -f /etc/redhat-release ]; then
          grep -q 'CentOS Stream release 9.*' /etc/redhat-release; then
             _DISTRO_="CENTOS9"
     fi
-elif [ -f /etc/SuSE-release ]; then
+elif ( [ -f /etc/SuSE-release ] && ( grep -q 'VERSION = 11' /etc/SuSE-release ||  grep -q 'VERSION = 12' /etc/SuSE-release )); then
     if grep -q 'VERSION = 11' /etc/SuSE-release; then
         _DISTRO_="SLES11"
     fi
     if grep -q 'VERSION = 12' /etc/SuSE-release; then
         _DISTRO_="SLES12"
-    elif grep -q 'VERSION="15' /etc/SuSE-release; then
-		_DISTRO_="SLES15"
     fi
 elif [ -f /etc/os-release ] && grep -q 'SLES' /etc/os-release; then
-	if grep -q 'VERSION="12' /etc/os-release; then
-		_DISTRO_="SLES12"
-	elif grep -q 'VERSION="15' /etc/os-release; then
-		_DISTRO_="SLES15"
+    if grep -q 'VERSION="12' /etc/os-release; then
+        _DISTRO_="SLES12"
+    elif grep -q 'VERSION="15' /etc/os-release; then
+        _DISTRO_="SLES15"
     fi
 elif [ -f /etc/lsb-release ]; then
     if grep -q 'Ubuntu 14.*' /etc/lsb-release ; then
@@ -240,7 +241,7 @@ configure_nics_to_dhcp()
         UBUNTU14|UBUNTU16|DEBIAN*|KALI*)
             set_dhcp_ip_for_ubuntu
         ;;
-        UBUNTU18|UBUNTU20)
+        UBUNTU18|UBUNTU20|UBUNTU21|UBUNTU22)
             echo "No operation for $_DISTRO_"
         ;;
         *)
@@ -292,7 +293,7 @@ remove_startup_script()
         RHEL6|CENTOS6|OL6|SLES11|UBUNTU14|DEBIAN7)
             remove_chkconfig_startup_script
             ;;
-        RHEL7|CENTOS7|OL7|SLES12|DEBIAN8|UBUNTU16|KALI*)
+        RHEL7|CENTOS7|OL7|SLES12|DEBIAN8|UBUNTU16|KALI*|RHEL8|RHEL9|OL8|OL9|CENTOS8|CENTOS9|DEBIAN9|DEBIAN10|DEBIAN11)
             remove_systemd_startup_script
             ;;
         *)

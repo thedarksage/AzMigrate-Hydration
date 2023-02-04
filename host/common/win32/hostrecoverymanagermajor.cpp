@@ -178,38 +178,23 @@ void HostRecoveryManager::ResetReplicationState()
 
     DebugPrintf(SV_LOG_DEBUG, "Entering %s\n", FUNCTION_NAME);
 
-    //
-    // Call drvutil to stop filtering & delete bitmap files
-    //
-    LocalConfigurator lConfig;
-    std::string strDrvUtilCmd = lConfig.getInstallPath();
-    BOOST_ASSERT(!strDrvUtilCmd.empty());
-    boost::trim(strDrvUtilCmd);
-    if (!boost::ends_with(strDrvUtilCmd, ACE_DIRECTORY_SEPARATOR_STR_A))
-        strDrvUtilCmd += ACE_DIRECTORY_SEPARATOR_STR_A;
-    strDrvUtilCmd += "drvutil.exe --stopf -stopall -deletebitmap";
-
-    DebugPrintf(SV_LOG_ALWAYS, "Running the command: %s\n",
-        strDrvUtilCmd.c_str());
-
-    int exitCode = 0;
-    std::string strCmdOut, strCmdError;
-    if (!RunInmCommand(strDrvUtilCmd, strCmdOut, strCmdError, exitCode))
-    {
-        DebugPrintf(SV_LOG_ERROR, "Command execution error.\n");
-        DebugPrintf(SV_LOG_ERROR, "Exit code: %d\n", exitCode);
-        DebugPrintf(SV_LOG_ERROR, "-----stderror----\n%s\n",
-            strCmdError.c_str());
-        DebugPrintf(SV_LOG_ERROR, "-----stdout----\n%s\n",
-            strCmdOut.c_str());
-
+    InmageDriverInterface   inmageDriverInterface;
+    if (!inmageDriverInterface.StopFilteringAll()) {
         THROW_HOST_REC_EXCEPTION(
             "Replication state cleanup failed. Manual intervention is required."
-            );
+        );
     }
 
-    DebugPrintf(SV_LOG_INFO, "-----stdout----\n%s\n", strCmdOut.c_str());
+    // Set Device Ids
+    // Query with an invalid device id triggers device rescan
+    // for all uninitialized disks
+    std::string     sDeviceId("invaliddevicid");
+    inmageDriverInterface.GetDriverStats(sDeviceId);
 
+    // Print all available devices
+    inmageDriverInterface.GetDriverStats();
+
+    LocalConfigurator lConfig;
     //
     // Clear chache settings files.
     //

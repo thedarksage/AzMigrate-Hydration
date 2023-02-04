@@ -1774,7 +1774,7 @@ SVERROR getLinuxReleaseValue( std::string & linuxetcReleaseValue, LINUX_TYPE& li
 		linuxFlavourType = REDHAT_RELEASE;
 	}
 	
-	else if( getFileContent( "/etc/SuSE-release", SuSE_release_Value ) == SVS_OK ) 
+	else if( getFileContent( "/etc/SuSE-release", SuSE_release_Value ) == SVS_OK && (SuSE_release_Value.find("VERSION = 12") != std::string::npos || SuSE_release_Value.find("VERSION = 11") != std::string::npos)) 
 	{
 		linuxetcReleaseValue = SuSE_release_Value;
 		linuxFlavourType = SUSE_RELEASE;

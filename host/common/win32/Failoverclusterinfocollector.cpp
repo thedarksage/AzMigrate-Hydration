@@ -1,11 +1,16 @@
 /*
     FailoverClusterInfoCollector.cpp: define Collector for the FAILOVER_CLUSTER_INFO_COLLECTOR
 */
-
+#include "stdafx.h"
 #include "Failoverclusterinfocollector.h"
+
+#ifndef VACP_CONTEXT
 #include "volumeinfocollector.h"
+#endif
+
 #include "registry.h"
 #include <atlbase.h>
+#include <boost/algorithm/string.hpp>
 
 using namespace std;
 
@@ -165,7 +170,7 @@ SVSTATUS FailoverClusterInfo::CollectFailoverClusterProperties(bool collectClust
     {
         return SVE_ABORT;
     }
-
+#ifndef VACP_CONTEXT
     if (collectClusterDiskInformationAlso)
     {
         DebugPrintf(SV_LOG_DEBUG, "%s: Collecting cluster disk information\n", FUNCTION_NAME);
@@ -173,6 +178,7 @@ SVSTATUS FailoverClusterInfo::CollectFailoverClusterProperties(bool collectClust
         VolumeInfoCollector volumeCollector;
         volumeCollector.GetVolumeInfos(m_volumeSummaries, m_volumeDynamicInfos, true, true);
     }
+#endif
 
     DebugPrintf(SV_LOG_DEBUG, "EXITED %s\n", FUNCTION_NAME);
 
@@ -765,6 +771,34 @@ std::set<NodeEntity> FailoverClusterInfo::GetClusterNodeSet()
     DebugPrintf(SV_LOG_DEBUG, "EXITED %s\n", FUNCTION_NAME);
 
     return m_ClusterNodes;
+}
+
+void FailoverClusterInfo::GetClusterUpNodesMap(std::map<std::string, NodeEntity>& clusterNodesMap)
+{
+    DebugPrintf(SV_LOG_DEBUG, "ENTERED %s\n", FUNCTION_NAME);
+    std::set<NodeEntity>::const_iterator itr = m_ClusterNodes.begin();
+    std::string downNodes;
+    std::string nodeName;
+    bool isNodeUp = false;
+    for (/**/;
+        itr != m_ClusterNodes.end();
+        itr++)
+    {
+        isNodeUp = (*itr).nodeState == FailoverCluster::ClusterNodeUp;
+        nodeName = (*itr).nodeName;
+        if (!isNodeUp)
+        {
+            if (!downNodes.empty())
+                downNodes += ",";
+            downNodes += nodeName;
+            continue;
+        }
+            
+        boost::to_upper(nodeName);
+        clusterNodesMap.insert(std::pair<std::string, NodeEntity>(nodeName, (*itr)));
+    }
+
+    DebugPrintf(SV_LOG_DEBUG, "EXITED %s, Nodes detected down=%s\n", FUNCTION_NAME, downNodes.c_str());
 }
 
 void FailoverClusterInfo::dumpInfo()

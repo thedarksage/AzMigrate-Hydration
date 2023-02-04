@@ -34,6 +34,12 @@ public:
         byteswappedBiosId = biosid.substr(6, 2) + biosid.substr(4, 2) + biosid.substr(2, 2) + biosid.substr(0, 2) + "-" + biosid.substr(11, 2) + biosid.substr(9, 2) + "-" + biosid.substr(16, 2) + biosid.substr(14, 2) + "-" + biosid.substr(19, 17);
         return byteswappedBiosId;
     }
+
+    static bool MatchBiosID(std::string const & biosid1, std::string const & biosid2)
+    {
+        return (boost::iequals(biosid1, biosid2) ||
+            boost::iequals(GetByteswappedBiosID(biosid1), biosid2));
+    }
 };
 
 #endif //BIOS_ID_OPERATIONS_H

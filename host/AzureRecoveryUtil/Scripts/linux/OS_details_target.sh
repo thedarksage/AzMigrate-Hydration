@@ -32,6 +32,8 @@ elif [ -f $mntpath/etc/oracle-release ] && [ -f $mntpath/etc/redhat-release ] ; 
 		OS="OL7-64"
 	elif grep -q 'Oracle Linux Server release 8.*' $mntpath/etc/oracle-release ; then
 		OS="OL8-64"
+    elif grep -q 'Oracle Linux Server release 9.*' $mntpath/etc/oracle-release ; then
+        OS="OL9-64"
 	fi
 	os_release_file=$mntpath/etc/oracle-release
 elif [ -f $mntpath/etc/redhat-release ]; then
@@ -50,12 +52,17 @@ elif [ -f $mntpath/etc/redhat-release ]; then
 			OS="CENTOS7-64"
 	elif grep -q 'Red Hat Enterprise Linux release 8.*' $mntpath/etc/redhat-release; then
 			OS="RHEL8-64"
+	elif grep -q 'Red Hat Enterprise Linux release 9.*' $mntpath/etc/redhat-release; then
+            OS="RHEL9-64"
 	elif grep -q 'CentOS Linux release 8.*' $mntpath/etc/redhat-release ||
-		 grep -q 'CentOS Stream release 8.*' $mntpath/etc/redhat-release; then
-			OS="CENTOS8-64"
+         grep -q 'CentOS Stream release 8.*' $mntpath/etc/redhat-release; then
+           OS="CENTOS8-64"
+	elif grep -q 'CentOS Linux release 9.*' $mntpath/etc/redhat-release ||
+         grep -q 'CentOS Stream release 9.*' $mntpath/etc/redhat-release; then
+           OS="CENTOS9-64"
 	fi
 	os_release_file=$mntpath/etc/redhat-release
-elif [ -f $mntpath/etc/SuSE-release ]; then
+elif ( [ -f $mntpath/etc/SuSE-release ] && ( grep -q 'VERSION = 11' $mntpath/etc/SuSE-release || grep -q 'VERSION = 12' $mntpath/etc/SuSE-release ) ) ; then
 	if grep -q 'VERSION = 11' $mntpath/etc/SuSE-release && grep -q 'PATCHLEVEL = 3' $mntpath/etc/SuSE-release; then
 		OS="SLES11-SP3-64"
 	elif grep -q 'VERSION = 11' $mntpath/etc/SuSE-release && grep -q 'PATCHLEVEL = 4' $mntpath/etc/SuSE-release; then
@@ -63,8 +70,6 @@ elif [ -f $mntpath/etc/SuSE-release ]; then
 	fi
 	if grep -q 'VERSION = 12' $mntpath/etc/SuSE-release; then
 		OS="SLES12-64"
-	elif grep -q 'VERSION="15' $mntpath/etc/SuSE-release; then
-		OS="SLES15-64"
 	fi
 	os_release_file=$mntpath/etc/SuSE-release
 elif [ -f $mntpath/etc/os-release ] && grep -q 'SLES' $mntpath/etc/os-release; then
@@ -73,6 +78,7 @@ elif [ -f $mntpath/etc/os-release ] && grep -q 'SLES' $mntpath/etc/os-release; t
 	elif grep -q 'VERSION="15' $mntpath/etc/os-release; then
 		OS="SLES15-64"
 	fi
+	os_release_file=$mntpath/etc/os-release
 elif [ -f $mntpath/etc/lsb-release ]; then
 	if grep -q 'Ubuntu 12.*' $mntpath/etc/lsb-release ; then
 		OS="UBUNTU12-64"

@@ -26,6 +26,7 @@ struct HTTP_CONNECTION_SETTINGS
 struct AZURE_BLOB_CONTAINER_SETTINGS
 {
     std::string sasUri;
+    std::string LogStorageBlobType;
 };
 
 struct PROCESS_SERVER_SETTINGS

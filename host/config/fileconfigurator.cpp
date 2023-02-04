@@ -3,6 +3,9 @@
 //
 #include <utility>
 #include <boost/algorithm/string.hpp>
+#include <boost/interprocess/sync/file_lock.hpp>
+#include <boost/interprocess/sync/scoped_lock.hpp>
+#include <boost/interprocess/sync/sharable_lock.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
@@ -69,6 +72,7 @@ static const char KEY_HYPERVISOR_NAME[] = "HyperVisorName";
 
 static const char KEY_FAILOVER_VM_DETECTION_ID[] = "FailoverVmDetectionId";
 static const char KEY_IS_AZURE_VM[] = "IsAzureVm";
+static const char KEY_IS_AZURE_STACK_HUB_VM[] = "IsAzureStackHubVm";
 static const char KEY_SOURCE_CONTROL_PLANE[] = "SourceControlPlane";
 static const char KEY_FAILOVER_VM_BIOS_ID[] = "FailoverVmBiosId";
 static const char KEY_FAILOVER_TARGET_TYPE[] = "FailoverTargetType";
@@ -116,6 +120,7 @@ static const std::string RCM_SETTINGS_FILE_SUFFIX = "/config/RCMInfo.conf";
 #endif
 static const char KEY_PROXY_SETTINGS_PATH[] = "ProxySettingsPath";
 static const char KEY_VM_PLATFORM[] = "VmPlatform";
+static const char KEY_PHYSICAL_SUPPORTED_HYPERVISORS[] = "PhysicalSupportedHypervisors";
 
 static const char KEY_MAX_DIFF_SIZE[] = "MaxDiffSize";
 static const char KEY_FASTSYNC_READ_BUFFER_SIZE[] = "FastSyncReadBufferSize";
@@ -373,6 +378,9 @@ static const char KEY_IS_CREDENTIAL_LESS_DISCOVERY[] = "IsCredentialLessDiscover
 static const char KEY_SWITCH_APPLIANCE_STATE[] = "SwitchApplianceState";
 static const char KEY_VACP_STATE[] = "VacpState";
 static const char KEY_MIGRATION_STATE[] = "MigrationState";
+static const char KEY_MIGRATION_MIN_MARS_VERSION[] = "MigrationMinMARSVersion";
+static const char DEFAULT_MIGRATION_MIN_MARS_VERSION[] = "2.0.9249.0";
+
 
 static const char KEY_MAXDIFF_FS_RAW_SIZE[] = "MaxDifferenceBetweenFSandRawSize";
 
@@ -563,7 +571,6 @@ static std::string const CachedVolumesFile("volumes.dat");
 static std::string const ConsistencySettingsCacheFile("ConsistencySettings.json");
 
 // V2A RCM related config file names
-static std::string const SourceConfigFile("SourceConfig.json");
 static std::string const ResyncBatchCacheFile("ResyncBatch.json");
 
 static const char KEY_MANUAL_RESYNC_START_THRESHOLD_IN_SECS[] = "ManualResyncStartThresholdInSecs";
@@ -616,6 +623,13 @@ static const char KEY_AZURE_BLOBS_OPERATION_MINIMUM_TIMEOUT[] = "AzureBlobOpsMin
 static const uint64_t DEFAULT_AZURE_BLOBS_OPERATION_MINIMUM_TIMEOUT = 3;
 static const char KEY_AZURE_BLOBS_OPERATION_TIMEOUT_RESET_INTERVAL[] = "AzureBlobOpsTimeoutResetIntervalHours";
 static const unsigned int DEFAULT_AZURE_BLOBS_OPERATION_TIMEOUT_RESET_INTERVAL = 4;
+
+static const char KEY_AZURE_BLOCK_BLOB_PARALLEL_UPLOAD_CHUNK_SIZE[] = "AzureBlockBlobParallelUploadChunkSize";
+static const uint64_t DEFAULT_AZURE_BLOCK_BLOB_PARALLEL_UPLOAD_CHUNK_SIZE = 2 * 1024 * 1024; /// 2 MB
+static const char KEY_AZURE_BLOCK_BLOB_MAX_WRITE_SIZE[] = "AzureBlockBlobMaxWriteSize";
+static const uint64_t DEFAULT_AZURE_BLOCK_BLOB_MAX_WRITE_SIZE = 4 * 1024 * 1024; /// 4 MB
+static const char KEY_AZURE_BLOCK_BLOB_MAX_PARALLEL_UPLOAD_THREADS[] = "AzureBlockBlobMaxParallelUploadThreads";
+static const SV_UINT DEFAULT_AZURE_BLOCK_BLOB_MAX_PARALLEL_UPLOAD_THREADS = 0;
 
 static const SV_ULONG DEFAULT_EVENT_TIMERANGE_RECORDS_PER_BATCH = 512;
 
@@ -889,6 +903,8 @@ static const int DEFAULT_LOG_CONTAINER_RENEWAL_RETRY_IN_SECS = 600;
 static const char KEY_HEALTHCOLLATOR_PATH[] = "HealthCollatorPath";
 
 static const char KEY_ADDITIONAL_INSTALL_PATHS[] = "AdditionalInstallPaths";
+
+static const char KEY_CLUSTER_ID[] = "ClusterId";
 
 FileConfiguratorMode FileConfigurator::s_initmode = FILE_CONFIGURATOR_MODE_VX_AGENT;
 
@@ -1595,6 +1611,10 @@ std::string FileConfigurator::getVmPlatform() const {
     return get(SECTION_VXAGENT, KEY_VM_PLATFORM, std::string());
 }
 
+std::string FileConfigurator::getPhysicalSupportedHypervisors() const {
+    return get(SECTION_VXAGENT, KEY_PHYSICAL_SUPPORTED_HYPERVISORS, XENNAME);
+}
+
 bool FileConfigurator::IsAzureToAzureReplication() const {
     std::string vmPlatform = get(SECTION_VXAGENT, KEY_VM_PLATFORM, std::string());
     return boost::iequals(vmPlatform, "Azure");
@@ -1652,7 +1672,15 @@ std::string FileConfigurator::getLogDir() const
 }
 
 SV_LOG_LEVEL FileConfigurator::getLogLevel() const {
-    return static_cast<SV_LOG_LEVEL>(boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_LOG_LEVEL, DEFAULT_LOG_LEVEL)));
+
+    if (s_initmode == FILE_CONFIGURATOR_MODE_CS_PRIME_APPLIANCE_EVTCOLLFORW)
+    {
+        return static_cast<SV_LOG_LEVEL>(boost::lexical_cast<int>(getEvtCollForwParam(KEY_LOG_LEVEL)));
+    }
+    else
+    {
+        return static_cast<SV_LOG_LEVEL>(boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_LOG_LEVEL, DEFAULT_LOG_LEVEL)));
+    }
 }
 
 SV_UINT FileConfigurator::getLogMaxCompletedFiles() const {
@@ -2339,24 +2367,23 @@ std::string FileConfigurator::getResyncBatchCachePath() const
     return resyncBatchCachePath;
 }
 
-std::string FileConfigurator::GetSourceAgentConfigPath() const
+bool FileConfigurator::GetConfigDir(std::string &configDir) const
 {
     DebugPrintf(SV_LOG_DEBUG, "ENTERED %s\n", FUNCTION_NAME);
+    bool ret;
 
-    std::string sourceAgentConfigPath;
-
-    if (getConfigDirname(sourceAgentConfigPath))
+    ret = getConfigDirname(configDir);
+    if (ret)
     {
-        BOOST_ASSERT(!sourceAgentConfigPath.empty());
-        boost::trim(sourceAgentConfigPath);
-        if (!boost::ends_with(sourceAgentConfigPath, ACE_DIRECTORY_SEPARATOR_STR_A))
-            sourceAgentConfigPath += ACE_DIRECTORY_SEPARATOR_STR_A;
+        BOOST_ASSERT(!configDir.empty());
+        boost::trim(configDir);
+        if (!boost::ends_with(configDir, ACE_DIRECTORY_SEPARATOR_STR_A))
+            configDir += ACE_DIRECTORY_SEPARATOR_STR_A;
 
-        sourceAgentConfigPath += SourceConfigFile;
     }
 
     DebugPrintf(SV_LOG_DEBUG, "EXITED %s\n", FUNCTION_NAME);
-    return sourceAgentConfigPath;
+    return ret;
 }
 
 SV_UINT FileConfigurator::getManualResyncStartThresholdInSecs() const
@@ -4439,6 +4466,16 @@ void FileConfigurator::setIsAzureVm(bool bAzureVM) const
     set(SECTION_VXAGENT, KEY_IS_AZURE_VM, boost::lexical_cast<std::string>(bAzureVM));
 }
 
+bool FileConfigurator::getIsAzureStackHubVm() const
+{
+    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_IS_AZURE_STACK_HUB_VM, 0));
+}
+
+void FileConfigurator::setIsAzureStackHubVm(bool bAzsVM) const
+{
+    set(SECTION_VXAGENT, KEY_IS_AZURE_STACK_HUB_VM, boost::lexical_cast<std::string>(bAzsVM));
+}
+
 std::string FileConfigurator::getSourceControlPlane() const
 {
     return get(SECTION_VXAGENT, KEY_SOURCE_CONTROL_PLANE, std::string());
@@ -4867,6 +4904,30 @@ SV_UINT FileConfigurator::getAzureBlobOperationTimeoutResetInterval() const
     ));
 }
 
+SV_ULONGLONG FileConfigurator::getAzureBlockBlobParallelUploadChunkSize() const
+{
+    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXTRANSPORT,
+        KEY_AZURE_BLOCK_BLOB_PARALLEL_UPLOAD_CHUNK_SIZE,
+        DEFAULT_AZURE_BLOCK_BLOB_PARALLEL_UPLOAD_CHUNK_SIZE
+    ));
+}
+
+SV_ULONGLONG FileConfigurator::getAzureBlockBlobMaxWriteSize() const
+{
+    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXTRANSPORT,
+        KEY_AZURE_BLOCK_BLOB_MAX_WRITE_SIZE,
+        DEFAULT_AZURE_BLOCK_BLOB_MAX_WRITE_SIZE
+    ));
+}
+
+SV_UINT FileConfigurator::getAzureBlockBlobMaxParallelUploadThreads() const
+{
+    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXTRANSPORT,
+        KEY_AZURE_BLOCK_BLOB_MAX_PARALLEL_UPLOAD_THREADS,
+        DEFAULT_AZURE_BLOCK_BLOB_MAX_PARALLEL_UPLOAD_THREADS
+    ));
+}
+
 SV_UINT FileConfigurator::getLogContainerRenewalRetryTimeInSecs() const
 {
     return boost::lexical_cast<int>(get(SECTION_VXAGENT,
@@ -4973,7 +5034,23 @@ Migration::State FileConfigurator::getMigrationState() const
         KEY_MIGRATION_STATE, 0));
 }
 
+std::string FileConfigurator::getMigrationMinMARSVersion() const
+{
+    return get(SECTION_VXAGENT, KEY_MIGRATION_MIN_MARS_VERSION,
+        DEFAULT_MIGRATION_MIN_MARS_VERSION);
+}
+
 std::string FileConfigurator::getAdditionalInstallPaths() const
 {
     return get(SECTION_VXAGENT, KEY_ADDITIONAL_INSTALL_PATHS, "");
+}
+
+void FileConfigurator::setClusterId(const std::string& clusterId) const
+{
+    set(SECTION_VXAGENT, KEY_CLUSTER_ID, clusterId);
+}
+
+std::string FileConfigurator::getClusterId() const 
+{
+    return get(SECTION_VXAGENT, KEY_CLUSTER_ID, std::string());
 }

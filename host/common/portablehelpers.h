@@ -103,6 +103,9 @@ const char IMDS_URL[]						= "http://169.254.169.254/metadata/instance?api-versi
 const char IMDS_HEADERS[]					= "Metadata: true";
 const char IMDS_COMPUTE_ENV[]				= "compute.azEnvironment";
 const char IMDS_AZURESTACK_NAME[]			= "AzureStack";
+const char IMDS_COMPUTE_TAGSLIST[]			= "compute.tagsList";
+const char IMDS_FAILOVER_TAG_PREFIX[]		= "ASR-Failover";
+const char IMDS_FAILOVER_TAG_SUFFIX[]		= "Failed-over by Azure Site Recovery.";
 const long HTTP_OK = 200L;
 
 /******************************************************************************/
@@ -645,6 +648,8 @@ bool IsAzureVirtualMachine();
 std::string GetImdsMetadata();
 
 bool IsAzureStackVirtualMachine();
+
+bool HasAzureStackHubFailoverTag(QuitFunction_t qf);
 
 bool IsAgentRunningOnAzureVm();
 

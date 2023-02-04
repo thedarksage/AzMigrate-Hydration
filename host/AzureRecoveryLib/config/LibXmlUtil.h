@@ -44,6 +44,22 @@ namespace AzureRecovery
 
 		static std::string xGetParamGrp_Id(xmlNodePtr node);
 	};
+
+	struct XmlDoccument
+	{
+	private:
+		xmlDocPtr	m_doc;
+		xmlNodePtr	m_root_node;
+
+	public:
+		explicit XmlDoccument(const std::string &root_node_name);
+
+		void xAddChild(const std::string &child_node_name, const std::string &child_node_val);
+
+		void xGetXmlDoc(xmlChar* &docstr, int &len) const;
+
+		~XmlDoccument();
+	};
 }
 
 #endif//~AZURE_RECOVERY_HOST_INFO_XML_UTIL_H

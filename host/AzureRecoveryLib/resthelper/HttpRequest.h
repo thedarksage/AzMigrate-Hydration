@@ -27,7 +27,7 @@ namespace AzureStorageRest
 		headers_t m_request_headers;
 		http_request_stream m_request_stream;
 		HTTP_METHOD m_req_method;
-        uint32_t    m_timeout;
+		uint32_t    m_timeout;
 
 		header_const_iter_t HeaderBegin() const;
 
@@ -38,9 +38,9 @@ namespace AzureStorageRest
 		
 		void AddHeader(const std::string& name, const std::string& value);
 
-		void SetRequestBody(pbyte_t _buffer, unsigned long _buff_lenght);
+		void SetRequestBody(const pbyte_t _buffer, const unsigned long _buff_length);
 
-		void SetHttpMethod(HTTP_METHOD method = HTTP_GET);
+		void SetHttpMethod(const HTTP_METHOD method = HTTP_GET);
 
 		std::string GetHttpMethodStr() const;
 

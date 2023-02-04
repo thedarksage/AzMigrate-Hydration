@@ -48,6 +48,9 @@ public:
     typedef std::pair<std::string, std::string> remapPrefixFromTo_t;
     typedef std::set<std::string> dirs_t;
 
+    typedef std::multimap<std::string, std::string> biosIdHostIdMap_t; ///< holds biosid to hostid map from PS Settings.
+    typedef std::map<std::string, std::string> hostIdDirMap_t; ///< holds hostid to logfolder/telemetryfolder map from PS Settings.
+
     /// \brief constructor
     ServerOptions(std::string const& fileName,     ///< name of configuration file to use
                   std::string const& installDir    ///< cxps install dir (OK if empty)
@@ -360,6 +363,15 @@ public:
     /// \brief check if the client auth is based on CA cert
     bool useCertBasedClientAuth() const;
 
+    /// \brief get biosid to hostid map from pssettings
+    void getAllowedDirsMapFromPSSettings(bool& isAccessControlEnabled,
+                                            biosIdHostIdMap_t& biosIdHostIdMap,
+                                            hostIdDirMap_t& hostIdLogRootFolderMap,
+                                            hostIdDirMap_t& hostIdTelemetryFolderMap);
+
+    /// \brief get the agent repository path
+    std::string getAgentRepositoryPath() const;
+
 protected:
 
     /// \brief build the list of allowed dirs
@@ -434,6 +446,8 @@ private:
     PSSettings::PSSettingsConfigurator::SubscriptionNum_t m_tunablesNotifSubscriptionNum;
 
     PSSettings::StringMapPtr m_tunablesPtr;
+
+    std::string m_agentRepositoryPath;
 
     void updateTunables(PSSettings::StringMapPtr latestTunables);
 

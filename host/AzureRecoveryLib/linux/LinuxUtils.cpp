@@ -780,13 +780,16 @@ DWORD ActivateVG(const std::string& vgName)
         if(0 != dwRet)
         {
             TRACE_INFO("\n%s\n",cmdOutStream.str().c_str());
-            
+
+            // vgchange -ay has previously succeeded. Volume group mount should work without vgmknodes.
+            // Trace error and do not fail.
             TRACE_ERROR("Could not activate VG : %s. Command failed with error: %d.\n",
                         CmdLineTools::VGMkNodes,
                         dwRet);
-            
-            break;
+
+            dwRet = 0;
         }
+
         cmdOutStream.clear();
         
     } while(false);

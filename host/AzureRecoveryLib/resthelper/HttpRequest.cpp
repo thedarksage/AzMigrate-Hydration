@@ -25,13 +25,12 @@ Parameters  :
 Return Code :
 
 */
-HttpRequest::HttpRequest(const std::string& strUrl)
-:m_req_method(HTTP_GET)
+HttpRequest::HttpRequest(const std::string& strUrl) :
+	m_res_absolute_url(strUrl),
+	m_req_method(HTTP_GET),
+	m_timeout(300)
 {
 	BOOST_ASSERT(!strUrl.empty());
-
-	m_res_absolute_url = strUrl;
-    m_timeout = 300;
 }
 
 HttpRequest::~HttpRequest()
@@ -95,13 +94,13 @@ Parameters  :
 
 Return Code : None
 */
-void HttpRequest::SetRequestBody(pbyte_t _buffer, unsigned long _buff_lenght)
+void HttpRequest::SetRequestBody(const pbyte_t _buffer, const unsigned long _buff_length)
 {
 	m_request_stream.buffer = _buffer;
-	m_request_stream.cb_buff_length = _buff_lenght;
+	m_request_stream.cb_buff_length = _buff_length;
 }
 
-void HttpRequest::SetHttpMethod(HTTP_METHOD method)
+void HttpRequest::SetHttpMethod(const HTTP_METHOD method)
 {
 	//Curl workaround: Disable "Expect: 100-continue" header in HTTP PUT request
 	if (HTTP_PUT == method)

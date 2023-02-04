@@ -9,7 +9,17 @@
 #include <map>
 #include "svtypes.h"
 #include <boost/thread/mutex.hpp>
+
+#ifndef FUNCTION_NAME
+#define FUNCTION_NAME __FUNCTION__
+#endif
+
+#ifdef VACP_CONTEXT
+#include <ace/OS.h>
+#include <set>
+#else 
 #include "volumegroupsettings.h"
+#endif
 
 #include <ClusApi.h>
 #pragma comment( lib, "ClusAPI.lib" )
@@ -110,9 +120,11 @@ private:
     /// \brief represents the list of the resources in the failover cluster
     std::set<ResourceEntity> m_ClusterResources;
 
+#ifndef VACP_CONTEXT
     VolumeSummaries_t m_volumeSummaries;
 
     VolumeDynamicInfos_t m_volumeDynamicInfos;
+#endif
 
     SVSTATUS GetFailoverClusterName();
 
@@ -148,6 +160,8 @@ public:
     SVSTATUS CollectFailoverClusterProperties();
 
     std::set<NodeEntity> GetClusterNodeSet();
+
+    void FailoverClusterInfo::GetClusterUpNodesMap(std::map<std::string, NodeEntity>& clusterNodesMap);
 
     void dumpInfo();
 
