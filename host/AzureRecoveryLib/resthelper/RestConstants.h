@@ -47,6 +47,11 @@ namespace AzureStorageRest
         const char QueryValueList[]     = "list";
         const char QueryValuePage[]     = "page";
         const char QueryValuePageList[] = "pagelist";
+        const char QueryValueBlock[]    = "block";
+        const char QueryValueBlockList[] = "blocklist";
+        const char QueryValueBlockListType[] = "blocklisttype";
+        const char QueryValueBlockListTypeCommitted[] = "committed";
+        const char QueryValueBlockID[]  = "blockid";
         const char QueryParamAPIVersion[] = "api-version";
         const char QueryParamPrefix[]   = "prefix";
         const char QueryParamInclude[]  = "include";

@@ -253,6 +253,12 @@ function UpdateVMRepositories()
             BackupFile $sources_list_file
             copy_file "/usr/local/AzureRecovery/public-yum-ol8.repo" "$sources_list_file"
         ;;
+         OL9*)
+            sources_list_file="$mntpath/etc/yum.repos.d/public-yum-ol9.repo"
+            BackupFile $sources_list_file
+            copy_file "/usr/local/AzureRecovery/public-yum-ol9.repo" "$sources_list_file"
+        ;;
+
         UBUNTU*)
             sources_list_file="$mntpath/etc/apt/sources.list"
             BackupFile "$sources_list_file"
@@ -1284,7 +1290,7 @@ config_file_name=""
 bootloader_folder_path="$mntpath/boot/efi/EFI//boot"
 
 case "$os_name" in
-    OL7*|RHEL6*|RHEL7*|RHEL8*)
+    OL7*|RHEL6*|RHEL7*|RHEL8*|RHEL9*)
         _grub2_efi_path="${_grub2_efi_path}redhat"
         ;;
     CENTOS6*|CENTOS7*)
@@ -1357,7 +1363,7 @@ case $os_name in
             exit 1
         fi
     ;;
-    RHEL8* | CENTOS8* | OL8*)
+    RHEL8* | CENTOS8* | OL8* | RHEL9* | OL9*)
         _grub_config_options="console=tty1 console=ttyS0 earlyprintk=ttyS0 rootdelay=300"
         ModifyGrub_BLS "$_grub_config_options"
         if [ $? -ne $_SUCCESS_ ]; then
@@ -1500,7 +1506,7 @@ case $os_name in
         
         ConfigureDefaultNICForUBUNTU
     ;;
-    UBUNTU18-* | UBUNTU20-*)
+    UBUNTU18-* | UBUNTU20-* | UBUNTU21-* |UBUNTU22-*)
         
         touch $mntpath/etc/vxagent/setazureip
         touch $mntpath/etc/vxagent/prepareforazure
@@ -1521,7 +1527,7 @@ case $os_name in
         
         # TODO: Use UBUNTU case block for DEBIAN as well, as the changes are same.
     ;;
-    RHEL7*|RHEL8*|CENTOS8*|OL8*)
+    RHEL7*|RHEL8*|CENTOS8*|OL8*|RHEL9*|OL9*)
         touch $mntpath/etc/vxagent/setazureip
         touch $mntpath/etc/vxagent/prepareforazure
         
@@ -1554,17 +1560,10 @@ case $os_name in
         ;;
 esac
 
-    # Last step to avoid failures. 
-    # Check if EnableLinuxGAInstalaltion is set to true;
-    enable_linux_guest_agent_config="EnableLinuxGAInstallationDR:true"
-    if [[ $hydration_config_settings =~ .*$enable_linux_guest_agent_config.* ]]; then
-        InstallLinuxGuestAgent
-        if [[ $? -ne 0 ]]; then
-            echo "Could not push linux guest agent binaries on target vm."
-        fi
-    else
-        echo "Linux guest agent installation setting is turned off for DR."
-        fi
+    InstallLinuxGuestAgent
+    if [[ $? -ne 0 ]]; then
+        echo "Could not push linux guest agent binaries on target vm."
+    fi
 
 pid=`ps -aef | grep hv_kvp_daemon | grep -v "grep" | awk '{ print $2 }'`
 if [ $pid ]; then

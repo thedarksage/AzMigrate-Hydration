@@ -127,10 +127,10 @@ get_firmware_type()
     _grub2_efi_path="$chroot_path/boot/efi/EFI/"
 
     case "$src_distro" in
-        OL7*|RHEL6*|RHEL7*|RHEL8*|OL8*)
+        OL7*|RHEL6*|RHEL7*|RHEL8*|RHEL9*|OL8*|OL9*)
             _grub2_efi_path="${_grub2_efi_path}redhat"
             ;;
-        CENTOS7*|CENTOS8*)
+        CENTOS7*|CENTOS8*|CENTOS9*)
             _grub2_efi_path="${_grub2_efi_path}centos"
             ;;
         SLES11*|SLES12*|SLES15*)
@@ -139,7 +139,7 @@ get_firmware_type()
         UBUNTU*)
             _grub2_efi_path="${_grub2_efi_path}ubuntu"
             ;;
-        DEBIAN*)
+        DEBIAN*|KALI-ROLLING*)
             _grub2_efi_path="${_grub2_efi_path}debian"
             ;;
         *)
@@ -859,7 +859,13 @@ update_vm_repositories()
             # Not documented. Replicated from VM created through platform image.
             sources_list_file="$chroot_path/etc/yum.repos.d/CentOS-Base.repo"
             backup_file $sources_list_file
-            copy_file "/usr/local/AzureRecovery/CentOS7-Base.repo" "$sources_list_file"
+            copy_file "/usr/local/AzureRecovery/CentOS8-Base.repo" "$sources_list_file"
+        ;;
+        CENTOS9*)
+        # Not documented. Replicated from VM created through platform image.
+            sources_list_file="$chroot_path/etc/yum.repos.d/CentOS-Base.repo"
+            backup_file $sources_list_file
+            copy_file "/usr/local/AzureRecovery/CentOS9-Base.repo" "$sources_list_file"
         ;;
         OL6*)
             # https://public-yum.oracle.com/public-yum-ol6.repo
@@ -880,6 +886,12 @@ update_vm_repositories()
             sources_list_file="$chroot_path/etc/yum.repos.d/public-yum-ol8.repo"
             backup_file $sources_list_file
             copy_file "/usr/local/AzureRecovery/public-yum-ol8.repo" "$sources_list_file"
+        ;;
+        OL9*)
+            # Not documented. Replicated from VM created through platform image.
+            sources_list_file="$chroot_path/etc/yum.repos.d/public-yum-ol9.repo"
+            backup_file $sources_list_file
+            copy_file "/usr/local/AzureRecovery/public-yum-ol9.repo" "$sources_list_file"
         ;;
         UBUNTU*)
             # https://docs.microsoft.com/en-us/azure/virtual-machines/linux/create-upload-ubuntu#manual-steps
@@ -1064,7 +1076,7 @@ enable_network_service()
         RHEL6*|CENTOS6*|OL6*)
             chroot $chroot_path chkconfig network on
             ;;
-        RHEL7*|CENTOS7*|RHEL8*|CENTOS8*|OL7*|OL8*)
+        RHEL7*|CENTOS7*|RHEL8*|RHEL9*|CENTOS8*|CENTOS9*|OL7*|OL8*|OL9*)
             chroot $chroot_path systemctl enable network
             ;;
         *)
@@ -1077,7 +1089,7 @@ verify_src_os_version()
 {
     find_src_distro
     
-    local supported_distros="OL6 OL7 OL8 \
+    local supported_distros="OL6 OL7 OL8 OL9 \
           RHEL6 RHEL7 RHEL8 RHEL9 \
           CENTOS6 CENTOS7 CENTOS8 CENTOS9 \
           SLES11 SLES12 SLES15 \
@@ -1213,7 +1225,7 @@ mkinitrd_generate_initrd_image()
 verify_generate_initrd_images()
 {
     case "$src_distro" in
-    UBUNTU14*|UBUNTU16*|UBUNTU18*|UBUNTU19*|UBUNTU20*|DEBIAN*)
+    UBUNTU14*|UBUNTU16*|UBUNTU18*|UBUNTU19*|UBUNTU20*|UBUNTU21*|UBUNTU22*|DEBIAN*|KALI-ROLLING*)
         # Supported Ubuntu & Debian distros will have
         # hyper-v drivers build-in to the kernel image,
         # so skipping this step for these distros.
@@ -1341,7 +1353,7 @@ set_serial_console_grub_options()
         modify_grub_config "$opts_to_add" "$opts_to_remove"
         set_sles11_inittab
         ;;
-    UBUNTU14*|UBUNTU16*|UBUNTU18*|UBUNTU19|UBUNTU20*)
+    UBUNTU14*|UBUNTU16*|UBUNTU18*|UBUNTU19|UBUNTU20*|UBUNTU21*|UBUNTU22*)
         opts_to_add="splash quiet rootdelay=300 earlyprintk=ttyS0,115200 console=ttyS0,115200n8 console=tty1"
         modify_grub2_config "$opts_to_add" "GRUB_CMDLINE_LINUX_DEFAULT" "$opts_to_remove"
         modify_grub2_config "$opts_to_add" "GRUB_CMDLINE_LINUX" "$opts_to_remove"
@@ -1349,7 +1361,7 @@ set_serial_console_grub_options()
         modify_grub2_config "--stop=1 --parity=no --word=8 --unit=0 --speed=115200 serial" "GRUB_SERIAL_COMMAND" ""
         modify_grub2_config "console serial" "GRUB_TERMINAL" ""
         ;;
-    DEBIAN*)
+    DEBIAN*|KALI-ROLLING*)
         opts_to_add="splash quiet rootdelay=300 earlyprintk=ttyS0,115200 console=ttyS0,115200n8 console=tty1"
         modify_grub2_config "$opts_to_add" "GRUB_CMDLINE_LINUX_DEFAULT" "$opts_to_remove"
         modify_grub2_config "$opts_to_add" "GRUB_CMDLINE_LINUX" "$opts_to_remove"
@@ -1363,7 +1375,7 @@ set_serial_console_grub_options()
         modify_grub2_config "console serial" "GRUB_TERMINAL_OUTPUT" ""
         modify_grub2_config "console serial" "GRUB_TERMINAL" ""
         ;;
-    RHEL7*|CENTOS7*|OL7*|OL8*|RHEL8*|CENTOS8*)
+    RHEL7*|CENTOS7*|OL7*|OL8*|OL9*|RHEL8*|RHEL9*|CENTOS8*|CENTOS9*)
         #Following options are taken from official Azure document for RHEL7.
         #https://docs.microsoft.com/en-us/azure/virtual-machines/troubleshooting/serial-console-grub-single-user-mode#grub-access-in-rhel
         #and 
@@ -1583,7 +1595,7 @@ add_startup_script_for_dhcp()
         RHEL6*|CENTOS6*|OL6*|SLES11*|UBUNTU14*|DEBIAN7*)
             enable_chkconfig_on_startupscript
             ;;
-        SLES12*|SLES15*|DEBIAN8*|DEBIAN9*|UBUNTU16*|RHEL7*|CENTOS7*|OL7*|OL8*|RHEL8*|CENTOS8*|UBUNTU18*|UBUNTU19*|UBUNTU20*)
+        SLES12*|SLES15*|DEBIAN8*|DEBIAN9*|DEBIAN10*|DEBIAN11*|KALI-ROLLING*|RHEL7*|RHEL8*|RHEL9*|CENTOS7*|CENTOS8*|CENTOS9*|OL7*|OL8*|OL9*|UBUNTU16*|UBUNTU18*|UBUNTU19*|UBUNTU20*|UBUNTU21*|UBUNTU22*)
             enable_systemd_on_startupscipt
             ;;
         *)
@@ -1851,22 +1863,22 @@ fix_network_config()
         configure_dhcp_sles
         add_startup_script_for_dhcp
     ;;
-    UBUNTU14*|DEBIAN*|UBUNTU16*)
+    UBUNTU14*|DEBIAN*|UBUNTU16*|KALI-ROLLING*)
         remove_persistent_net_rules
         configure_dhcp_ubuntu
         add_startup_script_for_dhcp
     ;;
-    UBUNTU18*|UBUNTU19*|UBUNTU20*)
+    UBUNTU18*|UBUNTU19*|UBUNTU20*|UBUNTU21*|UBUNTU22*)
         remove_persistent_net_rules
         create_dhcp_netplan_config_and_apply
     ;;
-    RHEL7*|RHEL8*)
+    RHEL7*|RHEL8*|RHEL9*)
         update_network_file
         enable_network_service
         configure_dhcp_rhel
         add_startup_script_for_dhcp
     ;;
-    CENTOS7*|OL7*|OL8*|CENTOS8*)
+    CENTOS7*|OL7*|OL8*|OL9*|CENTOS8*|CENTOS9*)
         reset_persistent_net_gen_rules
         update_network_file
         configure_dhcp_rhel
@@ -1914,7 +1926,7 @@ update_root_device_uuid_in_boot_cmd()
             fi
             _boot_cmd_starts_with_="kernel"
         ;;
-        UBUNTU*|DEBIAN*)
+        UBUNTU*|DEBIAN*|KALI-ROLLING*)
             _grub_file_="${chroot_path}/boot/grub/grub.cfg"
             if [ "$firmware_type" = "UEFI" ]; then
                 _grub_file_="$_grub2_efi_path/grub.cfg"
@@ -2024,6 +2036,7 @@ main()
 
     add_am_hydration_log "---Hydration Log End---" ""
 
+    # Add entire summarized log in HydrationLog
     cat "${chroot_path}${_AM_HYDRATION_LOG_}$am_telem_suffix"
 
     if [[ $final_error_code -ne 0 ]]; then

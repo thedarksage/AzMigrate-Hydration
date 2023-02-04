@@ -311,7 +311,7 @@ int UpdateStatusToBlob(const RecoveryUpdate& update)
         progress << update.Progress;
 
         metadata[BlobStatusMetadataName::ExecutionStatus] = update.Status;
-        metadata[BlobStatusMetadataName::RunningTask] = update.TaskDescriptoin;
+        metadata[BlobStatusMetadataName::RunningTask] = update.TaskDescription;
         metadata[BlobStatusMetadataName::ErrorCode] = errorCode.str();
         metadata[BlobStatusMetadataName::ErrorMessage] = update.ErrorMsg;
         metadata[BlobStatusMetadataName::ExecutionProgress] = progress.str();
@@ -336,10 +336,57 @@ int UpdateStatusToBlob(const RecoveryUpdate& update)
 }
 
 /*
+Method      : UpdateStatusToTestFile
+
+Description : Updates the execution status to a file locally which can be retrieved by powershell/shell.
+
+Parameters  : [in] update: RecoveryUpdate structure which will have status information.
+
+Return Code : 0                        -> On success,
+              E_RECOVERY_INTERNAL      -> On unexpected error while updating the file.
+*/
+int UpdateStatusToTestFile(const RecoveryUpdate& update)
+{
+    int retCode = 0;
+    TRACE_FUNC_BEGIN;
+
+    try
+    {
+        std::stringstream statusUpdateFilePath;
+        statusUpdateFilePath << g_workingDir
+            << ACE_DIRECTORY_SEPARATOR_STR_A
+            << "HydrationStatusUpdate.log";
+
+        std::stringstream progress, errorCode;
+        errorCode << update.ErrorCode;
+
+        boost::filesystem::ofstream ofs(statusUpdateFilePath.str());
+        ofs << "ErrorCode::";
+        ofs << errorCode.str();
+        ofs << "\nErrorMessage::";
+        ofs << update.ErrorMsg;
+        ofs << "\nCustomErrorData::";
+        ofs << update.CustomErrorData;
+        ofs << "\nTelemetryData::";
+        ofs << update.TelemetryData;
+        ofs.close();
+    }
+    catch (...)
+    {
+        TRACE_ERROR("Could not perform status update on the local file.\n");
+        retCode = E_RECOVERY_INTERNAL;
+    }
+
+    TRACE_FUNC_END;
+    return retCode;
+}
+
+/*
 Method      : UploadExecutionLog
 
 Description : Uploads the logFile content to the execution status blob using its SAS Uri.
               SAS uri should have write permision set.
+              For Test scenario we won't call this function, rather print the Hydration Log file directly to the console
 
 Parameters  : [in] logFile: File path whose content will be upload to status blob.
 

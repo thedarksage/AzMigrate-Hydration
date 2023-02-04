@@ -1,0 +1,55 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- none
+
+resources:
+  pipelines:
+  - pipeline: Test_Linux_Redhat7u7_EFI
+    source: Build_AzureRecoveryTools_AzMigrate_Hydration
+    trigger: true
+
+pool:
+  vmImage: windows-latest
+
+steps:
+- checkout: self
+  clean: true
+  persistCredentials: true
+
+- task: PowerShell@2
+  inputs:
+    targetType: 'inline'
+    script: |
+      Invoke-WebRequest -Uri "https://github.com/thedarksage/AzMigrate-Hydration/releases/download/v1.0.5/HydrationTestTools.zip" -Out "$(Build.StagingDirectory)/HydrationTestTools.zip"
+      exit 0
+  displayName: Download HydrationTestTools
+
+- task: unzip@0
+  inputs:
+    pathToZipFile: '$(Build.StagingDirectory)/HydrationTestTools.zip'
+    pathToZipFolder: '$(Build.StagingDirectory)/HydrationTestTools/'
+  displayName: Unzip HydrationTestTools
+
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: 'AADProt2-Hydration-GQLValidations'
+    scriptType: 'ps'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      az account set --subscription $(SubscriptionId)
+            
+      az disk create --resource-group $(GithubGQL-TargetRGName) --name $(GithubGQL-TargetMDName)-$(RandomSuffix) --source /subscriptions/$(SubscriptionId)/resourceGroups/$(GithubGQL-SourceRGName)/providers/Microsoft.Compute/disks/$(GithubGQL-SourceMDName)
+  displayName: Copy ASRSeed Disk to GithubGQL RG for Hydration
+
+- task: AzurePowerShell@5
+  inputs:
+    azureSubscription: 'AADProt2-Hydration-GQLValidations'
+    ScriptType: 'FilePath'
+    ScriptPath: '$(Build.StagingDirectory)/HydrationTestTools/PerformHydration.ps1'
+    ScriptArguments: '-ResourceGroupName $(GithubGQL-TargetRGName) -Location $(Location) -SubscriptionId $(SubscriptionId) -OSType $(OSType) -OSDiskName $(GithubGQL-TargetMDName)-$(RandomSuffix) -TargetVM_VirtualNetworkName $(TargetVM_VirtualNetworkName) -TargetVM_VirtualMachineName $(TargetVM_VirtualMachineName) -TargetVM_VirtualMachineSize $(TargetVM_VirtualMachineSize) -GithubBranch $(Build.SourceBranchName)'
+    azurePowerShellVersion: 'LatestVersion'
+  displayName: Perform Hydration on the Disk

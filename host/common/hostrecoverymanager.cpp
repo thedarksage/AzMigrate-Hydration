@@ -155,7 +155,7 @@ bool HostRecoveryManager::IsVMInfoMatching(const std::string& hypervisor,
     return bRecInfoMatching;
 }
 
-bool HostRecoveryManager::IsRecoveryInProgress(bool & bIsHydrationWorkflow, bool& bIsClone)
+bool HostRecoveryManager::IsRecoveryInProgress(bool & bIsHydrationWorkflow, bool& bIsClone, QuitFunction_t qf)
 {
     bool bHypervisorChanged = false,
         bSystemUuidChanged = false,
@@ -169,7 +169,8 @@ bool HostRecoveryManager::IsRecoveryInProgress(bool & bIsHydrationWorkflow, bool
         bHypervisorChanged,
         bIsAzureVm,
         bVmTypeChanged,
-        bIsFailoverDetected);
+        bIsFailoverDetected,
+        qf);
 
     if (bIsHydrationWorkflow)
         return bIsHydrationWorkflow;
@@ -189,7 +190,7 @@ bool HostRecoveryManager::IsRecoveryInProgress(bool & bIsHydrationWorkflow, bool
     return (bIsRecoveryInProgress || bIsClone);
 }
 
-bool HostRecoveryManager::IsRecoveryInProgressEx(bool & bIsHydrationWorkflow, bool& bIsClone)
+bool HostRecoveryManager::IsRecoveryInProgressEx(bool & bIsHydrationWorkflow, bool& bIsClone, QuitFunction_t qf)
 {
     bool bHypervisorChanged = false,
         bSystemUuidChanged = false,
@@ -204,7 +205,8 @@ bool HostRecoveryManager::IsRecoveryInProgressEx(bool & bIsHydrationWorkflow, bo
         bHypervisorChanged,
         bIsAzureVm,
         bVmTypeChanged,
-        bIsFailoverDetected);
+        bIsFailoverDetected,
+        qf);
 
     if (bIsHydrationWorkflow)
         return bIsHydrationWorkflow;
@@ -227,7 +229,8 @@ void HostRecoveryManager::GetRecoveryInfo(bool & bIsHydrationWorkflow,
     bool& bHypervisorChanged,
     bool& bIsAzureVm,
     bool& bVmTypeChanged,
-	bool& bIsFailoverDetected)
+    bool& bIsFailoverDetected,
+    QuitFunction_t qf)
 {
     DebugPrintf(SV_LOG_DEBUG, "Entering %s\n", FUNCTION_NAME);
 
@@ -355,7 +358,8 @@ void HostRecoveryManager::GetRecoveryInfo(bool & bIsHydrationWorkflow,
 
     if ( bVmTypeChanged || (bHypervisorChanged || 
         (!failoverVmBiosId.empty() && (boost::iequals(failoverVmBiosId, systemUUID) ||
-        boost::iequals(failoverVmBiosId, BiosID::GetByteswappedBiosID(systemUUID)))))) {
+        boost::iequals(failoverVmBiosId, BiosID::GetByteswappedBiosID(systemUUID)))) ||
+        (IsAzureStackVirtualMachine() && HasAzureStackHubFailoverTag(qf)))) {
         bIsFailoverDetected = true;
         DebugPrintf(SV_LOG_ALWAYS, "Failover Detected Persisted UUID: %s CurrentUUID: %s\n", persistedSystemUUID.c_str(), systemUUID.c_str());
     }
@@ -556,7 +560,7 @@ void HostRecoveryManager::DisableEnablePlatformTools()
 
 #ifdef SV_WINDOWS
     // Enable Azure services if needed
-    DisableEnableAzureServices(IsAgentRunningOnAzureVm());
+    DisableEnableAzureServices(IsAgentRunningOnAzureVm() || IsAzureStackVirtualMachine());
 #endif
 
     //

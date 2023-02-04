@@ -124,8 +124,9 @@ namespace Migration {
         MIGRATION_ROLLBACK_PENDING,
         MIGRATION_ROLLBACK_IN_PROGRESS,
         MIGRATION_ROLLBACK_SUCCESS,
-        MIGRATION_FAILED,
-        MIGRATION_SUCCESS
+        MIGRATION_ROLLBACK_FAILED,
+        MIGRATION_SUCCESS,
+        MIGRATION_FAILED
     };
 
     const int MaxRCMSettingPollRetryCount = 60;
@@ -133,7 +134,8 @@ namespace Migration {
     const int MaxRetryCount = 3;
     const int SleepTime = 10;            //seconds
     const int ServiceStartTimeOut = 120; //seconds
-    const int ServiceStopTimeOut = 210;  //seconds
+    const int ServiceStopTimeOut = 600;  //seconds
+    const int ServiceOperationSleepTime = 30;  //seconds
 }
 
 namespace CsPrimeApplianceToAzureAgentProperties {
@@ -173,6 +175,7 @@ public:
     // ConfigureLocalVxAgent interface
     //
 
+    bool GetConfigDir(std::string & configdir) const;
     std::string getMTSupportedDataPlanes() const;
     SV_ULONGLONG getMinAzureUploadSize() const;
     unsigned int getMinTimeGapBetweenAzureUploads() const;
@@ -190,6 +193,7 @@ public:
     std::string getUnregisterAgentLogPath() const;
     std::string getFailoverVmDetectionId() const;
     bool getIsAzureVm() const;
+    bool getIsAzureStackHubVm() const;
     std::string getSourceControlPlane() const;
     std::string getFailoverVmBiosId() const;
     std::string getFailoverTargetType() const;
@@ -216,6 +220,7 @@ public:
     unsigned int getRcmRequestTimeout() const;
     std::string getProxySettingsPath() const;
     std::string getVmPlatform() const;
+    std::string getPhysicalSupportedHypervisors() const;
     bool IsAzureToAzureReplication() const;
 
     int getMaxDifferentialPayload() const;
@@ -498,7 +503,6 @@ public:
     std::string getNotAllowedMountPointFileName()const;
     std::string getConsistencySettingsCachePath() const;
     std::string getResyncBatchCachePath() const;
-    std::string GetSourceAgentConfigPath() const;
 
     SV_UINT getManualResyncStartThresholdInSecs() const;
     SV_UINT getInitialReplicationStartThresholdInSecs() const;
@@ -614,6 +618,7 @@ public:
     void setSourceGroupId(const std::string& sourceGroupId) const;
     void setFailoverVmDetectionId(const std::string& failoverVmId) const;
     void setIsAzureVm(bool bAzureVM) const;
+    void setIsAzureStackHubVm(bool bAzsVM) const;
     void setSourceControlPlane(const std::string& sourceControlPlane) const;
     void setFailoverVmBiosId(const std::string& failoverVmBiosId) const;
     void setFailoverTargetType(const std::string& failoverTargetType) const;
@@ -693,6 +698,11 @@ public:
     /*Rename failure configurations*/
     SV_UINT getRenameFailureRetryIntervalInSec() const;
     SV_UINT getRenameFailureRetryCount() const;
+
+    /*windows failover cluster configurations*/
+    void setClusterId(const std::string& hostId) const;
+
+    std::string getClusterId() const;
 
 public:
     //
@@ -850,6 +860,7 @@ public:
     VacpConf::State getVacpState() const;
     void setMigrationState(Migration::State state) const;
     Migration::State getMigrationState() const;
+    std::string getMigrationMinMARSVersion() const;
 
     std::string getAdditionalInstallPaths() const;
 public:
@@ -939,6 +950,10 @@ public:
 
     //section for New Health Model's Health Collator directory path
     std::string getHealthCollatorDirPath() const;
+
+    SV_ULONGLONG getAzureBlockBlobParallelUploadChunkSize() const;
+    SV_ULONGLONG getAzureBlockBlobMaxWriteSize() const;
+    SV_UINT getAzureBlockBlobMaxParallelUploadThreads() const;
 
 };
 

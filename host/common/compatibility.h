@@ -14,7 +14,7 @@
 #define COMPATABILITY__H
 
 #include "svtypes.h"
-#define CURRENT_COMPATIBILITY_NO 9500000
+#define CURRENT_COMPATIBILITY_NO 9540000
 
 inline SV_ULONG CurrentCompatibilityNum() { return CURRENT_COMPATIBILITY_NO ;}
 

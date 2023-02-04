@@ -212,7 +212,10 @@ namespace  securitylib {
                                                 SET_PERMISSIONS_IGNORE_WEBUSER_CHK & setFlags) );
                     if (!res) {
                         DWORD err = GetLastError();
-                        throw ERROR_EXCEPTION << "FAILED to create directory: " << name << ". Error: " << err << '\n';
+                        if (err != ERROR_ALREADY_EXISTS)
+                        {
+                            throw ERROR_EXCEPTION << "FAILED to create directory: " << name << ". Error: " << err << '\n';
+                        }
                     }
                 }
             }

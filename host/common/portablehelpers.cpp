@@ -55,6 +55,7 @@ using namespace boost::chrono;
 using std::max;
 
 const std::string AZURE_ASSET_TAG("7783-7084-3265-9085-8269-3286-77");
+const long IMDS_RETRY_INTERVAL_IN_SECS = 5;
 
 typedef struct tagMemoryStruct 
 {
@@ -4116,44 +4117,81 @@ bool IsAzureStackVirtualMachine()
     static bool s_bIsCheckComplete = false;
     static bool s_IsAzureStackVm = false;
 
-    if (s_bIsCheckComplete)
+    if (!s_bIsCheckComplete)
     {
-        return s_IsAzureStackVm;
-    }
-
-    std::string strAssetTag = GetChassisAssetTag();
-    bool isAzureAssetTag = boost::iequals(strAssetTag, AZURE_ASSET_TAG);
-
-    if (!isAzureAssetTag)
-    {
+        LocalConfigurator   lc;
+        s_IsAzureStackVm = lc.getIsAzureStackHubVm();
         s_bIsCheckComplete = true;
-        return s_IsAzureStackVm;
     }
 
-    try
-    {
-        // Get IMDS information. Always HTTP
-        std::string imdsMetadata = GetImdsMetadata();
-        std::istringstream stream(imdsMetadata);
-        boost::property_tree::ptree pt;
-        boost::property_tree::read_json(stream, pt);
-        std::string azEnv = pt.get<std::string>(IMDS_COMPUTE_ENV);
-        DebugPrintf(SV_LOG_DEBUG, "Az Environment: %s\n", azEnv.c_str());
-        s_IsAzureStackVm = boost::iequals(azEnv, IMDS_AZURESTACK_NAME);
-    }
-    catch (std::exception& e)
-    {
-        DebugPrintf(SV_LOG_ERROR, "%s: Failed  with exception: %s.\n", FUNCTION_NAME, e.what());
-    }
-    catch (...)
-    {
-        DebugPrintf(SV_LOG_ERROR, "%s: Failed  with exception.\n", FUNCTION_NAME);
-    }
-
-    
-    s_bIsCheckComplete = true;
     DebugPrintf(SV_LOG_DEBUG, "EXITED %s\n", FUNCTION_NAME);
     return s_IsAzureStackVm;
+}
+
+bool HasAzureStackHubFailoverTag(QuitFunction_t qf)
+{
+    DebugPrintf(SV_LOG_DEBUG, "ENTERED %s\n", FUNCTION_NAME);
+    static bool s_bIsCheckComplete = false;
+    static bool s_HasFailoverTag = false;
+
+    if (s_bIsCheckComplete)
+    {
+        return s_HasFailoverTag;
+    }
+
+    if (!IsAzureStackVirtualMachine())
+    {
+        return false;
+    }
+
+    while (true)
+    {
+        try
+        {
+            // Get IMDS information. Always HTTP
+            std::string imdsMetadata = GetImdsMetadata();
+            std::istringstream stream(imdsMetadata);
+            boost::property_tree::ptree pt;
+            boost::property_tree::read_json(stream, pt);
+
+            boost::property_tree::ptree &tagsList = pt.get_child(IMDS_COMPUTE_TAGSLIST);
+            std::stringstream tagsJson;
+            boost::property_tree::write_json(tagsJson, tagsList);
+            DebugPrintf(SV_LOG_DEBUG, "Tags List: %s\n", tagsJson.str().c_str());
+            for (boost::property_tree::ptree::iterator element = tagsList.begin();
+                element != tagsList.end();
+                element++)
+            {
+                if (element->second.get<std::string>("name") == IMDS_FAILOVER_TAG_PREFIX
+                    && element->second.get<std::string>("value") == IMDS_FAILOVER_TAG_SUFFIX)
+                {
+                    s_HasFailoverTag = true;
+                    DebugPrintf(SV_LOG_DEBUG, "%s: Detected failover tag.\n", FUNCTION_NAME);
+                    break;
+                }
+            }
+
+            DebugPrintf(SV_LOG_DEBUG, "%s: Finished checking failover tag.\n", FUNCTION_NAME);
+            break;
+        }
+        catch (std::exception& e)
+        {
+            DebugPrintf(SV_LOG_ERROR, "%s: Failed  with exception: %s. Retrying...\n", FUNCTION_NAME, e.what());
+        }
+        catch (...)
+        {
+            DebugPrintf(SV_LOG_ERROR, "%s: Failed  with exception. Retrying...\n", FUNCTION_NAME);
+        }
+
+        if (qf(IMDS_RETRY_INTERVAL_IN_SECS))
+        {
+            throw "Quit requested";
+        }
+    }
+
+    s_bIsCheckComplete = true;
+    DebugPrintf(SV_LOG_DEBUG, "EXITED %s\n", FUNCTION_NAME);
+    return s_HasFailoverTag;
 }
 
 bool IsAzureVirtualMachine()
@@ -4384,7 +4422,7 @@ void ExtractCacheStorageNameFromBlobContainerSasUrl(const std::string& blobConta
         //extracting according to the standard sas format: https://{myaccount}.blob.core.windows.net/{sascontainer}/sasblob.txt
         size_t offset = 2;
         size_t first = blobContainerSasUrl.find("//");
-        size_t last = blobContainerSasUrl.find(".blob.core.windows.net");
+        size_t last = blobContainerSasUrl.find(".blob.");
 
         if (first == std::string::npos || last == std::string::npos || first >= last)
         {

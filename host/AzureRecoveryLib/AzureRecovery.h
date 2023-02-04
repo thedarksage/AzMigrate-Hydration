@@ -41,6 +41,8 @@ int StartGenConversion();
 
 int UpdateStatusToBlob(const RecoveryUpdate& update);
 
+int UpdateStatusToTestFile(const RecoveryUpdate& update);
+
 int UploadExecutionLog(const std::string& logFile);
 
 int UploadCurrentTraceLog(const std::string& curr_log);

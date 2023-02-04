@@ -210,6 +210,12 @@ public:
 
 int CompareProudctVersion(const InstalledProduct& first, const InstalledProduct& second);
 
+/// \brief compare product versions 
+/// first == second, return 0
+/// first > second, return 1
+/// first < second, return -1
+int CompareVersion(const std::string& first, const std::string& second);
+
 SVERROR GetInMageInstalledProductsFromRegistry(
     const std::string& productKeyName,
     std::list<InstalledProduct> &installedProducts);

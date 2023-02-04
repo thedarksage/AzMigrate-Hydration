@@ -4529,6 +4529,56 @@ int CompareProudctVersion(const InstalledProduct& first, const InstalledProduct&
     return (first.version.compare(second.version));
 }
 
+int CompareVersion(const std::string& first, const std::string& second)
+{
+    DebugPrintf(SV_LOG_DEBUG, "ENTERED %s\n", FUNCTION_NAME);
+
+    if (first == second)
+        return 0;
+
+    std::vector<std::string> splitFirst;
+    std::vector<std::string> splitSecond;
+    int elFirst = 0;
+    int elSecond = 0;
+    int result = 0;
+
+    boost::split(splitFirst, first, boost::is_any_of("."));
+    boost::split(splitSecond, second, boost::is_any_of("."));
+
+    const int minCtr = std::min(splitFirst.size(), splitSecond.size());
+
+    for (int i = 0; i < minCtr; i++)
+    {
+        elFirst = atoi(splitFirst[i].c_str());
+        elSecond = atoi(splitSecond[i].c_str());
+
+        if (elFirst != elSecond)
+            break;
+    }
+
+    if (elFirst > elSecond)
+        result = 1;
+    else
+    {
+        if (elFirst < elSecond)
+            result = -1;
+        else
+        {
+            if (splitFirst.size() > splitSecond.size())
+                result = 1;
+            else
+            {
+                if (splitFirst.size() < splitSecond.size())
+                    result = -1;
+            }
+
+        }
+    }
+
+    DebugPrintf(SV_LOG_DEBUG, "EXITED %s\n", FUNCTION_NAME);
+    return result;
+}
+
 SVERROR GetInstalledProductFromRegistry(const std::string& strKey,
     InstalledProduct &installedProduct,
     USHORT accessMode)

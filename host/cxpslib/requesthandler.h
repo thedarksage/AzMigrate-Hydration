@@ -665,6 +665,47 @@ protected:
     /// \brief checks if the file to be processed is under an allowed dir
     void checkAllowedDir(std::string const& name); ///< name of file to check
 
+    /// \brief verifies if the file to be processed is under an allowed dir based on biosid and hostid mapping
+    /// from the PS settings in RCM mode.
+    void VerifyDirAccess(std::string const& fileName, boost::filesystem::path const& filePath);
+
+    /// \brief Allows access if the request contains get/list request to agent repository directory.
+    void ValidateAgentRepositoryDirAccess(std::string const& fileName);
+
+    /// \brief Allows access if the file to be processed is of agenthostid.mon format or
+    /// if the requested dir is having reqDefaultDir\tstdata\agenthostid path
+    void ValidateReqDefaultDirAccess(std::string const& hostId,
+                                        std::string const& fileName,
+                                        boost::filesystem::path const& filePath,
+                                        std::list<std::string> const& hostIdsWithSameBiosId);
+
+    /// \brief Sanitizes the filepath for comparision
+    boost::filesystem::path SanitizeFilePath(std::string const& filePath);
+
+    /// \brief Verifies if the logfile/telemetryfile to be processed is under an allowed
+    /// dir based on hostidtologfolder mapping or hostidtotelemetryfolder mapping from PS settings in RCM mode.
+    void ValidateDirAccessRetrivedFromSettings(std::string const& hostId,
+                                                std::string const& fileName,
+                                                boost::filesystem::path const& filePath,
+                                                ServerOptions::hostIdDirMap_t hostIdDirMap,
+                                                std::list<std::string> const& hostIds);
+
+    /// \brief Return access status if the file to be processed is of agenthostid.mon format or
+    /// if the requested dir is having reqDefaultDir\tstdata\agenthostid path
+    void GetReqDefaultDirAccessStatus(std::string const& hostId,
+                                        std::string const& fileName,
+                                        boost::filesystem::path const& filePath,
+                                        boost::filesystem::path& tstDataFilePath,
+                                        boost::filesystem::path& monFilePath,
+                                        bool& allowAccess);
+
+    /// \brief Return access status if the logfile/telemetryfile to be processed is under an allowed
+    /// dir based on hostidtologfolder mapping or hostidtotelemetryfolder mapping from PS settings in RCM mode.
+    bool GetCacheAndTelemetryDirAccessStatus(std::string const& hostId,
+                                                std::string const& fileName,
+                                                boost::filesystem::path const& filePath,
+                                                ServerOptions::hostIdDirMap_t hostIdDirMap);
+
     /// \brief checks if the nonce is valid
     void validateCnonce();
 
@@ -779,7 +820,7 @@ protected:
 
     /// sets the request failure in telemetry for inline throttling
     void setThrottleRequestFailureInTelemetry();
-    
+
 private:
     ConnectionAbc::ptr m_connection; ///< holds connection object
 
@@ -962,6 +1003,20 @@ private:
     bool m_cfsConnect;
 
     CxpsTelemetry::RequestTelemetryData& m_requestTelemetryData;
+
+    std::string m_biosId; ///< holds certificate biosid
+
+    bool m_isAccessControlEnabled;
+
+    /// \brief holds PSLogRootfolder, PS Telemetry Folder, PSRequestDefault allowed folders from registry
+    boost::filesystem::path m_psLogFolderPath, m_psTelFolderPath, m_psReqDefaultDir;
+
+    ServerOptions::biosIdHostIdMap_t m_biosIdHostIdMap; ///< holds biosid and hostid mapping from PS settings
+
+    ServerOptions::hostIdDirMap_t m_hostIdLogRootDirMap, m_hostIdTelemetryDirMap; ///< holds logRootFolder and telemetryFolder from PS host and telemetry settings
+
+    /// \brief read-write lock to serialize access to allowed directories settings
+    boost::shared_mutex m_allowedDirsSettingsMutex;
 };
 
 #endif // REQUESTHANDLER_H

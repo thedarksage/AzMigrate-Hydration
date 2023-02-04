@@ -54,7 +54,7 @@ namespace AzureStorageRest
 	typedef enum _RESOURCE_TYPE
 	{
 		AZURE_PAGE_BLOB,
-		AZURE_BLOCK_BLOCK
+		AZURE_BLOCK_BLOB
 	}BLOB_TYPE;
 
 	typedef struct _azure_storage_resource_properies

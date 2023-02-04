@@ -1,7 +1,12 @@
+#include "stdafx.h"
+
+
 #include "registry.h"
 #include "svtypes.h"
+#ifndef VACP_CONTEXT
 #include "portable.h"
 #include "portablehelpers.h"
+#endif
 #ifndef _WINDOWS_
 #include <Windows.h>
 #endif

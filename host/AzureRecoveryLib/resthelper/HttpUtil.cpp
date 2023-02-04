@@ -12,6 +12,9 @@ History		:   29-4-2015 (Venu Sivanadham) - Created
 #include "HttpUtil.h"
 #include "../common/Trace.h"
 #include "../common/AzureRecoveryException.h"
+#include "../inmsafeint/inmsafeint.h"
+#include "../inmsafecapis/inmsafecapis.h"
+#include "../errorexception/errorexception.h"
 
 #include <exception>
 #include <sstream>
@@ -19,21 +22,141 @@ History		:   29-4-2015 (Venu Sivanadham) - Created
 #include <boost/assert.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
+#include <boost/property_tree/json_parser.hpp>
+
+const char IMDS_URL[]						= "http://169.254.169.254/metadata/instance?api-version=2021-02-01";
+const char IMDS_HEADERS[]					= "Metadata: true";
+const char IMDS_COMPUTE_ENV[]				= "compute.azEnvironment";
+const char IMDS_AZURESTACK_NAME[]			= "AzureStack";
+const long HTTP_OK = 200L;
+
+#define INMAGE_EX ContextualException( __FILE__, __LINE__, __FUNCTION__ )
 
 namespace AzureStorageRest
 {
 
+typedef struct tagMemoryStruct 
+{
+    char *memory;
+    size_t insize;
+    size_t size;
+} MemoryStruct;
+
+size_t WriteMemoryCallbackFileReplication(void *ptr, size_t size, size_t nmemb, void *data)
+{
+    TRACE_FUNC_BEGIN;
+    size_t realsize;
+    INM_SAFE_ARITHMETIC(realsize = InmSafeInt<size_t>::Type(size) * nmemb, INMAGE_EX(size)(nmemb))
+    MemoryStruct *mem = (MemoryStruct *)data;
+
+    size_t memorylen;
+    INM_SAFE_ARITHMETIC(memorylen = InmSafeInt<size_t>::Type(mem->size) + realsize + 1, INMAGE_EX(mem->size)(realsize))
+    mem->memory = (char *)realloc(mem->memory, memorylen);
+
+    if (mem->memory) {
+        inm_memcpy_s(&(mem->memory[mem->size]), realsize + 1, ptr, realsize);
+        mem->size += realsize;
+        mem->memory[mem->size] = 0;
+    }
+    TRACE_FUNC_END;
+    return realsize;
+}
+
+std::string GetImdsMetadata()
+{
+    TRACE_FUNC_BEGIN;
+
+    MemoryStruct chunk = {0};
+    CURL *curl = curl_easy_init();
+    try
+    {
+        chunk.size = 0;
+        chunk.memory = NULL;
+        if(CURLE_OK != curl_easy_setopt(curl, CURLOPT_URL, IMDS_URL)) {
+            throw ERROR_EXCEPTION << FUNCTION_NAME << ": Failed to set curl options IMDS_URL.\n";
+        }
+
+        if(CURLE_OK != curl_easy_setopt(curl, CURLOPT_NOPROXY, "*")) {
+            throw ERROR_EXCEPTION << FUNCTION_NAME << ": Failed to set curl options CURLOPT_NOPROXY.\n";
+        }
+
+        struct curl_slist * pheaders = curl_slist_append(NULL, IMDS_HEADERS);
+        if (CURLE_OK != curl_easy_setopt(curl, CURLOPT_HTTPHEADER, pheaders)) {
+            throw ERROR_EXCEPTION << FUNCTION_NAME << ": Failed to set curl options CURLOPT_HEADERDATA.\n";
+        }
+        
+        if(CURLE_OK != curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallbackFileReplication)) {
+            throw ERROR_EXCEPTION << FUNCTION_NAME << ": Failed to set curl options CURLOPT_WRITEFUNCTION.\n";
+        }
+
+        if(CURLE_OK != curl_easy_setopt(curl, CURLOPT_WRITEDATA, static_cast<void *>( &chunk ))) {
+            throw ERROR_EXCEPTION << FUNCTION_NAME << ": Failed to set curl options CURLOPT_WRITEDATA.\n";
+        }
+
+        CURLcode curl_code = curl_easy_perform(curl);
+
+        if (curl_code == CURLE_ABORTED_BY_CALLBACK)
+        {
+            throw ERROR_EXCEPTION << FUNCTION_NAME << ": Failed to perfvorm curl request, request aborted.\n";
+        }
+
+        long response_code = 0L;
+        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+        if (response_code != HTTP_OK)
+        {
+            throw ERROR_EXCEPTION << FUNCTION_NAME << ": Failed to perform curl request, curl error "
+                << curl_code << ": " << curl_easy_strerror(curl_code)
+                << ", status code " << response_code
+                << ((chunk.memory != NULL) ? (std::string(", error ") + chunk.memory) : "") << ".\n";
+        }
+    }
+    catch (std::exception& e)
+    {
+        TRACE_ERROR("%s: Failed  with exception: %s.\n", FUNCTION_NAME, e.what());
+    }
+    catch (...)
+    {
+        TRACE_ERROR("%s: Failed  with exception.\n", FUNCTION_NAME);
+    }
+
+    std::string ret;
+    if (chunk.memory != NULL)
+    {
+        ret = std::string(chunk.memory, chunk.size);
+        free(chunk.memory);
+    }
+    curl_easy_cleanup(curl);
+
+    TRACE_FUNC_END;
+
+    return ret;
+
+}
+
 /*
 Method      : HttpRestUtil::Get_X_MS_Version
 
-Description : Returns the Azure Rest API version, cuttently it is: 2014-02-14
+Description : Returns the Azure Rest API version
 
 Parameters  : None
 
 */
 std::string HttpRestUtil::Get_X_MS_Version()
 {
-	return std::string("2014-02-14");
+    return X_MS_Version;
+}
+
+/*
+Method      : HttpRestUtil::Set_X_MS_Version
+
+Description : Set the Azure Rest API version
+
+Parameters  : [in] x_ms_version : Azure Rest API version
+
+*/
+void HttpRestUtil::Set_X_MS_Version(const std::string& x_ms_version)
+{
+    X_MS_Version = x_ms_version;
 }
 
 /*
@@ -360,23 +483,23 @@ Return      : query string
 */
 std::string Uri::GetQueryString() const
 {
-	std::string query;
-	if (m_query_parameters.size() > 0)
+	std::stringstream ssQuery;
+	if (!m_query_parameters.empty())
 	{
-		query = URI_DELIMITER::QUERY;
+		ssQuery << URI_DELIMITER::QUERY;
 
 		for (size_t i = 0; i < m_query_parameters.size();)
 		{
-			query += m_query_parameters[i].first;
-			query += URI_DELIMITER::QUERY_PARAM_VAL;
-			query += m_query_parameters[i].second;
+			ssQuery << m_query_parameters[i].first;
+			ssQuery << URI_DELIMITER::QUERY_PARAM_VAL;
+			ssQuery << m_query_parameters[i].second;
 
 			if (++i < m_query_parameters.size())
-				query += URI_DELIMITER::QUERY_PARAM_SEP;
+				ssQuery << URI_DELIMITER::QUERY_PARAM_SEP;
 		}
 	}
 
-	return query;
+	return ssQuery.str();
 }
 
 /*

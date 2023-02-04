@@ -1,0 +1,35 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- none
+
+pool:
+  vmImage: windows-latest
+
+steps:
+- checkout: self
+  clean: true
+  persistCredentials: true
+
+- task: PowerShell@2
+  inputs:
+    targetType: 'inline'
+    script: |
+      Invoke-WebRequest -Uri "https://github.com/thedarksage/AzMigrate-Hydration/releases/download/v1.0.5/HydrationTestTools.zip" -Out "$(Build.StagingDirectory)/HydrationTestTools.zip"
+      exit 0
+
+- task: unzip@0
+  inputs:
+    pathToZipFile: '$(Build.StagingDirectory)/HydrationTestTools.zip'
+    pathToZipFolder: '$(Build.StagingDirectory)/HydrationTestTools/'
+
+- task: AzurePowerShell@5
+  inputs:
+    azureSubscription: 'AADProt2-Hydration-GQLValidations'
+    ScriptType: 'FilePath'
+    ScriptPath: '$(Build.StagingDirectory)/HydrationTestTools/PerformHydration.ps1'
+    ScriptArguments: '-ResourceGroupName $(GithubGQL-TargetRGName) -Location  $(Location) -SubscriptionId $(SubscriptionId) -OSType $(OSType) -OSDiskName $(GithubGQL-TargetMDName) -TargetVM_VirtualNetworkName $(TargetVM_VirtualNetworkName) -TargetVM_VirtualMachineName $(TargetVM_VirtualMachineName) -TargetVM_VirtualMachineSize $(TargetVM_VirtualMachineSize) -GithubBranch $(Build.SourceBranchName)'
+    azurePowerShellVersion: 'LatestVersion'

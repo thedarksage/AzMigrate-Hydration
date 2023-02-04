@@ -57,6 +57,8 @@ _HOST_ID_=""
 _SCENARIO_=""
 _SCENARIO_RECOVERY_="recovery"
 _SCENARIO_MIGRATION_="migration"
+_SCENARIO_RECOVERY_TEST_="testrecovery";
+_SCENARIO_MIGRATION_TEST_= "testmigration";
 
 #
 # Trace functions to log the trace messages to log file.
@@ -391,6 +393,35 @@ function Update_Status
 }
 
 #
+# Synopsis    : Update_Test_Status
+#
+# Description : Invokes recovery utility to update the current status to local file.
+#               
+#
+function Update_Test_Status 
+{
+    Trace "Updating execution status : $EXEC_STATUS : $EXEC_TASK_DESC"
+        
+    StatusArgs="--operation statusupdatetest --recoveryinfofile $RECOVERY_INFO_FILE --status $EXEC_STATUS  --errorcode $EXEC_ERROR --progress $EXEC_PROGRESS"
+    StatusCmd="$WORK_DIR/$AZURE_RECOVERY_UTIL"
+    
+    Trace_Cmd "$StatusCmd  $StatusArgs --taskdescription $EXEC_TASK_DESC --errormsg $EXEC_ERROR_MSG"
+    
+    $StatusCmd  $StatusArgs "--taskdescription" "$EXEC_TASK_DESC" "--errormsg" "$EXEC_ERROR_MSG" >> $LOGFILE 2>&1
+    
+    RetCode=$?
+    
+    if [ $RetCode -ne 0 ] ; then
+        Trace_Error "Status update failed. Return code $RetCode"
+        # Don't fail.
+    else
+        Trace "Successfully updated the status."
+    fi
+    
+    return 0;
+}
+
+#
 # Synopsis    : Upload_Log
 #
 # Description : Invokes recovery utility for uploading the execution log content to status blob
@@ -541,12 +572,11 @@ function Prepare_Env
 }
 
 #
-# Synopsis    : StarRecovery
+# Synopsis    : StartRecovery
 #
-# Description : Start recovery utility to execute pre-recovery steps
-#               
+# Description : Start recovery utility to execute pre-recovery steps. (Failover and Test Failover)
 #
-function StarRecovery
+function StartRecovery
 {
     #
     # Update status with Initiating recovery status.
@@ -593,10 +623,60 @@ function StarRecovery
 }
 
 #
+# Synopsis    : StartRecoveryTest
+#
+# Description : Start recovery utility to execute pre-recovery steps.
+#               [Note]: Not to be confused with Test Failover in Azure Site Recovery production environment.
+#               Refer StartRecovery for TestFailover flow.
+#
+#
+function StartRecoveryTest
+{
+    #
+    # Update status with Initiating recovery status.
+    #
+    EXEC_TASK_DESC="Initiating recovery steps"
+    EXEC_ERROR_MSG="Environment was prepared successfully"
+    EXEC_PROGRESS="20"
+    
+    Trace "Starting pre-recovery steps ..."
+    
+    RecCmd="$WORK_DIR/$AZURE_RECOVERY_UTIL"
+    RecCmdArgs="--operation recoverytest --recoveryinfofile $RECOVERY_INFO_FILE --hostinfofile $HOSTINFO_FILE --workingdir $WORK_DIR --hydrationconfigsettings $HYDRATION_CONFIG_SETTINGS"
+    
+    Trace_Cmd "$RecCmd $RecCmdArgs"
+    
+    $RecCmd $RecCmdArgs >> $LOGFILE 2>&1
+    
+    RetCode=$?
+    
+    if (( $RetCode != 0 )) ; then
+        EXEC_ERROR_MSG="Recovery tool exited unexpectedly with error code $RetCode"
+        EXEC_ERROR="1"
+        EXEC_STATUS="Failed"
+        
+        Trace_Error "$EXEC_ERROR_MSG"
+        
+        Update_Test_Status
+        
+        return 1
+    fi
+    #
+    # For recovery operation the tool returns 0 even on recovery failures if it can handle
+    # the error status reporting. If its not returning 0 means something wrong happened 
+    # where the recovery tool was not able to update status to blob. So on non-zero return
+    # code the script should attempt updating failure status to blob.
+    #
+    Trace "Pre-Recovery steps executed successfully"
+    
+    return 0;
+}
+
+#
 # Synopsis    : StartMigration
 #
-# Description : Start recovery utility to execute migration steps
-#               
+# Description : Start recovery utility to execute migration steps. (Migration and Test Migration)
+#
 #
 function StartMigration
 {
@@ -635,6 +715,55 @@ function StartMigration
         Update_Status
         Upload_Log
         
+        return 1
+    fi
+
+    Trace "Migration steps executed successfully"
+    
+    return 0;
+}
+
+#
+# Synopsis    : StartMigrationTest
+#
+# Description : Dummy start recovery utility to execute migration steps.
+#               [Note]: Not to be confused with Test Migration in Azure Migrate in production environment.
+#               Refer StartMigration for TestMigration flow.
+#
+#
+function StartMigrationTest
+{
+    #
+    # Update status with Initiating recovery status.
+    #
+    EXEC_TASK_DESC="Initiating migration steps"
+    EXEC_ERROR_MSG="Environment was prepared successfully"
+    EXEC_PROGRESS="20"
+
+    # Activate all the VGs visible to system.
+    Trace "Activating VGs ..."
+    ActivateVGs
+    
+    Trace "Starting migration steps ..."
+    
+    RecCmd="$WORK_DIR/$AZURE_RECOVERY_UTIL"
+    RecCmdArgs="--operation migrationtest --recoveryinfofile $RECOVERY_INFO_FILE --workingdir $WORK_DIR --hydrationconfigsettings $HYDRATION_CONFIG_SETTINGS"
+    
+    Trace_Cmd "$RecCmd $RecCmdArgs"
+    
+    $RecCmd $RecCmdArgs >> $LOGFILE 2>&1
+    
+    RetCode=$?
+    
+    if (( $RetCode != 0 )) ; then
+        EXEC_ERROR_MSG="Recovery tool exited unexpectedly with error code $RetCode"
+        EXEC_ERROR="1"
+        EXEC_STATUS="Failed"
+        
+        Trace_Error "$EXEC_ERROR_MSG"
+        
+        Update_Test_Status
+
         return 1
     fi
 
@@ -707,13 +836,25 @@ function Main
     
     case "$_SCENARIO_" in
         $_SCENARIO_RECOVERY_)
-            StarRecovery
+            StartRecovery
             if [ $? -ne 0 ] ; then
                 exit 1
             fi
             ;;
         $_SCENARIO_MIGRATION_)
             StartMigration
+            if [ $? -ne 0 ] ; then
+                exit 1
+            fi
+            ;;
+        $_SCENARIO_MIGRATION_TEST_)
+            StartMigrationTest
+            if [ $? -ne 0 ] ; then
+                exit 1
+            fi
+            ;;
+        $_SCENARIO_RECOVERY_TEST_)
+            StartRecoveryTest
             if [ $? -ne 0 ] ; then
                 exit 1
             fi

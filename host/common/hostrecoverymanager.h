@@ -21,6 +21,7 @@
 #include <map>
 
 #include "service.h"
+#include "inmquitfunction.h"
 
 #ifdef SV_WINDOWS
 class InmageDriverInterface;
@@ -66,6 +67,11 @@ class HostRecoveryManager
     static void UpdateHostId(const std::string& hostId);
 
     //
+    // Sets source control plane for Azure Stack Hub VM
+    //
+    static void SetAzureStackSourceControlPlane();
+
+    //
     // Enable/Disable VMWare Tools on the VM
     //
     static void DisableEnableVMWareTools(bool bEnable);
@@ -108,7 +114,8 @@ class HostRecoveryManager
         bool& bSystemUuidChanged,
         bool& bIsAzureVm,
         bool& bVmTypeChanged,
-        bool& bIsFailoverDetected);
+        bool& bIsFailoverDetected,
+        QuitFunction_t qf);
 
 public:
 #ifdef SV_WINDOWS
@@ -124,10 +131,10 @@ public:
     //
     // Returns true if the recovery is in progress, otherwise false.
     //
-    static bool IsRecoveryInProgress(bool & bIsHydrationWorkflow)
+    static bool IsRecoveryInProgress(bool & bIsHydrationWorkflow, QuitFunction_t qf)
     {
         bool clonePlaceHolder;
-        return IsRecoveryInProgress(bIsHydrationWorkflow, clonePlaceHolder);
+        return IsRecoveryInProgress(bIsHydrationWorkflow, clonePlaceHolder, qf);
     }
 
     /// \brief for V2A Legacy implementation
@@ -137,7 +144,7 @@ public:
     ///         a clone is detected
     ///         a no-hydration recovery required on Windows OS
     /// \li false otherwise
-    static bool IsRecoveryInProgress(bool & bIsHydrationWorkflow, bool& bIsClone);
+    static bool IsRecoveryInProgress(bool & bIsHydrationWorkflow, bool& bIsClone, QuitFunction_t qf);
 
     /// \brief for V2A RCM implementation
     /// \returns
@@ -147,7 +154,7 @@ public:
     ///         a no-hydration recovery requried on Windows OS
     ///         a a recovery required on Linux OS on failover
     /// \li false otherwise
-    static bool IsRecoveryInProgressEx(bool & bIsHydrationWorkflow, bool& bIsClone);
+    static bool IsRecoveryInProgressEx(bool & bIsHydrationWorkflow, bool& bIsClone, QuitFunction_t qf);
 
     //
     // Determines does the recovery is in progress. It considers both
@@ -156,11 +163,11 @@ public:
     //
     // Returns true if the recovery is in progress, otherwise false.
     //
-    static bool IsRecoveryInProgress(void)
+    static bool IsRecoveryInProgress(QuitFunction_t qf)
     {
         bool placeHolder;
         bool clonePlaceHolder;
-        return IsRecoveryInProgress(placeHolder, clonePlaceHolder);
+        return IsRecoveryInProgress(placeHolder, clonePlaceHolder, qf);
     }
 
     //

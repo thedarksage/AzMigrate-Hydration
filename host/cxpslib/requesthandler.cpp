@@ -31,6 +31,7 @@
 #include "sessiontracker.h"
 #include "cfsmanager.h"
 #include "cfssession.h"
+#include "biosidoperations.h"
 
 static std::string const CX_COMPRESS(boost::lexical_cast<std::string>(COMPRESS_CXSIDE));
 
@@ -129,6 +130,7 @@ void RequestHandler::process(HttpTraits::reply_t::ptr reply)
 
     try {
         m_reply = reply;
+
         request_t::iterator action(m_requests.find(m_requestInfo.m_request));
         if (m_requests.end() == action) {
             m_requestTelemetryData.SetRequestFailure(RequestFailure_UnknownRequest);
@@ -386,6 +388,29 @@ void RequestHandler::login(std::string const& httpRequest)
     sessionLogoutGuard.dismiss();
     logRequestDone();
     m_loggedIn = true;
+
+    if (GetCSMode() == CS_MODE_RCM)
+    {
+        m_biosId = m_connection->getCertBiosId();
+        boost::algorithm::to_lower(m_biosId);
+
+        m_psLogFolderPath = SanitizeFilePath((boost::filesystem::path(GetRcmPSInstallationInfo().m_logFolderPath)).string());
+        m_psTelFolderPath = SanitizeFilePath((boost::filesystem::path(GetRcmPSInstallationInfo().m_telemetryFolderPath)).string());
+        m_psReqDefaultDir = SanitizeFilePath((boost::filesystem::path(GetRcmPSInstallationInfo().m_reqDefFolderPath)).string());
+
+        bool isAccessControlEnabled;
+        ServerOptions::biosIdHostIdMap_t biosIdHostIdMap;
+        ServerOptions::hostIdDirMap_t hostIdLogRootDirMap, hostIdTelemetryDirMap;
+        m_serverOptions->getAllowedDirsMapFromPSSettings(isAccessControlEnabled, biosIdHostIdMap, hostIdLogRootDirMap, hostIdTelemetryDirMap);
+
+        // exclusive lock needed to update the biosid, hostid and the allowed logrootdir, telemetrydir from PS Settings
+        boost::unique_lock<boost::shared_mutex> wrlock(m_allowedDirsSettingsMutex);
+
+        m_isAccessControlEnabled = isAccessControlEnabled;
+        m_biosIdHostIdMap = biosIdHostIdMap;
+        m_hostIdLogRootDirMap = hostIdLogRootDirMap;
+        m_hostIdTelemetryDirMap = hostIdTelemetryDirMap;
+    }
 
     if (HTTP_REQUEST_CFSLOGIN != httpRequest) {
         // the other side will continue to act as client
@@ -2641,6 +2666,9 @@ void RequestHandler::checkAllowedDir(std::string const& name)
     fileName = boost::regex_replace(fileName, expr, "/");
     std::replace(fileName.begin(), fileName.end(), '\\', '/');
     boost::filesystem::path path(fileName);
+
+    VerifyDirAccess(fileName, path);
+
     ServerOptions::dirs_t::const_iterator iter(m_fxAllowedDirs.empty() ? m_serverOptions->allowedDirs().begin() : m_fxAllowedDirs.begin());
     ServerOptions::dirs_t::const_iterator iterEnd(m_fxAllowedDirs.empty() ? m_serverOptions->allowedDirs().end() : m_fxAllowedDirs.end());
     for (/* empty */; iter != iterEnd; ++iter) {
@@ -2685,6 +2713,272 @@ void RequestHandler::checkAllowedDir(std::string const& name)
 
     m_requestTelemetryData.SetRequestFailure(RequestFailure_FileAccessDenied);
     throw ERROR_EXCEPTION << "access denied: " << fileName;
+}
+
+void RequestHandler::VerifyDirAccess(std::string const& fileName, boost::filesystem::path const& filePath)
+{
+    // Enable Access Control if PS is in RCM Mode and IsAccessControlEnabled is enabled in the ps settings.
+    if (GetCSMode() == CS_MODE_RCM && m_isAccessControlEnabled)
+    {
+        // shared lock to allow multiple readers
+        boost::shared_lock<boost::shared_mutex> rdlock(m_allowedDirsSettingsMutex);
+        std::string biosId = m_biosId;
+
+        ServerOptions::biosIdHostIdMap_t biosIdHostIdMap;
+        ServerOptions::hostIdDirMap_t hostIdLogRootDirMap, hostIdTelemetryDirMap;
+        biosIdHostIdMap = m_biosIdHostIdMap;
+        hostIdLogRootDirMap = m_hostIdLogRootDirMap;
+        hostIdTelemetryDirMap = m_hostIdTelemetryDirMap;
+
+        if (biosId.empty())
+        {
+            m_requestTelemetryData.SetRequestFailure(RequestFailure_FileAccessDenied);
+            throw ERROR_EXCEPTION << "Access Denied: BiosId in the certificate is empty. " << fileName;
+        }
+
+        if (biosIdHostIdMap.empty())
+        {
+            m_requestTelemetryData.SetRequestFailure(RequestFailure_FileAccessDenied);
+            throw ERROR_EXCEPTION << "BiosId and HostId details are not found in the PSSettings. Access Denied : " << fileName;
+        }
+
+        ServerOptions::biosIdHostIdMap_t::const_iterator it;
+        it = biosIdHostIdMap.find(biosId);
+        if (it == biosIdHostIdMap.end())
+        {
+            it = biosIdHostIdMap.find(BiosID::GetByteswappedBiosID(biosId));
+            if (it == biosIdHostIdMap.end())
+            {
+                m_requestTelemetryData.SetRequestFailure(RequestFailure_FileAccessDenied);
+                throw ERROR_EXCEPTION << "BiosId " << biosId << " is not found in the PSSettings. Access Denied : " << fileName;
+            }
+        }
+
+        std::string hostId;
+        std::list<std::string> hostIdsWithSameBiosId;
+        if (biosIdHostIdMap.count(biosId) > 1)
+        {
+            typedef ServerOptions::biosIdHostIdMap_t::const_iterator mmapIt;
+            std::pair<mmapIt, mmapIt> result = biosIdHostIdMap.equal_range(biosId);
+            // Add all the hostids having same biosid in the list to handle clone scenario.
+            for (mmapIt mit = result.first; mit != result.second; mit++)
+            {
+                hostIdsWithSameBiosId.push_back(mit->second);
+            }
+            hostId = m_hostId;
+        }
+        else
+        {
+            hostId = it->second;
+        }
+
+        if (hostIdsWithSameBiosId.empty() && hostId.empty())
+        {
+            m_requestTelemetryData.SetRequestFailure(RequestFailure_FileAccessDenied);
+            throw ERROR_EXCEPTION << "HostId in PSSettings is empty. Access Denied : " << fileName;
+        }
+
+        std::string fileDir = filePath.parent_path().string();
+
+        // Allow read only access to agent repository directory for auto updates.
+        if ((filePath.parent_path().compare(m_serverOptions->getAgentRepositoryPath()) == 0))
+        {
+            ValidateAgentRepositoryDirAccess(fileName);
+        }
+        else if (STARTS_WITH(fileDir, m_psReqDefaultDir.string()))
+        {
+            ValidateReqDefaultDirAccess(hostId, fileName, filePath, hostIdsWithSameBiosId);
+        }
+        else if (STARTS_WITH(fileDir, m_psLogFolderPath.string()))
+        {
+            ValidateDirAccessRetrivedFromSettings(hostId, fileName, filePath, hostIdLogRootDirMap, hostIdsWithSameBiosId);
+        }
+        else if (STARTS_WITH(fileDir, m_psTelFolderPath.string()))
+        {
+            ValidateDirAccessRetrivedFromSettings(hostId, fileName, filePath, hostIdTelemetryDirMap, hostIdsWithSameBiosId);
+        }
+        else
+        {
+            // Deny access to other folders
+            m_requestTelemetryData.SetRequestFailure(RequestFailure_FileAccessDenied);
+            throw ERROR_EXCEPTION << "Invalid Directory. Access Denied: " << fileName;
+        }
+    }
+}
+
+void RequestHandler::ValidateAgentRepositoryDirAccess(std::string const& fileName)
+{
+    // Deny access if the file request is not get/list/login/logout.
+    if (m_requestInfo.m_request != HTTP_REQUEST_LOGIN &&
+        m_requestInfo.m_request != HTTP_REQUEST_LOGOUT &&
+        m_requestInfo.m_request != HTTP_REQUEST_GETFILE &&
+        m_requestInfo.m_request != HTTP_REQUEST_LISTFILE)
+    {
+        m_requestTelemetryData.SetRequestFailure(RequestFailure_FileAccessDenied);
+        throw ERROR_EXCEPTION << "RequestType : " << m_requestInfo.m_request.c_str() << ". Access Denied: " << fileName;
+    }
+}
+
+void RequestHandler::GetReqDefaultDirAccessStatus(std::string const& hostId,
+                                                    std::string const& fileName,
+                                                    boost::filesystem::path const& filePath,
+                                                    boost::filesystem::path& tstDataFilePath,
+                                                    boost::filesystem::path& monFilePath,
+                                                    bool& allowAccess)
+{
+    allowAccess = true;
+    std::string fileDir = filePath.parent_path().string();
+
+    tstDataFilePath = m_psReqDefaultDir;
+    tstDataFilePath /= "tstdata";
+    tstDataFilePath /= hostId;
+
+    monFilePath = m_psReqDefaultDir;
+    monFilePath /= hostId + ".mon";
+
+    // Deny access if the sub directory is not tstdata and not a monitoring file.
+    if (!CONTAINS_STR(fileDir, "tstdata") &&
+        !(boost::filesystem::extension(fileName).compare(".mon") == 0))
+    {
+        allowAccess = false;
+    }
+    // Deny access if parentdir of the request dir is not <reqDefaultDir>\tstdata\agenthostid
+    else if (CONTAINS_STR(fileDir, "tstdata") &&
+        (filePath.parent_path().compare(tstDataFilePath.string()) != 0))
+    {
+        allowAccess = false;
+    }
+    // Deny access if the file is not in <hostid>.mon format
+    else if ((boost::filesystem::extension(fileName).compare(".mon") == 0) &&
+        (monFilePath.compare(filePath.string()) != 0))
+    {
+        allowAccess = false;
+    }
+}
+
+void RequestHandler::ValidateReqDefaultDirAccess(std::string const& hostId,
+                                                    std::string const& fileName,
+                                                    boost::filesystem::path const& filePath,
+                                                    std::list<std::string> const& hostIdsWithSameBiosId)
+{
+    bool allowAccess = true;
+    boost::filesystem::path tstDataFilePath;
+    boost::filesystem::path monFilePath;
+
+    // Verifies if the requested folder is in the allowed directories of all the hosts having same biosid.
+    if (!hostIdsWithSameBiosId.empty())
+    {
+        std::list<std::string>::const_iterator iter(hostIdsWithSameBiosId.begin());
+        while (iter != hostIdsWithSameBiosId.end())
+        {
+            std::string hostGuid = *iter;
+            if (!hostGuid.empty())
+            {
+                GetReqDefaultDirAccessStatus(hostGuid, fileName, filePath, tstDataFilePath, monFilePath, allowAccess);
+                if (allowAccess) { break; }
+            }
+            iter++;
+        }
+
+        if (!allowAccess)
+        {
+            // Deny access to request default directories for other hostid subdirectories
+            m_requestTelemetryData.SetRequestFailure(RequestFailure_FileAccessDenied);
+            throw ERROR_EXCEPTION << "Requested Default Directory Access Denied for Host : " << hostId << " , File : " << fileName;
+        }
+    }
+
+    GetReqDefaultDirAccessStatus(hostId, fileName, filePath, tstDataFilePath, monFilePath, allowAccess);
+    if (!allowAccess)
+    {
+        // Deny access to request default directories for other hostid sub directories
+        m_requestTelemetryData.SetRequestFailure(RequestFailure_FileAccessDenied);
+        throw ERROR_EXCEPTION << "Request Default Directory Access Denied for Host : " << hostId << " , File : " << fileName;
+    }
+}
+
+boost::filesystem::path RequestHandler::SanitizeFilePath(std::string const& filePath)
+{
+    boost::filesystem::path sFilePath = boost::regex_replace(filePath, boost::regex("[/\\\\]+"), "/");
+
+    return sFilePath;
+}
+
+bool RequestHandler::GetCacheAndTelemetryDirAccessStatus(std::string const& hostId,
+                                                            std::string const& fileName,
+                                                            boost::filesystem::path const& filePath,
+                                                            ServerOptions::hostIdDirMap_t hostIdDirMap)
+{
+    bool allowAccess = false;
+    std::string fileDir = filePath.parent_path().string();
+    ServerOptions::hostIdDirMap_t::const_iterator dirIt = hostIdDirMap.find(hostId);
+
+    if (dirIt != hostIdDirMap.end())
+    {
+        std::string folderPath = SanitizeFilePath(dirIt->second).string();
+        if (!folderPath.empty())
+        {
+            if (STARTS_WITH(fileDir, folderPath))
+            {
+                allowAccess = true;
+            }
+        }
+    }
+    else
+    {
+        m_requestTelemetryData.SetRequestFailure(RequestFailure_FileAccessDenied);
+        throw ERROR_EXCEPTION << "HostId " << hostId << " is not found in the PS Host Settings. Access Denied : " << fileName;
+    }
+
+    return allowAccess;
+}
+
+void RequestHandler::ValidateDirAccessRetrivedFromSettings(std::string const& hostId,
+                                                            std::string const& fileName,
+                                                            boost::filesystem::path const& filePath,
+                                                            ServerOptions::hostIdDirMap_t hostIdDirMap,
+                                                            std::list<std::string> const& hostIdsWithSameBiosId)
+{
+    std::string fileDir = filePath.parent_path().string();
+    bool allowAccess = false;
+    if (!hostIdDirMap.empty())
+    {
+        // Verifies if the requested folder is in the allowed directories of all the hosts having same biosid.
+        if (!hostIdsWithSameBiosId.empty())
+        {
+            std::list<std::string>::const_iterator iter(hostIdsWithSameBiosId.begin());
+
+            while (iter != hostIdsWithSameBiosId.end())
+            {
+                std::string hostGuid = *iter;
+                if (!hostGuid.empty())
+                {
+                    allowAccess = GetCacheAndTelemetryDirAccessStatus(hostGuid, fileName, filePath, hostIdDirMap);
+                    if (allowAccess) { break; }
+                }
+                iter++;
+            }
+
+            if (!allowAccess)
+            {
+                // Deny access to cache and telemetry sub directories for other hostid sub directories
+                m_requestTelemetryData.SetRequestFailure(RequestFailure_FileAccessDenied);
+                throw ERROR_EXCEPTION << "Folder Access Denied for Host : " << hostId << " , File : " << fileName;
+            }
+        }
+
+        allowAccess = GetCacheAndTelemetryDirAccessStatus(hostId, fileName, filePath, hostIdDirMap);
+        if (!allowAccess)
+        {
+            m_requestTelemetryData.SetRequestFailure(RequestFailure_FileAccessDenied);
+            throw ERROR_EXCEPTION << "Requested Directory Access Denied for Host : " << hostId << " , File : " << fileName;
+        }
+    }
+    else
+    {
+        m_requestTelemetryData.SetRequestFailure(RequestFailure_FileAccessDenied);
+        throw ERROR_EXCEPTION << fileDir << ". Access Denied : " << fileName;
+    }
 }
 
 void RequestHandler::validateCnonce()

@@ -12,9 +12,9 @@ using namespace PSSettings;
 PSSettingsConfigurator PSSettingsConfigurator::s_instance;
 
 const char* CacheDataHeader::CHECKSUM_TYPE_MD5 = "MD5";
-const char* CacheDataHeader::CURRENT_CACHED_DATA_VERSION = "1.7";
+const char* CacheDataHeader::CURRENT_CACHED_DATA_VERSION = "1.10";
 const int CacheDataHeader::CURRENT_CACHED_DATA_MAJOR_VERSION = 1;
-const int CacheDataHeader::CURRENT_CACHED_DATA_MINOR_VERSION = 7;
+const int CacheDataHeader::CURRENT_CACHED_DATA_MINOR_VERSION = 10;
 
 PSSettingsPtr PSSettingsConfigurator::ReadSettingsFromFile(
     bool& fileUnavailable,

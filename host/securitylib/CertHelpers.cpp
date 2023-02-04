@@ -52,7 +52,7 @@ namespace securitylib {
         else
         {
             utcTime = boost::posix_time::to_iso_extended_string(
-                boost::posix_time::second_clock::universal_time());
+                boost::posix_time::microsec_clock::universal_time());
             boost::algorithm::replace_all(utcTime, ":", "-");
             fileBackupPath = filePath;
             fileExtension = boost::filesystem::extension(filePath);
@@ -60,7 +60,12 @@ namespace securitylib {
                 utcTime + fileExtension);
             //TODO : Keep atleast one backup and delete files older than 30 days
             boost::filesystem::copy_file(filePath, fileBackupPath, ec);
-            if (ec != boost::system::errc::success)
+            if (ec == boost::system::errc::success)
+            {
+                DebugPrintf(SV_LOG_ALWAYS, "Copy file from %s to %s succeeded\n",
+                    filePath.c_str(), fileBackupPath.c_str());
+            }
+            else
             {
                 DebugPrintf(SV_LOG_ERROR, "Copy file from %s to %s failed with error : %s\n",
                     filePath.c_str(), fileBackupPath.c_str(), ec.message().c_str());

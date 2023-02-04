@@ -268,4 +268,27 @@ xmlNodePtr LibXmlUtil::xGetChildParamGrpWithId(xmlNodePtr node, const std::strin
 	return paramGrpNode;
 }
 
+XmlDoccument::XmlDoccument(const std::string &root_node_name)
+{
+	m_doc = xmlNewDoc(BAD_CAST"1.0");
+
+	m_root_node = xmlNewNode(NULL, BAD_CAST root_node_name.c_str());
+	xmlDocSetRootElement(m_doc, m_root_node);
+}
+
+void XmlDoccument::xAddChild(const std::string &child_node_name, const std::string &child_node_val)
+{
+	xmlNewChild(m_root_node, NULL, BAD_CAST child_node_name.c_str(), BAD_CAST child_node_val.c_str());
+}
+
+void XmlDoccument::xGetXmlDoc(xmlChar* &docstr, int &len) const
+{
+	xmlDocDumpMemoryEnc(m_doc, &docstr, &len, "utf-8");
+}
+
+XmlDoccument::~XmlDoccument()
+{
+	xmlFreeDoc(m_doc);
+}
+
 }

@@ -183,6 +183,60 @@ void ServerOptions::setIdFromPsConfig()
     return;
 }
 
+void ServerOptions::getAllowedDirsMapFromPSSettings(bool& isAccessControlEnabled, biosIdHostIdMap_t& biosIdHostIdMap, hostIdDirMap_t& hostIdLogRootDirMap, hostIdDirMap_t& hostIdTelemetryDirMap)
+{
+    biosIdHostIdMap.clear();
+    hostIdLogRootDirMap.clear();
+    hostIdTelemetryDirMap.clear();
+
+    PSSettings::PSSettingsPtr psSettingsPtr = PSSettings::PSSettingsConfigurator::GetInstance().GetPSSettings();
+    if (psSettingsPtr != NULL)
+    {
+        isAccessControlEnabled = psSettingsPtr->IsAccessControlEnabled;
+
+        // Populate biosidhostidmap and hostIdLogRootDirMap from ps hostsettings.
+        boost::shared_ptr<PSSettings::PSSettingsHostwisePtrsMap> hostwisePtrsMap = psSettingsPtr->HostwiseSettings;
+        if (hostwisePtrsMap != NULL)
+        {
+            for (PSSettings::PSSettingsHostwisePtrsMap::iterator hostitr = hostwisePtrsMap->begin(); hostitr != hostwisePtrsMap->end(); hostitr++)
+            {
+                if (!hostitr->first.empty())
+                {
+                    // hostitr->first holds the hostid and hostitr->second holds all host information
+                    PSSettings::PSSettingsHostwisePtr hostwisePtr = hostitr->second;
+                    if (hostwisePtr != NULL && !hostwisePtr->BiosId.empty())
+                    {
+                        // insert biosid in the map only if host info is available.
+                        boost::algorithm::to_lower(hostwisePtr->BiosId);
+                        biosIdHostIdMap.insert(std::make_pair(hostwisePtr->BiosId, hostitr->first));
+                        hostIdLogRootDirMap.insert(std::make_pair(hostitr->first, hostwisePtr->LogRootFolder));
+                    }
+                }
+            }
+        }
+
+        // Populate biosidhostidmap and hostIdTelemetryDirMap from ps telemetrysettings.
+        boost::shared_ptr<PSSettings::PSProtMacTelSettingsPtrsMap> telemetrySettingsPtr = psSettingsPtr->TelemetrySettings;
+        if (telemetrySettingsPtr != NULL)
+        {
+            for (PSSettings::PSProtMacTelSettingsPtrsMap::iterator itr = telemetrySettingsPtr->begin(); itr != telemetrySettingsPtr->end(); itr++)
+            {
+                PSSettings::PSProtMacTelSettingsPtr hostTelemetrySettingPtr = itr->second;
+                if (hostTelemetrySettingPtr != NULL)
+                {
+                    boost::algorithm::to_lower(hostTelemetrySettingPtr->BiosId);
+                    boost::algorithm::to_lower(hostTelemetrySettingPtr->HostId);
+                    if (!biosIdHostIdMap.count(hostTelemetrySettingPtr->BiosId))
+                    {
+                        biosIdHostIdMap.insert(std::make_pair(hostTelemetrySettingPtr->BiosId, hostTelemetrySettingPtr->HostId));
+                    }
+                    hostIdTelemetryDirMap.insert(std::make_pair(hostTelemetrySettingPtr->HostId, hostTelemetrySettingPtr->TelemetryFolderPath));
+                }
+            }
+        }
+    }
+}
+
 ServerOptions::dirs_t const& ServerOptions::allowedDirs() const
 {
     return m_allowedDirs;
@@ -844,6 +898,11 @@ bool ServerOptions::useCertBasedClientAuth() const
     return !getCaCertThumbprint().empty();
 }
 
+std::string ServerOptions::getAgentRepositoryPath() const
+{
+    return m_agentRepositoryPath;
+}
+
 void ServerOptions::buildAllowedDirs(boost::filesystem::path const& requestDir)
 {
     ServerOptions::remapPrefixFromTo_t fromTo = remapFullPathPrefix();
@@ -865,6 +924,12 @@ void ServerOptions::buildAllowedDirs(boost::filesystem::path const& requestDir)
             m_allowedDirs.insert(str);
         } else {
             std::string str(*iter);
+            if (str.find("Software/Agents") != std::string::npos)
+            {
+                m_agentRepositoryPath = str;
+                CXPS_LOG_ERROR_INFO("m_agentRepositoryPath : " << m_agentRepositoryPath);
+            }
+
             appendSlashIfNeeded(str);
             m_allowedDirs.insert(str);
         }

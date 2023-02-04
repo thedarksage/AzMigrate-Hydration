@@ -25,7 +25,11 @@ X_THIRDPARTY_LIBS =
 
 X_SYSTEM_LIBS =
 
-X_LDFLAGS =
+ifeq ($(X_OS),$(filter $(X_OS), RHEL9-64))
+        X_LDFLAGS = -lzstd
+else
+        X_LDFLAGS =
+endif
 
 BINARY=$(X_LIBPRE)curlwrapperlib
 BINARY_EXT=$(X_LIBEXT)

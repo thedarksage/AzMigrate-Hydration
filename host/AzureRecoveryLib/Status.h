@@ -128,7 +128,7 @@ namespace BlobStatusMetadataName
 typedef struct _RecoveryStatusUpdate
 {
     std::string Status;
-    std::string TaskDescriptoin;
+    std::string TaskDescription;
     std::string ErrorMsg;
     std::string OsDetails;
     std::string CustomErrorData;
@@ -172,7 +172,7 @@ public:
     {
         m_update.Progress = progress;
         m_update.Status = status;
-        m_update.TaskDescriptoin = description;
+        m_update.TaskDescription = description;
     }
 
     void UpdateErrorDetails(
@@ -207,7 +207,7 @@ public:
 
     void SetTaskDescription(const std::string& description)
     {
-        m_update.TaskDescriptoin = description;
+        m_update.TaskDescription = description;
     }
 
     void SetStatusErrorMessage(const std::string& msg)

@@ -212,6 +212,9 @@ namespace PSSettings
         /// informational health and events for the host
         std::string MessageContext;
 
+        /// \brief SourceMachine BiosId
+        std::string BiosId;
+
         boost::shared_ptr<PSSettingsPairwisePtrsMap> PairwiseSettings;
 
         void serialize(JSON::Adapter& adapter)
@@ -232,6 +235,7 @@ namespace PSSettings
             JSON_P(node, InformationalChannelUri);
             InformationalChannelUriRenewalTimeUtc = ConvertDotNetDateTime(node, "InformationalChannelUriRenewalTimeUtc");
             JSON_P(node, MessageContext);
+            JSON_P(node, BiosId);
 
             JSON_VCL_KEYNAME(node, "Pairs", pairSettings);
 
@@ -262,7 +266,8 @@ namespace PSSettings
                 lhs.CriticalChannelUriRenewalTimeUtc == rhs.CriticalChannelUriRenewalTimeUtc &&
                 lhs.InformationalChannelUri == rhs.InformationalChannelUri &&
                 lhs.InformationalChannelUriRenewalTimeUtc == rhs.InformationalChannelUriRenewalTimeUtc &&
-                lhs.MessageContext == rhs.MessageContext;
+                lhs.MessageContext == rhs.MessageContext &&
+                lhs.BiosId == rhs.BiosId;
         }
 
         bool leanNotEquals(const PSSettingsHostwise& rhs)
@@ -284,6 +289,9 @@ namespace PSSettings
         /// uploaded to Kusto.
         std::string TelemetryFolderPath;
 
+        /// \brief SourceMachine BiosId
+        std::string BiosId;
+
         void serialize(JSON::Adapter& adapter)
         {
             throw std::logic_error("Not implemented");
@@ -293,6 +301,7 @@ namespace PSSettings
         {
             JSON_P(node, HostId);
             JSON_P(node, TelemetryFolderPath);
+            JSON_P(node, BiosId);
         }
 
         bool operator==(const PSProtectedMachineTelemetrySettings& rhs)
@@ -301,7 +310,8 @@ namespace PSSettings
 
             return
                 lhs.HostId == rhs.HostId &&
-                lhs.TelemetryFolderPath == rhs.TelemetryFolderPath;
+                lhs.TelemetryFolderPath == rhs.TelemetryFolderPath &&
+                lhs.BiosId == rhs.BiosId;
         }
 
         bool operator!=(const PSProtectedMachineTelemetrySettings& rhs)
@@ -351,6 +361,12 @@ namespace PSSettings
         /// \brief message context to use for the communication about the PS
         std::string MessageContext;
 
+        /// \brief flag to detect if private end points are enabled or not
+        bool IsPrivateEndpointEnabled;
+
+        /// \brief flag to detect if access control feature is enabled or not
+        bool IsAccessControlEnabled;
+
         /// \brief server provided values to override hardcoded settings in
         /// the PS components. Note that, these values don't supersede
         /// a value explicitly set in the corresponding conf file
@@ -379,6 +395,8 @@ namespace PSSettings
             JSON_P(node, TelemetryChannelUri);
             TelemetryChannelUriRenewalTimeUtc = ConvertDotNetDateTime(node, "TelemetryChannelUriRenewalTimeUtc");
             JSON_P(node, MessageContext);
+            JSON_P(node, IsPrivateEndpointEnabled);
+            JSON_P(node, IsAccessControlEnabled);
 
             StringMap tunables;
             JSON_KV_P_KEYNAME(node, "Tunables", tunables);
@@ -417,7 +435,9 @@ namespace PSSettings
                 lhs.InformationalChannelUriRenewalTimeUtc == rhs.InformationalChannelUriRenewalTimeUtc &&
                 lhs.TelemetryChannelUri == rhs.TelemetryChannelUri &&
                 lhs.TelemetryChannelUriRenewalTimeUtc == rhs.TelemetryChannelUriRenewalTimeUtc &&
-                lhs.MessageContext == rhs.MessageContext;
+                lhs.MessageContext == rhs.MessageContext &&
+                lhs.IsPrivateEndpointEnabled == rhs.IsPrivateEndpointEnabled &&
+                lhs.IsAccessControlEnabled == rhs.IsAccessControlEnabled;
         }
 
         bool leanNotEquals(const PSSettings& rhs)

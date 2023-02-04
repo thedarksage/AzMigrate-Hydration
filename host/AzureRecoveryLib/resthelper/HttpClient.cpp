@@ -834,6 +834,8 @@ CURLcode HttpClient::set_curl_http_options(const HttpRequest& request, HttpRespo
         // Set Request headers
         if (NULL != headers)
         {
+            if (HTTP_POST == request.m_req_method)
+                headers = curl_slist_append(headers, "Expect: 100-continue");
             curl_err = curl_easy_setopt(m_curl, CURLOPT_HTTPHEADER, headers);
             if (CURLE_OK != curl_err) break;
         }

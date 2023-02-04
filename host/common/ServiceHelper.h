@@ -17,9 +17,9 @@ public:
 
 private:
 
-    static SVSTATUS StartSVAgents(int timeout, int maxRetryCount);
+    static SVSTATUS StartSVAgents(int timeout);
 
-    static SVSTATUS StopSVAgents(int timeout, int maxRetryCount);
+    static SVSTATUS StopSVAgents(int timeout);
 
 };
 

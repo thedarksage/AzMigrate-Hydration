@@ -117,7 +117,7 @@ void CloudPageBlob::ReadBlobPropertiesFromResponse(
     // Property: Blob type
     properties.type = 
         boost::iequals("PageBlob", response.GetHeaderValue(RestHeader::X_MS_BlobType)) ? 
-        AZURE_PAGE_BLOB : AZURE_BLOCK_BLOCK;
+        AZURE_PAGE_BLOB : AZURE_BLOCK_BLOB;
 
     // Property: Lease Status
     properties.lease_status = response.GetHeaderValue(RestHeader::X_MS_Lease_Status);

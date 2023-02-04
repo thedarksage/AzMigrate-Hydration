@@ -3,88 +3,205 @@
 #include "appcommand.h"
 #include "service.h"
 
-SVSTATUS ServiceHelper::StartSVAgents(int timeout, int maxRetryCount)
+#ifdef SV_WINDOWS
+SVSTATUS ServiceHelper::StartSVAgents(int timeout)
 {
     DebugPrintf(SV_LOG_DEBUG, "ENTERED %s\n", FUNCTION_NAME);
     SVSTATUS status = SVE_FAIL;
 
     bool active = true;
-    int retryCount = 0;
+    SV_ULONG exitCode = 1;
+    std::string cmd, cmdOutput;
+    InmServiceStatus svcStatus;
+
+    cmd = "net start svagents";
+
+    AppCommand objAppCommand(cmd, timeout);
+    boost::chrono::system_clock::time_point endTime =
+        boost::chrono::system_clock::now() + boost::chrono::seconds(timeout);
+
+    do
+    {
+        getServiceStatus("svagents", svcStatus);
+        InmService svc(svcStatus);
+
+        if (svcStatus == INM_SVCSTAT_START_PENDING)
+        {
+            DebugPrintf(SV_LOG_ALWAYS, "%s : Skip running SVAgents start as status = %s\n",
+                FUNCTION_NAME, svc.statusAsStr().c_str());
+        }
+        else if (svcStatus == INM_SVCSTAT_RUNNING)
+        {
+            status = SVS_OK;
+            break;
+        }
+        else
+        {
+            DebugPrintf(SV_LOG_ALWAYS, "%s : SVAgents service status=%s\n",
+                FUNCTION_NAME, svc.statusAsStr().c_str());
+            objAppCommand.Run(exitCode, cmdOutput, active, "", NULL);
+
+            getServiceStatus("svagents", svcStatus);
+            InmService svc2(svcStatus);
+
+            DebugPrintf(SV_LOG_ALWAYS,
+                "%s : SVAgents start command exit code : %d, service status : %s, output : %s\n",
+                FUNCTION_NAME, exitCode, svc2.statusAsStr().c_str(), cmdOutput.c_str());
+
+            if (!exitCode && svcStatus == INM_SVCSTAT_RUNNING)
+            {
+                DebugPrintf(SV_LOG_ALWAYS, "%s : SVAgents start succeeded.\n", FUNCTION_NAME);
+                status = SVS_OK;
+                break;
+            }
+        }
+
+        boost::chrono::system_clock::time_point curTime = boost::chrono::system_clock::now();
+        if (curTime > endTime)
+        {
+            DebugPrintf(SV_LOG_ERROR, "%s : SVAgents start timedout\n", FUNCTION_NAME);
+            status = SVE_ABORT;
+            break;
+        }
+
+        ACE_OS::sleep(Migration::ServiceOperationSleepTime);
+    } while(true);
+    DebugPrintf(SV_LOG_ALWAYS, "%s : SVAgents start final status : %d\n", FUNCTION_NAME, status);
+
+    DebugPrintf(SV_LOG_DEBUG, "EXITED %s\n", FUNCTION_NAME);
+    return status;
+}
+
+SVSTATUS ServiceHelper::StopSVAgents(int timeout)
+{
+    DebugPrintf(SV_LOG_DEBUG, "ENTERED %s\n", FUNCTION_NAME);
+    SVSTATUS status = SVE_FAIL;
+
+    bool active = true;
+    SV_ULONG exitCode = 1;
+    std::string cmd, cmdOutput;
+    InmServiceStatus svcStatus;
+
+    cmd = "net stop svagents";
+
+    AppCommand objAppCommand(cmd, timeout);
+    boost::chrono::system_clock::time_point endTime =
+        boost::chrono::system_clock::now() + boost::chrono::seconds(timeout);
+
+    do
+    {
+        getServiceStatus("svagents", svcStatus);
+        InmService svc(svcStatus);
+
+        if (svcStatus == INM_SVCSTAT_STOP_PENDING)
+        {
+            DebugPrintf(SV_LOG_ALWAYS, "%s : Skip running SVAgents stop as status = %s\n",
+                FUNCTION_NAME, svc.statusAsStr().c_str());
+        }
+        else if (svcStatus == INM_SVCSTAT_STOPPED)
+        {
+            status = SVS_OK;
+            break;
+        }
+        else
+        {
+            DebugPrintf(SV_LOG_ALWAYS, "%s : SVAgents service status=%s\n",
+                FUNCTION_NAME, svc.statusAsStr().c_str());
+
+            objAppCommand.Run(exitCode, cmdOutput, active, "", NULL);
+
+            getServiceStatus("svagents", svcStatus);
+            InmService svc2(svcStatus);
+
+            DebugPrintf(SV_LOG_ALWAYS,
+                "%s : SVAgents stop command exit code : %d, service status : %s, output : %s\n",
+                FUNCTION_NAME, exitCode, svc2.statusAsStr().c_str(), cmdOutput.c_str());
+
+            if (!exitCode && svcStatus == INM_SVCSTAT_STOPPED)
+            {
+                DebugPrintf(SV_LOG_ALWAYS, "%s : SVAgents stop succeeded.\n", FUNCTION_NAME);
+                status = SVS_OK;
+                break;
+            }
+        }
+
+        boost::chrono::system_clock::time_point curTime = boost::chrono::system_clock::now();
+        if (curTime > endTime)
+        {
+            DebugPrintf(SV_LOG_ERROR, "%s : SVAgents stop timedout\n", FUNCTION_NAME);
+            status = SVE_ABORT;
+            break;
+        }
+
+        ACE_OS::sleep(Migration::ServiceOperationSleepTime);
+    } while(true);
+    DebugPrintf(SV_LOG_ALWAYS, "%s : SVAgents stop final status : %d\n", FUNCTION_NAME, status);
+
+    DebugPrintf(SV_LOG_DEBUG, "EXITED %s\n", FUNCTION_NAME);
+    return status;
+}
+
+#else
+SVSTATUS ServiceHelper::StartSVAgents(int timeout)
+{
+    DebugPrintf(SV_LOG_DEBUG, "ENTERED %s\n", FUNCTION_NAME);
+    SVSTATUS status = SVE_FAIL;
+
+    bool active = true;
     SV_ULONG exitCode = 1;
     std::string cmd, cmdOutput;
 
-#ifdef SV_WINDOWS
-    cmd = "net start svagents";
-#else
     LocalConfigurator lc;
     cmd = lc.getInstallPath();
     cmd += ACE_DIRECTORY_SEPARATOR_CHAR_A;
     cmd += "bin";
     cmd += ACE_DIRECTORY_SEPARATOR_CHAR_A;
     cmd += "start";
-#endif
 
     AppCommand objAppCommand(cmd, timeout);
-    while (retryCount < maxRetryCount)
+    boost::chrono::system_clock::time_point endTime =
+        boost::chrono::system_clock::now() + boost::chrono::seconds(timeout);
+
+    do
     {
         objAppCommand.Run(exitCode, cmdOutput, active, "", NULL);
+        DebugPrintf(SV_LOG_ALWAYS,
+            "%s : SVAgents start exit code : %d, output : %s\n",
+            FUNCTION_NAME, exitCode, cmdOutput.c_str());
 
-#ifdef SV_WINDOWS
-        InmServiceStatus svcStatus;
-        getServiceStatus("svagents", svcStatus);
-        InmService svc(svcStatus);
-        DebugPrintf(SV_LOG_ALWAYS, "%s : SVAgents service status=%s\n", FUNCTION_NAME, svc.statusAsStr().c_str());
-        if (!exitCode || svcStatus == INM_SVCSTAT_RUNNING)
-        {
-            DebugPrintf(SV_LOG_ALWAYS,
-                "%s : SVAgents start succeeded with output : %s\n",
-                FUNCTION_NAME, cmdOutput.c_str());
-            status = SVS_OK;
-            break;
-        }
-        else
-        {
-            DebugPrintf(SV_LOG_ERROR,
-                "%s : SVAgents start failed with exit code : %d, retryCount : %d, output : %s\n",
-                FUNCTION_NAME, exitCode, retryCount, cmdOutput.c_str());
-        }
-#else
         if (!exitCode)
         {
-            DebugPrintf(SV_LOG_ALWAYS,
-                "%s : SVAgents start succeeded with output : %s\n",
-                FUNCTION_NAME, cmdOutput.c_str());
+            DebugPrintf(SV_LOG_ALWAYS, "%s : SVAgents start succeeded.\n", FUNCTION_NAME);
             status = SVS_OK;
             break;
         }
-        else
+
+        boost::chrono::system_clock::time_point curTime = boost::chrono::system_clock::now();
+        if (curTime > endTime)
         {
-            DebugPrintf(SV_LOG_ERROR,
-                "%s : SVAgents start failed with exit code : %d, retryCount : %d, output : %s\n",
-                FUNCTION_NAME, exitCode, retryCount, cmdOutput.c_str());
+            DebugPrintf(SV_LOG_ERROR, "%s : SVAgents start timedout\n", FUNCTION_NAME);
+            status = SVE_ABORT;
+            break;
         }
-#endif
-        ACE_OS::sleep(Migration::SleepTime);
-        retryCount++;
-    }
+
+        ACE_OS::sleep(Migration::ServiceOperationSleepTime);
+    } while(true);
+
+    DebugPrintf(SV_LOG_ALWAYS, "%s : SVAgents start final status : %d\n", FUNCTION_NAME, status);
 
     DebugPrintf(SV_LOG_DEBUG, "EXITED %s\n", FUNCTION_NAME);
     return status;
 }
 
-SVSTATUS ServiceHelper::StopSVAgents(int timeout, int maxRetryCount)
+SVSTATUS ServiceHelper::StopSVAgents(int timeout)
 {
     DebugPrintf(SV_LOG_DEBUG, "ENTERED %s\n", FUNCTION_NAME);
     SVSTATUS status = SVE_FAIL;
 
     bool active = true;
-    int retryCount = 0;
     SV_ULONG exitCode = 1;
     std::string cmd, cmdOutput;
 
-#ifdef SV_WINDOWS
-    cmd = "net stop svagents";
-#else
     LocalConfigurator lc;
     cmd = lc.getInstallPath();
     cmd += ACE_DIRECTORY_SEPARATOR_CHAR_A;
@@ -92,56 +209,42 @@ SVSTATUS ServiceHelper::StopSVAgents(int timeout, int maxRetryCount)
     cmd += ACE_DIRECTORY_SEPARATOR_CHAR_A;
     cmd += "stop";
     cmd += " svagents";
-#endif
 
     AppCommand objAppCommand(cmd, timeout);
-    while (retryCount < maxRetryCount)
+    boost::chrono::system_clock::time_point endTime =
+        boost::chrono::system_clock::now() + boost::chrono::seconds(timeout);
+
+    do
     {
         objAppCommand.Run(exitCode, cmdOutput, active, "", NULL);
+        DebugPrintf(SV_LOG_ALWAYS,
+            "%s : SVAgents stop exit code : %d, output : %s\n",
+            FUNCTION_NAME, exitCode, cmdOutput.c_str());
 
-#ifdef SV_WINDOWS
-        InmServiceStatus svcStatus;
-        getServiceStatus("svagents", svcStatus);
-        InmService svc(svcStatus);
-        DebugPrintf(SV_LOG_ALWAYS, "%s : SVAgents service status=%s\n", FUNCTION_NAME, svc.statusAsStr().c_str());
-
-        if (!exitCode || svcStatus == INM_SVCSTAT_STOPPED)
-        {
-            DebugPrintf(SV_LOG_ALWAYS,
-                "%s : SVAgents stop succeeded with output : %s\n",
-                FUNCTION_NAME, cmdOutput.c_str());
-            status = SVS_OK;
-            break;
-        }
-        else
-        {
-            DebugPrintf(SV_LOG_ERROR,
-                "%s : SVAgents stop failed with exit code : %d, retryCount : %d, output : %s\n",
-                FUNCTION_NAME, exitCode, retryCount, cmdOutput.c_str());
-        }
-#else
         if (!exitCode)
         {
-            DebugPrintf(SV_LOG_ALWAYS,
-                "%s : SVAgents stop succeeded with output : %s\n",
-                FUNCTION_NAME, cmdOutput.c_str());
+            DebugPrintf(SV_LOG_ALWAYS, "%s : SVAgents stop succeeded.\n", FUNCTION_NAME);
             status = SVS_OK;
             break;
         }
-        else
+
+        boost::chrono::system_clock::time_point curTime = boost::chrono::system_clock::now();
+        if (curTime > endTime)
         {
-            DebugPrintf(SV_LOG_ERROR,
-                "%s : SVAgents stop failed with exit code : %d, retryCount : %d, output : %s\n",
-                FUNCTION_NAME, exitCode, retryCount, cmdOutput.c_str());
+            DebugPrintf(SV_LOG_ERROR, "%s : SVAgents stop timedout\n", FUNCTION_NAME);
+            status = SVE_ABORT;
+            break;
         }
-#endif 
-        ACE_OS::sleep(Migration::SleepTime);
-        retryCount++;
-    }
+
+        ACE_OS::sleep(Migration::ServiceOperationSleepTime);
+    } while(true);
+
+    DebugPrintf(SV_LOG_ALWAYS, "%s : SVAgents stop final status : %d\n", FUNCTION_NAME, status);
 
     DebugPrintf(SV_LOG_DEBUG, "EXITED %s\n", FUNCTION_NAME);
     return status;
 }
+#endif
 
 SVSTATUS ServiceHelper::UpdateSymLinkPath(const std::string &linkPath,
     const std::string &filePath, std::string &errMsg)
@@ -221,7 +324,7 @@ SVSTATUS ServiceHelper::UpdateCSTypeAndRestartSVAgent(const std::string &csType,
     do
     {
         status = StopSVAgents(
-            Migration::ServiceStopTimeOut, Migration::MaxRetryCount);
+            Migration::ServiceStopTimeOut);
         if (status != SVS_OK)
         {
             errMsg = "Failed to stop service\n";
@@ -255,7 +358,7 @@ SVSTATUS ServiceHelper::UpdateCSTypeAndRestartSVAgent(const std::string &csType,
         lc.setDataProtectionExePathname(dpPath);
 
         status = ServiceHelper::StartSVAgents(
-            Migration::ServiceStartTimeOut, Migration::MaxRetryCount);
+            Migration::ServiceStartTimeOut);
         if (status != SVS_OK)
         {
             errMsg = "Failed to start service\n";

@@ -63,7 +63,7 @@ SRCS = \
 	cdpdef.cpp \
 	snapshotmanagerproxy.cpp \
 	protecteddevicedetails.h \
-
+	
 X_CFLAGS = \
 	-Icommon \
     -Iinmsafeint \

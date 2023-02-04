@@ -114,9 +114,15 @@ namespace AzureStorageRest
 
         }
 
+        const std::string AZURE_STACK_X_MS_VERSION = std::string("2019-07-07");
+
+        static std::string X_MS_Version = std::string("2021-04-10");
+
         std::string GetUrlComponent(const std::string& url, int compIndex);
 
         std::string Get_X_MS_Version();
+
+        void Set_X_MS_Version(const std::string& x_ms_version);
 
         key_pair_t To_key_value_pair(
             const std::string& raw_param,

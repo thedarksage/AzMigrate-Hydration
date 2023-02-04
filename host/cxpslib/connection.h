@@ -204,6 +204,8 @@ public:
     /// sync connect will automatically call it so no need for callers of connect to use it
     virtual void setPeerIpAddress() = 0;
 
+    virtual std::string getCertBiosId() = 0;
+
     virtual bool isOpen() = 0;
 
     /// \brief cancel async socket request
@@ -445,6 +447,11 @@ public:
                 }
             }
         }
+
+    virtual std::string getCertBiosId()
+    {
+        return std::string();
+    }
 
     virtual bool isOpen()
         {
@@ -757,11 +764,15 @@ public:
             return m_sslContext.getCertificate(m_socket.native_handle());
         }
 
-
     virtual std::string getCurrentCipherSuite()
         {
             return m_sslContext.getCurrentCipherSuite(m_socket.native_handle());
         }
+
+    virtual std::string getCertBiosId()
+    {
+        return m_sslContext.getCertBiosId();
+    }
 
 protected:
 

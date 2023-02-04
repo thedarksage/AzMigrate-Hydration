@@ -30,6 +30,11 @@ namespace OPERATION
     const char UPLOAD_LOG[] = "uploadlog";
     const char MIGRATION[] = "migration";
     const char GENCONVERSION[] = "genconversion";
+    //Test Operations
+    const char RECOVERY_TEST[] = "recoverytest";
+    const char MIGRATION_TEST[] = "migrationtest";
+    const char GENCONVERSION_TEST[] = "genconversiontest";
+    const char STATUS_UPDATE_TEST[] = "statusupdatetest";
 }
 
 #endif //~ _AZURE_RECOVERY_UTIL_CMD_OPTIONS_
