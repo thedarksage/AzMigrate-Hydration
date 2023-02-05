@@ -1,8 +1,8 @@
 # Build & Test Status
 | Platform | Build |
 |---|:-----:|
-|![Win-x64](docs/img/win_logo.png) ***Windows x64***|[![Build Status](https://msazure.visualstudio.com/One/_apis/build/status/OneBranch/AzMigrate-Hydration/thedarksage.AzMigrate-Hydration?branchName=develop)](https://msazure.visualstudio.com/One/_build/latest?definitionId=281574&branchName=develop)
-|![Ubuntu-20.04-x64](docs/img/linux_logo.png) ***Ubuntu 20.04***|[![Build Status](https://msazure.visualstudio.com/One/_apis/build/status/OneBranch/AzMigrate-Hydration/thedarksage.AzMigrate-Hydration?branchName=develop)](https://msazure.visualstudio.com/One/_build/latest?definitionId=281574&branchName=develop)
+|![Win-x64](docs/img/win_logo.png) ***Windows x64***|[![Build Status](https://msazure.visualstudio.com/One/_apis/build/status/OneBranch/AzMigrate-Hydration/Build_AzureRecoveryTools_AzMigrate_Hydration?branchName=develop)](https://msazure.visualstudio.com/One/_build/latest?definitionId=290364&branchName=develop)
+|![Ubuntu-20.04-x64](docs/img/linux_logo.png) ***Ubuntu 20.04***|[![Build Status](https://msazure.visualstudio.com/One/_apis/build/status/OneBranch/AzMigrate-Hydration/Build_AzureRecoveryTools_AzMigrate_Hydration?branchName=develop)](https://msazure.visualstudio.com/One/_build/latest?definitionId=290364&branchName=develop)
 
 | Platform | Test |
 |---|:-----:|
