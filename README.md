@@ -1,16 +1,16 @@
 # Build & Test Status
 | Platform | Build |
 |---|:-----:|
-|![Win-x64](docs/img/win_logo.png) ***Windows x64***|[![Build Status](https://msazure.visualstudio.com/One/_apis/build/status/OneBranch/AzMigrate-Hydration/thedarksage.AzMigrate-Hydration?branchName=develop)](https://msazure.visualstudio.com/One/_build/latest?definitionId=281574&branchName=develop)
-|![Ubuntu-20.04-x64](docs/img/linux_logo.png) ***Ubuntu 20.04***|[![Build Status](https://msazure.visualstudio.com/One/_apis/build/status/OneBranch/AzMigrate-Hydration/thedarksage.AzMigrate-Hydration?branchName=develop)](https://msazure.visualstudio.com/One/_build/latest?definitionId=281574&branchName=develop)
+|![Win-x64](docs/img/win_logo.png) ***Windows x64***|[![Build Status](https://msazure.visualstudio.com/One/_apis/build/status/OneBranch/AzMigrate-Hydration/thedarksage.AzMigrate-Hydration?branchName=develop)](https://msazure.visualstudio.com/One/_build/latest?definitionId=281574&branchName=main)
+|![Ubuntu-20.04-x64](docs/img/linux_logo.png) ***Ubuntu 20.04***|[![Build Status](https://msazure.visualstudio.com/One/_apis/build/status/OneBranch/AzMigrate-Hydration/thedarksage.AzMigrate-Hydration?branchName=develop)](https://msazure.visualstudio.com/One/_build/latest?definitionId=281574&branchName=main)
 
 | Platform | Test |
 |---|:-----:|
-|![Win-x64](docs/img/win_logo.png) ***Windows 2016 Datacenter***|[![Build Status](https://msazure.visualstudio.com/One/_apis/build/status/OneBranch/AzMigrate-Hydration/thedarksage.AzMigrate-Hydration?branchName=develop)](https://msazure.visualstudio.com/One/_build/latest?definitionId=281574&branchName=develop)
-|![Redhat7-x64](docs/img/redhat_logo.png) ***Redhat 7.7***|[![Build Status](https://msazure.visualstudio.com/One/_apis/build/status/OneBranch/AzMigrate-Hydration/thedarksage.AzMigrate-Hydration?branchName=develop)](https://msazure.visualstudio.com/One/_build/latest?definitionId=281574&branchName=develop)
-|![CentOS7-x64](docs/img/centos_logo.png) ***CentOS 7.0***|[![Build Status](https://msazure.visualstudio.com/One/_apis/build/status/OneBranch/AzMigrate-Hydration/thedarksage.AzMigrate-Hydration?branchName=develop)](https://msazure.visualstudio.com/One/_build/latest?definitionId=281574&branchName=develop)
-|![SLES15-x64](docs/img/opensuse_logo.png) ***SLES 15 SP2***|[![Build Status](https://msazure.visualstudio.com/One/_apis/build/status/OneBranch/AzMigrate-Hydration/thedarksage.AzMigrate-Hydration?branchName=develop)](https://msazure.visualstudio.com/One/_build/latest?definitionId=281574&branchName=develop)
-|![Ubuntu-18.04-x64](docs/img/ubuntu_logo.png) ***Ubuntu 18.04***|[![Build Status](https://msazure.visualstudio.com/One/_apis/build/status/OneBranch/AzMigrate-Hydration/thedarksage.AzMigrate-Hydration?branchName=develop)](https://msazure.visualstudio.com/One/_build/latest?definitionId=281574&branchName=develop)
+|![Win-x64](docs/img/win_logo.png) ***Windows 2016 Datacenter***|[![Build Status](https://msazure.visualstudio.com/One/_apis/build/status/OneBranch/AzMigrate-Hydration/thedarksage.AzMigrate-Hydration?branchName=develop)](https://msazure.visualstudio.com/One/_build/latest?definitionId=281574&branchName=main)
+|![Redhat7-x64](docs/img/redhat_logo.png) ***Redhat 7.7***|[![Build Status](https://msazure.visualstudio.com/One/_apis/build/status/OneBranch/AzMigrate-Hydration/thedarksage.AzMigrate-Hydration?branchName=develop)](https://msazure.visualstudio.com/One/_build/latest?definitionId=281574&branchName=main)
+|![CentOS7-x64](docs/img/centos_logo.png) ***CentOS 7.0***|[![Build Status](https://msazure.visualstudio.com/One/_apis/build/status/OneBranch/AzMigrate-Hydration/thedarksage.AzMigrate-Hydration?branchName=develop)](https://msazure.visualstudio.com/One/_build/latest?definitionId=281574&branchName=main)
+|![SLES15-x64](docs/img/opensuse_logo.png) ***SLES 15 SP2***|[![Build Status](https://msazure.visualstudio.com/One/_apis/build/status/OneBranch/AzMigrate-Hydration/thedarksage.AzMigrate-Hydration?branchName=develop)](https://msazure.visualstudio.com/One/_build/latest?definitionId=281574&branchName=main)
+|![Ubuntu-18.04-x64](docs/img/ubuntu_logo.png) ***Ubuntu 18.04***|[![Build Status](https://msazure.visualstudio.com/One/_apis/build/status/OneBranch/AzMigrate-Hydration/thedarksage.AzMigrate-Hydration?branchName=develop)](https://msazure.visualstudio.com/One/_build/latest?definitionId=281574&branchName=main)
 
 # Project
 This project provides the source code for [Azure Migrate hydration scripts](https://docs.microsoft.com/en-us/azure/migrate/prepare-for-agentless-migration#hydration-process).
