@@ -155,31 +155,31 @@ bool RegGetKeyValue(
     TRACE_FUNC_BEGIN;
     bool bExist = false;
     CRegKey regKey;
-    std::string keyPath = systemHive
+    std::string absoluteKeyPath = systemHive
         + (std::string)DIRECOTRY_SEPERATOR
         + keyPath;
 
-    if (!RegKeyExists(HKEY_LOCAL_MACHINE, keyPath))
+    if (!RegKeyExists(HKEY_LOCAL_MACHINE, absoluteKeyPath))
     {
-        errStream << "Key missing in the VM. KeyPath " << keyPath;
+        errStream << "Key missing in the VM. Key Path " << absoluteKeyPath;
         TRACE_ERROR("%s\n", errStream.str().c_str());
     }
     else
     {
-        TRACE_INFO("Key exist in the VM. KeyPath %s.\n", keyPath.c_str());
-        LONG lRetStatus = regKey.Open(HKEY_LOCAL_MACHINE, keyPath.c_str(), KEY_READ);
+        TRACE_INFO("Key exist in the VM. Key Path %s.\n", absoluteKeyPath.c_str());
+        LONG lRetStatus = regKey.Open(HKEY_LOCAL_MACHINE, absoluteKeyPath.c_str(), KEY_READ);
         if (ERROR_SUCCESS != lRetStatus)
         {
-            errStream << "Could not open registry key " << keyPath;;
+            errStream << "Could not open registry key " << absoluteKeyPath;;
             TRACE_ERROR("%s\n", errStream.str().c_str());
         }
         else
         {
-            TRACE_INFO("Opened the registry key %s.\n", keyPath.c_str());
+            TRACE_INFO("Opened the registry key %s.\n", absoluteKeyPath.c_str());
             lRetStatus = RegGetStringValue(regKey, keyValueName, keyValueData);
             if (ERROR_SUCCESS != lRetStatus)
             {
-                errStream << ("Could not query the key value for the VM. KeyPath: ") << keyPath << " KeyValueName: " << keyValueName;
+                errStream << ("Could not query the key value for the VM. Key Path: ") << absoluteKeyPath << " KeyValueName: " << keyValueName;
                 TRACE_ERROR("%s\n", errStream.str().c_str());
             }
             else
