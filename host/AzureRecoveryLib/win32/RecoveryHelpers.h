@@ -31,6 +31,8 @@ namespace AzureRecovery
 
     bool VerifyRegistrySettingsForWinGA(const std::string& srcOSVolume, std::stringstream& errorstream);
 
+    bool VerifyWinVMBusRegistrySettings(std::string& errorMsg);
+
     bool VerifyDisks(std::string& errorMsg);
 
     bool PrepareActivePartitionDrive(std::string& drivePath, std::string& errorMsg);

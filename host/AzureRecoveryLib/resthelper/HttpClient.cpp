@@ -597,7 +597,7 @@ size_t HttpClient::header_data_callback(char *buff, size_t size, size_t nmemb, v
                 response_obj.m_response_headers[header_line] = "";
         }
     }
-    catch (...) { TRACE_ERROR("Caught exception for the header line: %s", header_line.c_str()); }
+    catch (...) { TRACE_ERROR("Caught exception for the header line: %s\n", header_line.c_str()); }
 
     return size*nmemb;
 }

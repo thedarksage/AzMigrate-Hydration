@@ -197,6 +197,8 @@ int StartMigration()
         {
             errStream << "Error mounting source system partitions. "
                 << RecoveryStatus::Instance().GetLastErrorMessge();
+
+            // We have set the error code internally, it won't be overwritten.
             retcode = E_RECOVERY_COULD_NOT_MOUNT_SYS_VOL;
             break;
         }
@@ -1438,6 +1440,7 @@ bool MountSourceSystemPartitions()
 
     BOOST_FOREACH(const fs_tree_entry& sft_entry, sft_entries)
     {
+        bool isSupportedFS = true;
         // root (/) is already mounted, ignore it
         // and continue with rest.
         if (boost::equals(sft_entry.mountpoint, "/"))
@@ -1452,6 +1455,14 @@ bool MountSourceSystemPartitions()
             }
 
             continue;
+        }
+
+        if (sft_entry.src_fstab_entry.IsUFSVolume() ||
+            sft_entry.src_fstab_entry.IsZFSMember())
+        {
+            TRACE_WARNING("%s has an unsupported FileSystem.\n",
+                sft_entry.mountpoint.c_str());
+            isSupportedFS = false;
         }
 
         std::stringstream mnt;
@@ -1481,9 +1492,21 @@ bool MountSourceSystemPartitions()
             TRACE_ERROR("Could not mount partition on hydration VM for: %s.\n",
                 sft_entry.src_fstab_entry.ToString().c_str());
 
-            RecoveryStatus::Instance().SetStatusErrorCode(
-                E_RECOVERY_COULD_NOT_MOUNT_SYS_VOL,
-                sft_entry.src_fstab_entry.mountpoint);
+            if (!isSupportedFS)
+            {
+                RecoveryStatus::Instance().SetStatusErrorCode(
+                    E_RECOVERY_FILE_SYSTEM_UNSUPPORTED,
+                    sft_entry.src_fstab_entry.mountpoint);
+
+                RecoveryStatus::Instance().SetCustomErrorData(
+                    sft_entry.src_fstab_entry.fstype);
+            }
+            else
+            {
+                RecoveryStatus::Instance().SetStatusErrorCode(
+                    E_RECOVERY_COULD_NOT_MOUNT_SYS_VOL,
+                    sft_entry.src_fstab_entry.mountpoint);
+            }
 
             bSuccess = false;
             break;

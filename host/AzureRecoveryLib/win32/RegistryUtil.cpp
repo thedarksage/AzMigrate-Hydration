@@ -133,6 +133,67 @@ LONG UnloadRegistryHive(const std::string& hiveName)
 }
 
 /*
+ Method: RegGetKeyValue
+
+ Description : Get the registry key value.
+
+ Parameters : [in] System Hive
+              [in] Key Path
+              [in] Key Value Name
+              [out] Error Stream
+              [out] Key Value Data
+
+ Return : true on success, otherwise false.
+*/
+bool RegGetKeyValue(
+    const std::string systemHive,
+    const std::string keyPath,
+    const std::string keyValueName,
+    std::stringstream& errStream,
+    std::string& keyValueData)
+{
+    TRACE_FUNC_BEGIN;
+    bool bExist = false;
+    CRegKey regKey;
+    std::string keyPath = systemHive
+        + (std::string)DIRECOTRY_SEPERATOR
+        + keyPath;
+
+    if (!RegKeyExists(HKEY_LOCAL_MACHINE, keyPath))
+    {
+        errStream << "Key missing in the VM. KeyPath " << keyPath;
+        TRACE_ERROR("%s\n", errStream.str().c_str());
+    }
+    else
+    {
+        TRACE_INFO("Key exist in the VM. KeyPath %s.\n", keyPath.c_str());
+        LONG lRetStatus = regKey.Open(HKEY_LOCAL_MACHINE, keyPath.c_str(), KEY_READ);
+        if (ERROR_SUCCESS != lRetStatus)
+        {
+            errStream << "Could not open registry key " << keyPath;;
+            TRACE_ERROR("%s\n", errStream.str().c_str());
+        }
+        else
+        {
+            TRACE_INFO("Opened the registry key %s.\n", keyPath.c_str());
+            lRetStatus = RegGetStringValue(regKey, keyValueName, keyValueData);
+            if (ERROR_SUCCESS != lRetStatus)
+            {
+                errStream << ("Could not query the key value for the VM. KeyPath: ") << keyPath << " KeyValueName: " << keyValueName;
+                TRACE_ERROR("%s\n", errStream.str().c_str());
+            }
+            else
+            {
+                TRACE_INFO("Queried the key value: %s.\n", keyValueData.c_str());
+                bExist = true;
+            }
+        }
+    }
+    TRACE_FUNC_END;
+    return bExist;
+}
+
+/*
 Method      : RegGetStringValue
 
 Description : Reads the string value data

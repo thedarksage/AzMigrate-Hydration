@@ -492,7 +492,7 @@ int StartMigration()
 
                     errStream << "Could not prepare active partition drive for BCD update. ( "
                         << errorMessage
-                        << " )";
+                        << " )\n";
 
                     TRACE_ERROR("%s\n", errStream.str().c_str());
 
@@ -510,7 +510,7 @@ int StartMigration()
 
                     errStream << "Could not update BIOS boot records on active partition. ( "
                         << errorMessage
-                        << " )";
+                        << " )\n";
 
                     TRACE_ERROR("%s\n", errStream.str().c_str());
 
@@ -524,7 +524,7 @@ int StartMigration()
             {
                 // Log within HydrationLogs.
                 std::stringstream scErrStream;
-                scErrStream << "Could not update serial console for the VM. ";
+                scErrStream << "Could not update serial console for the VM.\n";
 
                 TRACE_ERROR("%s\n", scErrStream.str().c_str());
 
@@ -537,7 +537,7 @@ int StartMigration()
                 curTaskDesc,
                 errStream,
                 isWin2k8);
-
+                
             if (!IsDotNetFxVersionPresent(srcOsVol))
             {
                 TRACE_INFO("No installation of version 4.0+ of Microsoft.NET found.\n");
@@ -546,6 +546,20 @@ int StartMigration()
                 {
                     retcode = E_RECOVERY_DOTNET_FRAMEWORK_INCOMPATIBLE;
                 }
+            }
+
+            if (boost::iequals(GetHydrationConfigValue(
+                GetHydrationConfigSettings(), HydrationConfig::IsConfidentialVmMigration), "true"))
+            {
+                if (EnableBitlocker(srcOsVol) != ERROR_SUCCESS)
+                {
+                    errStream << "Could not enable BitLocker for the Confidential VM Migration. Boot will fail.\n";
+                    retcode = E_RECOVERY_ENABLE_BITLOCKER_FAILED;
+                }
+            }
+            else
+            {
+                TRACE_INFO("Enabling BitLocker is not required for Non-Confidential VM migrations.\n");
             }
 
             if (!errStream.str().empty())
@@ -1169,6 +1183,75 @@ namespace AzureRecovery
         TRACE_FUNC_END;
         return bSuccess;
     }
+
+    /*
+    Method     : VerifyWinVMBusRegistrySettings
+
+    Description: Verifies the existence of required Registry settings for the Windows Virtual Machine Bus in the attached disk.
+
+    Parameters : [out] errorMsg: Filled with error details on failure.
+
+    Return     : true if all required Registry settings exist in the attached disk, otherwise false.
+    */
+    bool VerifyWinVMBusRegistrySettings(std::string& errorMsg)
+    {
+        TRACE_FUNC_BEGIN;
+        std::stringstream errorStream;
+
+        // List of registry keys to check for existence in the attached disk
+        const std::vector<std::string> vmBusRegistryList = {
+            "\\Configurations\\VMBus_Device_Child.NT",
+            "\\Configurations\\VMBus_Support_Device.NT",
+            "\\Descriptors\\ACPI\\VMBus",
+            "\\Descriptors\\VMBUS\\SUBCHANNEL",
+            "\\Strings"
+        };
+
+        // Registry key to check for the value of the Windows Virtual Machine Bus hive name
+        const std::string keyPath = "DriverDatabase\\DriverInfFiles\\wvmbus.inf";
+        const std::string keyValueName = "Active";
+        std::string vmBusRegistryHiveValue;
+        bool isSuccess = true;
+
+        if (RegGetKeyValue(RegistryConstants::VM_SYSTEM_HIVE_NAME, keyPath, keyValueName, errorStream, vmBusRegistryHiveValue))
+        {
+            for (const std::string& vmBusRegistryPath : vmBusRegistryList)
+            {
+                std::string vmBusRegistryHivePath = RegistryConstants::VM_SYSTEM_HIVE_NAME
+                    + (std::string)DIRECOTRY_SEPERATOR
+                    + "DriverDatabase\\DriverPackages"
+                    + (std::string)DIRECOTRY_SEPERATOR
+                    + vmBusRegistryHiveValue
+                    + vmBusRegistryPath;
+
+                // Check if the registry key exists in the source VM disk
+                if (!RegKeyExists(HKEY_LOCAL_MACHINE, vmBusRegistryHivePath))
+                {
+                    isSuccess = false;
+                    errorStream << "Registry Key missing. KeyPath : " << vmBusRegistryHivePath << std::endl;
+                }
+            }
+        }
+        else
+        {
+            isSuccess = false;
+            errorStream << "Failed to get value of Windows Virtual Machine Bus hive name from registry in the attached disk." << std::endl;
+        }
+
+        if (isSuccess)
+        {
+            TRACE_INFO("Successfully verified the existence of required Registry settings for the Windows Virtual Machine Bus in the attached disk.");
+        }
+        else
+        {
+            errorMsg = errorStream.str();
+            TRACE_ERROR("%s", errorMsg.c_str());
+        }
+
+        TRACE_FUNC_END;
+        return isSuccess;
+    }
+
 
     /*
     Method      : MakeChangesForServicesOnRegistry
@@ -3103,7 +3186,7 @@ namespace AzureRecovery
                 )
             {
                 errorMsg = "Cloud not get source OS volume disk drive extents or the extents information is missing in host information";
-                TRACE_ERROR("%s", errorMsg.c_str());
+                TRACE_ERROR("\n%s", errorMsg.c_str());
                 bSuccess = false;
                 break;
             }
@@ -3486,6 +3569,24 @@ namespace AzureRecovery
                     break;
                 }
             }
+
+            bool isWin2k12R2 = false;
+            OSVersion osVersion;
+            if (GetOsVersion(osVersion)) {
+                isWin2k12R2 = ((osVersion.major == 6) && (osVersion.minor == 3));
+            }
+
+            if (isWin2k12R2) {
+                curTaskDesc = TASK_DESCRIPTIONS::VERIFY_VMBUS_REGISTRY;
+                if (!VerifyWinVMBusRegistrySettings(errorMessage))
+                {
+                    errStream << "Could not find required VM Bus registry.( "
+                        << errorMessage
+                        << " )";
+
+                    TRACE_ERROR("%s\n", errStream.str().c_str());
+                }
+            }  
 
         } while (false);
 

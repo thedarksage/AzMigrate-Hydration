@@ -44,6 +44,7 @@ namespace TASK_DESCRIPTIONS
     const char CHANGE_FSTAB[]              = "Fixing fstab entries";
     const char UNMOUNT_SYSTEM_PARTITIONS[] = "Un-mounting and performing other cleanup";
     const char UPLOAD_LOG[]                = "Uploading Execution Log";
+    const char VERIFY_VMBUS_REGISTRY[]     = "Verifies the existence of required Registry settings for the Windows VM Bus";
 }
 
 //
@@ -112,6 +113,10 @@ namespace TASK_DESCRIPTIONS
 #define E_RECOVERY_ENABLE_SERIAL_CONSOLE_FAILED    30
 
 #define E_RECOVERY_DOTNET_FRAMEWORK_INCOMPATIBLE    31
+
+#define E_RECOVERY_ENABLE_BITLOCKER_FAILED    32
+
+#define E_RECOVERY_FILE_SYSTEM_UNSUPPORTED  33
 
 namespace BlobStatusMetadataName
 {

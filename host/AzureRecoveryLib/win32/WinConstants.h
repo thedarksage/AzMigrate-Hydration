@@ -129,6 +129,7 @@ namespace AzureRecovery
         const char DOTNET_FRAMEWORK_PATH[] = "\\Windows\\Microsoft.NET\\Framework";
         const char WINDOWS_AZURE_DIR[] = "\\WindowsAzure";
         const char WIN_GA_DOTNET_VER[] = "4.0";
+        const char POWERSHELL_EXE_NAME[] = "powershell.exe";
     }
 }
 
