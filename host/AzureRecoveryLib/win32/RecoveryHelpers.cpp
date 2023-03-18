@@ -1200,7 +1200,7 @@ namespace AzureRecovery
 
         // List of registry keys to check for existence in the attached disk
         const std::vector<std::string> vmBusRegistryList = {
-            "\\Configurations\\VMBus_Device_Child.NT",
+            "\\Configurations\\VMBus_Device_WIN8_Child.NT",
             "\\Configurations\\VMBus_Support_Device.NT",
             "\\Descriptors\\ACPI\\VMBus",
             "\\Descriptors\\VMBUS\\SUBCHANNEL",
@@ -3579,11 +3579,17 @@ namespace AzureRecovery
                 curTaskDesc = TASK_DESCRIPTIONS::VERIFY_VMBUS_REGISTRY;
                 if (!VerifyWinVMBusRegistrySettings(errorMessage))
                 {
+                    if (retcode == E_RECOVERY_SUCCESS)
+                    {
+                        retcode = E_REQUIRED_VMBUS_REGISTRIES_MISSING;
+                    }
+
                     errStream << "Could not find required VM Bus registry.( "
                         << errorMessage
                         << " )";
 
                     TRACE_ERROR("%s\n", errStream.str().c_str());
+                    break;
                 }
             }  
 

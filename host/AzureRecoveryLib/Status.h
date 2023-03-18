@@ -118,6 +118,8 @@ namespace TASK_DESCRIPTIONS
 
 #define E_RECOVERY_FILE_SYSTEM_UNSUPPORTED  33
 
+#define E_REQUIRED_VMBUS_REGISTRIES_MISSING 34
+
 namespace BlobStatusMetadataName
 {
     const char ExecutionStatus[]   = "ExecutionStatus";
