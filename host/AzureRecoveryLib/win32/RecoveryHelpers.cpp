@@ -3570,11 +3570,10 @@ namespace AzureRecovery
                 }
             }
 
-            bool isWin2k12R2 = false;
-            OSVersion osVersion;
-            if (GetOsVersion(osVersion)) {
-                isWin2k12R2 = ((osVersion.major == 6) && (osVersion.minor == 3));
-            }
+            std::string osVersion = RecoveryStatus::Instance().GetUpdate().OsDetails;
+
+            bool isWin2k12R2 = boost::starts_with(osVersion,
+                RegistryConstants::WIN2K12R2_VERSION_PREFIX);
 
             if (isWin2k12R2) {
                 curTaskDesc = TASK_DESCRIPTIONS::VERIFY_VMBUS_REGISTRY;

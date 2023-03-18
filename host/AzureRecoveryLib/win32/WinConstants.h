@@ -100,6 +100,7 @@ namespace AzureRecovery
         const int MAX_STARTUP_SCRIPT_SEARCH_LIMIT = 1000;
 
         const char WIN2K8_VERSION_PREFIX[] = "6.0.";
+        const char WIN2K12R2_VERSION_PREFIX[] = "6.3.";
     }
 
     namespace ServiceNames
