@@ -262,10 +262,12 @@ int StartRecovery()
         }
 
         bool isWindows2008 = false;
+        bool isWindows2k12R2 = false;
 
         OSVersion   osVersion;
         if (GetOsVersion(osVersion)) {
             isWindows2008 = ((osVersion.major == 6) && (osVersion.minor == 0));
+            isWindows2k12R2 = ((osVersion.major == 6) && (osVersion.minor == 3));
         }
 
         SetOSVersionDetails(srcOsInstallPath);
@@ -361,10 +363,27 @@ int StartRecovery()
             }
         }
 
+        if (isWindows2k12R2) {
+            curTaskDesc = TASK_DESCRIPTIONS::VERIFY_VMBUS_REGISTRY;
+            if (!VerifyWinVMBusRegistrySettings(errorMessage))
+            {
+                if (retcode == E_RECOVERY_SUCCESS)
+                {
+                    retcode = E_REQUIRED_VMBUS_REGISTRIES_MISSING;
+                }
+
+                errStream << "Could not find required VM Bus registry.( "
+                    << errorMessage
+                    << " )";
+
+                TRACE_ERROR("%s\n", errStream.str().c_str());
+            }
+        }
+
         if (!IsDotNetFxVersionPresent(srcOsInstallPath.substr(0, 3)))
         {
             TRACE_INFO("No installation of version 4.0+ of Microsoft.NET found.\n");
-            
+
             if (retcode == 0)
             {
                 retcode = E_RECOVERY_DOTNET_FRAMEWORK_INCOMPATIBLE;
@@ -463,7 +482,7 @@ int StartMigration()
         BOOST_ASSERT(osVolumes.size() > 0);
 
         // Do hydration for all the OS volumes discovered.
-        BOOST_FOREACH(const std::string& srcOsVol, osVolumes)
+        BOOST_FOREACH(const std::string & srcOsVol, osVolumes)
         {
             std::stringstream srcOsInstallPath;
             srcOsInstallPath
@@ -479,6 +498,8 @@ int StartMigration()
             // Check if it is Win2k8, if so then AutoMount should be disabled.
             bool isWin2k8 = boost::starts_with(osVersion,
                 RegistryConstants::WIN2K8_VERSION_PREFIX);
+            bool isWin2k12R2 = boost::starts_with(osVersion,
+                RegistryConstants::WIN2K12R2_VERSION_PREFIX);
 
             // TODO: UEFI commands need not to run on every OS volume found.
             if (AzureRecoveryConfig::Instance().IsUEFI())
@@ -503,7 +524,7 @@ int StartMigration()
                 if (!UpdateBIOSBootRecordsOnOSDisk(
                     srcOsInstallPath.str(),
                     activePartitionDrive,
-                    (std::string) "ALL",
+                    (std::string)"ALL",
                     errorMessage))
                 {
                     retcode = E_RECOVERY_COULD_NOT_UPDATE_BCD;
@@ -536,8 +557,9 @@ int StartMigration()
                 retcode,
                 curTaskDesc,
                 errStream,
-                isWin2k8);
-                
+                isWin2k8,
+                isWin2k12R2);
+
             if (!IsDotNetFxVersionPresent(srcOsVol))
             {
                 TRACE_INFO("No installation of version 4.0+ of Microsoft.NET found.\n");
@@ -651,7 +673,7 @@ int StartGenConversion()
         BOOST_ASSERT(osVolumes.size() > 0);
 
         // Do update bcd recodrds for all the OS volumes discovered.
-        BOOST_FOREACH(const std::string& srcOsVol, osVolumes)
+        BOOST_FOREACH(const std::string & srcOsVol, osVolumes)
         {
             std::stringstream srcOsInstallPath;
             srcOsInstallPath
@@ -696,7 +718,7 @@ int StartGenConversion()
                 if (!UpdateBIOSBootRecordsOnOSDisk(
                     srcOsInstallPath.str(),
                     activePartitionDrive,
-                    (std::string) "BIOS",
+                    (std::string)"BIOS",
                     errorMessage))
                 {
                     retcode = E_RECOVERY_COULD_NOT_UPDATE_BCD;
@@ -713,9 +735,11 @@ int StartGenConversion()
                 }
 
                 bool isWin2k8 = false;
+                bool isWin2k12R2 = false;
                 OSVersion osVersion;
                 if (GetOsVersion(osVersion)) {
                     isWin2k8 = ((osVersion.major == 6) && (osVersion.minor == 0));
+                    isWin2k12R2 = ((osVersion.major == 6) && (osVersion.minor == 3));
                 }
 
                 // Since gen-conversion is a critical failure in protection service, using alternate retCode so hydration doesn't fail
@@ -729,12 +753,13 @@ int StartGenConversion()
                     regRetCode,
                     curTaskDesc,
                     regErrStr,
-                    isWin2k8);
+                    isWin2k8,
+                    isWin2k12R2);
 
                 if (!IsDotNetFxVersionPresent(srcOsVol))
                 {
                     TRACE_INFO("No installation of version 4.0+ of Microsoft.NET found.\n");
-                    
+
                     if (retcode == 0)
                     {
                         errStream << "Windows VM Agent requires .NET version 4.0+ .";
@@ -1928,10 +1953,10 @@ namespace AzureRecovery
                     srcOSVolume.c_str());
 
                 std::string winGASubKey = RegistryConstants::VM_SYSTEM_HIVE_NAME +
-                    (std::string) DIRECOTRY_SEPERATOR +
+                    (std::string)DIRECOTRY_SEPERATOR +
                     lastKnownGoodCS +
                     RegistryConstants::SERVICES +
-                    (std::string) ServiceNames::AZURE_GUEST_AGENT; // WindowsAzureGuestAgent
+                    (std::string)ServiceNames::AZURE_GUEST_AGENT; // WindowsAzureGuestAgent
 
                 CRegKey winGACurrKey;
                 lRetStatus = winGACurrKey.Open(HKEY_LOCAL_MACHINE, winGASubKey.c_str(), KEY_READ);
@@ -1991,10 +2016,10 @@ namespace AzureRecovery
                     ServiceNames::AZURE_RDAGENT_SVC);
 
                 winGASubKey = RegistryConstants::VM_SYSTEM_HIVE_NAME +
-                    (std::string) DIRECOTRY_SEPERATOR +
+                    (std::string)DIRECOTRY_SEPERATOR +
                     lastKnownGoodCS +
                     RegistryConstants::SERVICES +
-                    (std::string) ServiceNames::AZURE_RDAGENT_SVC; //RdAgent
+                    (std::string)ServiceNames::AZURE_RDAGENT_SVC; //RdAgent
 
                 lRetStatus = winGACurrKey.Open(HKEY_LOCAL_MACHINE, winGASubKey.c_str(), KEY_READ);
                 if (ERROR_SUCCESS != lRetStatus)
@@ -2132,7 +2157,7 @@ namespace AzureRecovery
 
                     if (imagePath.length() != 0)
                     {
-                        errorStream << "Found the guest agent installation folder from Hydration VM's registry setting: " << imagePath <<std::endl;
+                        errorStream << "Found the guest agent installation folder from Hydration VM's registry setting: " << imagePath << std::endl;
                         TRACE_INFO(errorStream.str().c_str());
 
                         guestAgentFolder = imagePath;
@@ -2244,7 +2269,7 @@ namespace AzureRecovery
 
                 // WindowsAzureGuestAgent.
                 if (!TransferGuestAgentService(
-                    (std::string) ServiceNames::AZURE_GUEST_AGENT,
+                    (std::string)ServiceNames::AZURE_GUEST_AGENT,
                     controlSets[0],
                     srcOSVol,
                     controlSetNum.str(),
@@ -2257,7 +2282,7 @@ namespace AzureRecovery
 
                 // RdAgent.
                 if (!TransferGuestAgentService(
-                    (std::string) ServiceNames::AZURE_RDAGENT_SVC,
+                    (std::string)ServiceNames::AZURE_RDAGENT_SVC,
                     controlSets[0],
                     srcOSVol,
                     controlSetNum.str(),
@@ -2315,7 +2340,7 @@ namespace AzureRecovery
             {
                 // If any one registry setting transfer fails, we can safely assume the operation to fail and can break.
                 std::string hydVmSubKey = RegistryConstants::TEMP_VM_SYSTEM_HIVE_NAME +
-                    (std::string) DIRECOTRY_SEPERATOR +
+                    (std::string)DIRECOTRY_SEPERATOR +
                     currentControlSet +
                     RegistryConstants::SERVICES +
                     serviceToTransfer;
@@ -3452,6 +3477,7 @@ namespace AzureRecovery
     //              [out] curTaskDesc
     //              [out] errStream
     //              [in] disableAutomount
+    //              [in] verifyVMBusRegistry
     // 
     // Return : true on success, otherwise false.
     bool MakeRegistryChangesForMigration(
@@ -3460,7 +3486,8 @@ namespace AzureRecovery
         int& retcode,
         std::string& curTaskDesc,
         std::stringstream& errStream,
-        bool disableAutomount)
+        bool disableAutomount,
+        bool verifyVMBusRegistry)
     {
         TRACE_FUNC_BEGIN;
         bool bSuccess = false;
@@ -3570,12 +3597,7 @@ namespace AzureRecovery
                 }
             }
 
-            std::string osVersion = RecoveryStatus::Instance().GetUpdate().OsDetails;
-
-            bool isWin2k12R2 = boost::starts_with(osVersion,
-                RegistryConstants::WIN2K12R2_VERSION_PREFIX);
-
-            if (isWin2k12R2) {
+            if (verifyVMBusRegistry) {
                 curTaskDesc = TASK_DESCRIPTIONS::VERIFY_VMBUS_REGISTRY;
                 if (!VerifyWinVMBusRegistrySettings(errorMessage))
                 {
@@ -3589,9 +3611,8 @@ namespace AzureRecovery
                         << " )";
 
                     TRACE_ERROR("%s\n", errStream.str().c_str());
-                    break;
                 }
-            }  
+            }
 
         } while (false);
 
