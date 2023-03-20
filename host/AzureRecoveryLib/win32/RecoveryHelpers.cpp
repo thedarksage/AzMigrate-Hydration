@@ -339,11 +339,29 @@ int StartRecovery()
             break;
         }
 
+        if (isWindows2k12R2)
+        {
+            curTaskDesc = TASK_DESCRIPTIONS::VERIFY_VMBUS_REGISTRY;
+            if (!VerifyWinVMBusRegistrySettings(errorMessage))
+            {
+                if (retcode == E_RECOVERY_SUCCESS)
+                {
+                    retcode = E_REQUIRED_VMBUS_REGISTRIES_MISSING;
+                }
+
+                errStream << "Could not find required VM Bus registry.( "
+                    << errorMessage
+                    << " )";
+
+                TRACE_ERROR("%s\n", errStream.str().c_str());
+            }
+        }
+
         std::stringstream wingaErrSteam;
         if (VerifyRegistrySettingsForWinGA(srcOsInstallPath.substr(0, srcOsInstallPath.size() - 17), wingaErrSteam))
         {
             // Not throwing any error since we do not have soft failures in DR.
-            errStream << "Guest agent installation was skipped as the VM already has a Guest Agent present. ";
+            errStream << "Guest agent installation was skipped as the VM already has a Guest Agent present.";
             TRACE_WARNING("%s\n", errStream.str().c_str());
 
             break;
@@ -363,28 +381,11 @@ int StartRecovery()
             }
         }
 
-        if (isWindows2k12R2) {
-            curTaskDesc = TASK_DESCRIPTIONS::VERIFY_VMBUS_REGISTRY;
-            if (!VerifyWinVMBusRegistrySettings(errorMessage))
-            {
-                if (retcode == E_RECOVERY_SUCCESS)
-                {
-                    retcode = E_REQUIRED_VMBUS_REGISTRIES_MISSING;
-                }
-
-                errStream << "Could not find required VM Bus registry.( "
-                    << errorMessage
-                    << " )";
-
-                TRACE_ERROR("%s\n", errStream.str().c_str());
-            }
-        }
-
         if (!IsDotNetFxVersionPresent(srcOsInstallPath.substr(0, 3)))
         {
             TRACE_INFO("No installation of version 4.0+ of Microsoft.NET found.\n");
-
-            if (retcode == 0)
+            
+            if (retcode == E_RECOVERY_SUCCESS)
             {
                 retcode = E_RECOVERY_DOTNET_FRAMEWORK_INCOMPATIBLE;
             }
@@ -482,7 +483,7 @@ int StartMigration()
         BOOST_ASSERT(osVolumes.size() > 0);
 
         // Do hydration for all the OS volumes discovered.
-        BOOST_FOREACH(const std::string & srcOsVol, osVolumes)
+        BOOST_FOREACH(const std::string& srcOsVol, osVolumes)
         {
             std::stringstream srcOsInstallPath;
             srcOsInstallPath
@@ -524,7 +525,7 @@ int StartMigration()
                 if (!UpdateBIOSBootRecordsOnOSDisk(
                     srcOsInstallPath.str(),
                     activePartitionDrive,
-                    (std::string)"ALL",
+                    (std::string) "ALL",
                     errorMessage))
                 {
                     retcode = E_RECOVERY_COULD_NOT_UPDATE_BCD;
@@ -559,7 +560,7 @@ int StartMigration()
                 errStream,
                 isWin2k8,
                 isWin2k12R2);
-
+                
             if (!IsDotNetFxVersionPresent(srcOsVol))
             {
                 TRACE_INFO("No installation of version 4.0+ of Microsoft.NET found.\n");
@@ -673,7 +674,7 @@ int StartGenConversion()
         BOOST_ASSERT(osVolumes.size() > 0);
 
         // Do update bcd recodrds for all the OS volumes discovered.
-        BOOST_FOREACH(const std::string & srcOsVol, osVolumes)
+        BOOST_FOREACH(const std::string& srcOsVol, osVolumes)
         {
             std::stringstream srcOsInstallPath;
             srcOsInstallPath
@@ -718,7 +719,7 @@ int StartGenConversion()
                 if (!UpdateBIOSBootRecordsOnOSDisk(
                     srcOsInstallPath.str(),
                     activePartitionDrive,
-                    (std::string)"BIOS",
+                    (std::string) "BIOS",
                     errorMessage))
                 {
                     retcode = E_RECOVERY_COULD_NOT_UPDATE_BCD;
@@ -759,7 +760,7 @@ int StartGenConversion()
                 if (!IsDotNetFxVersionPresent(srcOsVol))
                 {
                     TRACE_INFO("No installation of version 4.0+ of Microsoft.NET found.\n");
-
+                    
                     if (retcode == 0)
                     {
                         errStream << "Windows VM Agent requires .NET version 4.0+ .";
@@ -1265,7 +1266,7 @@ namespace AzureRecovery
 
         if (isSuccess)
         {
-            TRACE_INFO("Successfully verified the existence of required Registry settings for the Windows Virtual Machine Bus in the attached disk.");
+            TRACE_INFO("Successfully verified the existence of required Registry settings for the Windows Virtual Machine Bus in the attached disk.\n");
         }
         else
         {
@@ -1953,10 +1954,10 @@ namespace AzureRecovery
                     srcOSVolume.c_str());
 
                 std::string winGASubKey = RegistryConstants::VM_SYSTEM_HIVE_NAME +
-                    (std::string)DIRECOTRY_SEPERATOR +
+                    (std::string) DIRECOTRY_SEPERATOR +
                     lastKnownGoodCS +
                     RegistryConstants::SERVICES +
-                    (std::string)ServiceNames::AZURE_GUEST_AGENT; // WindowsAzureGuestAgent
+                    (std::string) ServiceNames::AZURE_GUEST_AGENT; // WindowsAzureGuestAgent
 
                 CRegKey winGACurrKey;
                 lRetStatus = winGACurrKey.Open(HKEY_LOCAL_MACHINE, winGASubKey.c_str(), KEY_READ);
@@ -2016,10 +2017,10 @@ namespace AzureRecovery
                     ServiceNames::AZURE_RDAGENT_SVC);
 
                 winGASubKey = RegistryConstants::VM_SYSTEM_HIVE_NAME +
-                    (std::string)DIRECOTRY_SEPERATOR +
+                    (std::string) DIRECOTRY_SEPERATOR +
                     lastKnownGoodCS +
                     RegistryConstants::SERVICES +
-                    (std::string)ServiceNames::AZURE_RDAGENT_SVC; //RdAgent
+                    (std::string) ServiceNames::AZURE_RDAGENT_SVC; //RdAgent
 
                 lRetStatus = winGACurrKey.Open(HKEY_LOCAL_MACHINE, winGASubKey.c_str(), KEY_READ);
                 if (ERROR_SUCCESS != lRetStatus)
@@ -2157,7 +2158,7 @@ namespace AzureRecovery
 
                     if (imagePath.length() != 0)
                     {
-                        errorStream << "Found the guest agent installation folder from Hydration VM's registry setting: " << imagePath << std::endl;
+                        errorStream << "Found the guest agent installation folder from Hydration VM's registry setting: " << imagePath <<std::endl;
                         TRACE_INFO(errorStream.str().c_str());
 
                         guestAgentFolder = imagePath;
@@ -2269,7 +2270,7 @@ namespace AzureRecovery
 
                 // WindowsAzureGuestAgent.
                 if (!TransferGuestAgentService(
-                    (std::string)ServiceNames::AZURE_GUEST_AGENT,
+                    (std::string) ServiceNames::AZURE_GUEST_AGENT,
                     controlSets[0],
                     srcOSVol,
                     controlSetNum.str(),
@@ -2282,7 +2283,7 @@ namespace AzureRecovery
 
                 // RdAgent.
                 if (!TransferGuestAgentService(
-                    (std::string)ServiceNames::AZURE_RDAGENT_SVC,
+                    (std::string) ServiceNames::AZURE_RDAGENT_SVC,
                     controlSets[0],
                     srcOSVol,
                     controlSetNum.str(),
@@ -2340,7 +2341,7 @@ namespace AzureRecovery
             {
                 // If any one registry setting transfer fails, we can safely assume the operation to fail and can break.
                 std::string hydVmSubKey = RegistryConstants::TEMP_VM_SYSTEM_HIVE_NAME +
-                    (std::string)DIRECOTRY_SEPERATOR +
+                    (std::string) DIRECOTRY_SEPERATOR +
                     currentControlSet +
                     RegistryConstants::SERVICES +
                     serviceToTransfer;
@@ -3561,6 +3562,24 @@ namespace AzureRecovery
                 break;
             }
 
+            if (verifyVMBusRegistry)
+            {
+                curTaskDesc = TASK_DESCRIPTIONS::VERIFY_VMBUS_REGISTRY;
+                if (!VerifyWinVMBusRegistrySettings(errorMessage))
+                {
+                    if (retcode == E_RECOVERY_SUCCESS)
+                    {
+                        retcode = E_REQUIRED_VMBUS_REGISTRIES_MISSING;
+                    }
+
+                    errStream << "Could not find required VM Bus registry.( "
+                        << errorMessage
+                        << " )";
+
+                    TRACE_ERROR("%s\n", errStream.str().c_str());
+                }
+            }
+
             // Mark Success here to not fail the call if further calls fail.
             bSuccess = true;
             std::stringstream wingaErrSteam;
@@ -3594,23 +3613,6 @@ namespace AzureRecovery
                     TRACE_WARNING("%s\n", errStream.str().c_str());
 
                     break;
-                }
-            }
-
-            if (verifyVMBusRegistry) {
-                curTaskDesc = TASK_DESCRIPTIONS::VERIFY_VMBUS_REGISTRY;
-                if (!VerifyWinVMBusRegistrySettings(errorMessage))
-                {
-                    if (retcode == E_RECOVERY_SUCCESS)
-                    {
-                        retcode = E_REQUIRED_VMBUS_REGISTRIES_MISSING;
-                    }
-
-                    errStream << "Could not find required VM Bus registry.( "
-                        << errorMessage
-                        << " )";
-
-                    TRACE_ERROR("%s\n", errStream.str().c_str());
                 }
             }
 

@@ -86,7 +86,8 @@ namespace AzureRecovery
         int& retcode,
         std::string& curTaskDesc,
         std::stringstream& errStream,
-        bool disableAutomount);
+        bool disableAutomount,
+        bool verifyVMBusRegistry);
 
     bool TransferGuestAgentService(
         std::string& serviceToTransfer,
