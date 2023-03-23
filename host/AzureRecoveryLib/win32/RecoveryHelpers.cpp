@@ -262,11 +262,13 @@ int StartRecovery()
         }
 
         bool isWindows2008 = false;
+        bool isWindows2k12 = false;
         bool isWindows2k12R2 = false;
 
         OSVersion   osVersion;
         if (GetOsVersion(osVersion)) {
             isWindows2008 = ((osVersion.major == 6) && (osVersion.minor == 0));
+            isWindows2k12 = ((osVersion.major == 6) && (osVersion.minor == 2));
             isWindows2k12R2 = ((osVersion.major == 6) && (osVersion.minor == 3));
         }
 
@@ -339,7 +341,7 @@ int StartRecovery()
             break;
         }
 
-        if (isWindows2k12R2)
+        if (isWindows2k12 || isWindows2k12R2)
         {
             curTaskDesc = TASK_DESCRIPTIONS::VERIFY_VMBUS_REGISTRY;
             if (!VerifyWinVMBusRegistrySettings(errorMessage))
@@ -499,8 +501,11 @@ int StartMigration()
             // Check if it is Win2k8, if so then AutoMount should be disabled.
             bool isWin2k8 = boost::starts_with(osVersion,
                 RegistryConstants::WIN2K8_VERSION_PREFIX);
+            bool isWin2k12 = boost::starts_with(osVersion,
+                RegistryConstants::WIN2K12_VERSION_PREFIX);
             bool isWin2k12R2 = boost::starts_with(osVersion,
                 RegistryConstants::WIN2K12R2_VERSION_PREFIX);
+            bool verifyVMBusRegistry = isWin2k12 || isWin2k12R2;
 
             // TODO: UEFI commands need not to run on every OS volume found.
             if (AzureRecoveryConfig::Instance().IsUEFI())
@@ -559,7 +564,7 @@ int StartMigration()
                 curTaskDesc,
                 errStream,
                 isWin2k8,
-                isWin2k12R2);
+                verifyVMBusRegistry);
                 
             if (!IsDotNetFxVersionPresent(srcOsVol))
             {
@@ -736,10 +741,12 @@ int StartGenConversion()
                 }
 
                 bool isWin2k8 = false;
+                bool isWin2k12 = false;
                 bool isWin2k12R2 = false;
                 OSVersion osVersion;
                 if (GetOsVersion(osVersion)) {
                     isWin2k8 = ((osVersion.major == 6) && (osVersion.minor == 0));
+                    isWin2k12 = ((osVersion.major == 6) && (osVersion.minor == 2));
                     isWin2k12R2 = ((osVersion.major == 6) && (osVersion.minor == 3));
                 }
 
@@ -747,6 +754,7 @@ int StartGenConversion()
                 // if any of the registry changes fail.
                 int regRetCode = 0;
                 std::stringstream regErrStr;
+                bool verifyVMBusRegistry = isWin2k12 || isWin2k12R2;
 
                 // Make registry changes, enable DHCP and install guest agent.
                 bool bSuccess = MakeRegistryChangesForMigration(srcOsInstallPath.str(),
