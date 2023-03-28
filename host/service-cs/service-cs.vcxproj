@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release MinDependency|Win32">
+      <Configuration>Release MinDependency</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release MinDependency|x64">
+      <Configuration>Release MinDependency</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{0E826BE5-1C0F-454A-BBA5-4323061E3516}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>service</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+    <SpectreMitigation>Spectre</SpectreMitigation>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MinDependency|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MinDependency|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\win-rules.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release MinDependency|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\win-rules.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release MinDependency|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>Debug\</OutDir>
+    <GenerateManifest>false</GenerateManifest>
+    <IntDir>Debug\</IntDir>
+    <EmbedManifest>false</EmbedManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(Platform)\$(Configuration)\</OutDir>
+    <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MinDependency|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MinDependency|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(Platform)\$(Configuration)\</OutDir>
+    <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;SV_WINDOWS;_WIN32_WINNT=0x0600;WIN32_LEAN_AND_MEAN;ACE_AS_STATIC_LIBS;_LARGEFILE_SOURCE=1;_LARGEFILE64_SOURCE=1;_FILE_OFFSET_BITS=64;CURL_STATICLIB;VSNAP_USER_MODE;SV_USES_LONGPATHS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\hydrationconfigurator;..\serviceCommon;..\simplelogger\win;..\zflate;$(ZLIB_INCLUDES);..\simplelogger;..\listfile;..\listfile\win;..\cxtransportlib;..\vacplibs;$(ESJSON_INCLUDES);..\errorexception;..\cxpslib;..\curlwrapperlib;..\securitylib;..\securitylib\win;$(OPENSSL_INCLUDES);$(SQLITE3X_INCLUDES);..\common;..\inmsafeint;..\inmsafeint\win;..\inmsafecapis;..\inmsafecapis\win;..\common\win32;..\branding;..\ClusterCustomerResource\clustmon\;..\config;..\config\win;..\log;..\cdplibs\;..\cdplibs\v1;..\cdplibs\v3;..\vsnaplib\;..\virtualvolumelib;..\s2libs\foundation\win32;..\s2libs\foundation;..\s2libs\thread;..\s2libs\streams;..\drivers\Include\win32;..\devicefilter;..\devicefilter\win;..\drivers\InVolFlt\windows\Interface;..\drivers\InVirVol\win32;..\drivers\Tests\win32\drvutil;$(CURL_INCLUDES);$(BOOST_INCLUDES);$(ACE_INCLUDES);..\volumeinfocollector;..\volumeinfocollector\win32;..\xslibs\win32;.\win32;.;..\iscsiinterface;$(LIBXML2_INCLUDES);..\backups2lib-cs;..\backups2lib-cs\domain;..\backups2lib-cs\domain\win32;..\fio;..\fio\win;..\scopeguard;$(SIGSLOT_INCLUDES);..\inmuuid\win;..\cxpslib\win;..\AzureAgentApi;..\AzureAgentApi\win</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\s2libs\$(Configuration);..\tal\$(Configuration);..\log\$(Configuration);..\vsnaplib\$(Configuration);..\vacplibs\$(Configuration);..\cdplibs\$(Configuration);\$(Configuration);..\virtualvolumelib\$(Configuration);..\config\$(Configuration);..\common\$(Configuration);$(SQLITE_LIB_DIR_DEBUG);$(CURL_LIB_DIR_DEBUG);$(BOOST_LIB_DIR);$(ACE_LIB_DIR);$(OPENSSL_LIB_DIR_DEBUG);$(SQLITE3X_LIB_DIR_DEBUG);$(LIBXML2_LIB_DIR_DEBUG);$(ZLIB_LIB_DIR);$(INM_MD5_LIB_DIR_DEBUG);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <OutputFile>$(OutDir)svagents.exe</OutputFile>
+      <AdditionalDependencies>version.lib;clusapi.lib;libssl.lib;libcrypto.lib;gdi32.lib;ACEsd.lib;sqlite3x.lib;sqlite.lib;winmm.lib;wininet.lib;kernel32.lib;imagehlp.lib;Ws2_32.lib;psapi.lib;Resutils.lib;libxml2_a.lib;Iphlpapi.lib;zlibd.lib;inm_md5.lib;Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ProgramDatabaseFile>$(OutDir)svagents-cs.pdb</ProgramDatabaseFile>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapExports>true</MapExports>
+      <TargetMachine>NotSet</TargetMachine>
+      <ImageHasSafeExceptionHandlers>true</ImageHasSafeExceptionHandlers>
+    </Link>
+    <Manifest>
+      <AdditionalManifestFiles>..\common\win32\osmanifest.xml %(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;SV_WINDOWS;_WIN32_WINNT=0x0502;WIN32_LEAN_AND_MEAN;ACE_AS_STATIC_LIBS;_LARGEFILE_SOURCE=1;_LARGEFILE64_SOURCE=1;_FILE_OFFSET_BITS=64;CURL_STATICLIB;VSNAP_USER_MODE;DP_PORTABLE;SV_USES_LONGPATHS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\hydrationconfigurator;..\serviceCommon;..\simplelogger\win;..\zflate;$(ZLIB_INCLUDES);..\simplelogger;..\listfile;..\listfile\win;..\cxtransportlib;..\vacplibs;$(SQLITE3X_INCLUDES);..\common;..\inmsafeint;..\inmsafeint\win;..\inmsafecapis;..\inmsafecapis\win;..\common\win32;..\branding;..\ClusterCustomerResource\clustmon\;..\config;..\config\win;..\log;..\cdplibs\;..\cdplibs\v1;..\cdplibs\v3;..\vsnaplib\;..\virtualvolumelib;..\s2libs\foundation;..\s2libs\thread;..\s2libs\streams;..\drivers\Include\win32;..\devicefilter;..\devicefilter\win;..\drivers\InVolFlt\windows\Interface;..\drivers\InVirVol\win32;..\drivers\Tests\win32\drvutil;$(CURL_INCLUDES);$(BOOST_INCLUDES);$(ACE_INCLUDES);..\volumeinfocollector;..\volumeinfocollector\win32;..\xslibs\win32;.\win32;.;..\errorexception;..\iscsiinterface;..\backups2lib-cs\domain\win32;..\backups2lib-cs\domain;..\backups2lib-cs;$(LIBXML2_INCLUDES);..\fio;..\fio\win;..\scopeguard;$(SIGSLOT_INCLUDES);..\inmuuid\win</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AssemblerListingLocation>.\Debug/</AssemblerListingLocation>
+      <ObjectFileName>.\Debug/</ObjectFileName>
+      <ProgramDataBaseFileName>.\Debug/</ProgramDataBaseFileName>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <OutputFile>.\Debug/svagents.exe</OutputFile>
+      <AdditionalDependencies>version.lib;clusapi.lib;libssl.lib;libcrypto.lib;gdi32.lib;ACEsd.lib;sqlite3x.lib;sqlite.lib;winmm.lib;wininet.lib;kernel32.lib;imagehlp.lib;Ws2_32.lib;psapi.lib;Resutils.lib;libxml2_a.lib;Iphlpapi.lib;zlibd.lib;inm_md5.lib;Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ProgramDatabaseFile>.\Debug/svagents.pdb</ProgramDatabaseFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>SV_WINDOWS;WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>..\hydrationconfigurator;..\serviceCommon;..\simplelogger\win;..\zflate;$(ZLIB_INCLUDES);..\simplelogger;..\listfile;..\listfile\win;..\cxtransportlib;..\vacplibs;..\errorexception;..\cxpslib;..\curlwrapperlib;..\securitylib;..\securitylib\win;$(OPENSSL_INCLUDES);$(SQLITE3X_INCLUDES);..\common;..\inmsafeint;..\inmsafeint\win;..\inmsafecapis;..\inmsafecapis\win;..\common\win32;..\branding;..\ClusterCustomerResource\clustmon\;..\config;..\config\win;..\log;..\cdplibs\;..\cdplibs\v1;..\cdplibs\v3;..\vsnaplib\;..\virtualvolumelib;..\s2libs\foundation\win32;..\s2libs\foundation;..\s2libs\thread;..\s2libs\streams;..\drivers\Include\win32;..\devicefilter;..\devicefilter\win;..\drivers\InVolFlt\windows\Interface;..\drivers\InVirVol\win32;..\drivers\Tests\win32\drvutil;$(CURL_INCLUDES);$(BOOST_INCLUDES);$(ACE_INCLUDES);..\volumeinfocollector;..\volumeinfocollector\win32;..\xslibs\win32;.\win32;.;..\iscsiinterface;$(LIBXML2_INCLUDES);..\backups2lib-cs;..\backups2lib-cs\domain;..\backups2lib-cs\domain\win32;..\fio;..\fio\win;..\scopeguard;$(SIGSLOT_INCLUDES)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Manifest>
+      <AdditionalManifestFiles>..\common\win32\osmanifest.xml %(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\hydrationconfigurator;..\serviceCommon;..\simplelogger\win;..\zflate;$(ZLIB_INCLUDES);..\simplelogger;..\listfile;..\listfile\win;..\cxtransportlib;..\vacplibs;..\errorexception;..\cxpslib;..\curlwrapperlib;..\securitylib;..\securitylib\win;$(OPENSSL_INCLUDES);$(SQLITE3X_INCLUDES);..\common;..\inmsafeint;..\inmsafeint\win;..\inmsafecapis;..\inmsafecapis\win;..\common\win32;..\branding;..\ClusterCustomerResource\clustmon\;..\config;..\config\win;..\log;..\cdplibs\;..\cdplibs\v1;..\cdplibs\v3;..\vsnaplib\;..\virtualvolumelib;..\s2libs\foundation\win32;..\s2libs\foundation;..\s2libs\thread;..\s2libs\streams;..\drivers\Include\win32;..\devicefilter;..\devicefilter\win;..\drivers\InVolFlt\windows\Interface;..\drivers\InVirVol\win32;..\drivers\Tests\win32\drvutil;$(CURL_INCLUDES);$(BOOST_INCLUDES);$(ACE_INCLUDES);..\volumeinfocollector;..\volumeinfocollector\win32;..\xslibs\win32;.\win32;.;..\errorexception;..\iscsiinterface;$(LIBXML2_INCLUDES);..\backups2lib-cs;..\backups2lib-cs\domain;..\backups2lib-cs\domain\win32;..\fio;..\fio\win;..\scopeguard;$(SIGSLOT_INCLUDES)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release MinDependency|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;SV_WINDOWS=1;ACE_AS_STATIC_LIBS;_LARGEFILE_SOURCE=1;_LARGEFILE64_SOURCE=1;_FILE_OFFSET_BITS=64;WIN32_LEAN_AND_MEAN;_WIN32_WINNT=0x0600;VSNAP_USER_MODE;SV_USES_LONGPATHS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>..\hydrationconfigurator;..\serviceCommon;..\simplelogger\win;..\zflate;$(ZLIB_INCLUDES);..\simplelogger;..\listfile;..\listfile\win;..\cxtransportlib;..\vacplibs;$(ESJSON_INCLUDES);..\errorexception;..\cxpslib;..\curlwrapperlib;..\securitylib;..\securitylib\win;$(OPENSSL_INCLUDES);$(SQLITE3X_INCLUDES);..\common;..\inmsafeint;..\inmsafeint\win;..\inmsafecapis;..\inmsafecapis\win;..\common\win32;..\branding;..\ClusterCustomerResource\clustmon\;..\config;..\config\win;..\log;..\cdplibs\;..\cdplibs\v1;..\cdplibs\v3;..\vsnaplib\;..\virtualvolumelib;..\s2libs\foundation\win32;..\s2libs\foundation;..\s2libs\thread;..\s2libs\streams;..\drivers\Include\win32;..\devicefilter;..\devicefilter\win;..\drivers\InVolFlt\windows\Interface;..\drivers\InVirVol\win32;..\drivers\Tests\win32\drvutil;$(CURL_INCLUDES);$(BOOST_INCLUDES);$(ACE_INCLUDES);..\volumeinfocollector;..\volumeinfocollector\win32;..\xslibs\win32;.\win32;.;..\iscsiinterface;$(LIBXML2_INCLUDES);..\backups2libs;..\backups2lib\domain;..\backups2lib\domain\win32;..\fio;..\fio\win;..\scopeguard;$(SIGSLOT_INCLUDES);..\inmuuid\win;..\cxpslib\win;..\azureagentapi;..\azureagentapi\win;..\..\thirdparty\inm_md5</AdditionalIncludeDirectories>
+      <MinimalRebuild>false</MinimalRebuild>
+      <AssemblerListingLocation>.\ReleaseMinDependency/</AssemblerListingLocation>
+      <ObjectFileName>.\ReleaseMinDependency/</ObjectFileName>
+      <ProgramDataBaseFileName>.\ReleaseMinDependency/</ProgramDataBaseFileName>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <OutputFile>.\ReleaseMinDependency/svagents.exe</OutputFile>
+      <AdditionalLibraryDirectories>$(SQLITE_LIB_DIR_RELEASE);$(BOOST_LIB_DIR);$(ACE_LIB_DIR);$(OPENSSL_LIB_DIR_RELEASE);$(SQLITE3X_LIB_DIR_RELEASE);$(LIBXML2_LIB_DIR_RELEASE);$(ZLIB_LIB_DIR);$(INM_MD5_LIB_DIR_RELEASE);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Crypt32.lib;version.lib;clusapi.lib;libssl.lib;libcrypto.lib;ACEs.lib;sqlite3x.lib;sqlite.lib;winmm.lib;wininet.lib;imagehlp.lib;Ws2_32.lib;psapi.lib;Resutils.lib;libxml2_a.lib;Iphlpapi.lib;zlib.lib;inm_md5.lib;Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ProgramDatabaseFile>.\ReleaseMinDependency/svagents-cs.pdb</ProgramDatabaseFile>
+      <AdditionalOptions>/DEBUGTYPE:CV,FIXUP</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release MinDependency|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;SV_WINDOWS=1;_WIN32_WINNT=0x0502;WIN32_LEAN_AND_MEAN;ACE_AS_STATIC_LIBS;_LARGEFILE_SOURCE=1;_LARGEFILE64_SOURCE=1;_FILE_OFFSET_BITS=64;CURL_STATICLIB;VSNAP_USER_MODE;SV_USES_LONGPATHS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\hydrationconfigurator;..\serviceCommon;..\simplelogger\win;..\zflate;$(ZLIB_INCLUDES);..\simplelogger;..\listfile;..\listfile\win;..\cxtransportlib;..\vacplibs;$(SQLITE3X_INCLUDES);..\common;..\inmsafeint;..\inmsafeint\win;..\inmsafecapis;..\inmsafecapis\win;..\common\win32;..\branding;..\ClusterCustomerResource\clustmon\;..\config;..\config\win;..\log;..\cdplibs\;..\cdplibs\v1;..\cdplibs\v3;..\vsnaplib\;..\virtualvolumelib;..\s2libs\foundation\win32;..\s2libs\foundation;..\s2libs\thread;..\s2libs\streams;..\drivers\Include\win32;..\devicefilter;..\devicefilter\win;..\drivers\InVolFlt\windows\Interface;..\drivers\InVirVol\win32;..\drivers\Tests\win32\drvutil;$(CURL_INCLUDES);$(BOOST_INCLUDES);$(ACE_INCLUDES);..\volumeinfocollector;..\volumeinfocollector\win32;..\xslibs\win32;.\win32;.;..\errorexception;..\iscsiinterface;$(LIBXML2_INCLUDES);..\backups2lib-cs;..\backups2lib-cs\domain;..\backups2lib-cs\domain\win32;..\fio;..\fio\win;..\scopeguard;$(SIGSLOT_INCLUDES);..\inmuuid\win</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AssemblerListingLocation>.\ReleaseMinDependency/</AssemblerListingLocation>
+      <ObjectFileName>.\ReleaseMinDependency/</ObjectFileName>
+      <ProgramDataBaseFileName>.\ReleaseMinDependency/</ProgramDataBaseFileName>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>version.lib;clusapi.lib;libssl.lib;libcrypto.lib;ACEs.lib;sqlite3x.lib;sqlite.lib;winmm.lib;wininet.lib;imagehlp.lib;Ws2_32.lib;psapi.lib;Resutils.lib;libxml2_a.lib;Iphlpapi.lib;zlib.lib;inm_md5.lib;Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>.\ReleaseMinDependency/svagents.exe</OutputFile>
+      <ProgramDatabaseFile>.\ReleaseMinDependency/svagents.pdb</ProgramDatabaseFile>
+      <AdditionalLibraryDirectories>$(SQLITE_LIB_DIR_RELEASE);$(BOOST_LIB_DIR);$(ACE_LIB_DIR);$(OPENSSL_LIB_DIR_RELEASE);$(SQLITE3X_LIB_DIR_RELEASE);$(LIBXML2_LIB_DIR_RELEASE);$(ZLIB_LIB_DIR);$(INM_MD5_LIB_DIR_RELEASE);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\ClusterCustomerResource\clustmon\cluster.h" />
+    <ClInclude Include="..\common\hostagenthelpers.h" />
+    <ClInclude Include="..\common\volumemonitor.h" />
+    <ClInclude Include="..\serviceCommon\consistencythread.h" />
+    <ClInclude Include="AgentProcess.h" />
+    <ClInclude Include="consistencythread-cs.h" />
+    <ClInclude Include="cservice.h" />
+    <ClInclude Include="monitorhostthread.h" />
+    <ClInclude Include="registerhostthread.h" />
+    <ClInclude Include="vxservice.h" />
+    <ClInclude Include="win32\marshealthmonitorthread.h" />
+    <ClInclude Include="win32\servicemajor.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\ClusterCustomerResource\clustmon\cluster.cpp" />
+    <ClCompile Include="..\common\volumemonitor.cpp" />
+    <ClCompile Include="..\serviceCommon\consistencythread.cpp" />
+    <ClCompile Include="..\service\monitorhostcommon.cpp" />
+    <ClCompile Include="AgentProcess.cpp" />
+    <ClCompile Include="consistencythread-cs.cpp" />
+    <ClCompile Include="cservice.cpp" />
+    <ClCompile Include="monitorhostthread.cpp" />
+    <ClCompile Include="registerhostthread.cpp" />
+    <ClCompile Include="vxservice.cpp" />
+    <ClCompile Include="win32\marshealthmonitorthread.cpp" />
+    <ClCompile Include="win32\servicemajor.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(CURL_PROJ_PATH)\libcurl.vcxproj">
+      <Project>{da6f56b4-06a4-441d-ad70-ac5a7d51fadb}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\azureagentapi\azureagentapi.vcxproj">
+      <Project>{4008e995-d123-4385-a57c-e1d4a4f6a875}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\AzureRecoveryLib\AzureRecoveryLib.vcxproj">
+      <Project>{3844ec72-39a9-427f-8759-15b735791aae}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\backups2lib-cs\backups2lib-cs.vcxproj">
+      <Project>{956a41f9-f876-4c61-8d36-3dc5201b16ee}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\cdplibs\cdplibs.vcxproj">
+      <Project>{59e6f8b4-4dd0-49fb-a224-36b38f1a570e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\common\hostagenthelpers.vcxproj">
+      <Project>{1c2786b8-492f-4c58-bec6-a57cfb95adbb}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\config\config.vcxproj">
+      <Project>{48330794-e280-45a0-9f16-69010ef753bb}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\config\configfortestbed\configfortestbed.vcxproj">
+      <Project>{a71fec2e-0b8d-4478-93b7-eebb1fc95bd7}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\conversionlib\conversionlib.vcxproj">
+      <Project>{6840a3a5-58d9-4327-8b1b-e2e969e886eb}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\curlwrapperlib\curlwrapperlib.vcxproj">
+      <Project>{92ba00c2-ef73-42d0-8e73-41013842520b}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\cxtransportlib\cxtransportlib.vcxproj">
+      <Project>{9e0ca837-3319-4025-b77f-a63401298aa5}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\disklayoutmgr\disklayoutmgr.vcxproj">
+      <Project>{3ff792f6-0390-4415-9757-a98bfa3ef0ac}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\diskpartwrapper\diskpartwrapper.vcxproj">
+      <Project>{3710ab83-8a71-4cb5-891a-9aef44a79558}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\dplibs\dplibs.vcxproj">
+      <Project>{a3af0fad-b10f-4153-986b-933cda30d8e8}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\iscsiinterface\iscsiinterface.vcxproj">
+      <Project>{e1772a07-f30d-4524-b34a-89f04900f428}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\log\Log.vcxproj">
+      <Project>{da7e75ec-e026-42d5-9315-7e52e8f5b34b}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\npwwn\npwwn.vcxproj">
+      <Project>{fa3d7d03-d8ba-4a16-9a90-e049673a43df}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\s2libs\s2libs.vcxproj">
+      <Project>{aae78f4c-6c2c-4cbc-bbe8-d3df90adcbf9}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\securitylib\securitylib.vcxproj">
+      <Project>{620e652a-08c3-4514-baaa-8b9558d5942e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\tal\tal.vcxproj">
+      <Project>{46fa67f0-05d1-417a-9741-e98527323473}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\vacplibs\vacplibs.vcxproj">
+      <Project>{970c5dee-eaf2-47c0-b10b-a2c77d37d986}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\virtualvolumelib\virtualvolumelib.vcxproj">
+      <Project>{c69d3fbe-9ad2-4732-a70e-6c1d65c1581b}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\vsnaplib\VsnapLib.vcxproj">
+      <Project>{e390f8a1-5841-44f1-99cf-e139f8b06c50}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\xslibs\xslibs.vcxproj">
+      <Project>{5ea940da-4c6d-4d58-ba48-9433781d457c}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="inmmessage.mc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="version_info.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -1,0 +1,83 @@
+﻿<ns0:BasePageForWpfControls
+    x:Class="UnifiedAgentInstaller.ComponentSelectionPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+    xmlns:ns0="clr-namespace:ASRSetupFramework;assembly=ASRSetupFramework"
+    xmlns:resx="clr-namespace:ASRResources;assembly=ASRResources"
+    x:Uid="ns0:BasePageForWpfControls_1"
+    Height="415"
+    Width="685">
+    <Grid>
+        <StackPanel Name="stcWaitPanel" Grid.Row="1" Grid.RowSpan="10" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Label Content="{x:Static resx:StringResources.AnalyzingSystem}" HorizontalAlignment="Center" FontSize="10pt" FontWeight="SemiBold"/>
+            <ProgressBar IsIndeterminate="True" Height="15" Width="400" />
+        </StackPanel>
+
+        <Grid Name="gridMain">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="10" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="15" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="27" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="32" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Row="1" Grid.Column="1" Text="{x:Static resx:StringResources.SelectComponentToInstall}" />
+            
+            <GroupBox x:Name="grpBox" Grid.Row="3" Grid.Column="1" BorderThickness="0" Margin="-6,0,0,0">
+                <StackPanel x:Name="stcPanel">
+                    <Grid x:Uid="Grid_radioButton">
+                        <Grid.RowDefinitions>
+                            <RowDefinition x:Uid="RowDefinition_5" Height="20" />
+                            <RowDefinition x:Uid="RowDefinition_6" Height="30" />
+                            <RowDefinition x:Uid="RowDefinition_7" Height="20" />
+                            <RowDefinition x:Uid="RowDefinition_8" Height="Auto" />
+                            <RowDefinition x:Uid="RowDefinition_9" Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <RadioButton
+                            x:Name="MSRadioButton"
+                            x:Uid="MSRadioButton"
+                            IsChecked="True"
+                            Grid.Row="0"
+                            FontWeight="Bold"
+                            Content="{x:Static resx:StringResources.MSRadioButtonText}">
+                        </RadioButton>
+                        <TextBlock
+                            x:Name="UAInstallationChoiceMSSubTextBlock"
+                            x:Uid="UAInstallationChoiceMSSubTextBlock" 
+                            Grid.Column="1"
+                            Grid.Row="1"
+                            TextWrapping="Wrap"
+                            Margin="20 0 0 0"
+                            Text="{x:Static resx:StringResources.UAInstallationChoiceMSSubText}">
+                        </TextBlock>
+                        <RadioButton
+                            x:Name="MTRadioButton"
+                            x:Uid="MTRadioButton"
+                            IsChecked="False"
+                            Grid.Row="2"
+                            FontWeight="Bold"
+                            Content="{x:Static resx:StringResources.MTRadioButtonText}">
+                        </RadioButton>
+                        <TextBlock
+                            x:Name="UAInstallationChoiceMTSubTextBlock"
+                            x:Uid="UAInstallationChoiceMTSubTextBlock" 
+                            Grid.Column="1"
+                            Grid.Row="3"
+                            TextWrapping="Wrap"
+                            Margin="20 0 0 0"
+                            Text="{x:Static resx:StringResources.UAInstallationChoiceMTSubText}">
+                        </TextBlock>
+                    </Grid>
+
+                </StackPanel>
+            </GroupBox>
+        </Grid>
+    </Grid>
+</ns0:BasePageForWpfControls>

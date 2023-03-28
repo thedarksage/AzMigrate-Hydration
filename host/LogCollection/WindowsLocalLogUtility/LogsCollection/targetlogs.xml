@@ -1,0 +1,33 @@
+<Agent_logs>
+ 	<copy_folders>
+		<folder folderName="failoverDataLogs" path="{installPath}\Failover\Data"></folder>
+		<folder folderName="dpLogs" path="{installPath}\vxlogs"></folder>
+		<folder folderName="transport" path="{installPath}\transport\log"></folder>
+		<folder folderName="ApplicationDataEtc" path="{installPath}\Application Data\etc"></folder>
+		<folder folderName="vContinuumLogs" path="{installPath}\vContinuum\Logs"></folder>
+		<folder folderName="vContinuumLatest" path="{installPath}\vContinuum\Latest"></folder>
+		<folder folderName="installerLog" path="{rootDir}ProgramData\ASRSetupLogs"></folder>
+	</copy_folders>	
+	<copy_files>
+		<file fileName="*.log" path="{installPath}\"></file>
+		<file fileName="UA_InstallLogFile.log" path="{rootDir}"></file>
+		<file fileName="UA_UnInstallLogFile.log" path="{rootDir}"></file>
+		<file fileName="*.conf" path="{installPath}\transport\"></file>
+		<file fileName="*.log" path="{installPath}\FileRep\"></file>
+		<file fileName="vCon_*.log" path="{rootDir}"></file>
+		<file fileName="configupdate.log" path="{rootDir}"></file>
+	</copy_files>
+	<collect_events>
+		<event eventFileName="system.evtx" eventName="System"></event>	
+		<event eventFileName="Application.evtx" eventName="Application"></event>
+	</collect_events>
+	<execute_commands>
+		<command outputFileName="systemInfo.txt" executeCommand="SystemInfo"></command>	
+		<command outputFileName="driverinfo.txt" executeCommand="{installPath}\drvutil.exe" args="--ps --dm"></command>
+		<command outputFileName="driverstatinfo.txt" executeCommand="{installPath}\drvutil.exe" args="--cd"></command>
+		<command outputFileName="globaltimestamp.txt" executeCommand="{installPath}\drvutil.exe"  args="--getglobaltimestamp"></command>
+	</execute_commands>
+</Agent_logs>
+                 
+
+

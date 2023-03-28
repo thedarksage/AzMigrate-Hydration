@@ -1,0 +1,31 @@
+SHELL=/bin/bash
+SCSI_TARGET_INCLUDE_DIR := $(SUBDIRS)/../include
+
+obj-m := scst_utap.o
+KERNEL_VERSION = $(shell uname -r)
+KERNEL_DIRECTORY := /lib/modules/$(KERNEL_VERSION)/build
+
+all:
+	$(MAKE) -C $(KERNEL_DIRECTORY) SUBDIRS=$(shell pwd)
+
+EXTRA_CFLAGS += -I$(SUBDIRS) -I$(SCSI_TARGET_INCLUDE_DIR) -Wextra \
+	-Wno-unused-parameter -Wno-missing-field-initializers
+
+EXTRA_CFLAGS += -DCONFIG_SCST_EXTRACHECKS
+
+EXTRA_CFLAGS += -DCONFIG_SCST_DEBUG -g -fno-inline -fno-inline-functions
+
+clean:
+	rm -f Modules.symvers
+	rm -f .*.cmd
+	rm -f *.o 
+	rm -f *.mod.c
+	rm -rf .tmp_versions
+	rm -f modules.order
+	rm -f *.ko
+	rm -f .*.d
+	rm -f Module.symvers
+	rm -f Module.markers
+	rm -f .depend
+
+.PHONY: all clean 

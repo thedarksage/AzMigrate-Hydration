@@ -1,0 +1,224 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{FF225113-D7DD-42ED-AB02-84FB814B6A6D}</ProjectGuid>
+    <Keyword>MakeFileProj</Keyword>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>12.0.21005.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>Debug\</OutDir>
+    <IntDir>Debug\</IntDir>
+    <NMakeBuildCommandLine>echo Done building all executables required for vx agent</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>echo Done rebuilding all executables required for vx agent</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>echo Cleaned up</NMakeCleanCommandLine>
+    <NMakeOutput />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>Release\</OutDir>
+    <IntDir>Release\</IntDir>
+    <NMakeBuildCommandLine>echo Done building all executables required for vx agent</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>echo Done rebuilding all executables required for vx agent</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>echo Cleaned up</NMakeCleanCommandLine>
+    <NMakeOutput />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <NMakeBuildCommandLine>echo Done building all executables required for vx agent</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>echo Done rebuilding all executables required for vx agent</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>echo Cleaned up</NMakeCleanCommandLine>
+    <NMakeOutput />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <NMakeBuildCommandLine>echo Done building all executables required for vx agent</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>echo Done rebuilding all executables required for vx agent</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>echo Cleaned up</NMakeCleanCommandLine>
+    <NMakeOutput />
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Solutions\Sharepoint\spapp\spapp.csproj">
+      <Project>{8a5a60de-8128-4eb9-9320-42d38d5cabee}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\AppConfiguratorAPITestBed\AppConfiguratorAPITestBed.vcxproj">
+      <Project>{5dcf5614-fc72-4e65-83b5-3259af12ebe2}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\applicationagent\applicationagent.vcxproj">
+      <Project>{c68d7ab9-f502-4ae0-afa9-616896c3cab4}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\AppWizard\AppWizard.vcxproj">
+      <Project>{24b25f70-7321-4376-8ba0-6920ab931789}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\cachemgr\cachemgr.vcxproj">
+      <Project>{1a2bfd20-7169-4469-aa54-7a804f873ffc}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\cdpcli\cdpcli.vcxproj">
+      <Project>{0fcdde67-830e-4f46-93f7-6e89fdf9c26f}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\cdpmgr\cdpmgr.vcxproj">
+      <Project>{5bc61726-166a-480e-bfdf-a4b0c11e315e}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\config\ConfiguratorAPITestBed\ConfiguratorAPITestBed.vcxproj">
+      <Project>{be28959d-6ce5-4ca4-b8d7-9f6075e5b10f}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\cxcli\cxcli.vcxproj">
+      <Project>{dde24927-3680-463d-ab9d-54d7f47939f7}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\cxpsclient\cxpsclient.vcxproj">
+      <Project>{66c2ea14-3c66-4f1a-b80c-7d2ad4c77d85}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\DataProtectionSyncRcm\DataProtectionSyncRcm.vcxproj">
+      <Project>{be03b3f0-5f19-4f2b-8a13-dc1aee197667}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\dataprotection\dataprotection.vcxproj">
+      <Project>{e2f160dd-adc7-4670-9be9-3cf5407a3e6c}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\dnsfailover\dnsfailover.vcxproj">
+      <Project>{881ff93d-25ea-46db-b4d5-a190477f8877}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\drivers\Tests\win32\drvutil\drvutil.vcxproj">
+      <Project>{c28d2f40-c2f3-47f7-a899-b47b06ebce7e}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\EsxUtilWin\EsxUtilWin.vcxproj">
+      <Project>{9e76ab3f-2e41-480e-b73a-0a0f47c0cef7}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\EsxUtil\EsxUtil.vcxproj">
+      <Project>{c036df82-e98f-4d8d-8416-e14057b40162}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\FailoverCommadUtil\FailoverCommadUtil.vcxproj">
+      <Project>{2982ec38-95f3-47d3-bf06-b22da4efa9df}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\inmexec\inmexec.vcxproj">
+      <Project>{2ad6eefc-d71d-4673-9990-ad6c55fa6531}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\inmmessage\inmmessage.vcxproj">
+      <Project>{06b0f2c8-b231-4b0a-9026-6e7eaa6d9b0c}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\s2\s2.vcxproj">
+      <Project>{5c3ed8f1-c8da-433f-9d3a-c9cc4af8b43d}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\ServiceCtrl\ServiceCtrl.vcxproj">
+      <Project>{ba94da78-d478-4e05-b571-e42915a8297c}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\service\service.vcxproj">
+      <Project>{baa388d0-2aa6-4ddb-a759-fdee979e4945}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\svdcheck\svdcheck.vcxproj">
+      <Project>{eb176613-8606-4e70-b11b-1a493ce63b84}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\UnLockDrives\UnLockDrives.vcxproj">
+      <Project>{437f7538-f5a3-4652-b828-f7f12eebeaf4}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\unregagent\unregagent.vcxproj">
+      <Project>{e293a079-7645-4418-93ef-9bf738eff90a}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\Utilities\Windows\ClusUtil\ClusUtil.vcxproj">
+      <Project>{6898ed4c-4a5e-494d-8b97-1b29c6efae0d}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\Utilities\Windows\MovingSQLDBs\MovingSQLDBs.vcxproj">
+      <Project>{bf081f33-5a16-4408-8da5-50cb00e89ac0}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\Utilities\Windows\WinOperation\WinOperation.vcxproj">
+      <Project>{2db9476c-c075-451f-b36a-1fa05fcd12a6}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\vacp\vacp.vcxproj">
+      <Project>{b0406851-8f99-4fcf-bbb4-8a60f2c8b1ec}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\volopt\volopt.vcxproj">
+      <Project>{65d17dd2-577c-4b27-9ade-ca1642578ce6}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

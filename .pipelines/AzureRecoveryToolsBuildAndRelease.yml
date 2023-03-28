@@ -9,7 +9,6 @@ trigger:
 - release
 - develop
 - users/shamish/*
-- users/ankitbaluni/*
 
 variables:
   REPOROOT: $(Build.SourcesDirectory)

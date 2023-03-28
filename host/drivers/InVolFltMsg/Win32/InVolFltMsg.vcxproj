@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug Win 2K3|Win32">
+      <Configuration>Debug Win 2K3</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug Win 2K3|x64">
+      <Configuration>Debug Win 2K3</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug Win 2K8|Win32">
+      <Configuration>Debug Win 2K8</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug Win 2K8|x64">
+      <Configuration>Debug Win 2K8</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release Win 2K3|Win32">
+      <Configuration>Release Win 2K3</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release Win 2K3|x64">
+      <Configuration>Release Win 2K3</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release Win 2K8|Win32">
+      <Configuration>Release Win 2K8</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release Win 2K8|x64">
+      <Configuration>Release Win 2K8</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{E30FC97A-7480-4F93-9B7D-D43C89FF0B23}</ProjectGuid>
+    <RootNamespace>InVolFltMsg</RootNamespace>
+    <Keyword>MakeFileProj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Win 2K8|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Win 2K3|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Win 2K8|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Win 2K3|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Win 2K8|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Win 2K3|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Win 2K8|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Win 2K3|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release Win 2K8|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release Win 2K3|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug Win 2K8|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug Win 2K3|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release Win 2K8|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release Win 2K3|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug Win 2K8|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug Win 2K3|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>12.0.21005.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Win 2K3|Win32'">
+    <OutDir>Debug\</OutDir>
+    <IntDir>Debug\</IntDir>
+    <NMakeBuildCommandLine>..\..\..\..\ThirdParty\Build_Tools\Drivers\ddkbuild -W7NET checked .</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>..\..\..\..\ThirdParty\Build_Tools\Drivers\ddkbuild -W7NET checked . -cZ</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>if exist objchk_wnet_x86\i386 del /q objchk_wnet_x86\i386\*.*</NMakeCleanCommandLine>
+    <NMakeOutput>objchk_wnet_x86\i386\InVolFlt.sys</NMakeOutput>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Win 2K8|Win32'">
+    <OutDir>$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <NMakeBuildCommandLine>..\..\..\..\ThirdParty\Build_Tools\Drivers\ddkbuild -W7LH checked .</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>..\..\..\..\ThirdParty\Build_Tools\Drivers\ddkbuild -W7LH checked . -cZ</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>if exist objchk_wlh_x86\i386 del /q objchk_wlh_x86\i386\*.*</NMakeCleanCommandLine>
+    <NMakeOutput>objchk_wlh_x86\i386\InVolFlt.sys</NMakeOutput>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Win 2K3|Win32'">
+    <OutDir>Release\</OutDir>
+    <IntDir>Release\</IntDir>
+    <NMakeBuildCommandLine>..\..\..\..\ThirdParty\Build_Tools\Drivers\ddkbuild -W7NET free .</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>..\..\..\..\ThirdParty\Build_Tools\Drivers\ddkbuild -W7NET free . -cZ</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>if exist objfre_wnet_x86\i386 del /q objfre_wnet_x86\i386\*.*</NMakeCleanCommandLine>
+    <NMakeOutput>objfre_wnet_x86\i386\InVolFlt.sys</NMakeOutput>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Win 2K8|Win32'">
+    <OutDir>$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <NMakeBuildCommandLine>..\..\..\..\ThirdParty\Build_Tools\Drivers\ddkbuild -W7LH free .</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>..\..\..\..\ThirdParty\Build_Tools\Drivers\ddkbuild -W7LH free . -cZ</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>if exist objfre_wlh_x86\i386 del /q objfre_wlh_x86\i386\*.*</NMakeCleanCommandLine>
+    <NMakeOutput>objfre_wlh_x86\i386\InVolFlt.sys</NMakeOutput>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <NMakeBuildCommandLine>..\..\..\..\ThirdParty\Build_Tools\Drivers\ddkbuild -W7NET checked . &amp;&amp; ..\..\..\..\ThirdParty\Build_Tools\Drivers\ddkbuild -W7LH checked . </NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>..\..\..\..\ThirdParty\Build_Tools\Drivers\ddkbuild -W7NET checked . -cZ &amp;&amp; ..\..\..\..\ThirdParty\Build_Tools\Drivers\ddkbuild -W7LH checked . -cZ</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>if exist objchk_wnet_x86\i386 del /q objchk_wnet_x86\i386\*.* &amp;&amp; if exist objchk_wlh_x86\i386 del /q objchk_wlh_x86\i386\*.*</NMakeCleanCommandLine>
+    <NMakeOutput>objchk_wnet_x86\i386\InVolFlt.sys%3bobjchk_wlh_i386\i386\InVolFlt.sys</NMakeOutput>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <NMakeBuildCommandLine>..\..\..\..\ThirdParty\Build_Tools\Drivers\ddkbuild -W7NET checked . &amp;&amp; ..\..\..\..\ThirdParty\Build_Tools\Drivers\ddkbuild -W7LH checked . </NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>..\..\..\..\ThirdParty\Build_Tools\Drivers\ddkbuild -W7NET checked . -cZ &amp;&amp; ..\..\..\..\ThirdParty\Build_Tools\Drivers\ddkbuild -W7LH checked . -cZ</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>if exist objchk_wnet_x86\i386 del /q objchk_wnet_x86\i386\*.* &amp;&amp; if exist objchk_wlh_x86\i386 del /q objchk_wlh_x86\i386\*.*</NMakeCleanCommandLine>
+    <NMakeOutput>objchk_wnet_x86\i386\InVolFlt.sys%3bobjchk_wlh_i386\i386\InVolFlt.sys</NMakeOutput>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <NMakeBuildCommandLine>..\..\..\..\ThirdParty\Build_Tools\Drivers\ddkbuild -W7NET free . &amp;&amp; ..\..\..\..\ThirdParty\Build_Tools\Drivers\ddkbuild -W7LH free .</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>..\..\..\..\ThirdParty\Build_Tools\Drivers\ddkbuild -W7NET free . -cZ &amp;&amp; ..\..\..\..\ThirdParty\Build_Tools\Drivers\ddkbuild -W7LH free . -cZ</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>if exist objfre_wnet_x86\i386 del /q objfre_wnet_x86\i386\*.* &amp;&amp; if exist objfre_wlh_x86\i386 del /q objfre_wlh_x86\i386\*.*</NMakeCleanCommandLine>
+    <NMakeOutput>objfre_wnet_x86\i386\InVolFlt.sys%3bobjfre_wlh_x86\i386\InVolFlt.sys</NMakeOutput>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="InVolFltMsg.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="InVolFlt.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="InVolFltLog.mc" />
+    <None Include="Win32\makefile" />
+    <None Include="Win32\sources" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="readme.txt" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

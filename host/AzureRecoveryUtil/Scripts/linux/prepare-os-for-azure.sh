@@ -204,6 +204,26 @@ backup_file()
     return $?
 }
 
+#@1 - Final file name
+restore_file()
+{
+    local _final_file_=$1
+    local _backup_file_="${_final_file_}${_BCK_EXT_}"
+
+    trace "Restoring the file $_final_file_ from backup file at location $_backup_file_";
+    
+    [[ -f $_final_file_ ]] && {
+        trace "$_final_file_ already exists. Replacing the file with backup file.";
+    }
+    
+    [[ -f $_backup_file_ ]] || {
+        trace "$_backup_file_ file not found.";
+        return;
+    }
+    
+    mv -f $_backup_file_ $_final_file_
+}
+
 #@1 - File path
 move_to_backup()
 {
@@ -751,6 +771,7 @@ generate_initrd_image()
 
 #@1 - grub options to add
 #@2 - grub options to remove
+unset global_grub_path
 modify_grub_config()
 {
     local _grub_path="$chroot_path/boot/grub/menu.lst"
@@ -780,11 +801,14 @@ modify_grub_config()
         append_config_line_parameter "serial --unit=0 --speed=115200 --parity=no" $_grub_path
         append_config_line_parameter "terminal --timeout=15 serial console" $_grub_path
     fi
+    
+    global_grub_path="$_grub_path"
 }
 
 #@1 - grub options to add
 #@2 - grub config setting name
 #@3 - grub options to remove
+unset global_grub_path
 modify_grub2_config()
 {
     local _grub2_path="$chroot_path/boot/grub2/grub.cfg"
@@ -813,6 +837,8 @@ modify_grub2_config()
     if [[ -f "$chroot_path/boot/grub/grub.cfg" && $_grub2_path != "$chroot_path/boot/grub/grub.cfg" ]]; then
         modify_grub2_config_helper "$1" "$2" "$3" "$chroot_path/boot/grub/grub.cfg"
     fi
+    
+    global_grub_path="$_grub2_path"
 }
 
 #@1 - grub options to add
@@ -908,12 +934,12 @@ install_linux_guest_agent()
 {
     ga_uuid=$(uuidgen)
     base_linuxga_path="var/ASRLinuxGA-$ga_uuid"
-	
-	if [[ ! -d $chroot_path/$base_linuxga_path ]]; then
+    
+    if [[ ! -d $chroot_path/$base_linuxga_path ]]; then
         trace "Base linux guest agent packages directory doesn't exist'. Creating $chroot_path/$base_linuxga_path"
         mkdir $chroot_path/$base_linuxga_path
     fi
-	
+    
     validate_guestagent_prereqs
     update_vm_repositories
 
@@ -926,7 +952,7 @@ install_linux_guest_agent()
     else
         enable_installga_chkconfig
     fi
-	
+    
     enable_postlogin_installga
 
     add_am_hydration_log "Guest agent installation logs location" "/$base_linuxga_path/ASRLinuxGA.log"
@@ -1318,6 +1344,131 @@ verify_generate_initrd_images()
     done
 }
 
+function determine_grub_version() 
+{
+    local grub_version=""
+
+    if [ -x "$chroot_path/usr/sbin/grub2-mkconfig" ]; then
+        grub_version="2"
+    elif [ -x "$chroot_path/usr/sbin/grub-mkconfig" ]; then
+        grub_version="1"
+    else
+        trace "Error: GRUB version could not be determined."
+        return 1
+    fi
+
+    echo "$grub_version"
+}
+
+function regenerate_grub_config() 
+{
+    local grub_version=""
+    local grub_file_location=$1;
+
+    grub_version="$(determine_grub_version)"
+    if [ $? -ne 0 ]; then
+        trace "Error: GRUB version could not be determined."
+        return 1
+    fi
+
+    trace "Firmware type: $firmware_type"
+    trace "GRUB version: $grub_version"
+    
+    if [[ $global_grub_file_location == *"menu.lst" ]] || [[ $global_grub_file_location == *"grub.conf" ]]; then
+        trace "The global GRUB path end with menu.lst or grub.conf. Not regenerating the grub."
+        return 1
+    fi
+
+    if [ "$grub_version" = "2" ]; then
+        trace "GRUB config path: $grub_file_location"
+        if [ -f "$grub_file_location" ]; then
+            # backup the original grub config file
+            backup_file "$grub_file_location"
+            if [ $? -ne 0 ]; then
+                trace "Error: Failed to backup GRUB config file."
+                return 1
+            fi
+            
+            if [[ $grub_file_location == $chroot_path* ]]; then
+                grub_file_location="${grub_file_location#$chroot_path}"
+            else
+                trace "Grub file location is not within the specified mounted volume. Regeneration of grub will not proceed."
+                return 1
+            fi
+
+            
+            trace "Modified grub path: $grub_file_location"
+
+            if [ "$firmware_type" = "UEFI" ]; then
+                chroot "$chroot_path" timeout 300 grub2-mkconfig -o "$grub_file_location" 
+                if [ $? -ne 0 ]; then
+                    if [ $? -eq 124 ]; then
+                        trace "Error: GRUB regeneration timed out after 5 minutes."
+                    fi
+                    trace "Error: Failed to regenerate GRUB config for UEFI firmware."
+                    # restore the backup
+                    restore_file "$chroot_path$grub_file_location"
+                    return 1
+                fi
+            else 
+                chroot "$chroot_path" timeout 300 grub2-mkconfig -o "$grub_file_location" 
+                if [ $? -ne 0 ]; then
+                    if [ $? -eq 124 ]; then
+                        trace "Error: GRUB regeneration timed out after 5 minutes."
+                    fi
+                    trace "Error: Failed to regenerate GRUB config for BIOS firmware."
+                    # restore the backup
+                    restore_file "$chroot_path$grub_file_location"
+                    return 1
+                fi
+            fi
+        fi
+    elif [ "$grub_version" = "1" ]; then
+        trace "GRUB config path: $grub_file_location"
+        if [ -f "$grub_file_location" ]; then
+            # backup the original grub config file
+            backup_file "$grub_file_location"
+            if [ $? -ne 0 ]; then
+                trace "Error: Failed to backup GRUB config file."
+                return 1
+            fi
+            
+            if [[ $grub_file_location == $chroot_path* ]]; then
+                grub_file_location="${grub_file_location#$chroot_path}"
+            else
+                trace "Grub file location is not within the specified mounted volume. Regeneration of grub will not proceed."
+                return 1
+            fi
+            
+            trace "Modified grub path: $grub_file_location"
+
+            if [ "$firmware_type" = "UEFI" ]; then
+                chroot "$chroot_path" timeout 300 grub-mkconfig -o "$grub_file_location"
+                if [ $? -ne 0 ]; then
+                    if [ $? -eq 124 ]; then
+                        trace "Error: GRUB regeneration timed out after 5 minutes."
+                    fi
+                    trace "Error: Failed to regenerate GRUB config for UEFI firmware."
+                    # restore the backup
+                    restore_file "$chroot_path$grub_file_location"
+                    return 1
+                fi
+            else 
+                chroot "$chroot_path" timeout 300 grub-mkconfig -o "$grub_file_location"
+                if [ $? -ne 0 ]; then
+                    if [ $? -eq 124 ]; then
+                        trace "Error: GRUB regeneration timed out after 5 minutes."
+                    fi
+                    trace "Error: Failed to regenerate GRUB config for BIOS firmware."
+                    # restore the backup
+                    restore_file "$chroot_path$grub_file_location"
+                    return 1
+                fi
+            fi
+        fi
+    fi
+}
+
 #@1 - Config value
 #@2 - File name
 # Appends an entire line to the file if absent
@@ -1344,7 +1495,7 @@ set_serial_console_grub_options()
     trace "Updating boot grub options to redirect serial console logs ..."
     
     local opts_to_remove="rhgb quiet crashkernel=auto acpi=0"
-    local opts_to_add="rootdelay=300 earlyprintk=ttyS0 console=ttyS0 numa=off"
+    local opts_to_add="rootdelay=150 earlyprintk=ttyS0 console=ttyS0 numa=off"
     case $src_distro in
     RHEL6*|CENTOS6*|OL6*)
         modify_grub_config "$opts_to_add" "$opts_to_remove"
@@ -1354,7 +1505,7 @@ set_serial_console_grub_options()
         set_sles11_inittab
         ;;
     UBUNTU14*|UBUNTU16*|UBUNTU18*|UBUNTU19|UBUNTU20*|UBUNTU21*|UBUNTU22*)
-        opts_to_add="splash quiet rootdelay=300 earlyprintk=ttyS0,115200 console=ttyS0,115200n8 console=tty1"
+        opts_to_add="splash quiet rootdelay=150 earlyprintk=ttyS0,115200 console=ttyS0,115200n8 console=tty1"
         modify_grub2_config "$opts_to_add" "GRUB_CMDLINE_LINUX_DEFAULT" "$opts_to_remove"
         modify_grub2_config "$opts_to_add" "GRUB_CMDLINE_LINUX" "$opts_to_remove"
         modify_grub2_config "console serial" "GRUB_TERMINAL_OUTPUT" ""
@@ -1362,7 +1513,7 @@ set_serial_console_grub_options()
         modify_grub2_config "console serial" "GRUB_TERMINAL" ""
         ;;
     DEBIAN*|KALI-ROLLING*)
-        opts_to_add="splash quiet rootdelay=300 earlyprintk=ttyS0,115200 console=ttyS0,115200n8 console=tty1"
+        opts_to_add="splash quiet rootdelay=150 earlyprintk=ttyS0,115200 console=ttyS0,115200n8 console=tty1"
         modify_grub2_config "$opts_to_add" "GRUB_CMDLINE_LINUX_DEFAULT" "$opts_to_remove"
         modify_grub2_config "$opts_to_add" "GRUB_CMDLINE_LINUX" "$opts_to_remove"
         modify_grub2_config "console serial" "GRUB_TERMINAL_OUTPUT" ""
@@ -1370,7 +1521,7 @@ set_serial_console_grub_options()
         modify_grub2_config "console serial" "GRUB_TERMINAL" ""
         ;;
     SLES12*|SLES15*)
-        opts_to_add="rootdelay=300 earlyprintk=ttyS0 console=ttyS0"
+        opts_to_add="rootdelay=150 earlyprintk=ttyS0 console=ttyS0"
         modify_grub2_config "$opts_to_add" "GRUB_CMDLINE_LINUX"
         modify_grub2_config "console serial" "GRUB_TERMINAL_OUTPUT" ""
         modify_grub2_config "console serial" "GRUB_TERMINAL" ""
@@ -1380,7 +1531,7 @@ set_serial_console_grub_options()
         #https://docs.microsoft.com/en-us/azure/virtual-machines/troubleshooting/serial-console-grub-single-user-mode#grub-access-in-rhel
         #and 
         #https://docs.microsoft.com/en-us/azure/virtual-machines/troubleshooting/serial-console-grub-proactive-configuration
-        opts_to_add="rootdelay=300 console=tty1 console=ttyS0,115200n8 earlyprintk=ttyS0,115200 earlyprintk=ttyS0 net.ifnames=0"
+        opts_to_add="rootdelay=150 console=tty1 console=ttyS0,115200n8 earlyprintk=ttyS0,115200 earlyprintk=ttyS0 net.ifnames=0"
         modify_grub2_config "$opts_to_add" "GRUB_CMDLINE_LINUX" "$opts_to_remove"
         modify_grub2_config "console serial" "GRUB_TERMINAL_OUTPUT" ""
         modify_grub2_config "--stop=1 --parity=no --word=8 --unit=0 --speed=115200 serial" "GRUB_SERIAL_COMMAND" ""
@@ -1392,7 +1543,16 @@ set_serial_console_grub_options()
         throw_error $_E_AZURE_SMS_OS_UNSUPPORTED $src_distro
         ;;
     esac
+    
     trace "Successfully updated boot grub options!"
+    #trace "Regenerating the grub configuration file."
+
+    #regenerate_grub_config "$global_grub_path"
+    #if [ $? -ne 0 ]; then
+    #    trace "Error: Failed to regenerate GRUB config."
+    #else
+    #    trace "Success: GRUB configuration file regenerated successfully."
+    #fi
 }
 
 enable_systemd_on_startupscipt()
@@ -1626,7 +1786,7 @@ enable_postlogin_installga()
         echo "echo \"Installation process completed. Proceed with Login.\"" >> $target_profiled_file
         echo "rm -f \"/etc/profile.d/ASRLinuxGAStartup.sh\"" >> $target_profiled_file
 
-        trace "/etc/profile.d post login startup file created."	
+        trace "/etc/profile.d post login startup file created."    
     fi
 }
 
@@ -1719,7 +1879,7 @@ check_valid_python_version()
     else
         pythonver=3
         add_am_hydration_log "Python Version" "python3"
-		return
+        return
     fi
 
     # Check for Major version 2 and Minor Version >= 6 for Python.
@@ -1727,7 +1887,7 @@ check_valid_python_version()
     if [[ $? -ne 0 ]] ; then
         trace "Python is not installed on the target VM.\n"
         pythonver=1
-		return
+        return
     else
         vermajor=$(chroot $chroot_path python -c"import platform; major, minor, patch = platform.python_version_tuple(); print(major)")
         verminor=$(chroot $chroot_path python -c"import platform; major, minor, patch = platform.python_version_tuple(); print(minor)")

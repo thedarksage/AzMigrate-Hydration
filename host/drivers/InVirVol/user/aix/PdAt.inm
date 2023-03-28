@@ -1,0 +1,21 @@
+PdAt:
+	uniquetype = "disk/vscsi/inmage"
+	attribute = "pv"
+	deflt = "no"
+	values = "no,yes,clear"
+	width = ""
+	type = "R"
+	generic = "U"
+	rep = "sl"
+	nls_index = 0
+
+PdAt:
+	uniquetype = "disk/vscsi/inmage"
+	attribute = "pvid"
+	deflt = "none"
+	values = ""
+	width = ""
+	type = "R"
+	generic = "D"
+	rep = "s"
+	nls_index = 2

@@ -1,0 +1,89 @@
+[
+  {
+    "CheckName": "BootUEFICheck",
+    "OperationName": "PreCheckBootUEFIValidation",
+    "InstallAction" : "Install",
+    "Params": {
+      "MinOSMajorVersion": "6",
+      "MinOSMinorVersion": "2",
+      "SecureBoot": "false"
+    }
+  },
+  {
+    "CheckName": "BootDriversCheck",
+    "OperationName": "PrecheckBootDriversValidation",
+    "InstallAction" : "Install",
+    "Params": {
+      "ControlSets": "CurrentControlSet",
+      "Drivers": "atapi,vmbus,storflt,storvsc,intelide"
+    }
+  },
+  {
+    "CheckName": "BootAndSystemDiskCheck",
+    "OperationName": "PreCheckBootAndSystemDiskValidation",
+    "InstallAction" : "Install",
+    "Params": {
+      "BootAndSystemPartitionsOnSameDisk": "true"
+    }
+  },
+  {
+    "CheckName": "CriticalServicesCheck",
+    "OperationName": "PreCheckCriticalServicesValidation",
+    "InstallAction" : "Install",
+    "Params": {
+      "ControlSets": "CurrentControlSet",
+      "Services": "vds,vss,COMSysApp,MSDTC,msiserver,EventLog"
+    }
+  },
+  {
+    "CheckName": "VSSProviderInstallationCheck",
+    "OperationName" : "PreCheckVSSInstallationValidation",
+    "IsMandatory" : "false",
+    "InstallAction" : "Install",
+    "Params": {
+      "MinOSMajorVersion": "6",
+      "MinOSMinorVersion": "1"
+    }
+  },
+  {
+    "CheckName": "FileValidationCheck",
+    "OperationName" : "PreCheckFilePathValidation",
+    "IsMandatory" : "true",
+    "Params": {
+      "Filename": "rundll32.exe",
+      "Path": "%windir%\\system32"
+    }
+  },
+  {
+    "CheckName": "SHA2CompatibilityCheck",
+    "OperationName" : "PreCheckSHA2CompatibilityValidation",
+    "IsMandatory" : "true",
+    "Params": {
+    }
+  },
+  {
+    "CheckName": "AgentMandatoryFilesCheck",
+    "OperationName": "PreCheckAgentMandatoryFilesValidation",
+    "InstallAction": "Upgrade",
+    "IsMandatory": "true",
+    "params": {
+      "FileName": "Application Data\\etc\\drscout.conf"
+    }
+  },
+  {
+    "CheckName": "MachineMemoryCheck",
+    "OperationName" : "PreCheckMachineMemoryValidation",
+    "IsMandatory" : "true",
+    "Params": {
+      "RequiredMemoryInMB": "1014"
+    }
+  },
+  {
+    "CheckName": "InvolFltDriverCheck",
+    "OperationName": "PreCheckInvolFltDriverValidation",
+    "InstallAction": "Install",
+    "IsMandatory": "true",
+    "Params": {
+    }
+  }
+]

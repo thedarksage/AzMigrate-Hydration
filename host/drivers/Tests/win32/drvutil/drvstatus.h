@@ -1,0 +1,15 @@
+#ifndef _DRSTATUS_H_
+#define _DRSTATUS_H_
+
+typedef LONG DRSTATUS;
+
+#define DRSTATUS_SUCCESS                0x00000000
+
+#define DRSTATUS_UNSUCCESSFUL            0xC0000001
+#define DRSTATUS_CREATE_SERVICE_FAILED   0xC0000002
+#define DRSTATUS_OPEN_SCMANAGER_FAILED   0xC0000003
+#define DRSTATUS_NOT_SUPPORTED           0xC0000004
+
+#define DR_SUCCESS(Status) ((Status) >= 0)
+
+#endif

@@ -1,0 +1,142 @@
+﻿<ns0:BasePageForWpfControls
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+    xmlns:ns0="clr-namespace:ASRSetupFramework;assembly=ASRSetupFramework"
+    xmlns:resx="clr-namespace:ASRResources;assembly=ASRResources"
+    x:Class="UnifiedSetup.NetworkSelectionPage"
+    x:Uid="ns0:BasePageForWpfControls_1"
+    Height="415"
+    Width="695">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition x:Uid="RowDefinition_0" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_1" Height="20" />
+            <RowDefinition x:Uid="RowDefinition_2" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_3" Height="10" />
+            <RowDefinition x:Uid="RowDefinition_4" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_5" Height="5" />
+            <RowDefinition x:Uid="RowDefinition_6" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_7" Height="5" />
+            <RowDefinition x:Uid="RowDefinition_8" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_9" Height="5" />
+            <RowDefinition x:Uid="RowDefinition_10" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_11" Height="130" />
+            <RowDefinition x:Uid="RowDefinition_12" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_13" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_14" Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition x:Uid="ColumnDefinition_1" MaxWidth="27" Width="27" />
+            <ColumnDefinition x:Uid="ColumnDefinition_2" Width="200" />
+            <ColumnDefinition x:Uid="ColumnDefinition_3" Width="*" />
+            <ColumnDefinition x:Uid="ColumnDefinition_3" Width="50" />
+        </Grid.ColumnDefinitions>
+        <TextBlock
+            x:Name="NetworkSelectionMainTextblock"
+            x:Uid="NetworkSelectionMainTextblock" 
+            Grid.Column="1"
+            Grid.Row="2"
+            Grid.ColumnSpan="2"
+            TextWrapping="Wrap"
+            Text="{x:Static resx:StringResources.NetworkSelectionMainText}">
+        </TextBlock>
+        <Label
+            x:Name="NetworkSelectionComboBoxLabel"
+            x:Uid="NetworkSelectionComboBoxLabel"
+            Content="{x:Static resx:StringResources.NetworkSelectionComboBoxLabelText}"
+            Grid.Column="1"
+            Grid.Row="4"
+            AutomationProperties.Name="{x:Static resx:StringResources.NetworkSelectionMainText}"
+            Target="{Binding ElementName=NetworkSelectionComboBox}" />
+        <ComboBox
+            x:Name="NetworkSelectionComboBox"
+            x:Uid="NetworkSelectionComboBox"
+	        HorizontalAlignment="Left"
+	        Grid.Column="2"
+            Grid.Row="4"
+	        VerticalAlignment="Top"
+	        Width="400"
+            Loaded="NetworkSelectionComboBox_Loaded"
+            AutomationProperties.Name="{x:Static resx:StringResources.NetworkSelectionComboBoxLabelText}"
+	        SelectionChanged="NetworkSelectionComboBox_SelectionChanged"/>
+        <TextBlock
+            x:Name="NetworkSelectionAzureTextblock"
+            x:Uid="NetworkSelectionAzureTextblock" 
+            Grid.Column="1"
+            Grid.Row="6"
+            Grid.ColumnSpan="2"
+            TextWrapping="Wrap"
+            Visibility="Visible"
+            Text="{x:Static resx:StringResources.NetworkSelectionAzureText}">
+        </TextBlock>
+        <Label
+            x:Name="NetworkSelectionComboBoxLabelAzure"
+            x:Uid="NetworkSelectionComboBoxLabelAzure"
+            Content="{x:Static resx:StringResources.NetworkSelectionComboBoxLabelText}"
+            Grid.Column="1"
+            Grid.Row="8"
+            Visibility="Visible"
+            AutomationProperties.Name="{x:Static resx:StringResources.NetworkSelectionMainText}"
+            Target="{Binding ElementName=NetworkSelectionComboBoxAzure}" />
+        <ComboBox
+            x:Name="NetworkSelectionComboBoxAzure"
+            x:Uid="NetworkSelectionComboBoxAzure"
+	        HorizontalAlignment="Left"
+	        Grid.Column="2"
+            Grid.Row="8"
+	        VerticalAlignment="Top"
+	        Width="400"
+            Visibility="Visible"
+            Loaded="NetworkSelectionComboBox_Loaded"
+            AutomationProperties.Name="{x:Static resx:StringResources.NetworkSelectionComboBoxLabelText}"
+	        SelectionChanged="NetworkSelectionComboBox_SelectionChanged"/>
+        <Label
+            x:Name="NetworkSelectionPortLabel"
+            x:Uid="NetworkSelectionPortLabel"
+            Content="{x:Static resx:StringResources.NetworkSelectionPortLabelText}"
+            Grid.Column="1"
+            Grid.Row="10"
+            Target="{Binding ElementName=NetworkSelectionComboBox}"/>
+        <TextBox
+            x:Name="NetworkSelectionPortTextbox"
+            x:Uid="NetworkSelectionPortTextbox"
+            Grid.Column="2"
+            Grid.Row="10"
+            MaxLength="256"
+            Width="60"
+            HorizontalAlignment="Left"
+            Text="9443"
+            AutomationProperties.Name="{x:Static resx:StringResources.NetworkSelectionPortLabelText}"
+            PreviewTextInput="NetworkSelectionPortTextbox_PreviewTextInput"
+            SelectionChanged="NetworkSelectionPortTextbox_SelectionChanged"/>
+        <TextBlock
+            x:Name="NetworkSelectionNoteTextblock"
+            x:Uid="NetworkSelectionNoteTextblock" 
+            Grid.Column="1"
+            Grid.Row="12"
+            Grid.ColumnSpan="2"
+            TextWrapping="Wrap">
+        </TextBlock>
+        <TextBlock
+            x:Name="NetworkSelection443NoteTextblock"
+            x:Uid="NetworkSelection443NoteTextblock" 
+            Grid.Column="1"
+            Grid.Row="13"
+            Grid.ColumnSpan="2"
+            TextWrapping="Wrap"
+            Margin="20 0 0 0"
+            Text="{x:Static resx:StringResources.NetworkSelection443NoteText}">
+        </TextBlock>
+        <TextBlock
+            x:Name="NetworkSelectionDataTransferNoteTextblock"
+            x:Uid="NetworkSelectionDataTransferNoteTextblock" 
+            Grid.Column="1"
+            Grid.Row="14"
+            Grid.ColumnSpan="2"
+            TextWrapping="Wrap"
+            Margin="20 0 0 0"
+            Text="{x:Static resx:StringResources.NetworkSelectionDataTransferNoteText}">
+        </TextBlock>
+    </Grid>
+</ns0:BasePageForWpfControls>

@@ -1,0 +1,548 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\app">
+      <UniqueIdentifier>{c195fd71-379a-472c-96b2-fee3f4f54130}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\app\win">
+      <UniqueIdentifier>{974cfc60-8f94-4b2e-8117-f75e49d76904}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\app\win\bes">
+      <UniqueIdentifier>{0be23fb5-840d-4d10-9ca8-3687359ea8ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\app\win\mssql">
+      <UniqueIdentifier>{9f37b813-3b3d-46a6-9f08-a0a7b5c9b0da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\app\win\exchange">
+      <UniqueIdentifier>{c26c3c41-56c4-4673-ad7b-a2d9d74fa154}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\app\win\fileserver">
+      <UniqueIdentifier>{f5641d7e-14f4-4ca6-b8b6-fbc1cfa5442b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\config">
+      <UniqueIdentifier>{50704393-e285-40e6-b3c4-2c57fca81ce0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\discovery">
+      <UniqueIdentifier>{4e773fea-7ac9-4790-93e7-33b6339326bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\discovery\win">
+      <UniqueIdentifier>{4be4c5c0-c526-4ba5-8f67-b20a2bc81442}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ruleengine">
+      <UniqueIdentifier>{956dd5b2-4f7d-4ab7-904f-44146c0edff7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ruleengine\win">
+      <UniqueIdentifier>{d99e9ef7-c0b7-4ef3-92c7-dc947aa6756b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\util">
+      <UniqueIdentifier>{8264db9c-c501-4591-88a2-80948520b5c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\util\common">
+      <UniqueIdentifier>{97e98216-dae8-4106-8e7f-b1604585e054}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\util\win">
+      <UniqueIdentifier>{0d461c01-0c57-4152-85a2-d38b9c577fc0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\win">
+      <UniqueIdentifier>{8488398e-ca0e-4fb3-a729-f446afa76f72}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\win\ado">
+      <UniqueIdentifier>{57cc587f-08c7-49a4-96ce-3159c38069b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\win\ldap">
+      <UniqueIdentifier>{c2607b04-c52b-4f0d-8b37-d0ab846f7299}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\win\wmi">
+      <UniqueIdentifier>{e6b7bd3d-8afe-4aa4-9477-682972526ff0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Consistency">
+      <UniqueIdentifier>{c9929d0b-f687-4e0b-93b4-492fc86bc09a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\storagerepository">
+      <UniqueIdentifier>{98a1dc3f-1999-45f9-9963-bc48561b4624}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\storagerepository\win">
+      <UniqueIdentifier>{f1bc0443-815a-426e-80f2-521365696b04}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\app">
+      <UniqueIdentifier>{d20e8fbc-13df-4cf0-b34c-56c05c4a4a5a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\app\win">
+      <UniqueIdentifier>{f8d143e4-e5d6-44a8-b397-fd923f57fb8d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\app\win\mssql">
+      <UniqueIdentifier>{68b854eb-9b64-4620-97ca-c83b5362e996}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\app\win\bes">
+      <UniqueIdentifier>{20bee0ee-d702-4091-99a3-3d2da69dd461}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\app\win\exchange">
+      <UniqueIdentifier>{6b0aa742-340c-4742-92be-6668570a3707}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\app\win\fileserver">
+      <UniqueIdentifier>{186a2a35-026f-46d7-9e7d-ce2a2b30cd4f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\config">
+      <UniqueIdentifier>{8a8162c2-81c3-4454-9187-870bdceac7d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\discovery">
+      <UniqueIdentifier>{328a7915-20cc-4735-9f2e-022b4096d27d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\discovery\win">
+      <UniqueIdentifier>{b627a11a-5686-4ecf-a1ea-9a0e1721a388}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ruleengine">
+      <UniqueIdentifier>{633432c0-50f2-409a-b8f7-107e4c2823c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ruleengine\win">
+      <UniqueIdentifier>{9cfd4717-379f-40c2-b4d2-260dae038dde}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\util">
+      <UniqueIdentifier>{b4fbe0d5-c5e8-4014-9103-61c591499350}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\util\common">
+      <UniqueIdentifier>{418c7242-b09f-4e89-ba65-fd86f96f56ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\util\win">
+      <UniqueIdentifier>{e94ffdd8-e724-48ef-adec-926b3294592b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\win">
+      <UniqueIdentifier>{37d82c85-ea18-40c8-be64-50ada2defdb8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\win\ado">
+      <UniqueIdentifier>{341360cb-b2ca-4ee0-8dbc-1fae63318251}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\win\ldap">
+      <UniqueIdentifier>{084a468f-1d04-4f08-b489-db8130b28393}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\win\wmi">
+      <UniqueIdentifier>{0d6dbb26-74be-4b0b-bedb-c45b6f4a277e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Consistency">
+      <UniqueIdentifier>{c2744000-bec9-4514-9836-5614531270c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\storagerepository">
+      <UniqueIdentifier>{78750623-65e1-4c2b-9f54-1ee424337fda}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\storagerepository\win">
+      <UniqueIdentifier>{ad91baff-b065-44ae-b005-9870dd79d320}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="controller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="app\appcontroller.cpp">
+      <Filter>Source Files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="app\win32\appfactorymajor.cpp">
+      <Filter>Source Files\app\win</Filter>
+    </ClCompile>
+    <ClCompile Include="app\win32\bes\besapplication.cpp">
+      <Filter>Source Files\app\win\bes</Filter>
+    </ClCompile>
+    <ClCompile Include="app\win32\bes\bescontroller.cpp">
+      <Filter>Source Files\app\win\bes</Filter>
+    </ClCompile>
+    <ClCompile Include="app\win32\bes\besdiscovery.cpp">
+      <Filter>Source Files\app\win\bes</Filter>
+    </ClCompile>
+    <ClCompile Include="app\win32\mssql\mssqlapplication.cpp">
+      <Filter>Source Files\app\win\mssql</Filter>
+    </ClCompile>
+    <ClCompile Include="app\win32\mssql\mssqlcontroller.cpp">
+      <Filter>Source Files\app\win\mssql</Filter>
+    </ClCompile>
+    <ClCompile Include="app\win32\mssql\mssqldiscoveryandvalidator.cpp">
+      <Filter>Source Files\app\win\mssql</Filter>
+    </ClCompile>
+    <ClCompile Include="app\win32\mssql\mssqlmetadata.cpp">
+      <Filter>Source Files\app\win\mssql</Filter>
+    </ClCompile>
+    <ClCompile Include="app\win32\mssql\mssqlmetadatadiscovery.cpp">
+      <Filter>Source Files\app\win\mssql</Filter>
+    </ClCompile>
+    <ClCompile Include="app\win32\mssql\sqldiscovery.cpp">
+      <Filter>Source Files\app\win\mssql</Filter>
+    </ClCompile>
+    <ClCompile Include="app\win32\exchange\exchangeapplication.cpp">
+      <Filter>Source Files\app\win\exchange</Filter>
+    </ClCompile>
+    <ClCompile Include="app\win32\exchange\exchangecontroller.cpp">
+      <Filter>Source Files\app\win\exchange</Filter>
+    </ClCompile>
+    <ClCompile Include="app\win32\exchange\exchangediscovery.cpp">
+      <Filter>Source Files\app\win\exchange</Filter>
+    </ClCompile>
+    <ClCompile Include="app\win32\exchange\exchangediscoveryandvalidator.cpp">
+      <Filter>Source Files\app\win\exchange</Filter>
+    </ClCompile>
+    <ClCompile Include="app\win32\exchange\exchangemetadata.cpp">
+      <Filter>Source Files\app\win\exchange</Filter>
+    </ClCompile>
+    <ClCompile Include="app\win32\exchange\exchangemetadatadiscovery.cpp">
+      <Filter>Source Files\app\win\exchange</Filter>
+    </ClCompile>
+    <ClCompile Include="app\win32\fileserver\fileserverapplication.cpp">
+      <Filter>Source Files\app\win\fileserver</Filter>
+    </ClCompile>
+    <ClCompile Include="app\win32\fileserver\fileservercontroller.cpp">
+      <Filter>Source Files\app\win\fileserver</Filter>
+    </ClCompile>
+    <ClCompile Include="app\win32\fileserver\fileserverdiscovery.cpp">
+      <Filter>Source Files\app\win\fileserver</Filter>
+    </ClCompile>
+    <ClCompile Include="app\win32\fileserver\fileserverdiscoveryandvalidator.cpp">
+      <Filter>Source Files\app\win\fileserver</Filter>
+    </ClCompile>
+    <ClCompile Include="config\appconfchangemediator.cpp">
+      <Filter>Source Files\config</Filter>
+    </ClCompile>
+    <ClCompile Include="config\appconfigurator.cpp">
+      <Filter>Source Files\config</Filter>
+    </ClCompile>
+    <ClCompile Include="config\appconfigvalueobj.cpp">
+      <Filter>Source Files\config</Filter>
+    </ClCompile>
+    <ClCompile Include="config\applocalconfigurator.cpp">
+      <Filter>Source Files\config</Filter>
+    </ClCompile>
+    <ClCompile Include="config\appparser.cpp">
+      <Filter>Source Files\config</Filter>
+    </ClCompile>
+    <ClCompile Include="config\connection.cpp">
+      <Filter>Source Files\config</Filter>
+    </ClCompile>
+    <ClCompile Include="config\cxupdatecache.cpp">
+      <Filter>Source Files\config</Filter>
+    </ClCompile>
+    <ClCompile Include="discovery\discoverycontroller.cpp">
+      <Filter>Source Files\discovery</Filter>
+    </ClCompile>
+    <ClCompile Include="discovery\win32\discoveryandvalidator.cpp">
+      <Filter>Source Files\discovery\win</Filter>
+    </ClCompile>
+    <ClCompile Include="discovery\win32\discoveryfactory.cpp">
+      <Filter>Source Files\discovery\win</Filter>
+    </ClCompile>
+    <ClCompile Include="discovery\win32\hostdiscovery.cpp">
+      <Filter>Source Files\discovery\win</Filter>
+    </ClCompile>
+    <ClCompile Include="ruleengine\validator.cpp">
+      <Filter>Source Files\ruleengine</Filter>
+    </ClCompile>
+    <ClCompile Include="ruleengine\win32\exchangevalidators.cpp">
+      <Filter>Source Files\ruleengine\win</Filter>
+    </ClCompile>
+    <ClCompile Include="ruleengine\win32\fileservervalidators.cpp">
+      <Filter>Source Files\ruleengine\win</Filter>
+    </ClCompile>
+    <ClCompile Include="ruleengine\win32\inmagevalidator.cpp">
+      <Filter>Source Files\ruleengine\win</Filter>
+    </ClCompile>
+    <ClCompile Include="ruleengine\win32\mssqlvalidators.cpp">
+      <Filter>Source Files\ruleengine\win</Filter>
+    </ClCompile>
+    <ClCompile Include="ruleengine\win32\ruleengine.cpp">
+      <Filter>Source Files\ruleengine\win</Filter>
+    </ClCompile>
+    <ClCompile Include="ruleengine\win32\rulefactory.cpp">
+      <Filter>Source Files\ruleengine\win</Filter>
+    </ClCompile>
+    <ClCompile Include="ruleengine\win32\systemvalidators.cpp">
+      <Filter>Source Files\ruleengine\win</Filter>
+    </ClCompile>
+    <ClCompile Include="util\volpack.cpp">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
+    <ClCompile Include="util\common\bulkProtection.cpp">
+      <Filter>Source Files\util\common</Filter>
+    </ClCompile>
+    <ClCompile Include="util\common\bulkprotectionandvalidator.cpp">
+      <Filter>Source Files\util\common</Filter>
+    </ClCompile>
+    <ClCompile Include="util\common\cloudcontroller.cpp">
+      <Filter>Source Files\util\common</Filter>
+    </ClCompile>
+    <ClCompile Include="util\common\commonmajor.cpp">
+      <Filter>Source Files\util\common</Filter>
+    </ClCompile>
+    <ClCompile Include="util\common\util.cpp">
+      <Filter>Source Files\util\common</Filter>
+    </ClCompile>
+    <ClCompile Include="util\win32\Clusteroperation.cpp">
+      <Filter>Source Files\util\win</Filter>
+    </ClCompile>
+    <ClCompile Include="util\win32\clusterutil.cpp">
+      <Filter>Source Files\util\win</Filter>
+    </ClCompile>
+    <ClCompile Include="util\win32\exportdevicemajor.cpp">
+      <Filter>Source Files\util\win</Filter>
+    </ClCompile>
+    <ClCompile Include="util\win32\system.cpp">
+      <Filter>Source Files\util\win</Filter>
+    </ClCompile>
+    <ClCompile Include="util\win32\utilmajor.cpp">
+      <Filter>Source Files\util\win</Filter>
+    </ClCompile>
+    <ClCompile Include="util\win32\vssutil.cpp">
+      <Filter>Source Files\util\win</Filter>
+    </ClCompile>
+    <ClCompile Include="win32\ado\ado.cpp">
+      <Filter>Source Files\win\ado</Filter>
+    </ClCompile>
+    <ClCompile Include="win32\ado\sqlado.cpp">
+      <Filter>Source Files\win\ado</Filter>
+    </ClCompile>
+    <ClCompile Include="win32\ldap\exchangeldaphelper.cpp">
+      <Filter>Source Files\win\ldap</Filter>
+    </ClCompile>
+    <ClCompile Include="win32\ldap\ldap.cpp">
+      <Filter>Source Files\win\ldap</Filter>
+    </ClCompile>
+    <ClCompile Include="win32\wmi\sqlwmi.cpp">
+      <Filter>Source Files\win\wmi</Filter>
+    </ClCompile>
+    <ClCompile Include="win32\wmi\systemwmi.cpp">
+      <Filter>Source Files\win\wmi</Filter>
+    </ClCompile>
+    <ClCompile Include="win32\wmi\wmi.cpp">
+      <Filter>Source Files\win\wmi</Filter>
+    </ClCompile>
+    <ClCompile Include="win32\wmi\wmiutil.cpp">
+      <Filter>Source Files\win\wmi</Filter>
+    </ClCompile>
+    <ClCompile Include="Consistency\tagdiscovery.cpp">
+      <Filter>Source Files\Consistency</Filter>
+    </ClCompile>
+    <ClCompile Include="Consistency\TagGenerator.cpp">
+      <Filter>Source Files\Consistency</Filter>
+    </ClCompile>
+    <ClCompile Include="storagerepository\win32\storagerepositorymajor.cpp">
+      <Filter>Source Files\storagerepository\win</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="util\win32\utilmajor.h">
+      <Filter>Source Files\util\win</Filter>
+    </ClInclude>
+    <ClInclude Include="appglobals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="controller.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="app\appcontroller.h">
+      <Filter>Header Files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="app\appfactory.h">
+      <Filter>Header Files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="app\application.h">
+      <Filter>Header Files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="app\win32\mssql\mssqlapplication.h">
+      <Filter>Header Files\app\win\mssql</Filter>
+    </ClInclude>
+    <ClInclude Include="app\win32\mssql\mssqlcontroller.h">
+      <Filter>Header Files\app\win\mssql</Filter>
+    </ClInclude>
+    <ClInclude Include="app\win32\mssql\mssqldiscoveryandvalidator.h">
+      <Filter>Header Files\app\win\mssql</Filter>
+    </ClInclude>
+    <ClInclude Include="app\win32\mssql\mssqlexception.h">
+      <Filter>Header Files\app\win\mssql</Filter>
+    </ClInclude>
+    <ClInclude Include="app\win32\mssql\mssqlmetadata.h">
+      <Filter>Header Files\app\win\mssql</Filter>
+    </ClInclude>
+    <ClInclude Include="app\win32\mssql\mssqlmetadatadiscovery.h">
+      <Filter>Header Files\app\win\mssql</Filter>
+    </ClInclude>
+    <ClInclude Include="app\win32\mssql\sqldiscovery.h">
+      <Filter>Header Files\app\win\mssql</Filter>
+    </ClInclude>
+    <ClInclude Include="app\win32\bes\besapplication.h">
+      <Filter>Header Files\app\win\bes</Filter>
+    </ClInclude>
+    <ClInclude Include="app\win32\bes\bescontroller.h">
+      <Filter>Header Files\app\win\bes</Filter>
+    </ClInclude>
+    <ClInclude Include="app\win32\bes\besdiscovery.h">
+      <Filter>Header Files\app\win\bes</Filter>
+    </ClInclude>
+    <ClInclude Include="app\win32\exchange\exchangeapplication.h">
+      <Filter>Header Files\app\win\exchange</Filter>
+    </ClInclude>
+    <ClInclude Include="app\win32\exchange\exchangecontroller.h">
+      <Filter>Header Files\app\win\exchange</Filter>
+    </ClInclude>
+    <ClInclude Include="app\win32\exchange\exchangediscovery.h">
+      <Filter>Header Files\app\win\exchange</Filter>
+    </ClInclude>
+    <ClInclude Include="app\win32\exchange\exchangediscoveryandvalidator.h">
+      <Filter>Header Files\app\win\exchange</Filter>
+    </ClInclude>
+    <ClInclude Include="app\win32\exchange\exchangeexception.h">
+      <Filter>Header Files\app\win\exchange</Filter>
+    </ClInclude>
+    <ClInclude Include="app\win32\exchange\exchangemetadata.h">
+      <Filter>Header Files\app\win\exchange</Filter>
+    </ClInclude>
+    <ClInclude Include="app\win32\exchange\exchangemetadatadiscovery.h">
+      <Filter>Header Files\app\win\exchange</Filter>
+    </ClInclude>
+    <ClInclude Include="app\win32\fileserver\fileserverapplication.h">
+      <Filter>Header Files\app\win\fileserver</Filter>
+    </ClInclude>
+    <ClInclude Include="app\win32\fileserver\fileservercontroller.h">
+      <Filter>Header Files\app\win\fileserver</Filter>
+    </ClInclude>
+    <ClInclude Include="app\win32\fileserver\fileserverdiscovery.h">
+      <Filter>Header Files\app\win\fileserver</Filter>
+    </ClInclude>
+    <ClInclude Include="app\win32\fileserver\fileserverdiscoveryandvalidator.h">
+      <Filter>Header Files\app\win\fileserver</Filter>
+    </ClInclude>
+    <ClInclude Include="config\appconfchangemediator.h">
+      <Filter>Header Files\config</Filter>
+    </ClInclude>
+    <ClInclude Include="config\appconfigurator.h">
+      <Filter>Header Files\config</Filter>
+    </ClInclude>
+    <ClInclude Include="config\appconfigvalueobj.h">
+      <Filter>Header Files\config</Filter>
+    </ClInclude>
+    <ClInclude Include="config\applocalconfigurator.h">
+      <Filter>Header Files\config</Filter>
+    </ClInclude>
+    <ClInclude Include="config\appparser.h">
+      <Filter>Header Files\config</Filter>
+    </ClInclude>
+    <ClInclude Include="config\connection.h">
+      <Filter>Header Files\config</Filter>
+    </ClInclude>
+    <ClInclude Include="config\cxupdatecache.h">
+      <Filter>Header Files\config</Filter>
+    </ClInclude>
+    <ClInclude Include="discovery\discoverycontroller.h">
+      <Filter>Header Files\discovery</Filter>
+    </ClInclude>
+    <ClInclude Include="discovery\discoveryfactory.h">
+      <Filter>Header Files\discovery</Filter>
+    </ClInclude>
+    <ClInclude Include="discovery\win32\hostdiscovery.h">
+      <Filter>Header Files\discovery\win</Filter>
+    </ClInclude>
+    <ClInclude Include="ruleengine\validator.h">
+      <Filter>Header Files\ruleengine</Filter>
+    </ClInclude>
+    <ClInclude Include="ruleengine\win32\exchangevalidators.h">
+      <Filter>Header Files\ruleengine\win</Filter>
+    </ClInclude>
+    <ClInclude Include="ruleengine\win32\fileservervalidators.h">
+      <Filter>Header Files\ruleengine\win</Filter>
+    </ClInclude>
+    <ClInclude Include="ruleengine\win32\inmagevalidator.h">
+      <Filter>Header Files\ruleengine\win</Filter>
+    </ClInclude>
+    <ClInclude Include="ruleengine\win32\mssqlvalidators.h">
+      <Filter>Header Files\ruleengine\win</Filter>
+    </ClInclude>
+    <ClInclude Include="ruleengine\win32\ruleengine.h">
+      <Filter>Header Files\ruleengine\win</Filter>
+    </ClInclude>
+    <ClInclude Include="ruleengine\win32\rulefactory.h">
+      <Filter>Header Files\ruleengine\win</Filter>
+    </ClInclude>
+    <ClInclude Include="ruleengine\win32\systemvalidators.h">
+      <Filter>Header Files\ruleengine\win</Filter>
+    </ClInclude>
+    <ClInclude Include="util\exportdevice.h">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="util\usermgmt.h">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="util\volpack.h">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="util\common\bulkProtection.h">
+      <Filter>Header Files\util\common</Filter>
+    </ClInclude>
+    <ClInclude Include="util\common\bulkprotectionandvalidator.h">
+      <Filter>Header Files\util\common</Filter>
+    </ClInclude>
+    <ClInclude Include="util\common\bulkprotectionvalidator.h">
+      <Filter>Header Files\util\common</Filter>
+    </ClInclude>
+    <ClInclude Include="util\common\cloudcontroller.h">
+      <Filter>Header Files\util\common</Filter>
+    </ClInclude>
+    <ClInclude Include="util\common\util.h">
+      <Filter>Header Files\util\common</Filter>
+    </ClInclude>
+    <ClInclude Include="util\win32\Clusteroperation.h">
+      <Filter>Header Files\util\win</Filter>
+    </ClInclude>
+    <ClInclude Include="util\win32\clusterutil.h">
+      <Filter>Header Files\util\win</Filter>
+    </ClInclude>
+    <ClInclude Include="util\win32\system.h">
+      <Filter>Header Files\util\win</Filter>
+    </ClInclude>
+    <ClInclude Include="util\win32\system_win.h">
+      <Filter>Header Files\util\win</Filter>
+    </ClInclude>
+    <ClInclude Include="util\win32\systemInfo.h">
+      <Filter>Header Files\util\win</Filter>
+    </ClInclude>
+    <ClInclude Include="util\win32\vssutil.h">
+      <Filter>Header Files\util\win</Filter>
+    </ClInclude>
+    <ClInclude Include="win32\ado\ado.h">
+      <Filter>Header Files\win\ado</Filter>
+    </ClInclude>
+    <ClInclude Include="win32\ado\sqlado.h">
+      <Filter>Header Files\win\ado</Filter>
+    </ClInclude>
+    <ClInclude Include="win32\ldap\exchangeldaphelper.h">
+      <Filter>Header Files\win\ldap</Filter>
+    </ClInclude>
+    <ClInclude Include="win32\ldap\ldap.h">
+      <Filter>Header Files\win\ldap</Filter>
+    </ClInclude>
+    <ClInclude Include="win32\wmi\sqlwmi.h">
+      <Filter>Header Files\win\wmi</Filter>
+    </ClInclude>
+    <ClInclude Include="win32\wmi\systemwmi.h">
+      <Filter>Header Files\win\wmi</Filter>
+    </ClInclude>
+    <ClInclude Include="win32\wmi\wmi.h">
+      <Filter>Header Files\win\wmi</Filter>
+    </ClInclude>
+    <ClInclude Include="win32\wmi\wmiutil.h">
+      <Filter>Header Files\win\wmi</Filter>
+    </ClInclude>
+    <ClInclude Include="Consistency\tagdiscovery.h">
+      <Filter>Header Files\Consistency</Filter>
+    </ClInclude>
+    <ClInclude Include="Consistency\TagGenerator.h">
+      <Filter>Header Files\Consistency</Filter>
+    </ClInclude>
+    <ClInclude Include="storagerepository\storagerepository.h">
+      <Filter>Header Files\storagerepository</Filter>
+    </ClInclude>
+    <ClInclude Include="storagerepository\win32\storagerepositorymajor.h">
+      <Filter>Header Files\storagerepository\win</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

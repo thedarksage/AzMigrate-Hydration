@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <TestRunParameters>
+    <!-- used for dumping logs to the specified directory -->
+    <Parameter name="LoggingDirectory" value="C:\LoggingDirectory" />
+    <!-- used for retrieving binaried from the specified directory -->
+    <Parameter name="WorkingDirectory" value="C:\CVTScripts" />
+  </TestRunParameters>
+</RunSettings>

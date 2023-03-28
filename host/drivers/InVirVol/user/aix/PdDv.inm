@@ -1,0 +1,27 @@
+PdDv:
+        type = "inmage"
+        class = "disk"
+        subclass = "vscsi"
+        prefix = ""
+        devid = ""
+        base = 0
+        has_vpd = 0
+        detectable = 0
+        chgstatus = 0
+        bus_ext = 0
+        fru = 0
+        led = 0
+        setno = 0
+        msgno = 0
+        catalog = ""
+        DvDr = "linvsnap"
+        Define = "RUNTIME_INSTALL_PATH/drivers/definm"
+        Configure = "RUNTIME_INSTALL_PATH/drivers/cfginm"
+        Change = "RUNTIME_INSTALL_PATH/drivers/chginm"
+        Unconfigure = "RUNTIME_INSTALL_PATH/drivers/ucfginm"
+        Undefine = "RUNTIME_INSTALL_PATH/drivers/undefinm"
+        Start = ""
+        Stop = ""
+        inventory_only = 0
+        uniquetype = "disk/vscsi/inmage"
+

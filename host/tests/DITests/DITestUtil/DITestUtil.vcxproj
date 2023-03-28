@@ -1,0 +1,142 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{E3681C6D-EC73-49EA-A185-7B3E0988E592}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>DITestUtil</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\win-test-rules.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\win-test-rules.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <GenerateManifest>false</GenerateManifest>
+    <EmbedManifest>false</EmbedManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>SV_USES_LONGPATHS;WIN32_LEAN_AND_MEAN;ACE_AS_STATIC_LIBS;_LARGEFILE_SOURCE=1;_LARGEFILE64_SOURCE=1;_FILE_OFFSET_BITS=64;SV_WINDOWS;WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(TESTS_INCLUDES)\common\InmageTestException\win;$(TESTS_INCLUDES)\common\InmageTestException;$(TESTS_INCLUDES)\common\PlatformAPIs\win;$(TESTS_INCLUDES)\common\PlatformAPIs;$(TESTS_INCLUDES)\common\Logger\win;$(TESTS_INCLUDES)\common\Logger;$(TESTS_INCLUDES)\common\BlockDevice\win;$(TESTS_INCLUDES)\common\BlockDevice;..\..\;..\..\..\errorexception;..\..\..\scopeguard;..\..\common\SnapshotProvider;..\..\common\ConsistencyProvider;..\..\common\Validator;..\..\common\StorageDIValidatorChecksumProviderFactory;..\..\common\ConsistencyPoint;..\..\common\Machine;..\..\common\ProcessProvider;..\..\common\Snapshot;..\..\common\Storage;..\..\common\ChecksumProvider;..\..\common\ILogger;..\..\common\VacpDefines;..\..\common\VacpDefines\win;$(BOOST_INCLUDES);$(INM_MD5_INCLUDES);$(ACE_INCLUDES);..\..\..\common;..\..\common\Validator\win;$(HOST_INCLUDES)\inmsafecapis\win;$(HOST_INCLUDES)\inmsafecapis;$(HOST_INCLUDES)\common\</AdditionalIncludeDirectories>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <BrowseInformation>true</BrowseInformation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(BOOST_LIB_DIR);$(ACE_LIB_DIR);$(INM_MD5_LIB_DIR_DEBUG)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ACEsd.lib;inm_md5.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapExports>true</MapExports>
+      <LargeAddressAware>true</LargeAddressAware>
+      <ImageHasSafeExceptionHandlers>true</ImageHasSafeExceptionHandlers>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <PreprocessorDefinitions>SV_USES_LONGPATHS;WIN32_LEAN_AND_MEAN;ACE_AS_STATIC_LIBS;_LARGEFILE_SOURCE=1;_LARGEFILE64_SOURCE=1;_FILE_OFFSET_BITS=64;SV_WINDOWS;WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(BOOST_INCLUDES);$(ACE_INCLUDES);$(HOST_INCLUDES)\common\win32;$(TESTS_INCLUDES)\common;$(TESTS_INCLUDES)\common\InmageTestException\win;$(TESTS_INCLUDES)\common\InmageTestException;$(TESTS_INCLUDES)\common\PlatformAPIs\win;$(TESTS_INCLUDES)\common\PlatformAPIs;$(TESTS_INCLUDES)\common\Logger\win;$(TESTS_INCLUDES)\common\Logger;$(TESTS_INCLUDES)\common\BlockDevice\win;$(TESTS_INCLUDES)\common\BlockDevice;..\..\;..\..\..\errorexception;..\..\..\scopeguard;$(TESTS_INCLUDES)\common\SnapshotProvider;$(TESTS_INCLUDES)\common\ConsistencyProvider;$(TESTS_INCLUDES)\common\Validator;$(TESTS_INCLUDES)\common\StorageDIValidatorChecksumProviderFactory;$(TESTS_INCLUDES)\common\ConsistencyPoint;$(TESTS_INCLUDES)\common\Machine;$(TESTS_INCLUDES)\common\ProcessProvider;$(TESTS_INCLUDES)\common\Snapshot;$(TESTS_INCLUDES)\common\Storage;$(TESTS_INCLUDES)\common\ChecksumProvider;$(TESTS_INCLUDES)\common\ILogger;$(TESTS_INCLUDES)\common\VacpDefines;$(TESTS_INCLUDES)\common\VacpDefines\win;$(INM_MD5_INCLUDES);$(HOST_INCLUDES)\common;$(TESTS_INCLUDES)\common\Validator\win;$(HOST_INCLUDES)\inmsafecapis\win;$(HOST_INCLUDES)\inmsafecapis</AdditionalIncludeDirectories>
+      <SDLCheck>false</SDLCheck>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>$(BOOST_LIB_DIR);$(ACE_LIB_DIR);$(INM_MD5_LIB_DIR_RELEASE)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;inm_md5.lib;ACEs.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapExports>true</MapExports>
+      <MinimumRequiredVersion>5.01</MinimumRequiredVersion>
+      <LargeAddressAware>true</LargeAddressAware>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="DITestUtil.cpp" />
+    <ClCompile Include="unix\DITestUtilMajor.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="win\DITestUtilMajor.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\common\inmcommand.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\thirdparty\boost\boost-build-win\boost-build-win.vcxproj">
+      <Project>{43491c14-304a-4660-bc4c-df0cb18f6b87}</Project>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+      <Private>false</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\common\BlockDevice\BlockDevice.vcxproj">
+      <Project>{64109230-6e25-4271-9d32-0d1b0190ad97}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\common\InmageTestException\InmageTestException.vcxproj">
+      <Project>{4b126509-a3af-411c-b97e-756f2e632ed7}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\common\Logger\Logger.vcxproj">
+      <Project>{052b4b0e-da28-4837-9f3c-6d51c8fd4bc0}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\common\PlatformAPIs\PlatformAPIs.vcxproj">
+      <Project>{ea88a4d7-3d8e-4fee-9183-ffc1e237ee81}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

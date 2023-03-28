@@ -1,0 +1,876 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Error_8000_Message" xml:space="preserve">
+    <value>Unable to find a host system with host name '%Name;'.</value>
+  </data>
+  <data name="Error_8000_Causes" xml:space="preserve">
+    <value>Check that the host exists.</value>
+  </data>
+  <data name="Error_8000_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8001_Message" xml:space="preserve">
+    <value>Unable to find data center with name '%Name;'.</value>
+  </data>
+  <data name="Error_8001_Causes" xml:space="preserve">
+    <value>Check that the data center exists.</value>
+  </data>
+  <data name="Error_8001_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8002_Message" xml:space="preserve">
+    <value>Unable to find a virtual machine with Id '%Id;'.</value>
+  </data>
+  <data name="Error_8002_Causes" xml:space="preserve">
+    <value>Check that the virtual machine exists.</value>
+  </data>
+  <data name="Error_8002_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8003_Message" xml:space="preserve">
+    <value>Unable to create a dummy disk with size less than 8 MB. Remove small disks on master target and re-run.</value>
+  </data>
+  <data name="Error_8003_Causes" xml:space="preserve">
+    <value>Master Target already contains small disks of size less that 8 MB.</value>
+  </data>
+  <data name="Error_8003_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8004_Message" xml:space="preserve">
+    <value>More than 1 virtual machine was found with Id '%Id;'.</value>
+  </data>
+  <data name="Error_8004_Causes" xml:space="preserve">
+    <value>Check that only one virtual machine with the given Id exists.</value>
+  </data>
+  <data name="Error_8004_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8005_Message" xml:space="preserve">
+    <value>No virtual devices were found on virtual machine '%Name;'.</value>
+  </data>
+  <data name="Error_8005_Causes" xml:space="preserve">
+    <value>No virtual devices were added to the virtual machine.</value>
+  </data>
+  <data name="Error_8005_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8006_Message" xml:space="preserve">
+    <value>SATA controller of type '%Type;' is not expected.</value>
+  </data>
+  <data name="Error_8006_Causes" xml:space="preserve">
+    <value>The SATA controller type is not supported.</value>
+  </data>
+  <data name="Error_8006_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8007_Message" xml:space="preserve">
+    <value>SCSI controller of type '%Type;' is not expected.</value>
+  </data>
+  <data name="Error_8007_Causes" xml:space="preserve">
+    <value>The SCSI controller type is not supported.</value>
+  </data>
+  <data name="Error_8007_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8008_Message" xml:space="preserve">
+    <value>Virtual machine '%Name;' is marked as a template. It cannot be powered off.</value>
+  </data>
+  <data name="Error_8008_Causes" xml:space="preserve">
+    <value>Power off is not supported.</value>
+  </data>
+  <data name="Error_8008_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8009_Message" xml:space="preserve">
+    <value>Power off operation cannot be performed in the current state of the virtual machine '%Name;'.</value>
+  </data>
+  <data name="Error_8009_Causes" xml:space="preserve">
+    <value>Power off cannot be performed in current state.</value>
+  </data>
+  <data name="Error_8009_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8010_Message" xml:space="preserve">
+    <value>Power off operation cannot be performed in the current state of the virtual machine '%Name;'.</value>
+  </data>
+  <data name="Error_8010_Causes" xml:space="preserve">
+    <value>Power off cannot be performed in current state.</value>
+  </data>
+  <data name="Error_8010_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8011_Message" xml:space="preserve">
+    <value>Virtual machine '%Name;' cannot be powered off due to error: %ErrorMessage;.</value>
+  </data>
+  <data name="Error_8011_Causes" xml:space="preserve">
+    <value>Power off cannot be performed.</value>
+  </data>
+  <data name="Error_8011_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8012_Message" xml:space="preserve">
+    <value>Power off failed on virtual machine '%Name;' due to error: %ErrorMessage;.</value>
+  </data>
+  <data name="Error_8012_Causes" xml:space="preserve">
+    <value>Power off cannot be performed.</value>
+  </data>
+  <data name="Error_8012_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8013_Message" xml:space="preserve">
+    <value>Failed to shut down virtual machine '%Name;'. The operation has timed out.</value>
+  </data>
+  <data name="Error_8013_Causes" xml:space="preserve">
+    <value>Power off cannot be performed.</value>
+  </data>
+  <data name="Error_8013_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8014_Message" xml:space="preserve">
+    <value>Failed to power off master target '%Name;' hence disks from the master target could not be detached. Error: %ErrorMessage;.</value>
+  </data>
+  <data name="Error_8014_Causes" xml:space="preserve">
+    <value>Check the error details.</value>
+  </data>
+  <data name="Error_8014_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8015_Message" xml:space="preserve">
+    <value>Failed to find disks for virtual machine '%Name;' attached with master target '%MtName;'.</value>
+  </data>
+  <data name="Error_8015_Causes" xml:space="preserve">
+    <value>Check whether: SCSI information for each of the disk of the virtual machine are correct. Make sure all disks of this virtual machine are found on the master target.</value>
+  </data>
+  <data name="Error_8015_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8016_Message" xml:space="preserve">
+    <value>Failed to bring up master target '%Name;'.</value>
+  </data>
+  <data name="Error_8016_Causes" xml:space="preserve">
+    <value>Check the error details.</value>
+  </data>
+  <data name="Error_8016_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8017_Message" xml:space="preserve">
+    <value>Failed to upgrade virtual machine '%Name;'. Power on may fail.</value>
+  </data>
+  <data name="Error_8017_Causes" xml:space="preserve">
+    <value>Check the error details.</value>
+  </data>
+  <data name="Error_8017_Action" xml:space="preserve">
+    <value>Manually upgrade the virtual machine and then power on.</value>
+  </data>
+  <data name="Error_8018_Message" xml:space="preserve">
+    <value>Failed to bring up recovered virtual machine '%Name;'.</value>
+  </data>
+  <data name="Error_8018_Causes" xml:space="preserve">
+    <value>Check machine is powered on and operating system is loaded.</value>
+  </data>
+  <data name="Error_8018_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8019_Message" xml:space="preserve">
+    <value>Failed to determine in which data center the virtual machine %Name; (Id '%Id;') exists.</value>
+  </data>
+  <data name="Error_8019_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8019_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8020_Message" xml:space="preserve">
+    <value>Could not remove disks from master target as disk information is not available for machine %Name;.</value>
+  </data>
+  <data name="Error_8020_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8020_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8021_Message" xml:space="preserve">
+    <value>Could not find disks attached to master target for virtual machine %Name;.</value>
+  </data>
+  <data name="Error_8021_Causes" xml:space="preserve">
+    <value>Check if any storage vMotion happened and the disk names have changed or if the disks have been removed manually from the master target.</value>
+  </data>
+  <data name="Error_8021_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8022_Message" xml:space="preserve">
+    <value>Could not find some of the disks for virtual machine %Name; attached to the master target.</value>
+  </data>
+  <data name="Error_8022_Causes" xml:space="preserve">
+    <value>Check if any storage vMotion happened and the disk names have changed or if the disks have been removed manually from the master target.</value>
+  </data>
+  <data name="Error_8022_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8023_Message" xml:space="preserve">
+    <value>Failed to detach the virtual disks for virtual machine %Name; from master target %MtName; due to error: %ErrorMessage;.</value>
+  </data>
+  <data name="Error_8023_Causes" xml:space="preserve">
+    <value>Check where SCSI information for the virtual machine is correct and each make sure all disks for this machine are found on the master target.</value>
+  </data>
+  <data name="Error_8023_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8024_Message" xml:space="preserve">
+    <value>Failed to perform network related changes on virtual machine '%Name;'.</value>
+  </data>
+  <data name="Error_8024_Causes" xml:space="preserve">
+    <value>Check the error details.</value>
+  </data>
+  <data name="Error_8024_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8025_Message" xml:space="preserve">
+    <value>Virtual machine '%Name;' is marked as a template. It cannot be powered on.</value>
+  </data>
+  <data name="Error_8025_Causes" xml:space="preserve">
+    <value>Power on is not supported.</value>
+  </data>
+  <data name="Error_8025_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8026_Message" xml:space="preserve">
+    <value>Power on operation cannot be performed in the current state of the virtual machine '%Name;'.</value>
+  </data>
+  <data name="Error_8026_Causes" xml:space="preserve">
+    <value>Power on cannot be performed in current state.</value>
+  </data>
+  <data name="Error_8026_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8027_Message" xml:space="preserve">
+    <value>Power on operation cannot be performed in the current state of the virtual machine '%Name;'.</value>
+  </data>
+  <data name="Error_8027_Causes" xml:space="preserve">
+    <value>Power on cannot be performed in current state.</value>
+  </data>
+  <data name="Error_8027_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8028_Message" xml:space="preserve">
+    <value>Virtual machine '%Name;' cannot be powered on due to error: %ErrorMessage;.</value>
+  </data>
+  <data name="Error_8028_Causes" xml:space="preserve">
+    <value>Power on cannot be performed.</value>
+  </data>
+  <data name="Error_8028_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8029_Message" xml:space="preserve">
+    <value>Power on failed on virtual machine '%Name;' due to error: %ErrorMessage;.</value>
+  </data>
+  <data name="Error_8029_Causes" xml:space="preserve">
+    <value>Power on cannot be performed.</value>
+  </data>
+  <data name="Error_8029_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8030_Message" xml:space="preserve">
+    <value>The question during power on has been or is being answered by another thread or user for virtual machine '%Name;'.</value>
+  </data>
+  <data name="Error_8030_Causes" xml:space="preserve">
+    <value>Power on cannot be performed.</value>
+  </data>
+  <data name="Error_8030_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8031_Message" xml:space="preserve">
+    <value>The question Id %QuestionId; does not apply for virtual machine '%Name;'.</value>
+  </data>
+  <data name="Error_8031_Causes" xml:space="preserve">
+    <value>Power on cannot be performed.</value>
+  </data>
+  <data name="Error_8031_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8032_Message" xml:space="preserve">
+    <value>Failed to answer question during power on for virtual machine '%Name;' due to error: %ErrorMessage;.</value>
+  </data>
+  <data name="Error_8032_Causes" xml:space="preserve">
+    <value>Power on cannot be performed.</value>
+  </data>
+  <data name="Error_8032_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8033_Message" xml:space="preserve">
+    <value>Upgrading VM hardware of virtual machine '%Name;' failed due to error: %ErrorMessage;.</value>
+  </data>
+  <data name="Error_8033_Causes" xml:space="preserve">
+    <value>Check the error details.</value>
+  </data>
+  <data name="Error_8033_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8034_Message" xml:space="preserve">
+    <value>Failed to perform network related changes on virtual machine '%Name;' due to error: %ErrorMessage;.</value>
+  </data>
+  <data name="Error_8034_Causes" xml:space="preserve">
+    <value>Check the error details.</value>
+  </data>
+  <data name="Error_8034_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8035_Message" xml:space="preserve">
+    <value>Failed to find disks for virtual machine '%Name;' attached with master target '%MtName;' due to error: %ErrorMessage;.</value>
+  </data>
+  <data name="Error_8035_Causes" xml:space="preserve">
+    <value>Check whether: SCSI information for each of the disk of the virtual machine are correct. Make sure all disks of this virtual machine are found on the master target.</value>
+  </data>
+  <data name="Error_8035_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8036_Message" xml:space="preserve">
+    <value>Failed to bring up master target '%Name;' due to error: %ErrorMessage;.</value>
+  </data>
+  <data name="Error_8036_Causes" xml:space="preserve">
+    <value>Check the error details.</value>
+  </data>
+  <data name="Error_8036_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8037_Message" xml:space="preserve">
+    <value>Failed to upgrade virtual machine '%Name;' due to error: %ErrorMessage;. Power on may fail.</value>
+  </data>
+  <data name="Error_8037_Causes" xml:space="preserve">
+    <value>Check the error details.</value>
+  </data>
+  <data name="Error_8037_Action" xml:space="preserve">
+    <value>Manually upgrade the virtual machine and then power on.</value>
+  </data>
+  <data name="Error_8038_Message" xml:space="preserve">
+    <value>Failed to bring up recovered virtual machine '%Name;' due to error: %ErrorMessage;..</value>
+  </data>
+  <data name="Error_8038_Causes" xml:space="preserve">
+    <value>Check machine is powered on and operating system is loaded.</value>
+  </data>
+  <data name="Error_8038_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8039_Message" xml:space="preserve">
+    <value>Unable to find a resource pool with resource pool group Id '%Id;'.</value>
+  </data>
+  <data name="Error_8039_Causes" xml:space="preserve">
+    <value>Check that the resource pool exists.</value>
+  </data>
+  <data name="Error_8039_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8040_Message" xml:space="preserve">
+    <value>Failed to create virtual machine '%Name;' on host '%HostName;' due to error: %ErrorMessage;.</value>
+  </data>
+  <data name="Error_8040_Causes" xml:space="preserve">
+    <value>Check the error details.</value>
+  </data>
+  <data name="Error_8040_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8041_Message" xml:space="preserve">
+    <value>Virtual machine '%Name;' must be powered off.</value>
+  </data>
+  <data name="Error_8041_Causes" xml:space="preserve">
+    <value>The virtual machine is running.</value>
+  </data>
+  <data name="Error_8041_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8042_Message" xml:space="preserve">
+    <value>Unable to communicate with the remote host for virtual machine '%Name;'.</value>
+  </data>
+  <data name="Error_8042_Causes" xml:space="preserve">
+    <value>The host is not reachable.</value>
+  </data>
+  <data name="Error_8042_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8043_Message" xml:space="preserve">
+    <value>The operation is not allowed in the current state.</value>
+  </data>
+  <data name="Error_8043_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8043_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8044_Message" xml:space="preserve">
+    <value>The operation is not supported.</value>
+  </data>
+  <data name="Error_8044_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8044_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8045_Message" xml:space="preserve">
+    <value>Invalid datastore path '%Path;' specified.</value>
+  </data>
+  <data name="Error_8045_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8045_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8046_Message" xml:space="preserve">
+    <value>Datacenter Mismatch. The input arguments had entities that did not belong to the same datacenter.</value>
+  </data>
+  <data name="Error_8046_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8046_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8047_Message" xml:space="preserve">
+    <value>A specified argument was not correct.</value>
+  </data>
+  <data name="Error_8047_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8047_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8048_Message" xml:space="preserve">
+    <value>Maximum number of virtual machines has been exceeded.</value>
+  </data>
+  <data name="Error_8048_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8048_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8049_Message" xml:space="preserve">
+    <value>The specified key, name or identifier already exists.</value>
+  </data>
+  <data name="Error_8049_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8049_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8050_Message" xml:space="preserve">
+    <value>Found no free slot to attach a disk in virtual machine '%Name;'.</value>
+  </data>
+  <data name="Error_8050_Causes" xml:space="preserve">
+    <value>Virtual machine has the maximum number of disks already attached to it.</value>
+  </data>
+  <data name="Error_8050_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8051_Message" xml:space="preserve">
+    <value>The move/copy operation of '%Source;' to '%Target;' failed due to error: %ErrorMessage;.</value>
+  </data>
+  <data name="Error_8051_Causes" xml:space="preserve">
+    <value>Check the error details.</value>
+  </data>
+  <data name="Error_8051_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8052_Message" xml:space="preserve">
+    <value>The path '%Path;' already exists.</value>
+  </data>
+  <data name="Error_8052_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8052_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8053_Message" xml:space="preserve">
+    <value>Failed to create path '%Path;' due to error: %ErrorMessage;.</value>
+  </data>
+  <data name="Error_8053_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8053_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8054_Message" xml:space="preserve">
+    <value>'%InputName;' is not set correctly.</value>
+  </data>
+  <data name="Error_8054_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8054_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8055_Message" xml:space="preserve">
+    <value>The virtual machine with path '%vmPathName;' could not be found under datacenter '%datacenterName;'.</value>
+  </data>
+  <data name="Error_8055_Causes" xml:space="preserve">
+    <value>Check if the virtual machine exists.</value>
+  </data>
+  <data name="Error_8055_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8056_Message" xml:space="preserve">
+    <value>Multiple virtual machines with path '%vmPathName;' are found under datacenter '%datacenterName;'.</value>
+  </data>
+  <data name="Error_8056_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8056_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8057_Message" xml:space="preserve">
+    <value>Virtual machine '%vmName;' could not be found under datacenter '%datacenterName;'.</value>
+  </data>
+  <data name="Error_8057_Causes" xml:space="preserve">
+    <value>Check if the virtual machine exists.</value>
+  </data>
+  <data name="Error_8057_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8058_Message" xml:space="preserve">
+    <value>Multiple virtual machines with name '%vmName;' were found under datacenter '%datacenterName;'.</value>
+  </data>
+  <data name="Error_8058_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8058_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8059_Message" xml:space="preserve">
+    <value>Virtual machine '%vmName;' is running.</value>
+  </data>
+  <data name="Error_8059_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8059_Action" xml:space="preserve">
+    <value>Power off the virtual machine.</value>
+  </data>
+  <data name="Error_8060_Message" xml:space="preserve">
+    <value>Failed to get disk information of virtual machine '%vmName;'. Error occured: '%error;'.</value>
+  </data>
+  <data name="Error_8060_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8060_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8061_Message" xml:space="preserve">
+    <value>Datastore '%datastoreName;' is not accessible via host '%hostname;'. Ensure that the storage is accessible from the host.</value>
+  </data>
+  <data name="Error_8061_Causes" xml:space="preserve">
+    <value>Datastore is not accessible from the host.</value>
+  </data>
+  <data name="Error_8061_Action" xml:space="preserve">
+    <value>Check for any issues or move storage for the virtual machine to a datastore that is accessible to the host.</value>
+  </data>
+  <data name="Error_8062_Message" xml:space="preserve">
+    <value>Datastore '%datastoreName;' cannot be used as a repository as it is read only.</value>
+  </data>
+  <data name="Error_8062_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8062_Action" xml:space="preserve">
+    <value>Check whether the datastore is mounted in read only mode. Also check whether the target ESX/ESXi is licensed to allow APIs to use datastore.</value>
+  </data>
+  <data name="Error_8063_Message" xml:space="preserve">
+    <value>RDM disk '%diskName;' on source already exists on target side as VMDK '%targetDiskName;'.</value>
+  </data>
+  <data name="Error_8063_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8063_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8064_Message" xml:space="preserve">
+    <value>RDM disk '%diskName;' on source already exists on target side as RDM '%targetDiskName;'.</value>
+  </data>
+  <data name="Error_8064_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8064_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8065_Message" xml:space="preserve">
+    <value>RDM disk '%diskName;' on source is larger than disk '%targetDiskName;' on target.</value>
+  </data>
+  <data name="Error_8065_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8065_Action" xml:space="preserve">
+    <value>Delete disk on target and provide a lun at target which is larger than or equal in size with source. Extend the target side lun associated with '%targetDiskName;' if possible.</value>
+  </data>
+  <data name="Error_8066_Message" xml:space="preserve">
+    <value>Disk '%targetDiskName;' of machine '%machineName;' needs to be extended by '%spaceRequired;' KB.</value>
+  </data>
+  <data name="Error_8066_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8066_Action" xml:space="preserve">
+    <value>Resize or extend the disk manually on master target.</value>
+  </data>
+  <data name="Error_8067_Message" xml:space="preserve">
+    <value>Failed to get any virtual machine under datacenter '%datacenterName;'.</value>
+  </data>
+  <data name="Error_8067_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8067_Action" xml:space="preserve">
+    <value>Check if any virtual machine exists under datacenter '%datacenterName;'.</value>
+  </data>
+  <data name="Error_8068_Message" xml:space="preserve">
+    <value>Multiple virtual machines found with UUID '%Uuid;'.</value>
+  </data>
+  <data name="Error_8068_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8068_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8069_Message" xml:space="preserve">
+    <value>Master target '%msaterTargetName;' RAM size '%size;' is not sufficient. Minimum supported RAM size is 512 MB.</value>
+  </data>
+  <data name="Error_8069_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8069_Action" xml:space="preserve">
+    <value>Increase the RAM size and retry the operation.</value>
+  </data>
+  <data name="Error_8070_Message" xml:space="preserve">
+    <value>Linux master target '%masterTargetName;' scsi controller type '%scsciControllerName;' is not supported.</value>
+  </data>
+  <data name="Error_8070_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8070_Action" xml:space="preserve">
+    <value>Change the scsci controller type from '%scsciControllerName;' to 'LSI LOGIC PARALLEL'.</value>
+  </data>
+  <data name="Error_8071_Message" xml:space="preserve">
+    <value>Master target '%masterTargetName;' has fewer free slots than what is required. Number of free slots: '%freeSlots;'. Number of required slots: '%requiredSlots;'.</value>
+  </data>
+  <data name="Error_8071_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8071_Action" xml:space="preserve">
+    <value>Select a master target with sufficient free slots.</value>
+  </data>
+  <data name="Error_8072_Message" xml:space="preserve">
+    <value>Master target '%masterTargetName;' contains different types of scsi controllers.</value>
+  </data>
+  <data name="Error_8072_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8072_Action" xml:space="preserve">
+    <value>Select a master target which contains same type of scsi controllers.</value>
+  </data>
+  <data name="Error_8073_Message" xml:space="preserve">
+    <value>The virtual machine '%vmName;' can't be protected.</value>
+  </data>
+  <data name="Error_8073_Causes" xml:space="preserve">
+    <value>The virtual machine '%vmName;' contains an IDE disk for which protection is not supported.</value>
+  </data>
+  <data name="Error_8073_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8074_Message" xml:space="preserve">
+    <value>The folder '%folderPathName;' already exists on datastore '%datastoreName;'.</value>
+  </data>
+  <data name="Error_8074_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8074_Action" xml:space="preserve">
+    <value>Remove the folder and retry the operation.</value>
+  </data>
+  <data name="Error_8075_Message" xml:space="preserve">
+    <value>File and folder info could not be retrieved for datastore '%datastorePath;' due to error '%errorMessage;'.</value>
+  </data>
+  <data name="Error_8075_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8075_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8076_Message" xml:space="preserve">
+    <value>Disk '%diskName;' is in use by another virtual machine '%vmName;'.</value>
+  </data>
+  <data name="Error_8076_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8076_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8077_Message" xml:space="preserve">
+    <value>Datastore '%datastoreName;' doesn't have sufficient free space. Free space on datastore: '%freeSpace;'. Required space on datastore: '%requiredSpace;'.</value>
+  </data>
+  <data name="Error_8077_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8077_Action" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8078_Message" xml:space="preserve">
+    <value>Already a machine with name '%vmName;' exists on target host's datacenter '%datacenterName;'.</value>
+  </data>
+  <data name="Error_8078_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8078_Action" xml:space="preserve">
+    <value>Either have source and target in different datacenter or rename the source machine.</value>
+  </data>
+  <data name="Error_8079_Message" xml:space="preserve">
+    <value>Already a machine with VM path name '%vmName;' exists on target host's datacenter '%datacenterName;'.</value>
+  </data>
+  <data name="Error_8079_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8079_Action" xml:space="preserve">
+    <value>Select another datastore.</value>
+  </data>
+  <data name="Error_8080_Message" xml:space="preserve">
+    <value>Master target '%masterTargetName;' does not have access to the data store(s) backing the virtual machine '%vmName;'.</value>
+  </data>
+  <data name="Error_8080_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8080_Action" xml:space="preserve">
+    <value>Select a master target which can access data store backing virtual machine.</value>
+  </data>
+  <data name="Error_8081_Message" xml:space="preserve">
+    <value>Host '%HostName;' for virtual machine '%vmName;' does not have access to datastore '%DatastoreName;'.</value>
+  </data>
+  <data name="Error_8081_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8081_Action" xml:space="preserve">
+    <value>Provide the host with access to the datastore.</value>
+  </data>
+  <data name="Error_8082_Message" xml:space="preserve">
+    <value>Master target '%masterTargetName;' and virtual machine '%vmName; has virtual disk with same id '%Id;'.</value>
+  </data>
+  <data name="Error_8082_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8082_Action" xml:space="preserve">
+    <value>Remove virtual disk with same id from master target.</value>
+  </data>
+  <data name="Error_8083_Message" xml:space="preserve">
+    <value>On Master target '%masterTargetName;' host directory creation is failed due to error: '%ErrorMessage;'.</value>
+  </data>
+  <data name="Error_8083_Causes" xml:space="preserve">
+    <value>None.</value>
+  </data>
+  <data name="Error_8083_Action" xml:space="preserve">
+    <value>Manually create directory and retry.</value>
+  </data>
+</root>

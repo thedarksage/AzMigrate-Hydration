@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{1B31C199-948A-4E49-8BE0-67D4AE3E5EB0}</ProjectGuid>
+    <RootNamespace>AzureRcmLib</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+    <SpectreMitigation>Spectre</SpectreMitigation>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\win-rules.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\win-rules.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(INM_MD5_INCLUDES);..\vacplibs;..\cxpslib;..\cxpslib\win;..\fio;..\fio\win;..\listfile;..\listfile\win;..\CommitTagLib;..\AzureRecoveryLib\resthelper;..\devicefilter;..\devicefilter\win;..\dirbasename;..\deviceidinformer;..\drivers\InVolFlt\windows\Interface;..\drivers\Include\win32;..\scsicommandissuer;..\scsicommandissuer\win;..\volumeinfocollector;..\volumeinfocollector\win32;..\s2libs;..\s2libs\foundation\win32;..\s2libs\foundation;..\s2libs\thread;..\s2libs\streams;..\log;..\errorexception;..\config;..\config\win;..\common;..\common\win32;..\scopeguard;..\securitylib;..\securitylib\win;..\inmsafeint;$(ACE_INCLUDES);$(BOOST_INCLUDES);$(CURL_INCLUDES);$(SIGSLOT_INCLUDES);$(OPENSSL_INCLUDES);..\inmsafecapis;..\inmsafecapis\win;$(ESJSON_INCLUDES);$(LIBXML2_INCLUDES);..\AzureADAuthProviderLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SV_WINDOWS=1;NOMINMAX;WIN32;_DEBUG;_LIB;ACE_AS_STATIC_LIBS;CURL_STATICLIB;WIN32_LEAN_AND_MEAN;ATL_NO_LEAN_AND_MEAN;_WIN32_WINNT=0x0502;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(BOOST_LIB_DIR);$(ACE_LIB_DIR);$(LIBXML2_LIB_DIR_DEBUG);$(CURL_LIB_DIR_DEBUG);$(OPENSSL_LIB_DIR_DEBUG);..\securitylib\$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libxml2_a.lib;libcurl.lib;libssl.lib;libcrypto.lib;ACEsd.lib;Crypt32.lib;securitylib.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>SV_WINDOWS=1;NOMINMAX;WIN32;NDEBUG;_LIB;ACE_AS_STATIC_LIBS;CURL_STATICLIB;WIN32_LEAN_AND_MEAN;ATL_NO_LEAN_AND_MEAN;_WIN32_WINNT=0x0502;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(INM_MD5_INCLUDES);..\vacplibs;..\cxpslib;..\cxpslib\win;..\fio;..\fio\win;..\listfile;..\listfile\win;..\CommitTagLib;..\AzureRecoveryLib\resthelper;..\devicefilter;..\devicefilter\win;..\dirbasename;..\deviceidinformer;..\drivers\InVolFlt\windows\Interface;..\drivers\Include\win32;..\scsicommandissuer;..\scsicommandissuer\win;..\volumeinfocollector;..\volumeinfocollector\win32;..\s2libs;..\s2libs\foundation\win32;..\s2libs\foundation;..\s2libs\thread;..\s2libs\streams;..\log;..\errorexception;..\config;..\config\win;..\common;..\common\win32;..\scopeguard;..\securitylib;..\securitylib\win;..\inmsafeint;$(ACE_INCLUDES);$(BOOST_INCLUDES);$(CURL_INCLUDES);$(SIGSLOT_INCLUDES);$(OPENSSL_INCLUDES);..\inmsafecapis;..\inmsafecapis\win;$(ESJSON_INCLUDES);$(LIBXML2_INCLUDES);..\AzureADAuthProviderLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>$(BOOST_LIB_DIR);$(ACE_LIB_DIR);$(LIBXML2_LIB_DIR_RELEASE);$(CURL_LIB_DIR_RELEASE);$(OPENSSL_LIB_DIR_RELEASE);..\securitylib\$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libxml2_a.lib;libcurl.lib;libssl.lib;libcrypto.lib;ACEs.lib;Crypt32.lib;securitylib.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="AgentConfigHelpers.cpp" />
+    <ClCompile Include="AgentMonitoringHandler.cpp" />
+    <ClCompile Include="AgentSettings.cpp" />
+    <ClCompile Include="CertUtil.cpp" />
+    <ClCompile Include="Converter.cpp" />
+    <ClCompile Include="MigrationHelper.cpp" />
+    <ClCompile Include="Monitoring.cpp" />
+    <ClCompile Include="MonitoringMsgHandler.cpp" />
+    <ClCompile Include="RcmClientAzureImpl.cpp" />
+    <ClCompile Include="RcmClient.cpp" />
+    <ClCompile Include="RcmConfigurator.cpp" />
+    <ClCompile Include="RcmClientProxyImpl.cpp" />
+    <ClCompile Include="RcmClientSettings.cpp" />
+    <ClCompile Include="RcmProxyDetails.cpp" />
+    <ClCompile Include="SharedDiskClusterMonitoringHandler.cpp" />
+    <ClCompile Include="TransportSettings.cpp" />
+    <ClCompile Include="VirtualNodeMonitoringHandler.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AgentAutoUpgrade.h" />
+    <ClInclude Include="AgentConfig.h" />
+    <ClInclude Include="AgentMonitoringHandler.h" />
+    <ClInclude Include="AgentRcmLogging.h" />
+    <ClInclude Include="AgentSettings.h" />
+    <ClInclude Include="CertUtil.h" />
+    <ClInclude Include="CommonRcmContracts.h" />
+    <ClInclude Include="Converter.h" />
+    <ClInclude Include="ConverterErrorCodes.h" />
+    <ClInclude Include="DiskEntity.h" />
+    <ClInclude Include="DiskGroupEntity.h" />
+    <ClInclude Include="DiskPartitionEntity.h" />
+    <ClInclude Include="InstallerErrors.h" />
+    <ClInclude Include="MigrationHelper.h" />
+    <ClInclude Include="MigrationPolicies.h" />
+    <ClInclude Include="Monitoring.h" />
+    <ClInclude Include="MonitoringMsgHandler.h" />
+    <ClInclude Include="MonitoringMsgSettings.h" />
+    <ClInclude Include="NetworkEntity.h" />
+    <ClInclude Include="ProtectionState.h" />
+    <ClInclude Include="RcmClientAzureImpl.h" />
+    <ClInclude Include="RcmClientImpl.h" />
+    <ClInclude Include="RcmClientLoginContext.h" />
+    <ClInclude Include="RcmClientSettings.h" />
+    <ClInclude Include="RcmClientUtils.h" />
+    <ClInclude Include="RcmConfigurator.h" />
+    <ClInclude Include="RcmContracts.h" />
+    <ClInclude Include="RcmDataProtectionSyncTargetSettings.h" />
+    <ClInclude Include="RcmJobs.h" />
+    <ClInclude Include="LogicalVolumeEntity.h" />
+    <ClInclude Include="MachineEntity.h" />
+    <ClInclude Include="RcmClient.h" />
+    <ClInclude Include="RcmClientErrorCodes.h" />
+    <ClInclude Include="RcmLibConstants.h" />
+    <ClInclude Include="RcmClientProxyImpl.h" />
+    <ClInclude Include="RcmProxyDetails.h" />
+    <ClInclude Include="ServerAuthDetails.h" />
+    <ClInclude Include="SharedDiskClusterMonitoringHandler.h" />
+    <ClInclude Include="ShoeboxEventSettings.h" />
+    <ClInclude Include="SourceClusterEntity.h" />
+    <ClInclude Include="SourceComponent.h" />
+    <ClInclude Include="SyncSettings.h" />
+    <ClInclude Include="VirtualNodeMonitoringHandler.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

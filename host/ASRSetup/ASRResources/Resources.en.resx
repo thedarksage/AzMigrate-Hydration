@@ -1,0 +1,1950 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ActivityId" xml:space="preserve">
+    <value>Activity Id</value>
+  </data>
+  <data name="AsrProvider" xml:space="preserve">
+    <value>{0} Azure Site Recovery Provider {1}</value>
+  </data>
+  <data name="AsrWithHyperV" xml:space="preserve">
+    <value>Azure Site Recovery provider will be associated with Hyper-V. You can enable protection for VMs under Hyper-V on this machine from Azure Site Recovery portal.</value>
+  </data>
+  <data name="AsrWithInMage" xml:space="preserve">
+    <value>Azure Site Recovery provider will be associated with InMage. You can enabled protection for VMs under CS server on this machine from Azure Site Recovery portal.</value>
+  </data>
+  <data name="CancelButtonText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="CancelText" xml:space="preserve">
+    <value>Are you sure you want to stop running Azure Site Recovery Unified Setup?</value>
+  </data>
+  <data name="CertificateInstallationFailure" xml:space="preserve">
+    <value>Failed to install registration certificate. Make sure you have appropropriate permissions to access machine certificate store.</value>
+  </data>
+  <data name="CheckingInternetConnectivity" xml:space="preserve">
+    <value>Checking connectivity to Internet using selected settings</value>
+  </data>
+  <data name="ClickNextToCheckConnectivity" xml:space="preserve">
+    <value>Click next to check for connectivity with Azure Site Recovery Service…</value>
+  </data>
+  <data name="CmdlineParameterAlreadySpecified" xml:space="preserve">
+    <value>Command line parameter {0} was already specified</value>
+  </data>
+  <data name="CmdlineParameterMissing" xml:space="preserve">
+    <value>Command line parameter missing</value>
+  </data>
+  <data name="CommandlineHelp" xml:space="preserve">
+    <value>See "Installing Microsoft Azure Site Recovery Provider" in the Microsoft Azure Site Recovery Provider Setup help for information about parameter usage.</value>
+  </data>
+  <data name="CommandlineUsage" xml:space="preserve">
+    <value>Usage:
+           UnifiedSetup.exe [/ShowThirdpartyEULA] [/AcceptThirdpartyEULA] [/ServerMode &lt;CS/PS&gt;] [/InstallLocation &lt;Installation Directory&gt;] [/MySQLCredsFilePath &lt;MySQL credentials file path&gt;] [/VaultCredsFilePath &lt;Vault credentials file path&gt;] [/EnvType &lt;VMWare/NonVMWare&gt;] [/PSIP &lt;IP address to be used for data transfer] [/CSIP &lt;IP address of CS to be registered with&gt;] [/PassphraseFilePath &lt;Passphrase file path&gt;] [/ProxySettingsFilePath &lt;Proxy settings file path&gt;] [/DataTransferSecurePort &lt;Port number&gt;] [/SkipSpaceCheck] [/Upgrade]</value>
+  </data>
+  <data name="CommandlineUsageAgent" xml:space="preserve">
+    <value>Usage:
+           UnifiedAgent.exe [/Silent] [/Role &lt;MS/MT&gt;] [/InstallLocation &lt;Installation Directory&gt;]</value>
+  </data>
+  <data name="ConnectedToInternet" xml:space="preserve">
+    <value>The server is able to communicate with Azure Site Recovery Service.</value>
+  </data>
+  <data name="ConnectionError" xml:space="preserve">
+    <value>A connection cannot be established to the Site Recovery. Verify the proxy settings or try again later.</value>
+  </data>
+  <data name="ConnectionSettings" xml:space="preserve">
+    <value>Internet connection</value>
+  </data>
+  <data name="CreatingCertificate" xml:space="preserve">
+    <value>Creating certificate</value>
+  </data>
+  <data name="CredentialFileExpired" xml:space="preserve">
+    <value>The registration key has expired. Download a new registration key from Azure Site Recovery and select it. The downloaded file shouldn't be more than five days old.</value>
+  </data>
+  <data name="Done" xml:space="preserve">
+    <value>Done</value>
+  </data>
+  <data name="DraIdEmptyError" xml:space="preserve">
+    <value>Azure Site Recovery installation is incomplete. Please uninstall and reinstall again to proceed.</value>
+  </data>
+  <data name="DraVersionNotSupported" xml:space="preserve">
+    <value>Provided Registration key requires higher version of provider to be installed. Please download latest provider from Azure Site Recovery portal and upgrade your provider.</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="FailedToStartDRService" xml:space="preserve">
+    <value>Registration was successful but setup failed to start Microsoft Azure Site Recovery Service on this machine. Please try starting the service manually.</value>
+  </data>
+  <data name="FailedToStopDRService" xml:space="preserve">
+    <value>Setup failed to stop Microsoft Azure Site Recovery Service on this machine. Please try manually shutting down the service and then running the setup again.</value>
+  </data>
+  <data name="FetchingResources" xml:space="preserve">
+    <value>Fetching vault information..</value>
+  </data>
+  <data name="FinishButtonText" xml:space="preserve">
+    <value>Finish</value>
+  </data>
+  <data name="FinishScreenNextButtonText" xml:space="preserve">
+    <value>Clo_se</value>
+  </data>
+  <data name="GetServiceResourceClaimError" xml:space="preserve">
+    <value>Unable to retrieve vault information from Azure Site Recovery. This could be due to :-
+1) Internet connection failure or Invalid/expired vault credentials file. Verify the proxy settings, regenerate the vault credentials file and retry the operation with the updated credentials file.
+2) Machine being out of sync from the time zone. Ensure that your current machine time corresponds to the selected time zone.</value>
+  </data>
+  <data name="GettingResourceDetails" xml:space="preserve">
+    <value>Fetching resource details</value>
+  </data>
+  <data name="GettingStartedStepTitle" xml:space="preserve">
+    <value>Getting started</value>
+  </data>
+  <data name="HelpFile" xml:space="preserve">
+    <value>SCE_Help.chm</value>
+  </data>
+  <data name="HelpFormatString" xml:space="preserve">
+    <value>html/{0}.htm</value>
+  </data>
+  <data name="HyperVEnabled" xml:space="preserve">
+    <value>Hyper-V is enabled</value>
+  </data>
+  <data name="HyperVNotEnabled" xml:space="preserve">
+    <value>Hyper-V role is not enabled on this computer</value>
+  </data>
+  <data name="HyperVNotFound" xml:space="preserve">
+    <value>Setup requires Hyper-V to be enabled on machine.</value>
+  </data>
+  <data name="IncompatibleProductInstalled" xml:space="preserve">
+    <value>Unsupported version of Microsoft Azure Site Recovery is installed. Please uninstall to continue.</value>
+  </data>
+  <data name="IncompatibleProductsFound" xml:space="preserve">
+    <value>Unsupported version of Microsoft Azure Site Recovery is installed</value>
+  </data>
+  <data name="Install" xml:space="preserve">
+    <value>_Install</value>
+  </data>
+  <data name="InstallationFailed" xml:space="preserve">
+    <value>Installation of Azure Site Recovery Unified Setup has failed.</value>
+  </data>
+  <data name="InstallationOf" xml:space="preserve">
+    <value>Installation of</value>
+  </data>
+  <data name="InstallationPassed" xml:space="preserve">
+    <value>Installation of Azure Site Recovery provider completed</value>
+  </data>
+  <data name="Installing" xml:space="preserve">
+    <value>Installing</value>
+  </data>
+  <data name="InstallingStepTitle" xml:space="preserve">
+    <value>Provider Installation</value>
+  </data>
+  <data name="InternalError" xml:space="preserve">
+    <value>The ASR cannot be registered due to an internal error. Run Setup again to register the server.</value>
+  </data>
+  <data name="InvalidCommandLine" xml:space="preserve">
+    <value>Invalid command line parameters passed</value>
+  </data>
+  <data name="InvalidPort" xml:space="preserve">
+    <value>Please specify a valid port number between 1 and 65535.</value>
+  </data>
+  <data name="InvalidProxySettings" xml:space="preserve">
+    <value>Invalid proxy settings entered</value>
+  </data>
+  <data name="MarsAgent" xml:space="preserve">
+    <value>{0} Azure Recovery Services Agent {1}</value>
+  </data>
+  <data name="MicrosoftUpdateTitle" xml:space="preserve">
+    <value>Microsoft Update</value>
+  </data>
+  <data name="MissingRegistryEntry" xml:space="preserve">
+    <value>Setup was unable to access {0} registry key in {1} registry hive. Please ensure the key exists and is accessible by the user.</value>
+  </data>
+  <data name="MultipleVaultsPerCertificate" xml:space="preserve">
+    <value>Multiple vaults were retrieved for this registration key. Please redownload the Registration key and try again.</value>
+  </data>
+  <data name="MuOptInError" xml:space="preserve">
+    <value>Microsoft Update cannot be opted in. Please try this with Windows Update Settings.</value>
+  </data>
+  <data name="Netfailure_GenericFailure" xml:space="preserve">
+    <value>No internet connection was possible. Enter a valid proxy.</value>
+  </data>
+  <data name="Netfailure_NameResolutionFailure" xml:space="preserve">
+    <value>Internet gateway could not be reached. Make sure you are connected to network</value>
+  </data>
+  <data name="Netfailure_ProxyAuthenticationRequired" xml:space="preserve">
+    <value>Proxy authentication failed. Make sure you have provided correct credentials</value>
+  </data>
+  <data name="Netfailure_ProxyNameResolutionFailure" xml:space="preserve">
+    <value>Proxy server could not be reached. Make sure proxy server is reachable</value>
+  </data>
+  <data name="Netfailure_RequestProhibitedByProxy" xml:space="preserve">
+    <value>Proxy server prohibits connection to Azure. Please resolve the issue and try again</value>
+  </data>
+  <data name="NextButtonText" xml:space="preserve">
+    <value>_Next</value>
+  </data>
+  <data name="NoIncompatibleProductsFound" xml:space="preserve">
+    <value>No incompatible products found</value>
+  </data>
+  <data name="NotConnectedToInternet" xml:space="preserve">
+    <value>You are not connected to azure site recovery service using selected settings..</value>
+  </data>
+  <data name="PrereqInstallCompleted" xml:space="preserve">
+    <value>completed</value>
+  </data>
+  <data name="PrereqInstallFailed" xml:space="preserve">
+    <value>failed</value>
+  </data>
+  <data name="PreviousButtonText" xml:space="preserve">
+    <value>Pre_vious</value>
+  </data>
+  <data name="ProceedToRegistration" xml:space="preserve">
+    <value>Register</value>
+  </data>
+  <data name="ProcessAlreadyLaunched" xml:space="preserve">
+    <value>An instance of Microsoft Azure Site Recovery Unified Setup is already running.</value>
+  </data>
+  <data name="ProxyDataRequired" xml:space="preserve">
+    <value>Enter proxy details and then click next to check for internet connectivity</value>
+  </data>
+  <data name="ProxyError" xml:space="preserve">
+    <value>Invalid proxy settings</value>
+  </data>
+  <data name="ProxyPasswordNotSpecified" xml:space="preserve">
+    <value>Proxy password was not specified.</value>
+  </data>
+  <data name="ProxyRequiresPassword" xml:space="preserve">
+    <value>Proxy password is required</value>
+  </data>
+  <data name="Registering" xml:space="preserve">
+    <value>Registration</value>
+  </data>
+  <data name="RegisteringContainer" xml:space="preserve">
+    <value>Initializing registration</value>
+  </data>
+  <data name="RegisteringDRA" xml:space="preserve">
+    <value>Registering the server</value>
+  </data>
+  <data name="RegistrationFailed" xml:space="preserve">
+    <value>Registration to site recovery failed</value>
+  </data>
+  <data name="RegistrationSuccessful" xml:space="preserve">
+    <value>The server was registered in the Azure Site Recovery vault</value>
+  </data>
+  <data name="ReRegistrationError" xml:space="preserve">
+    <value>The DRA server is already registered in vault {0}. Either select the registration key associated with this vault, or unregister the server from {0} and then register it with a different vault.</value>
+  </data>
+  <data name="ServerSettings" xml:space="preserve">
+    <value>Site Recovery Vault</value>
+  </data>
+  <data name="SettingsFileCorrupt" xml:space="preserve">
+    <value>If the key isn't working download a new registration key from the quick start page in the Azure Site Recovery portal and then select it.</value>
+  </data>
+  <data name="SetupMessageBoxTitle" xml:space="preserve">
+    <value>Microsoft Azure Site Recovery Unified Setup</value>
+  </data>
+  <data name="SetupPrereqFailed" xml:space="preserve">
+    <value>Provider setup can’t continue because one or more prerequisites aren’t configured</value>
+  </data>
+  <data name="SrsAuthCertCreationFailure" xml:space="preserve">
+    <value>Setup cannot proceed. A certificate required to authenticate to Site Recovery cannot be created. Rerun Setup.</value>
+  </data>
+  <data name="StartingDRService" xml:space="preserve">
+    <value>Starting disaster recovery service</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="StoppingDRService" xml:space="preserve">
+    <value>Shutting down disaster recovery service.</value>
+  </data>
+  <data name="Upgrade" xml:space="preserve">
+    <value>Up_grade</value>
+  </data>
+  <data name="Win2012R2IsInstalled" xml:space="preserve">
+    <value>Windows Server 2012 R2 is installed</value>
+  </data>
+  <data name="Win2012R2IsNotInstalled" xml:space="preserve">
+    <value>Windows Server 2012 R2 is not installed</value>
+  </data>
+  <data name="WindowsServer2012R2NotFound" xml:space="preserve">
+    <value>Setup requires Windows Server 2012 R2 or higher.</value>
+  </data>
+  <data name="WizardTitleSetupHyperV" xml:space="preserve">
+    <value>Azure Site Recovery Provider Setup (Hyper-V server)</value>
+  </data>
+  <data name="WrongSettingsFileForSMB" xml:space="preserve">
+    <value>You’ve downloaded the wrong registration file for your deployment. On the Quick Start page, download the file to register Hyper-V sites.</value>
+  </data>
+  <data name="WrongValueDataType" xml:space="preserve">
+    <value>Registry key {0} in registry hive {1} is invalid.</value>
+  </data>
+  <data name="InstallationPageBrowse" xml:space="preserve">
+    <value>Brow_se</value>
+  </data>
+  <data name="InstallationPageInstallLocation" xml:space="preserve">
+    <value>Installation Location</value>
+  </data>
+  <data name="InstallationPageRegisterNext" xml:space="preserve">
+    <value>Continue to register this server in an Azure Site Recovery vault.</value>
+  </data>
+  <data name="InstallationPageReRegisterNext" xml:space="preserve">
+    <value>The server is already registered in vault {0}. Click Reregister to register it again.</value>
+  </data>
+  <data name="InstallationPageSecondaryHeader" xml:space="preserve">
+    <value>Specify where you want to install the Microsoft Azure Site Recovery Provider. This setup will install Azure Site Recovery Provider and Azure Recovery Services Agent on this computer.</value>
+  </data>
+  <data name="LearnMore" xml:space="preserve">
+    <value>Learn More</value>
+  </data>
+  <data name="MicrosoftUpdateAlreadyOptedIn" xml:space="preserve">
+    <value>Microsoft update is already opted in. To turn Microsoft Update off please change Microsoft update settings in Control Panel.</value>
+  </data>
+  <data name="MicrosoftUpdateFAQ" xml:space="preserve">
+    <value>Microsoft Update F_AQ</value>
+  </data>
+  <data name="MicrosoftUpdateOffChoice" xml:space="preserve">
+    <value>O_ff</value>
+  </data>
+  <data name="MicrosoftUpdateOffChoiceExplanation" xml:space="preserve">
+    <value>Do not automatically check for updates.</value>
+  </data>
+  <data name="MicrosoftUpdateOnChoice" xml:space="preserve">
+    <value>_On (recommended)</value>
+  </data>
+  <data name="MicrosoftUpdateOnChoiceExplanation" xml:space="preserve">
+    <value>Use Microsoft Update to check for updates.</value>
+  </data>
+  <data name="MicrosoftUpdatePrivacyStatement" xml:space="preserve">
+    <value>Microsoft Update Privacy _Statement</value>
+  </data>
+  <data name="MicrosoftUpdateSecondaryHeader" xml:space="preserve">
+    <value>Microsoft Update offers security and important updates for Windows and other Microsoft software. Including Microsoft Azure Site Recovery. Updates are delivered using Automatic Updates, or you can visit Microsoft website.</value>
+  </data>
+  <data name="ProxyConfigurationPageBypassProxy" xml:space="preserve">
+    <value>Connect directly to Azure Site Recovery without a proxy server</value>
+  </data>
+  <data name="ProxyConfigurationPageCheckingInternet" xml:space="preserve">
+    <value>Checking connectivity with Azure Site Recovery Service…</value>
+  </data>
+  <data name="ProxyConfigurationPageCustomAddress" xml:space="preserve">
+    <value>A_ddress:</value>
+  </data>
+  <data name="ProxyConfigurationPageCustomPassword" xml:space="preserve">
+    <value>Pass_word:</value>
+  </data>
+  <data name="ProxyConfigurationPageCustomPort" xml:space="preserve">
+    <value>P_ort:</value>
+  </data>
+  <data name="ProxyConfigurationPageCustomUserName" xml:space="preserve">
+    <value>_User name:</value>
+  </data>
+  <data name="ProxyConfigurationPageSecondaryHeader" xml:space="preserve">
+    <value>Specify how the Provider running on the server connect to Azure Site Recovery. Connectivity will be verified when you click Next.</value>
+  </data>
+  <data name="ProxyConfigurationPageUseAuth" xml:space="preserve">
+    <value>This proxy server requires _authentication</value>
+  </data>
+  <data name="ProxyConfigurationPageUseCustom" xml:space="preserve">
+    <value>Connect to Azure Site Recovery using a proxy server (only HTTP proxy allowed)</value>
+  </data>
+  <data name="ProxyConfigurationPageUseExisting" xml:space="preserve">
+    <value>Connect with existing prox_y settings</value>
+  </data>
+  <data name="RegistrationPageConfigureLinkPart2" xml:space="preserve">
+    <value>Azure Site Recovery Portal.</value>
+  </data>
+  <data name="RegistrationPageConfigurePG" xml:space="preserve">
+    <value>Create and Configure Protection Groups</value>
+  </data>
+  <data name="RegistrationPageConfigurePGLinkPart1" xml:space="preserve">
+    <value>Configure protection Groups in</value>
+  </data>
+  <data name="RegistrationPageEnableDR" xml:space="preserve">
+    <value>Enable Protection for Virtual Machines</value>
+  </data>
+  <data name="RegistrationPageEnableDRLinkPart1" xml:space="preserve">
+    <value>Add Virtual Machines in the Protection Group</value>
+  </data>
+  <data name="RegistrationPageNextSteps" xml:space="preserve">
+    <value>Next steps</value>
+  </data>
+  <data name="ASRPageBrowsebuttonText" xml:space="preserve">
+    <value>Browse</value>
+  </data>
+  <data name="VaultSettingsPageFriendlyName" xml:space="preserve">
+    <value>Friendly Name</value>
+  </data>
+  <data name="VaultSettingsPageFriendlyNameExplain" xml:space="preserve">
+    <value>Please enter a friendly name to identify this server on Azure Site Recovery portal</value>
+  </data>
+  <data name="VaultSettingsPageSecondaryHeaderPart1" xml:space="preserve">
+    <value>Select the registration key file you downloaded from the Azure Site Recovery portal and specify vault settings.</value>
+  </data>
+  <data name="VaultSettingsPageSiteName" xml:space="preserve">
+    <value>Hyper-V site name</value>
+  </data>
+  <data name="VaultSettingsPageSubscription" xml:space="preserve">
+    <value>Subscription</value>
+  </data>
+  <data name="VaultSettingsPageVaultCredentials" xml:space="preserve">
+    <value>Key file</value>
+  </data>
+  <data name="VaultSettingsPageVaultName" xml:space="preserve">
+    <value>Vault name</value>
+  </data>
+  <data name="WritingProxyToRegistryFailed" xml:space="preserve">
+    <value>Failed to write proxy settings to registry</value>
+  </data>
+  <data name="PreparingForRegistration" xml:space="preserve">
+    <value>Configuring Azure Site Recovery for registration</value>
+  </data>
+  <data name="installation" xml:space="preserve">
+    <value>Installation</value>
+  </data>
+  <data name="microsoft_update" xml:space="preserve">
+    <value>Microsoft Update</value>
+  </data>
+  <data name="NoCompatibleAdapterFound" xml:space="preserve">
+    <value>Setup cannot proceed as no compatible product was found :-</value>
+  </data>
+  <data name="NoCompatibleAdapterFoundHyperV" xml:space="preserve">
+    <value>To install on HyperV server, ensure that Hyper-V role is enabled and server is not acting as Domain Controller.</value>
+  </data>
+  <data name="NoCompatibleAdapterFoundInMage" xml:space="preserve">
+    <value>To install on InMage server ensure that installation is preformed on machine with InMage CS server installed</value>
+  </data>
+  <data name="PendingRestart" xml:space="preserve">
+    <value>System has a pending restart. Please restart the server and then try reinstalling.</value>
+  </data>
+  <data name="proxy_settings" xml:space="preserve">
+    <value>Proxy Settings</value>
+  </data>
+  <data name="registration" xml:space="preserve">
+    <value>Registration</value>
+  </data>
+  <data name="site_recovery_vault" xml:space="preserve">
+    <value>Vault Settings</value>
+  </data>
+  <data name="ExitButtonText" xml:space="preserve">
+    <value>E_xit</value>
+  </data>
+  <data name="InstallationPageErrorLogLocation" xml:space="preserve">
+    <value>Installation logs can be found at {0}</value>
+  </data>
+  <data name="WizardTitleRegistration" xml:space="preserve">
+    <value>Microsoft Azure Site Recovery Registration Wizard</value>
+  </data>
+  <data name="HigherVersionInstalled" xml:space="preserve">
+    <value>Installation cannot continue. A later version of Microsoft Azure Site Recovery Provider is already installed.</value>
+  </data>
+  <data name="LatestInstalledProceedToRegistration" xml:space="preserve">
+    <value>The latest version of the Provider is installed on this server.{0}Would you like to proceed to registration?</value>
+  </data>
+  <data name="LatestInstalledProceedToReRegistration" xml:space="preserve">
+    <value>The latest version of the Provider is installed on this server and the server is registered.{0}Would you like to register this server again?</value>
+  </data>
+  <data name="FailedToConfigureMarsProxy" xml:space="preserve">
+    <value>Proxy could not be set for the Microsoft Azure Recovery Services Agent. You can setup the proxy manually by running the Set-OBMachineSettings command let from Powershell.</value>
+  </data>
+  <data name="FailedToStartVmmService" xml:space="preserve">
+    <value>Registration was successful but setup failed to start System Center Virtual Machine Manager on this machine. Please try starting the service manually.</value>
+  </data>
+  <data name="FailedToStopVmmService" xml:space="preserve">
+    <value>Setup failed to stop System Center Virtual Machine Manager on this machine. Please try manually shutting down the service and then running the setup again.</value>
+  </data>
+  <data name="encryption" xml:space="preserve">
+    <value>Encryption</value>
+  </data>
+  <data name="EncryptionPageLocationOfCert" xml:space="preserve">
+    <value>Location to save certificate</value>
+  </data>
+  <data name="EncryptionPageSecondaryHeader" xml:space="preserve">
+    <value>Virtual machines protected to Azure will be encrypted. Encrypted data is decrypted during failover from the Windows Hyper-V server to Azure. The install will now create a certificate for this encryption process. Provider a secure location to save this certificate.</value>
+  </data>
+  <data name="EncryptionPageCertLocationDetails" xml:space="preserve">
+    <value>Certificate (.pfx) will be stored at {0}.</value>
+  </data>
+  <data name="EncryptionPageFetchingKekDetails" xml:space="preserve">
+    <value>Fetching encryption details ...</value>
+  </data>
+  <data name="EncryptionPageLocationToLoadCertText" xml:space="preserve">
+    <value>Browse certificate (.pfx) file.</value>
+  </data>
+  <data name="EncryptionPageSecondaryHeaderKEKGenerated" xml:space="preserve">
+    <value>Virtual machines protected to Azure will be encrypted. Encrypted data is decrypted during failover from the Windows Hyper-V server to Azure. Encryption certificate has already been generated for this site. Please select certificate generated during last registration.</value>
+  </data>
+  <data name="EncryptionPageInvalidKekCertText" xml:space="preserve">
+    <value>Invalid certificate file was selected. Please select correct certificate.</value>
+  </data>
+  <data name="EncryptionPageLoadCertLocationText" xml:space="preserve">
+    <value>Certificate will be loaded from {0}</value>
+  </data>
+  <data name="ConfiguringEncryption" xml:space="preserve">
+    <value>Configuring encryption for site</value>
+  </data>
+  <data name="KekFileNotFound" xml:space="preserve">
+    <value>Could not find path specified for Encryption certificate.</value>
+  </data>
+  <data name="KekOperationsFailed" xml:space="preserve">
+    <value>Failed to configure this server for encryption. Registration failed.</value>
+  </data>
+  <data name="WizardTitleSetupInMage" xml:space="preserve">
+    <value>Azure Site Recovery Provider Setup (Configuration server)</value>
+  </data>
+  <data name="WizardTitleSetupVmm" xml:space="preserve">
+    <value>Azure Site Recovery Provider Setup (VMM server)</value>
+  </data>
+  <data name="KekStatusFetchFailed" xml:space="preserve">
+    <value>Failed to fetch encryption status from Azure. Please try again later.</value>
+  </data>
+  <data name="InvalidKekState" xml:space="preserve">
+    <value>Rollover is currently in progress for this site. Please wait for rollover to complete before registring.</value>
+  </data>
+  <data name="ShutdownDrService" xml:space="preserve">
+    <value>Configuring Service</value>
+  </data>
+  <data name="ScvmmShutdownNeeded" xml:space="preserve">
+    <value>Setup requires System Centre Virtual Machine Manager(SCVMM) service to be stopped. To continue setup press OK to stop the SCVMM service. It will be restarted automatically.</value>
+  </data>
+  <data name="VmmSettingsFriendlyNameDetails" xml:space="preserve">
+    <value>Type in a friendly name for this server to identify it in the Azure Site Recovery Portal</value>
+  </data>
+  <data name="VmmSettingsFriendlyNameHeader" xml:space="preserve">
+    <value>Server Name</value>
+  </data>
+  <data name="VmmSettingsFriendlyNameTag" xml:space="preserve">
+    <value>Friendly Name</value>
+  </data>
+  <data name="VmmSettingsSyncCloudDetails" xml:space="preserve">
+    <value>Select this option to synchronize cloud metadata with Azure Site Recovery. Verify this doesn't conflict with your privacy requirements. Alternatively you can synchrnonize metadata from speific clouds in the VMM console. This option is not avaliable during Re-register.</value>
+  </data>
+  <data name="VmmSettingsSyncCloudHeader" xml:space="preserve">
+    <value>Synchronize Cloud Metadata</value>
+  </data>
+  <data name="VmmSettingsSyncCloudOption" xml:space="preserve">
+    <value>Sync cloud meta data to site recovery portal. It doesn't conflict with my privacy requirements</value>
+  </data>
+  <data name="ProceedToReRegistration" xml:space="preserve">
+    <value>Reregister</value>
+  </data>
+  <data name="ProxyConfigurationPageRunAsAccountText" xml:space="preserve">
+    <value>With this option enabled a VMM Run as account(DRA Proxy Account) will be created, and the specified username and password will be added to the account. Modify the account settings in the VMM console.</value>
+  </data>
+  <data name="ScvmmNoRegistrationOnSecondaryNode" xml:space="preserve">
+    <value>Registration cannot be run on secondary(passive) node of cluster. Registration needs to be run on active node of VMM cluster resource.</value>
+  </data>
+  <data name="ScvmmRegisterOnActiveNode" xml:space="preserve">
+    <value>Run setup on active node of VMM cluster resource to register to Azure Site Recovery. </value>
+  </data>
+  <data name="NoCompatibleAdapterFoundVmm" xml:space="preserve">
+    <value>To install on VMM server ensure that VMM Server 2012 R2 and above is present on the machine</value>
+  </data>
+  <data name="InMageCSNotFound" xml:space="preserve">
+    <value>Installation cannot continue as Configuration Server installation was not found.</value>
+  </data>
+  <data name="before_you_begin" xml:space="preserve">
+    <value>Before You Begin</value>
+  </data>
+  <data name="installation_progress" xml:space="preserve">
+    <value>Installation Progress</value>
+  </data>
+  <data name="summary" xml:space="preserve">
+    <value>Summary</value>
+  </data>
+  <data name="MySQLDatabasePasswordText" xml:space="preserve">
+    <value>MySQL database (svsystems user) password</value>
+  </data>
+  <data name="MySQLRootPasswordText" xml:space="preserve">
+    <value>MySQL root password</value>
+  </data>
+  <data name="environment_details" xml:space="preserve">
+    <value>Environment Details</value>
+  </data>
+  <data name="install_location" xml:space="preserve">
+    <value>Install Location</value>
+  </data>
+  <data name="mysql_configuration" xml:space="preserve">
+    <value>MySQL Configuration</value>
+  </data>
+  <data name="directdownloadlink" xml:space="preserve">
+    <value>Direct Download Link</value>
+  </data>
+  <data name="viewlicenseterms" xml:space="preserve">
+    <value>View License Terms</value>
+  </data>
+  <data name="third_party_software_license" xml:space="preserve">
+    <value>Third Party Software License</value>
+  </data>
+  <data name="ThirdpartySoftwareLicenseCheckboxText" xml:space="preserve">
+    <value>I accept the third party license agreement.</value>
+  </data>
+  <data name="ThirdpartySoftwareLicensePageMainText" xml:space="preserve">
+    <value>Microsoft grants you no rights for this third party software. You are responsible for and must separately locate, read and accept these third party license terms.</value>
+  </data>
+  <data name="ThirdpartySoftwareLicensePageMysqlText" xml:space="preserve">
+    <value>MySQL Community Server 5.7.20</value>
+  </data>
+  <data name="ThirdpartySoftwareLicensePageSubText" xml:space="preserve">
+    <value>By selecting the ''I accept the third party license agreement'' checkbox, you agree to the license terms for the third party software and allow setup to automatically download and install the third party software. If you do not agree to the license terms, click Cancel to exit the installer.</value>
+  </data>
+  <data name="EnvironmentDetailsPageMainText" xml:space="preserve">
+    <value>If you want to protect VMware virtual machines, Azure Site Recovery need to check for additional components.</value>
+  </data>
+  <data name="EnvironmentDetailsPageNoRadioButtonText" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="EnvironmentDetailsPageSubText" xml:space="preserve">
+    <value>Do you want to protect VMware virtual machines?</value>
+  </data>
+  <data name="EnvironmentDetailsPageYesRadioButtonText" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="azure_site_recovery_registration" xml:space="preserve">
+    <value>Registration</value>
+  </data>
+  <data name="configuration_server_details" xml:space="preserve">
+    <value>Configuration Server Details</value>
+  </data>
+  <data name="InstallationChoiceMainText" xml:space="preserve">
+    <value>The Azure Site Recovery Unified Setup wizard helps you to set up protection for workloads running on physical servers and VMware virtual machines by replicating them to Azure.</value>
+  </data>
+  <data name="CSPSRadioText" xml:space="preserve">
+    <value>Install the configuration server and process server</value>
+  </data>
+  <data name="PSRadioText" xml:space="preserve">
+    <value>Add additional process servers to scale out deployment</value>
+  </data>
+  <data name="PasswordRulesText" xml:space="preserve">
+    <value>Note: Passwords must</value>
+  </data>
+  <data name="PasswordRulesLetterText" xml:space="preserve">
+    <value>Contain at least one letter</value>
+  </data>
+  <data name="PasswordRulesNumberText" xml:space="preserve">
+    <value>Contain at least one number</value>
+  </data>
+  <data name="PasswordRulesSplCharText" xml:space="preserve">
+    <value>Contain at least one special character (_!@#$%)</value>
+  </data>
+  <data name="PasswordRulesMinLengthText" xml:space="preserve">
+    <value>Be between 8-16 characters</value>
+  </data>
+  <data name="PasswordRulesNoSpaceText" xml:space="preserve">
+    <value>Contain no spaces</value>
+  </data>
+  <data name="InstallationProgressCurrentOperationCSPSText" xml:space="preserve">
+    <value>Currently: Installing the configuration and process servers (approximately 5 minutes)</value>
+  </data>
+  <data name="InstallationProgressCurrentOperationMTText" xml:space="preserve">
+    <value>Currently: Installing the master target server (approximately 5 minutes)</value>
+  </data>
+  <data name="InstallationProgressCurrentOperationTPText" xml:space="preserve">
+    <value>Currently: Installing third-party components (approximately 5 minutes)</value>
+  </data>
+  <data name="InstProgressCSPSText" xml:space="preserve">
+    <value>Install configuration server and process server</value>
+  </data>
+  <data name="InstProgressMTText" xml:space="preserve">
+    <value>Install master target server</value>
+  </data>
+  <data name="InstProgressStatusDoneText" xml:space="preserve">
+    <value>Done</value>
+  </data>
+  <data name="InstProgressStatusInstallingText" xml:space="preserve">
+    <value>Installing</value>
+  </data>
+  <data name="InstProgressStatusPendingText" xml:space="preserve">
+    <value>Pending</value>
+  </data>
+  <data name="InstProgressTableHeadingText" xml:space="preserve">
+    <value>Steps</value>
+  </data>
+  <data name="InstProgressTableHeadingText1" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="InstProgressTPText" xml:space="preserve">
+    <value>Install third-party components</value>
+  </data>
+  <data name="InstProgressPSText" xml:space="preserve">
+    <value>Install process server</value>
+  </data>
+  <data name="ASRPageMainTextBlockText" xml:space="preserve">
+    <value>Site Recovery Registration Key</value>
+  </data>
+  <data name="ASRKeyBrowserClick_error" xml:space="preserve">
+    <value>Error: Could not read information from disk. Original error: {0}</value>
+  </data>
+  <data name="InvalidFile" xml:space="preserve">
+    <value>Invalid/empty vault credentials file has been selected. Please choose another vault file.</value>
+  </data>
+  <data name="InstallLocationTextblockText" xml:space="preserve">
+    <value>Install location</value>
+  </data>
+  <data name="EnvironmentDetailsPageFetchCLIText" xml:space="preserve">
+    <value>Checking if VMware Tools are installed…</value>
+  </data>
+  <data name="InstProgressStatusFailedText" xml:space="preserve">
+    <value>Failed</value>
+  </data>
+  <data name="RADetailsIPText" xml:space="preserve">
+    <value>Configuration server IP address</value>
+  </data>
+  <data name="RADetailsPassphraseText" xml:space="preserve">
+    <value>Configuration server passphrase</value>
+  </data>
+  <data name="InstallationProgressCurrentOperationPSText" xml:space="preserve">
+    <value>Currently: Installing the process server (approximately 5 minutes)</value>
+  </data>
+  <data name="InstProgressTPStatusAlreadyInstalledText" xml:space="preserve">
+    <value>Already Installed</value>
+  </data>
+  <data name="InstallationChoiceCSSubText" xml:space="preserve">
+    <value>Select this option if you are setting up Site Recovery for the first time.</value>
+  </data>
+  <data name="InstallationChoicePSSubText" xml:space="preserve">
+    <value>Select this option to add more process servers to handle the replication load.</value>
+  </data>
+  <data name="InvalidMySQLCredsFilePath" xml:space="preserve">
+    <value>Please make sure MySQL credentials file passed to the installer exists and it's contents are in the below format.
+[MySQLCredentials]
+MySQLRootPassword = "&lt;Password&gt;"
+MySQLUserPassword = "&lt;Password&gt;"
+
+Note: Password must conform all the following rules.
+      - Password must contain at least one letter
+      - Password must contain at least one number
+      - Password must contain at least one special character (_!@#$%)
+      - Password must be between 8 and 16 characters
+      - Password cannot contain spaces</value>
+  </data>
+  <data name="CSDetailsValidatePassphraseText" xml:space="preserve">
+    <value>Validating the passphrase</value>
+  </data>
+  <data name="CSDetailsIncorrectPassphraseText" xml:space="preserve">
+    <value>Invalid configuration server IP or connection passphrase provided.</value>
+  </data>
+  <data name="prerequisite_check" xml:space="preserve">
+    <value>Prerequisites Check</value>
+  </data>
+  <data name="HideDetailsText" xml:space="preserve">
+    <value>Hide Details &lt;&lt;</value>
+  </data>
+  <data name="ShowDetailsText" xml:space="preserve">
+    <value>Show Details &gt;&gt;</value>
+  </data>
+  <data name="InstLocationFreeSpaceText" xml:space="preserve">
+    <value>Available free space: {0} GB</value>
+  </data>
+  <data name="prerequisites_check" xml:space="preserve">
+    <value>Prerequisites Check</value>
+  </data>
+  <data name="FailedStatusText" xml:space="preserve">
+    <value>Failed</value>
+  </data>
+  <data name="PassedStatusText" xml:space="preserve">
+    <value>Passed</value>
+  </data>
+  <data name="PendingStatusText" xml:space="preserve">
+    <value>Pending</value>
+  </data>
+  <data name="PrereqHeadingPrereqText" xml:space="preserve">
+    <value>Prerequisites check</value>
+  </data>
+  <data name="PrereqHeadingStatusText" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="PrereqRestartText" xml:space="preserve">
+    <value>Restart pending</value>
+  </data>
+  <data name="PrereqSpaceReqTextbox" xml:space="preserve">
+    <value>Free space requirements</value>
+  </data>
+  <data name="PrereqTimeSyncText" xml:space="preserve">
+    <value>Global time sync check</value>
+  </data>
+  <data name="PrereqW2K12R2Textbox" xml:space="preserve">
+    <value>Min OS version and Domain Controller check</value>
+  </data>
+  <data name="RerunButtonText" xml:space="preserve">
+    <value>Re-Run</value>
+  </data>
+  <data name="PrereqCurrentOperationText" xml:space="preserve">
+    <value>Prerequisites Check :   Passed: {0},      Failed: {1},      Warning: {2},      Skipped: {3}</value>
+  </data>
+  <data name="PrereqToolTipText" xml:space="preserve">
+    <value>{0}</value>
+  </data>
+  <data name="internet_settings" xml:space="preserve">
+    <value>Internet Settings</value>
+  </data>
+  <data name="NetworkSelectionComboBoxLabelText" xml:space="preserve">
+    <value>Network Interface</value>
+  </data>
+  <data name="NetworkSelectionMainText" xml:space="preserve">
+    <value>1. Select a Network Interface Card(NIC) for connectivity with on-premises machines.</value>
+  </data>
+  <data name="NetworkSelectionCSNoteText" xml:space="preserve">
+    <value>Note : Azure Site Recovery Unified Setup will open two ports for inbound connection on this server.</value>
+  </data>
+  <data name="NetworkSelectionPortLabelText" xml:space="preserve">
+    <value>Port for receiving replication traffic</value>
+  </data>
+  <data name="network_selection" xml:space="preserve">
+    <value>Network Selection</value>
+  </data>
+  <data name="WarningStatusText" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="InstProgressLogFileOpenText" xml:space="preserve">
+    <value>Double click here to open up the log file.</value>
+  </data>
+  <data name="RerunButtonTooltip" xml:space="preserve">
+    <value>Click here to validate the prerequisistes again.</value>
+  </data>
+  <data name="InstallLocationSpaceWarningText" xml:space="preserve">
+    <value>You’ve selected an install location with less than 600 GB of free space.
+Installation can complete but for best performance we recommend 600 GB or more.</value>
+  </data>
+  <data name="CdpcliRegisterMTFailureText" xml:space="preserve">
+    <value>Master target registration has failed. Please register it later by invoking {0}\agent\cdpcli.exe --registermt.</value>
+  </data>
+  <data name="JunctionDirectoryRemoveErrorText" xml:space="preserve">
+    <value>Could not remove {0}ProgramData\ASR folder. Please remove it manually and re-try the installation.</value>
+  </data>
+  <data name="ConatinerRegistrationFailureText" xml:space="preserve">
+    <value>Container Registration has failed. Please register it later by invoking {0}\bin\cspsconfigtool.exe.</value>
+  </data>
+  <data name="DRAInstallationFailureText" xml:space="preserve">
+    <value>Microsoft Azure Site Recovery Provider installation has failed. Please install it later by invoking {0}\Temp\DRASETUP\SETUPDR.EXE.</value>
+  </data>
+  <data name="DRARegistrationFailureText" xml:space="preserve">
+    <value>Configuration Server registration with Azure vault has failed. Please register later by invoking {0}\bin\cspsconfigtool.exe.</value>
+  </data>
+  <data name="DRAServiceFailureText" xml:space="preserve">
+    <value>Unable to start Microsoft Azure Site Recovery Service. Please start it manually after sometime.</value>
+  </data>
+  <data name="MARSAgentInstallationFailureText" xml:space="preserve">
+    <value>Microsoft Azure Site Recovery Services Agent installation has failed. Please install it later by invoking {0}\agent\MARSAgentInstaller.exe.</value>
+  </data>
+  <data name="MARSAgentServiceFailureText" xml:space="preserve">
+    <value>Unable to start Microsoft Azure Recovery Services Agent. Please start it manually after sometime.</value>
+  </data>
+  <data name="PassphrasePopupTitle" xml:space="preserve">
+    <value>Configuration Server Passphrase</value>
+  </data>
+  <data name="Invalid443PortText" xml:space="preserve">
+    <value>Port 443 is used to manage replication operations. Select a different port.</value>
+  </data>
+  <data name="SummaryPageEnvironmentHeader" xml:space="preserve">
+    <value>Environment: </value>
+  </data>
+  <data name="SummaryPageInstallationDriveHeader" xml:space="preserve">
+    <value>Installation Location: </value>
+  </data>
+  <data name="SummaryPageInstallTypeHeader" xml:space="preserve">
+    <value>Install Type: </value>
+  </data>
+  <data name="Information" xml:space="preserve">
+    <value>Information</value>
+  </data>
+  <data name="NetworkSelection443NoteText" xml:space="preserve">
+    <value>•    Port 443 will be used by a web server which orchestrates replication operations. This port will be opened on 
+     all Network Interfaces assigned to this computer.</value>
+  </data>
+  <data name="NetworkSelectionDataTransferNoteText" xml:space="preserve">
+    <value>•    The data transport port specified above will be used to send/receive replication data. This port will be opened 
+     only on the Network Interface selected above.</value>
+  </data>
+  <data name="NetworkSelectionPSNoteText" xml:space="preserve">
+    <value>Note : Azure Site Recovery Unified Setup will open a port for inbound connection on this server.</value>
+  </data>
+  <data name="CSPSinstallType" xml:space="preserve">
+    <value>Configuration server and process server</value>
+  </data>
+  <data name="PSinstallType" xml:space="preserve">
+    <value>Process server</value>
+  </data>
+  <data name="SpaceValidationErrorText" xml:space="preserve">
+    <value>Minimum free space required is 5 GB. {0}</value>
+  </data>
+  <data name="SpaceValidationSuccessText" xml:space="preserve">
+    <value>Setup was able to find disks with enough free space to install Azure Site Recovery Unified Setup.</value>
+  </data>
+  <data name="SpaceValidationWarningText" xml:space="preserve">
+    <value>Setup was able to find disks with enough free space to install Azure Site Recovery Unified Setup.
+For best performance it is recommended that you install the binaries on a drive that has more than 600 GB. </value>
+  </data>
+  <data name="CSDetailsPortText" xml:space="preserve">
+    <value>Configuration Server Port</value>
+  </data>
+  <data name="CSDetailsNoteText" xml:space="preserve">
+    <value>Note: Passphrase can be obtained from Configuration Server by executing '[ASR Install Directory]\home\svsystems\bin\genpassphrase.exe –n' command.</value>
+  </data>
+  <data name="MSRadioButtonText" xml:space="preserve">
+    <value>Install mobility service</value>
+  </data>
+  <data name="MTRadioButtonText" xml:space="preserve">
+    <value>Install master target</value>
+  </data>
+  <data name="UAInstallationChoiceMainText" xml:space="preserve">
+    <value>This wizard will install Microsoft Azure Site Recovery Mobility Service/Master Target server on your computer.</value>
+  </data>
+  <data name="UAInstallationChoiceMSSubText" xml:space="preserve">
+    <value>Install mobility service on machine that you want to protect.</value>
+  </data>
+  <data name="UAInstallationChoiceMTSubText" xml:space="preserve">
+    <value>Master target servers are required during failing back from Azure to on-premises. The master target server acts as a target for the replicated data during the failover from Azure to on-premises.</value>
+  </data>
+  <data name="DriveSelectionErrorText" xml:space="preserve">
+    <value>The selected drive is not a NTFS drive.</value>
+  </data>
+  <data name="MandatorySpaceCheckText" xml:space="preserve">
+    <value>You’ve selected an install location with less than 5 GB of free space.
+Select a folder with at least 5 GB. For best performance we recommend 600 GB. or more.</value>
+  </data>
+  <data name="AgentMessageBoxTitle" xml:space="preserve">
+    <value>Microsoft Azure Site Recovery Unified Agent</value>
+  </data>
+  <data name="InstallationProgressCurrentOperationMSText" xml:space="preserve">
+    <value>Currently: Installing the mobility service (approximately 5 minutes)</value>
+  </data>
+  <data name="InstallLocationText" xml:space="preserve">
+    <value>Install location</value>
+  </data>
+  <data name="UACSDetailsNoteText" xml:space="preserve">
+    <value>Note: Passphrase can be obtained from configuration server by executing '[ASR Install Directory]\home\svsystems\bin\genpassphrase.exe –n' command.</value>
+  </data>
+  <data name="SkippedStatusText" xml:space="preserve">
+    <value>Skipped</value>
+  </data>
+  <data name="TimeSyncSkippedTooltip" xml:space="preserve">
+    <value>Azure Site Recovery is unable to check if system clock on your server is in sync with the global time as Setup is unable to contact Time Server (pool.ntp.org).
+If your server is ahead/lagging the global time by more than 5 minutes Registration with Azure Site Recovery can fail.
+You can ignore this warning and proceed to complete setup if you are sure that the System clock is showing the correct time for your time zone.</value>
+  </data>
+  <data name="InstallLocationErrorTextUAInteractive" xml:space="preserve">
+    <value>Installation location does not have 1 GB free space and/or it does not exist on a fixed drive.</value>
+  </data>
+  <data name="InstallLocationAsciiErrorTextUA" xml:space="preserve">
+    <value>Found some special characters in the installation directory name. Please select an installation directory without special characters</value>
+  </data>
+  <data name="InstallLocationErrorTextUASilent" xml:space="preserve">
+    <value>Installation location does not exist and/or it does not have 1 GB free space and/or it does not exist on a fixed drive.</value>
+  </data>
+  <data name="UnsupportedOSMasterTarget" xml:space="preserve">
+    <value>Installation is not supported on this OS. Master target can be installed only on WIN2K12-R2 server and it can not be installed on a domain controller.</value>
+  </data>
+  <data name="UnsupportedOSMobilityService" xml:space="preserve">
+    <value>Installation is not supported on this OS. Mobility service can be installed only on WIN2K12-R2/WIN2K12/WIN2K8-R2-SP1 servers.</value>
+  </data>
+  <data name="PostInstallationRebootRequired" xml:space="preserve">
+    <value>You must restart the server for some system changes to take effect.</value>
+  </data>
+  <data name="ProcessAlreadyLaunchedUA" xml:space="preserve">
+    <value>An instance of Microsoft Azure Site Recovery Unified Agent is already running.</value>
+  </data>
+  <data name="SetupMessageBoxTitleUA" xml:space="preserve">
+    <value>Microsoft Azure Site Recovery Unified Agent</value>
+  </data>
+  <data name="AppInitError" xml:space="preserve">
+    <value>Application Initialization Error</value>
+  </data>
+  <data name="DotNetIsNotAvailable" xml:space="preserve">
+    <value>To run the installer Microsoft .NET Framework 3.5.1 or later should be installed. You can install it using Add Roles and Features in Server Manager.</value>
+  </data>
+  <data name="UnifiedSetupThirdpartyEULAText" xml:space="preserve">
+    <value>Third Party Software License
+
+Microsoft grants you no rights for this third party software. You are responsible for and must separately locate, read and accept these third party license terms.
+
+By passing the “/AcceptThirdpartyEULA” argument to the silent installer, you acknowledge that you have read and agree to the license terms for the third party software referenced here and allow setup to automatically download and install the third party software. If you do not agree to those license terms for the third party software, do not pass “/AcceptThirdpartyEULA” argument to the silent installer.
+
+MySQL Community Server 5.7.20
+
+License Terms URL: http://go.microsoft.com/fwlink/?LinkId=524803
+Direct Download Link: https://aka.ms/mysqlserverdownload</value>
+  </data>
+  <data name="SetupPatchMessageBoxTitle" xml:space="preserve">
+    <value>Microsoft Azure Site Recovery Unified Setup Patch</value>
+  </data>
+  <data name="ProcessPatchAlreadyLaunched" xml:space="preserve">
+    <value>An instance of Microsoft Azure Site Recovery Unified Setup Patch is already running.</value>
+  </data>
+  <data name="MARSAgentInstallationFailurePatchText" xml:space="preserve">
+    <value>Microsoft Azure Site Recovery Services Agent installation has failed. Please install it later by invoking {0}\MARSAgentInstaller.exe.</value>
+  </data>
+  <data name="PatchInstProgressDRAText" xml:space="preserve">
+    <value>Install Azure Site Recovery Provider</value>
+  </data>
+  <data name="PatchInstProgressMARSText" xml:space="preserve">
+    <value>Install Microsoft Azure Recovery Services agent</value>
+  </data>
+  <data name="PatchInstProgressMTText" xml:space="preserve">
+    <value>Install master target</value>
+  </data>
+  <data name="PatchInstallationProgressCurrentOperationCSText" xml:space="preserve">
+    <value>Currently: Installing the configuration server update (approximately 5 minutes)</value>
+  </data>
+  <data name="PatchInstallationProgressCurrentOperationDRAText" xml:space="preserve">
+    <value>Currently: Installing Azure Site Recovery Provider (approximately 5 minutes)</value>
+  </data>
+  <data name="PatchInstallationProgressCurrentOperationMARSText" xml:space="preserve">
+    <value>Currently: Installing Microsoft Azure Recovery Services agent (approximately 5 minutes)</value>
+  </data>
+  <data name="PatchInstallationProgressCurrentOperationMTText" xml:space="preserve">
+    <value>Currently: Installing master target (approximately 5 minutes)</value>
+  </data>
+  <data name="PatchInstallationProgressCurrentOperationPSText" xml:space="preserve">
+    <value>Currently: Installing the process server update (approximately 5 minutes)</value>
+  </data>
+  <data name="PatchInstProgressCSText" xml:space="preserve">
+    <value>Install configuration and process server update</value>
+  </data>
+  <data name="PatchInstProgressPSText" xml:space="preserve">
+    <value>Install process server update</value>
+  </data>
+  <data name="PatchInstallationSummaryCSText" xml:space="preserve">
+    <value>- Configuration and process server update</value>
+  </data>
+  <data name="PatchInstallationSummaryDRAText" xml:space="preserve">
+    <value>- Azure Site Recovery Provider</value>
+  </data>
+  <data name="PatchInstallationSummaryMainText" xml:space="preserve">
+    <value>This update will install the following components.</value>
+  </data>
+  <data name="PatchInstallationSummaryMARSText" xml:space="preserve">
+    <value>- Microsoft Azure Recovery Services agent</value>
+  </data>
+  <data name="PatchInstallationSummaryMTText" xml:space="preserve">
+    <value>- Master target update</value>
+  </data>
+  <data name="PatchInstallationSummaryPSText" xml:space="preserve">
+    <value>- Process server update</value>
+  </data>
+  <data name="PatchInstallationSummaryQuestionText" xml:space="preserve">
+    <value>Click Install to begin installing these components.</value>
+  </data>
+  <data name="CompressionScriptFailureText" xml:space="preserve">
+    <value>“Azure Site Recovery Upgrade failed to set compression OFF for all replicating pairs. Please execute the following steps manually on command prompt to complete the installation.”
+• cd {0}\admin\web
+• php compression_off.php</value>
+  </data>
+  <data name="MARSProxySetupFailureText" xml:space="preserve">
+    <value>Failed to setup MARS agent proxy. Please set it up later by invoking {0}\bin\cspsconfigtool.exe.</value>
+  </data>
+  <data name="ProxyPageURLText" xml:space="preserve">
+    <value>Make sure these URLs are accessible from this server
+*.hypervrecoverymanager.windowsazure.com                  *.blob.core.windows.net
+*.accesscontrol.windows.net                                              *.store.core.windows.net
+*.backup.windowsazure.com                                             </value>
+  </data>
+  <data name="HttpsNotSupportedText" xml:space="preserve">
+    <value>https proxy is not supported.</value>
+  </data>
+  <data name="InvalidProxyAddressText" xml:space="preserve">
+    <value>Enter address in http://&lt;Proxy&gt; format.</value>
+  </data>
+  <data name="ServerConfigurationDRAInstallFailureText" xml:space="preserve">
+    <value>The installer is stored at {0}\Temp\DRASETUP. Please run the SETUPDR.EXE from the location to complete the installation, and run {1}\bin\cspsconfigtool.exe to finish registration.</value>
+  </data>
+  <data name="ServerConfigurationMARSInstallFailureText" xml:space="preserve">
+    <value>The installer is stored at {0}\agent. Please run the MARSAgentInstaller.exe from the location to complete the installation, and run {0}\agent\cdpcli.exe --registermt to finish Master target registration.</value>
+  </data>
+  <data name="ServerConfigurationMTRegFailureText" xml:space="preserve">
+    <value>Please run {0}\agent\cdpcli.exe --registermt to finish Master target registration.</value>
+  </data>
+  <data name="ServerConfigurationRegFailureText" xml:space="preserve">
+    <value>Please run {0}\bin\cspsconfigtool.exe to finish registration.</value>
+  </data>
+  <data name="MySQLDownloadAlreadyInstalledText" xml:space="preserve">
+    <value>MySQL is already installed on the server. Refer {0}\ProgramData\ASRSetupLogs\ASRUnifiedSetup.log for more details.</value>
+  </data>
+  <data name="MySQLDownloadFailureText" xml:space="preserve">
+    <value>Failed to download MySQL installer as setup is unable to contact https://cdn.mysql.com/archives/mysql-installer/mysql-installer-community-5.7.20.0.msi. Please check if there are firewalls in your environment that are blocking access to this website. Refer {0}\ProgramData\ASRSetupLogs\ASRUnifiedSetup.log for more details.</value>
+  </data>
+  <data name="MySQLDownloadSuccessText" xml:space="preserve">
+    <value>MySQL installer is downloaded successfully. Refer {0}\ProgramData\ASRSetupLogs\ASRUnifiedSetup.log for more details.</value>
+  </data>
+  <data name="ServerConfigurationCurrentOperationText" xml:space="preserve">
+    <value>Currently: Validating the server configuration (approximately 2 minutes)</value>
+  </data>
+  <data name="InstallationProgressCurrentOperationMySQLText" xml:space="preserve">
+    <value>Currently: Downloading MySQL setup file (approximately 5 minutes)</value>
+  </data>
+  <data name="MARSProxySetupPSMTFailureText" xml:space="preserve">
+    <value>Failed to setup MARS agent proxy. Please set it up by invoking {0}\bin\SetMarsProxy.exe.
+                     Usage: {0}\bin\SetMarsProxy.exe &lt;proxy address in http://address format&gt; &lt;proxy port&gt; [proxy username] [proxy password]
+                     Note: [proxy username] and [proxy password] are optional arguments.
+                     Example: {0}\bin\SetMarsProxy.exe "http://myproxy.com" "8080" "administrator" "Password1!"</value>
+  </data>
+  <data name="ServerConfigurationMARSCSInstallFailureText" xml:space="preserve">
+    <value>The installer is stored at {0}\agent. Please run the MARSAgentInstaller.exe from the location to complete the installation, and run {1}\bin\cspsconfigtool.exe to finish registration.</value>
+  </data>
+  <data name="ServerConfigurationMARSInstallPSMTProxyFailureText" xml:space="preserve">
+    <value>1) The installer is stored at {0}\agent. Please run the MARSAgentInstaller.exe from the location to complete the installation.
+
+                     2) Run {0}\agent\cdpcli.exe --registermt to finish Master target registration.
+
+                     3) Please invoke SetMarsProxy.exe to setup Microsoft Azure Recovery Services Agent Proxy.
+                     Usage: {1}\bin\SetMarsProxy.exe &lt;proxy address in http://address format&gt; &lt;proxy port&gt; [proxy username] [proxy password]
+                     Note: [proxy username] and [proxy password] are optional arguments.
+                     Example: {0}\bin\SetMarsProxy.exe "http://myproxy.com" "8080" "administrator" "Password1!"</value>
+  </data>
+  <data name="DoUpgrade" xml:space="preserve">
+    <value>Older version of the software is installed on the server. Do you want to upgrade to the latest?</value>
+  </data>
+  <data name="CSPSinstalledMTNotInstalledText" xml:space="preserve">
+    <value>Incomplete installation detected. Setup can install the missing components. Do you want to proceed?</value>
+  </data>
+  <data name="FailureInstall" xml:space="preserve">
+    <value>Failure</value>
+  </data>
+  <data name="FreshInstall" xml:space="preserve">
+    <value>Fresh</value>
+  </data>
+  <data name="SuccessInstall" xml:space="preserve">
+    <value>Success</value>
+  </data>
+  <data name="UpgradeInstall" xml:space="preserve">
+    <value>Upgrade</value>
+  </data>
+  <data name="UpgradeSupportedText" xml:space="preserve">
+    <value>Older build is installed on the server. Upgrade is supported.</value>
+  </data>
+  <data name="UpgradeUnSupportedHigherVersionText" xml:space="preserve">
+    <value>Upgrade is not supported as a higher version of the software is already installed.</value>
+  </data>
+  <data name="UpgradeUnSupportedSameVersionText" xml:space="preserve">
+    <value>Upgrade is not supported as the same version of the software is already installed on the server.</value>
+  </data>
+  <data name="UpgradeUnSupportedText" xml:space="preserve">
+    <value>Upgrade is not supported from the version installed on the server.</value>
+  </data>
+  <data name="ValidateInstallationDRAInstallFailureText" xml:space="preserve">
+    <value>The installer is stored at {0}\Temp\DRASETUP. Please run the SETUPDR.EXE from the location to complete the installation.</value>
+  </data>
+  <data name="ValidateInstallationMARSInstallFailureText" xml:space="preserve">
+    <value>The installer is stored at {0}. Please run the MARSAgentInstaller.exe from the location to complete the installation.</value>
+  </data>
+  <data name="ValidateInstallationCurrentOperationText" xml:space="preserve">
+    <value>Currently: Validating the installation (approximately 2 minutes)</value>
+  </data>
+  <data name="ConfiguringServerText" xml:space="preserve">
+    <value>Validating server configuration</value>
+  </data>
+  <data name="ValidatingInstallationText" xml:space="preserve">
+    <value>Validating installation</value>
+  </data>
+  <data name="UpgradeProgressCurrentOperationCSPSText" xml:space="preserve">
+    <value>Currently: Upgrading the configuration and process servers (approximately 10 minutes)</value>
+  </data>
+  <data name="UpgradeProgressCurrentOperationMTText" xml:space="preserve">
+    <value>Currently: Upgrading the master target server (approximately 5 minutes)</value>
+  </data>
+  <data name="UpgradeProgressCurrentOperationPSText" xml:space="preserve">
+    <value>Currently: Upgrading the process server (approximately 10 minutes)</value>
+  </data>
+  <data name="UpgradeProgressCurrentOperationTPText" xml:space="preserve">
+    <value>Currently: Upgrading third-party components (approximately 5 minutes)</value>
+  </data>
+  <data name="CouldNotStopFrsvc" xml:space="preserve">
+    <value>Unable to stop frsvc(InMage Scout FX Agent) service. Please kill the service manually and re-try the installation.</value>
+  </data>
+  <data name="NonEnglishOS" xml:space="preserve">
+    <value>Microsoft Azure Site Recovery Unified Setup is unable to proceed as the Operating System locale selected on this computer is not English.
+Recommended Action : Run setup on a computer with Operating system locale selected as English.</value>
+  </data>
+  <data name="AcsUrlAPIFailureResponse" xml:space="preserve">
+    <value>Setup is unable to fetch Service Registration details from Configuration Server. Please check
+1) The Configuration Server is correctly registered to Azure Site Recovery and shows up as Connected in the Azure Portal.
+2) The version of Configuration Server is  v9.4.XXX. or above.</value>
+  </data>
+  <data name="COMPlusApplicationsPrereqError" xml:space="preserve">
+    <value>Mobility Service Install Failed. Below are the possible causes.
+1. If Volume Shadow Copy(VSS) service Startup Type is set to Disabled, change it to Automatic.
+2. If COM+ System Application(COMSysApp) service Startup Type is set to Disabled, change it to Automatic.
+3. If the Microsoft Distributed Transaction Coordinator(MSDTC) service Startup Type is set to Disabled, change it to Automatic.
+4. If the service Startup Types were already set to Automatic, check if COM+ enumeration succeeds.  
+   4.1 You check COM+ Enumeration by Component Services(comexp.msc)
+   4.2 Browse to Component Service -&gt; Computers -&gt; My Computer -&gt; COM+ Application. You should be able to expand the System Application node and see the contents under that node.
+   4.3 Ensure that Volume Shadow Copy Service is listed under Component Service -&gt; Computers -&gt; My Computer -&gt; DCOM config
+5. If any of the sub-steps in Step 4 fail please contact your System Administrator to resolve the issue.</value>
+  </data>
+  <data name="LogFilePathErrorText" xml:space="preserve">
+    <value>Please ensure that log file path provided is an absolute path and is not a network path. Also ensure that setup has permissions to write to the log file folder.</value>
+  </data>
+  <data name="DomainControllerSetup" xml:space="preserve">
+    <value>Azure Site Recovery Setup is not supported on a Domain Controller. Please run the installer on a sever that does not have any Active Directory roles enabled.</value>
+  </data>
+  <data name="SupportedWin2K12R2Setup" xml:space="preserve">
+    <value>Server OS is Windows Server 2012 R2.</value>
+  </data>
+  <data name="UnsupportedServerSetup" xml:space="preserve">
+    <value>Current Version of Windows is not supported by Microsoft Azure Site Recovery Unified Installer. Please run the installer on Windows Server 2012 R2.</value>
+  </data>
+  <data name="EndpointsNotFound" xml:space="preserve">
+    <value>The current version of the Setup does not support {0} location. Please download the latest Setup from https://aka.ms/unifiedinstaller and try registering again.</value>
+  </data>
+  <data name="Uninstall_CXTP_CX" xml:space="preserve">
+    <value>Previous installation is incomplete. Setup can't proceed ahead with upgrade.</value>
+  </data>
+  <data name="InstallationProgressCurrentOperationDRAText" xml:space="preserve">
+    <value>Currently: Installing Microsoft Azure Site Recovery Provider (approximately 2 minutes)</value>
+  </data>
+  <data name="InstallationProgressCurrentOperationMARSText" xml:space="preserve">
+    <value>Currently: Installing Microsoft Azure Recovery Service Agent (approximately 2 minutes)</value>
+  </data>
+  <data name="InstallationProgressCurrentOperationRegistrationText" xml:space="preserve">
+    <value>Currently: Registering with service (approximately 5 minutes)</value>
+  </data>
+  <data name="ComponentsAlreadyRegistered" xml:space="preserve">
+    <value>Components are already registered.
+Refer {0}\ProgramData\ASRSetupLogs\ASRUnifiedSetup.log for more details.</value>
+  </data>
+  <data name="ComponentsRegistrationFailed" xml:space="preserve">
+    <value>Components registration has failed.
+Refer {0}\ProgramData\ASRSetupLogs\ASRUnifiedSetup.log for more details.</value>
+  </data>
+  <data name="ComponentsRegistrationSucceeded" xml:space="preserve">
+    <value>Components registration has succeeded.
+Refer {0}\ProgramData\ASRSetupLogs\ASRUnifiedSetup.log for more details.</value>
+  </data>
+  <data name="DRAInstStatusAlreadyInstalled" xml:space="preserve">
+    <value>Microsoft Azure Site Recovery Provider is already installed.
+Refer {0}\ProgramData\ASRLogs\DRASetupWizard.log for more details.</value>
+  </data>
+  <data name="DRAInstStatusFailed" xml:space="preserve">
+    <value>Microsoft Azure Site Recovery Provider installation has failed.
+Refer {0}\ProgramData\ASRLogs\DRASetupWizard.log for more details.</value>
+  </data>
+  <data name="DRAInstStatusSuccess" xml:space="preserve">
+    <value>Microsoft Azure Site Recovery Provider installation has succeeded.
+Refer {0}\ProgramData\ASRLogs\DRASetupWizard.log for more details.</value>
+  </data>
+  <data name="MARSInstStatusAlreadyInstalled" xml:space="preserve">
+    <value>Microsoft Azure Recovery Services Agent is already installed.
+Refer OBMsi.log, OBPatch.log, OBInstaller0Curr.errlog and OBManagedlog.LOGCurr.errlog located at {0}\Windows\Temp\ for more details.</value>
+  </data>
+  <data name="MARSInstStatusFailed" xml:space="preserve">
+    <value>Microsoft Azure Recovery Services Agent installation has failed.
+Refer OBMsi.log, OBPatch.log, OBInstaller0Curr.errlog and OBManagedlog.LOGCurr.errlog located at {0}\Windows\Temp\ for more details.</value>
+  </data>
+  <data name="MARSInstStatusSuccess" xml:space="preserve">
+    <value>Microsoft Azure Recovery Services Agent installation has succeeded.
+Refer OBMsi.log, OBPatch.log, OBInstaller0Curr.errlog and OBManagedlog.LOGCurr.errlog located at {0}\Windows\Temp\ for more details.</value>
+  </data>
+  <data name="UnifiedSetupInstallationSucceeded" xml:space="preserve">
+    <value>Installation of Azure Site Recovery Unified Setup has succeeded.</value>
+  </data>
+  <data name="RecordOperationFailureMessage" xml:space="preserve">
+    <value>Failed with exit code: {0}</value>
+  </data>
+  <data name="RecordOperationRecommendationMessage" xml:space="preserve">
+    <value>Refer {0} for the error. Fix the issue and rerun the setup again.</value>
+  </data>
+  <data name="Causes" xml:space="preserve">
+    <value>Possible Causes</value>
+  </data>
+  <data name="Recommendation" xml:space="preserve">
+    <value>Recommended Action</value>
+  </data>
+  <data name="SummaryCheckEndpoints" xml:space="preserve">
+    <value>Check endpoints connectivity</value>
+  </data>
+  <data name="SummaryCsServiceCheck" xml:space="preserve">
+    <value>CS service running checks</value>
+  </data>
+  <data name="SummaryDraServiceCheck" xml:space="preserve">
+    <value>DRA service running checks</value>
+  </data>
+  <data name="SummaryFreeSpaceCheck" xml:space="preserve">
+    <value>Free space availability check</value>
+  </data>
+  <data name="SummaryMarsServiceCheck" xml:space="preserve">
+    <value>MARS service running checks</value>
+  </data>
+  <data name="SummaryMtServiceCheck" xml:space="preserve">
+    <value>MT service running checks</value>
+  </data>
+  <data name="SummaryPsServiceCheck" xml:space="preserve">
+    <value>PS service running checks</value>
+  </data>
+  <data name="SummarySystemRestartCheck" xml:space="preserve">
+    <value>System restart pending check</value>
+  </data>
+  <data name="SummaryTimeSyncCheck" xml:space="preserve">
+    <value>Time in sync check</value>
+  </data>
+  <data name="SummaryWin2k12R2Check" xml:space="preserve">
+    <value>Server OS check</value>
+  </data>
+  <data name="PrereqIISText" xml:space="preserve">
+    <value>Checking for required IIS configurations</value>
+  </data>
+  <data name="SummaryContainerRegCheck" xml:space="preserve">
+    <value>Container Registration</value>
+  </data>
+  <data name="SummaryCsInstallCheck" xml:space="preserve">
+    <value>Configuration server installation</value>
+  </data>
+  <data name="SummaryDRAInstallCheck" xml:space="preserve">
+    <value>Microsoft Azure Site Recovery Provider installation</value>
+  </data>
+  <data name="SummaryDRARegCheck" xml:space="preserve">
+    <value>Vault Registration</value>
+  </data>
+  <data name="SummaryMARSInstallCheck" xml:space="preserve">
+    <value>Microsoft Azure Recovery Services Agent installation</value>
+  </data>
+  <data name="SummaryMTInstallCheck" xml:space="preserve">
+    <value>Master target installation</value>
+  </data>
+  <data name="SummaryMTRegCheck" xml:space="preserve">
+    <value>Master target Registration</value>
+  </data>
+  <data name="SummaryMySQLDownloadCheck" xml:space="preserve">
+    <value>MySQL download</value>
+  </data>
+  <data name="SummarySetMARSProxyCheck" xml:space="preserve">
+    <value>Set MARS Agent proxy</value>
+  </data>
+  <data name="SummaryTpInstallCheck" xml:space="preserve">
+    <value>Configuration/process server Dependencies</value>
+  </data>
+  <data name="SummaryEndTime" xml:space="preserve">
+    <value>Install End Time</value>
+  </data>
+  <data name="SummaryLogTitle" xml:space="preserve">
+    <value>ASR Setup Summary Log</value>
+  </data>
+  <data name="SummaryMidInstallScenario" xml:space="preserve">
+    <value>Component Installation</value>
+  </data>
+  <data name="SummaryOperationCauses" xml:space="preserve">
+    <value>Possible Causes</value>
+  </data>
+  <data name="SummaryOperationMessage" xml:space="preserve">
+    <value>Message</value>
+  </data>
+  <data name="SummaryOperationName" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="SummaryOperationRecommendation" xml:space="preserve">
+    <value>Recommended Action</value>
+  </data>
+  <data name="SummaryOperationResult" xml:space="preserve">
+    <value>Result</value>
+  </data>
+  <data name="SummaryPostInstallScenario" xml:space="preserve">
+    <value>Post Install Validations</value>
+  </data>
+  <data name="SummaryPrereqScenario" xml:space="preserve">
+    <value>Pre-requisite Check</value>
+  </data>
+  <data name="SummaryStartTime" xml:space="preserve">
+    <value>Install Start Time</value>
+  </data>
+  <data name="SummaryTimeFormat" xml:space="preserve">
+    <value>yyyy-MM-ddTHH:mm</value>
+  </data>
+  <data name="GroupPoliciesText" xml:space="preserve">
+    <value>Checking for incompatible Group Policies</value>
+  </data>
+  <data name="MachineConfigurationText" xml:space="preserve">
+    <value>Min Memory and CPU checks</value>
+  </data>
+  <data name="SummaryConfigurationScenario" xml:space="preserve">
+    <value>Component configuration</value>
+  </data>
+  <data name="SummaryAnonymousauthenticationCheck" xml:space="preserve">
+    <value>Checking anonymous authentication status</value>
+  </data>
+  <data name="SummaryCommandPromprtAccessPolicyCheck" xml:space="preserve">
+    <value>Checking access to command prompt</value>
+  </data>
+  <data name="SummaryFastCgiConfigurationCheck" xml:space="preserve">
+    <value>Checking FastCgi application configuration</value>
+  </data>
+  <data name="SummaryMachineMemoryCheck" xml:space="preserve">
+    <value>Checking for sufficient machine memory</value>
+  </data>
+  <data name="SummaryPortBindingsCheck" xml:space="preserve">
+    <value>Checking IIS port bindings</value>
+  </data>
+  <data name="SummaryPowerShellExecutionPolicyCheck" xml:space="preserve">
+    <value>Checking PowerShell scripts execution status</value>
+  </data>
+  <data name="SummaryProcessorCoresCheck" xml:space="preserve">
+    <value>Checking the number of processor cores</value>
+  </data>
+  <data name="SummaryRegistryAccessPolicyCheck" xml:space="preserve">
+    <value>Checking registry access group policy settings</value>
+  </data>
+  <data name="SummaryTrustLogicFileAttachmentsPolicyCheck" xml:space="preserve">
+    <value>Checking Trust logic file attachments group policy settings</value>
+  </data>
+  <data name="SummaryWebsiteConfigurationCheck" xml:space="preserve">
+    <value>Checking the IIS website configuration</value>
+  </data>
+  <data name="BootDriverValidationFailure" xml:space="preserve">
+    <value>Setup can't proceed ahead as boot driver validation has failed. Refer {0}ProgramData\ASRSetupLogs\ASRUnifiedAgentInstaller.log for more details.</value>
+  </data>
+  <data name="SkipIISConfigCheckText" xml:space="preserve">
+    <value>IIS is not a pre-requisite for Scaleout Process Server installations.</value>
+  </data>
+  <data name="SummaryCxPsServiceCheck" xml:space="preserve">
+    <value>CXProcessServer service running checks</value>
+  </data>
+  <data name="SummaryPushInstallServiceCheck" xml:space="preserve">
+    <value>Push Install service running checks</value>
+  </data>
+  <data name="SummaryScoutApplicationServiceCheck" xml:space="preserve">
+    <value>InMage Scout Application service running checks</value>
+  </data>
+  <data name="SummaryVxAgentServiceCheck" xml:space="preserve">
+    <value>InMage Scout VX Agent - Sentinel/Outpost service running checks</value>
+  </data>
+  <data name="SummaryPsInstallCheck" xml:space="preserve">
+    <value>Process server installation</value>
+  </data>
+  <data name="ComponentAlreadyInstalled" xml:space="preserve">
+    <value>Component is already installed.</value>
+  </data>
+  <data name="InstProgressIncompleteOperationsText" xml:space="preserve">
+    <value>Microsoft Azure Site Recovery Unified Setup is unable to complete all install time operations. For more details on the error click on the Failed links in the above table.</value>
+  </data>
+  <data name="InstProgressRegistrationText" xml:space="preserve">
+    <value>Registering with Site Recovery</value>
+  </data>
+  <data name="InvalidValueForCommandLineParam" xml:space="preserve">
+    <value>Invalid value was specified for command line parameter {0}.</value>
+  </data>
+  <data name="ShowDetails" xml:space="preserve">
+    <value>Details</value>
+  </data>
+  <data name="FailedToInstallUnifiedAgent" xml:space="preserve">
+    <value>Agent installation failed.</value>
+  </data>
+  <data name="FailedToStopServices" xml:space="preserve">
+    <value>Setup was unable to stop required services.</value>
+  </data>
+  <data name="MsiexexUnknownExitCode" xml:space="preserve">
+    <value>Installation with error code </value>
+  </data>
+  <data name="FailedToBackupConfiguration" xml:space="preserve">
+    <value>Failed to backup exisiting configuration settings.</value>
+  </data>
+  <data name="FailedToCreateAppConf" xml:space="preserve">
+    <value>Failed to create application configuration</value>
+  </data>
+  <data name="FailedToMergeConfiguration" xml:space="preserve">
+    <value>Failed to merge configuration.</value>
+  </data>
+  <data name="FailedToSetPermissionOnDirectories" xml:space="preserve">
+    <value>Failed to set permissions on required directories.</value>
+  </data>
+  <data name="Register" xml:space="preserve">
+    <value>Register</value>
+  </data>
+  <data name="FailedToStartServices" xml:space="preserve">
+    <value>Setup was unable to start required services.</value>
+  </data>
+  <data name="AgentAlreadyConfigured" xml:space="preserve">
+    <value>Agent is already configured. Press Finish to exit the setup.</value>
+  </data>
+  <data name="ConfigureAgent" xml:space="preserve">
+    <value>Agent is not yet configured. Press Next to configure the agent.</value>
+  </data>
+  <data name="RCMUrlUnsupported" xml:space="preserve">
+    <value>RCMURl must be using HTTPs protocol</value>
+  </data>
+  <data name="UnableToDetermineBiosId" xml:space="preserve">
+    <value>Setup was unable to fetch machine details</value>
+  </data>
+  <data name="CorruptCredentialsFile" xml:space="preserve">
+    <value>Provided credentials file is not in correct format. Please provide a valid credentials file.</value>
+  </data>
+  <data name="CredentialsFileMissing" xml:space="preserve">
+    <value>Credentials file could not be located/read. Please ensure given file path is correct and you have appropriate permissions to access the file.</value>
+  </data>
+  <data name="ExpiredCredentialsFile" xml:space="preserve">
+    <value>Provided credentials file has expired. Please download new file and use.</value>
+  </data>
+  <data name="AgentRoleMismatch" xml:space="preserve">
+    <value>Role change is not allowed.</value>
+  </data>
+  <data name="PlatformMismatch" xml:space="preserve">
+    <value>Platform change is not allowed during upgrade.</value>
+  </data>
+  <data name="installation_option" xml:space="preserve">
+    <value>Installation Option</value>
+  </data>
+  <data name="SelectComponentToInstall" xml:space="preserve">
+    <value>Select the component you would like to install</value>
+  </data>
+  <data name="AnalyzingSystem" xml:space="preserve">
+    <value>Please wait while we analyze the system...</value>
+  </data>
+  <data name="InstallationChoiceText" xml:space="preserve">
+    <value>This wizard will {0} Microsoft Azure Site Recovery {1} Server on your computer.</value>
+  </data>
+  <data name="MasterTargetServer" xml:space="preserve">
+    <value>Master Target</value>
+  </data>
+  <data name="MobilityServerName" xml:space="preserve">
+    <value>Mobility</value>
+  </data>
+  <data name="CheckDriverStatusStep" xml:space="preserve">
+    <value>Checking installation status</value>
+  </data>
+  <data name="InstallationStep" xml:space="preserve">
+    <value>Installing binaries</value>
+  </data>
+  <data name="PostInstallationStep" xml:space="preserve">
+    <value>Running post install configurations</value>
+  </data>
+  <data name="PrepareForInstallStep" xml:space="preserve">
+    <value>Running installation prerequisites</value>
+  </data>
+  <data name="StartServicesStep" xml:space="preserve">
+    <value>Starting services</value>
+  </data>
+  <data name="PrepairingForRegistrationStep" xml:space="preserve">
+    <value>Running registration prerequisites</value>
+  </data>
+  <data name="RegistrationStep" xml:space="preserve">
+    <value>Performing registration</value>
+  </data>
+  <data name="CredentialsPath" xml:space="preserve">
+    <value>Credentials Path</value>
+  </data>
+  <data name="csconfiguration" xml:space="preserve">
+    <value>Configuration Server Details</value>
+  </data>
+  <data name="EnterConfigServerDetails" xml:space="preserve">
+    <value>Please enter configuration server details below</value>
+  </data>
+  <data name="EnterRCMServerDetails" xml:space="preserve">
+    <value>Please provide Azure Site Recovery details below</value>
+  </data>
+  <data name="ProceedToConfiguration" xml:space="preserve">
+    <value>Proceed To Configuration</value>
+  </data>
+  <data name="ValidateRegistrationStep" xml:space="preserve">
+    <value>Validating configuration</value>
+  </data>
+  <data name="rcmconfiguration" xml:space="preserve">
+    <value>Configuration Details</value>
+  </data>
+  <data name="FailedToRegisterWithRCM" xml:space="preserve">
+    <value>Setup was unable to connect to Azure service to complete required actions. Configuration failed.</value>
+  </data>
+  <data name="PostRegistrationActions" xml:space="preserve">
+    <value>Validating configuration</value>
+  </data>
+  <data name="AgentInstallationGenericError" xml:space="preserve">
+    <value>Setup was unable to perform the required changes</value>
+  </data>
+  <data name="InstallAction" xml:space="preserve">
+    <value>install</value>
+  </data>
+  <data name="UpgradeAction" xml:space="preserve">
+    <value>upgrade</value>
+  </data>
+  <data name="AgentRegistrationFailed" xml:space="preserve">
+    <value>Internal server error occurred during configuration of Agent</value>
+  </data>
+  <data name="FailedToRegisterCDPCLI" xml:space="preserve">
+    <value>Setup was unable to register host with Configuration Server.</value>
+  </data>
+  <data name="CorrectErrorsOnPage" xml:space="preserve">
+    <value>Correct the errors on page before proceeding</value>
+  </data>
+  <data name="CriticalExceptionOccurred" xml:space="preserve">
+    <value>Application encountered critical exception and needs to close. Please contact support team for further assistance.</value>
+  </data>
+  <data name="ProxyAddressUnifiedAgent" xml:space="preserve">
+    <value>Proxy Address</value>
+  </data>
+  <data name="ProxyConfiguratinFailureUnifiedAgent" xml:space="preserve">
+    <value>Failed to configure proxy for Microsoft Azure Site Recovery Mobility/Master Target server.</value>
+  </data>
+  <data name="ProxyConfigurationPage" xml:space="preserve">
+    <value>Proxy Configuration</value>
+  </data>
+  <data name="ProxyPortUnifiedAgent" xml:space="preserve">
+    <value>Proxy Port</value>
+  </data>
+  <data name="ProxyUnifiedAgentHeader" xml:space="preserve">
+    <value>Specify the proxy settings to be used by Agent to connect to Microsoft Azure Site Recovery</value>
+  </data>
+  <data name="RegistrationFailureLogLocation" xml:space="preserve">
+    <value>Registration logs can be found at {0}</value>
+  </data>
+  <data name="ConfigureProxyStep" xml:space="preserve">
+    <value>Configuring connection settings</value>
+  </data>
+  <data name="InvalidProxyDetails" xml:space="preserve">
+    <value>Invalid proxy details were specified. Proxy address must contain url scheme and absolute address e.g. http://www.contoso.com or http://192.168.1.1 and port must be less than 65535.</value>
+  </data>
+  <data name="InstProgressIISText" xml:space="preserve">
+    <value>Configuring Internet Information Services features</value>
+  </data>
+  <data name="InstallationProgressCurrentOperationIISText" xml:space="preserve">
+    <value>Currently: Installing Internet Information Services (approximately 5 minutes)</value>
+  </data>
+  <data name="SummaryIISInstallCheck" xml:space="preserve">
+    <value>Internet Information Services configurations</value>
+  </data>
+  <data name="AgentUpgradeOnASRServer" xml:space="preserve">
+    <value>Error: Microsoft Azure Site Recovery Unified Agent upgrade failed.
+Possible Case : The server is configured as a Configuration Server or a Scale out Process Server.
+Recommended Action: Azure Site Recovery Infrastructure Servers cannot be protected. Please try to protect a different server.</value>
+  </data>
+  <data name="MSI3010ExitCodeErrorMessage" xml:space="preserve">
+    <value>Unified Setup needs to reboot the server to complete the installation.</value>
+  </data>
+  <data name="MSI3010ExitCodeRecommendationMessage" xml:space="preserve">
+    <value>Please reboot the server.</value>
+  </data>
+  <data name="RecordOperationFailureMessagewithOutput" xml:space="preserve">
+    <value>Failed with exit code: {0}
+Error message           : {1}</value>
+  </data>
+  <data name="PrereqNetworkInterfaceText" xml:space="preserve">
+    <value>Checking for Static IP Addresses</value>
+  </data>
+  <data name="PrereqPerlCheckText" xml:space="preserve">
+    <value>Checking for Strawberry Perl(v5.8.8)</value>
+  </data>
+  <data name="IIS3010RebootRequired" xml:space="preserve">
+    <value>Internet Information Services configuration requires the server to be rebooted. Reboot the server and re-try the installation.</value>
+  </data>
+  <data name="NonEnglishCulture" xml:space="preserve">
+    <value>Microsoft Azure Site Recovery Unified Setup is unable to proceed as the input language selected on this computer is not English.
+Recommended Action : Change the input language to English  from 
+a) Control Panel -&gt; Region -&gt; Format to English
+b) Control Panel -&gt; Language -&gt; Language to English
+for both administrator and system user and re-try the installer.</value>
+  </data>
+  <data name="ConfigureMTText" xml:space="preserve">
+    <value>Configure master target server</value>
+  </data>
+  <data name="AlreadyConfiguredStatusText" xml:space="preserve">
+    <value>Already Configured</value>
+  </data>
+  <data name="ConfiguringStatusText" xml:space="preserve">
+    <value>Configuring</value>
+  </data>
+  <data name="CurrentOperationMTConfigurationText" xml:space="preserve">
+    <value>Currently: Configuring the master target server (approximately 2 minutes)</value>
+  </data>
+  <data name="FailedToBackupCxpsConfiguration" xml:space="preserve">
+    <value>Failed to backup exisiting cxps configuration file.</value>
+  </data>
+  <data name="FailedToCopyCxpsConfigurationBackup" xml:space="preserve">
+    <value>Failed to copy cxps backup configuration file. </value>
+  </data>
+  <data name="AgentPointingToDifferentCS" xml:space="preserve">
+    <value>Agent is configured to different Configuration server.</value>
+  </data>
+  <data name="AgentPointingToSameCS" xml:space="preserve">
+    <value>Agent is already configured to same Configuration server. </value>
+  </data>
+  <data name="SummaryMTConfigurationCheck" xml:space="preserve">
+    <value>Master target configuration</value>
+  </data>
+  <data name="PostInstallActionsStep" xml:space="preserve">
+    <value>Performing post installation actions</value>
+  </data>
+  <data name="EnvironmentDetailsPageVMwareToolsExistsText" xml:space="preserve">
+    <value>VMware Tools are installed.</value>
+  </data>
+  <data name="EnvironmentDetailsPageVMwareToolsNotExistsText" xml:space="preserve">
+    <value>To protect VMware virtual machines you’ll need to install VMware Tools. Work with your VMware vCenter/vSphere Administrator to install VMware tools on this computer before proceeding with the installation.</value>
+  </data>
+  <data name="ASRServerInstallOnMS" xml:space="preserve">
+    <value>Azure Site Recovery Unified Setup cannot be installed on this machine as Mobility Service agent is already installed on this machine.
+Possible cause: The server is currently protected through Azure Site Recovery OR an older version of Mobility Service is already installed on the computer.
+Recommended Action :
+1. If this machine is currently being protected using Azure Site Recovery, other components cannot installed on the same machine. So, deploy a new configuration server with the help of OVF template or choose a different server to set up Configuration Server.
+2. If this machine is not currently protected, then you can uninstall “Microsoft Azure Site Recovery Master Target/Mobility Service” from Program and run the installer again.</value>
+  </data>
+  <data name="ASRServerInstallOnMT" xml:space="preserve">
+    <value>Microsoft Azure Site Recovery Unified Setup cannot be installed on this computer as Master Target Server is already installed on this machine. 
+Possible cause: The Master Target Server component is already installed. So, installation of Azure Site Recovery Unified Setup has failed.
+Recommended Action : 
+1. To avoid issues during failback, choose a different server to run the Unified Setup 
+OR 
+2. Uninstall the “Microsoft Azure Site Recovery Master Target/Mobility Service” from Program list and re-run the installer.</value>
+  </data>
+  <data name="PrereqFipsCheckText" xml:space="preserve">
+    <value>Checking if server configured to use non FIPS-compliant encryption</value>
+  </data>
+  <data name="InvalidIPAddress" xml:space="preserve">
+    <value>IP address is invalid.</value>
+  </data>
+  <data name="RecordOperationRebootMessage" xml:space="preserve">
+    <value>Success with reboot required</value>
+  </data>
+  <data name="PrereqTls10CheckText" xml:space="preserve">
+    <value>Check for TLS 1.0 status</value>
+  </data>
+  <data name="ConfigInValidParamInA2AMode" xml:space="preserve">
+    <value>The Mobility Service Installation is configured to work with Azure Site Recovery’s Azure to Azure scenario. 
+  * If your intent is to replicate this virtual machine using a Configuration Server, uninstall the agent and
+    install using the command line documented at https://aka.ms/installmobsvc_cmd. 
+  * If your intent is to replicate this virtual machine using Azure to Azure Scenario, please use the Azure Portal 
+    to enable protection as the manual install method is not supported for the Azure to Azure scenario.</value>
+  </data>
+  <data name="UpperFilterInDskFltNotUpdated" xml:space="preserve">
+    <value>UpperFilters registry key is not updated with InDskFlt value.</value>
+  </data>
+  <data name="InteractiveInstallNotAllowedOnAzureVMs" xml:space="preserve">
+    <value>Mobility Service Setup is allowed on an Azure VM only in command line mode. Please follow instructions available at https://docs.microsoft.com/en-us/azure/site-recovery/site-recovery-vmware-to-azure-install-mob-svc#install-mobility-service-manually-at-a-command-prompt for the command line parameters.</value>
+  </data>
+  <data name="UnsupportedInstalledVersionForUpgrade" xml:space="preserve">
+    <value>The version of Azure Site Recovery Unified Setup installed on this computer is very old. You first need to update to an intermediate version of the software before you can apply this update. You can find previous versions of the Unified Setup at https://aka.ms/howtoupdatecs</value>
+  </data>
+  <data name="ConfigManagerInstStatusAlreadyInstalled" xml:space="preserve">
+    <value>Azure Site Recovery Configuration Manager is already installed.
+Refer ASRConfigurationManager.log located at {0}\ProgramData\ASRSetupLogs\ for more details.</value>
+  </data>
+  <data name="ConfigManagerInstStatusFailed" xml:space="preserve">
+    <value>Azure Site Recovery Configuration Manager installation has failed.
+Refer ASRConfigurationManager.log located at {0}\ProgramData\ASRSetupLogs\ for more details.</value>
+  </data>
+  <data name="ConfigManagerInstStatusSuccess" xml:space="preserve">
+    <value>Azure Site Recovery Configuration Manager installation has succeeded.
+Refer ASRConfigurationManager.log located at {0}\ProgramData\ASRSetupLogs\ for more details.</value>
+  </data>
+  <data name="InstallationProgressCurrentOperationConfigManagerText" xml:space="preserve">
+    <value>Currently: Installing Azure Site Recovery Configuration Manager (approximately 2 minutes)</value>
+  </data>
+  <data name="SummaryConfigManagerInstallCheck" xml:space="preserve">
+    <value>Microsoft Azure Site Recovery Configuration Manager installation</value>
+  </data>
+  <data name="LogUploadServiceCmdUsage" xml:space="preserve">
+    <value>Usage:
+           Install:        LogUploadService.exe /i
+           Uninstall:   LogUploadService.exe /u     </value>
+  </data>
+  <data name="InSufficientSpace" xml:space="preserve">
+    <value>Install failed as the {0} drive does not have 2 GB of free space available.</value>
+  </data>
+  <data name="MySQL55DownloadFailureText" xml:space="preserve">
+    <value>Failed to download MySQL installer as setup is unable to contact https://dev.mysql.com/get/archives/mysql-5.5/mysql-5.5.37-win32.msi. Please check if there are firewalls in your environment that are blocking access to this website. Refer {0}\ProgramData\ASRSetupLogs\ASRUnifiedSetup.log for more details.</value>
+  </data>
+  <data name="MySQLErrorText" xml:space="preserve">
+    <value>Setup cannot proceed as we detected an incompatible version of MySQL Server installed on this computer. Uninstall MySQL Server before you run setup again.</value>
+  </data>
+  <data name="FailedToSetServiceStartupTypeToAutomatic" xml:space="preserve">
+    <value>Failed to set service startup type to Automatic.</value>
+  </data>
+  <data name="FailedToSetServiceStartupTypeToManual" xml:space="preserve">
+    <value>Failed to set service startup type to Manual.</value>
+  </data>
+  <data name="MobilityServicePrereqsValidationError" xml:space="preserve">
+    <value>Pre-requisites check validation has failed. Please refer {0} for more details.</value>
+  </data>
+  <data name="AgentInternalError" xml:space="preserve">
+    <value>Setup failed due to an internal error. Retry the installation. If the issue persists, contact Support.</value>
+  </data>
+  <data name="NetFramework462OrAboveErrorMessage" xml:space="preserve">
+    <value>Installation cannot proceed as the current version of .NET Framework installed on the machine is below the required version. Install .NET Framework with a version greater than or equal to 4.6.2 for installation to proceed.</value>
+  </data>
+  <data name="AzureRcmCliCleanupFailed" xml:space="preserve">
+    <value>AzureRcmCli cleanup operation has failed.</value>
+  </data>
+  <data name="FailedToCreateSymlinks" xml:space="preserve">
+    <value>Failed to create symbolic links.</value>
+  </data>
+  <data name="FailedToInstallAndConfigureServices" xml:space="preserve">
+    <value>Failed to install and configure services.</value>
+  </data>
+  <data name="PushInstallSummaryFileNotAvailable" xml:space="preserve">
+    <value>PushInstall summary file is not available.</value>
+  </data>
+  <data name="PushInstallVerboseFileNotAvailable" xml:space="preserve">
+    <value>PushInstall verbose file is not available.</value>
+  </data>
+  <data name="BiosIdMismatchFound" xml:space="preserve">
+    <value>Configuration failed as the biosid on the machine has changed.</value>
+  </data>
+  <data name="NetworkSelectionAzureText" xml:space="preserve">
+    <value>2. Select a Network Interface Card (NIC) for connectivity with Azure components for failback.</value>
+  </data>
+  <data name="RADetailsPortText" xml:space="preserve">
+    <value>Configuration server port</value>
+  </data>
+  <data name="CloudPairingIncomplete" xml:space="preserve">
+    <value>Please register your cs appliance with RCM service for the agent registration to complete.</value>
+  </data>
+  <data name="SummaryProcessServerMonitorServiceCheck" xml:space="preserve">
+    <value>Process Server Monitor service running checks</value>
+  </data>
+  <data name="SummaryProcessServerServiceCheck" xml:space="preserve">
+    <value>Process Server service running checks</value>
+  </data>
+  <data name="MySQLManualInstallText" xml:space="preserve">
+    <value>MySQL 5.7.20.0 is not installed on this machine. Please install MySQL manually. Retry installation once this prerequisite is met.</value>
+  </data>
+  <data name="OutOfMemory" xml:space="preserve">
+    <value>Your computer is running low on memory. Please free up resources and retry.</value>
+  </data>
+  <data name="IncorrectSourceConfigFile" xml:space="preserve">
+    <value>Invalid source config file provided.</value>
+  </data>
+  <data name="csprimeconfiguration" xml:space="preserve">
+    <value>Replication appliance details</value>
+  </data>
+  <data name="MobilityServiceConfFilePath" xml:space="preserve">
+    <value>Mobility Service configuration file</value>
+  </data>
+  <data name="CredentialLessCheckboxText" xml:space="preserve">
+    <value>Perform credential-less discovery and replication for this machine.</value>
+  </data>
+  <data name="EnterClientCertDetails" xml:space="preserve">
+    <value>Provide the Mobility service configuration file path.</value>
+  </data>
+  <data name="SourceMachineText" xml:space="preserve">
+    <value>Please find source machine details below</value>
+  </data>
+  <data name="CopiedText" xml:space="preserve">
+    <value>Copied</value>
+  </data>
+  <data name="CopyText" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="MachineDetailsText" xml:space="preserve">
+    <value>Machine Details</value>
+  </data>
+  <data name="PlatformChange" xml:space="preserve">
+    <value>Platform change is not allowed.</value>
+  </data>
+  <data name="ProxyConfigurationPageBypassProxyTitle" xml:space="preserve">
+    <value>Bypass the proxy server for the following URLs / IP addresses:</value>
+  </data>
+  <data name="ProxyConfigurationPageBypassProxyDisclaimer" xml:space="preserve">
+    <value>Use semicolons ( ; ) to separate entries</value>
+  </data>
+  <data name="ProxyConfigurationPageBypassProxyRecommendation" xml:space="preserve">
+    <value>Make sure the required URLs are accessible from this server.</value>
+  </data>
+</root>

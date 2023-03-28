@@ -1,0 +1,333 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\v1">
+      <UniqueIdentifier>{beab6fc5-6dc6-4f6c-a6ce-f795ee61cb6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\v3">
+      <UniqueIdentifier>{e7b98412-9dd7-4a0e-b3c8-4bf7a3a4220b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\v1">
+      <UniqueIdentifier>{4b0035de-75fa-4f7d-8d2d-02ddee6db26e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\v3">
+      <UniqueIdentifier>{dfd08768-8983-41b2-8bc9-fc75086408cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="cdp_resync_txn.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cdpcli.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="win\cdpclimajor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cdpcoalesce.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cdpdatabase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cdpdatabaseimpl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cdpdatafilereader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cdpemulatedvolumeimpl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cdpfixdb.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cdplock.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cdprealvolumeimpl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cdpredologfile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cdpsnapshot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="win\cdpsnapshotmajor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cdputil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cdpvalidate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cdpvolume.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cdpvolumeutil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cdpwin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="decompress.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="differentialfile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cdpapplylib\diffsortcriterion.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="flushandholdwritetxn.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="inmemorydifffile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simplevolumeapplier.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="snapshotrequestprocessor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="svmarker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="v1\cdpv1database.cpp">
+      <Filter>Source Files\v1</Filter>
+    </ClCompile>
+    <ClCompile Include="v1\cdpv1databaseimpl.cpp">
+      <Filter>Source Files\v1</Filter>
+    </ClCompile>
+    <ClCompile Include="v1\cdpv1datafilereader.cpp">
+      <Filter>Source Files\v1</Filter>
+    </ClCompile>
+    <ClCompile Include="v1\cdpv1fixdbimpl.cpp">
+      <Filter>Source Files\v1</Filter>
+    </ClCompile>
+    <ClCompile Include="v1\cdpv1validateimpl.cpp">
+      <Filter>Source Files\v1</Filter>
+    </ClCompile>
+    <ClCompile Include="v3\cdpv3bitmap.cpp">
+      <Filter>Source Files\v3</Filter>
+    </ClCompile>
+    <ClCompile Include="v3\cdpv3databaseimpl.cpp">
+      <Filter>Source Files\v3</Filter>
+    </ClCompile>
+    <ClCompile Include="v3\cdpv3fixdbimpl.cpp">
+      <Filter>Source Files\v3</Filter>
+    </ClCompile>
+    <ClCompile Include="v3\cdpv3metadatafile.cpp">
+      <Filter>Source Files\v3</Filter>
+    </ClCompile>
+    <ClCompile Include="v3\cdpv3metadatareadahead.cpp">
+      <Filter>Source Files\v3</Filter>
+    </ClCompile>
+    <ClCompile Include="v3\cdpv3transaction.cpp">
+      <Filter>Source Files\v3</Filter>
+    </ClCompile>
+    <ClCompile Include="v3\cdpv3validateimpl.cpp">
+      <Filter>Source Files\v3</Filter>
+    </ClCompile>
+    <ClCompile Include="cdpdiskimpl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="win\cdpvolumemajor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="win\registermtmajor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="csjobprocessor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mtprepareforaadmigrationjobhandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="cdp_resync_txn.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cdpcli.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cdpcoalesce.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cdpdatabase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cdpdatabaseimpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cdpdatafilereader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cdpdrtd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cdpemulatedvolumeimpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cdpfixdb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cdpfixdbimpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cdpglobals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cdplock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cdpplatform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cdprealvolumeimpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cdpredologfile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cdpsnapshot.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cdputil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cdpvalidate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cdpvalidateimpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cdpvolume.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cdpvolumeimpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cdpvolumeutil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="decompress.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="differentialfile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cdpapplylib\diffsortcriterion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="flushandholdwritetxn.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inmemorydifffile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simplevolumeapplier.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="snapshotrequestprocessor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="svmarker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="volumeapplier.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="v1\cdpv1database.h">
+      <Filter>Header Files\v1</Filter>
+    </ClInclude>
+    <ClInclude Include="v1\cdpv1databaseimpl.h">
+      <Filter>Header Files\v1</Filter>
+    </ClInclude>
+    <ClInclude Include="v1\cdpv1datafilereader.h">
+      <Filter>Header Files\v1</Filter>
+    </ClInclude>
+    <ClInclude Include="v1\cdpv1fixdbimpl.h">
+      <Filter>Header Files\v1</Filter>
+    </ClInclude>
+    <ClInclude Include="v1\cdpv1globals.h">
+      <Filter>Header Files\v1</Filter>
+    </ClInclude>
+    <ClInclude Include="v1\cdpv1tables.h">
+      <Filter>Header Files\v1</Filter>
+    </ClInclude>
+    <ClInclude Include="v1\cdpv1validateimpl.h">
+      <Filter>Header Files\v1</Filter>
+    </ClInclude>
+    <ClInclude Include="v3\cdpv3bitmap.h">
+      <Filter>Header Files\v3</Filter>
+    </ClInclude>
+    <ClInclude Include="v3\cdpv3databaseimpl.h">
+      <Filter>Header Files\v3</Filter>
+    </ClInclude>
+    <ClInclude Include="v3\cdpv3fixdbimpl.h">
+      <Filter>Header Files\v3</Filter>
+    </ClInclude>
+    <ClInclude Include="v3\cdpv3globals.h">
+      <Filter>Header Files\v3</Filter>
+    </ClInclude>
+    <ClInclude Include="v3\cdpv3metadatafile.h">
+      <Filter>Header Files\v3</Filter>
+    </ClInclude>
+    <ClInclude Include="v3\cdpv3metadatareadahead.h">
+      <Filter>Header Files\v3</Filter>
+    </ClInclude>
+    <ClInclude Include="v3\cdpv3tables.h">
+      <Filter>Header Files\v3</Filter>
+    </ClInclude>
+    <ClInclude Include="v3\cdpv3transaction.h">
+      <Filter>Header Files\v3</Filter>
+    </ClInclude>
+    <ClInclude Include="v3\cdpv3validateimpl.h">
+      <Filter>Header Files\v3</Filter>
+    </ClInclude>
+    <ClInclude Include="cdpdummyvolumeimpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cdpdiskimpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="registermt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="win\registermtmajor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="csjoberror.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="csjobprocessor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="csjobhandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mtprepareforaadmigrationjobhandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="csjoberrorexception.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,89 @@
+# A line will be identified as comment if the line begins with a '#'
+
+[version]
+version=1.0
+
+[global]
+
+# Mandatory. The text output from the push client/installer is written to the file passed. If the file already exists, it is truncated.
+stdout=
+
+# Mandatory. The errors from the push client/installer is written to the file passed. If the file already exists, it is truncated.
+stderr=
+
+# Mandatory, this is where the job exit status is written
+# the status file will contain the status information in following format
+# <job id>:<pre script exit status>:<command exit status>:<post script exit status>
+# example: 
+# cmd1:0:0:0
+exitstatusfile=
+
+#Optional entry, executed before the command is run. currently not supported
+prescript=
+
+#Optional entry, executed after the command is run. currently not supported
+postscript=
+
+#job definition
+
+[jobdefinition]
+
+# Mandatory entry, This uniquely identifies the push install job
+jobid=
+
+# Mandatory entry, job type
+# 0 = fresh install
+# 1 = upgrade
+# 2 = patch install
+# 3 = uninstall
+jobtype=
+
+# Mandatory entry, command (with complete arguments) for install/uninstall
+command=
+
+# Mandatory entry, command (with complete arguments) for install/uninstall
+installer=
+
+# Mandatory entry,installation path
+installpath=
+
+# reboot machine after job is complete,
+# 0 = do not reboot
+# 1 = reboot
+reboot=
+
+
+# Mandatory entry, connection passphrase file
+passphrasefile=
+
+# Mandatory entry, cs certificate file
+certfile=
+
+# Mandatory entry, cs fingerprint file
+fingerprintfile=
+
+
+# domain, currently windows specific
+# optional for unix
+domain= 
+
+# username, currently windows specific
+# optional for unix
+username=
+
+# encrypted password, currently windows specific
+# optional for unix
+encrypted_password=
+
+# domain encryption key file, currently windows specific
+# not applicable for unix
+domainencryptionkeyfile=
+
+# verify signature, currently windows specific
+# not applicable for unix
+# 0 = do not verify
+# 1 = verify signature
+VerifySignature=
+
+
+

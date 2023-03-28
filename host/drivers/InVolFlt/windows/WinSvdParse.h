@@ -1,0 +1,15 @@
+#pragma once
+
+//This file declares the typedefs of the structure in the svdparse.h.
+//Added for the Per io time stamp changes
+
+typedef SVD_HEADER1 W_SVD_HEADER;
+#define W_SVD_TAG_HEADER  (SVD_TAG_HEADER1)
+
+typedef SVD_DIRTY_BLOCK_V2 W_SVD_DIRTY_BLOCK;
+typedef SVD_TIME_STAMP_V2 W_SVD_TIME_STAMP;
+#define W_SVD_TAG_DIRTY_BLOCK_DATA  (SVD_TAG_DIRTY_BLOCK_DATA_V2)
+#define W_SVD_TAG_TIME_STAMP_OF_FIRST_CHANGE (SVD_TAG_TIME_STAMP_OF_FIRST_CHANGE_V2)
+#define W_SVD_TAG_TIME_STAMP_OF_LAST_CHANGE (SVD_TAG_TIME_STAMP_OF_LAST_CHANGE_V2)
+
+

@@ -1,0 +1,30 @@
+!IF 0
+
+
+Module Name:
+
+    sources.
+
+!ENDIF
+
+TARGETNAME=InCDskFl
+TARGETPATH=obj
+TARGETTYPE=DRIVER
+
+#get the message compiler to set the customer bit on every error value
+MC_FLAGS = -c
+
+INCLUDES=..\inc;..\..\InVolFlt\win32;..\..\Include\win32
+
+#BROWSER_INFO=1
+
+!if "$(DDK_TARGET_OS)"=="Win2K"
+C_DEFINES=$(C_DEFINES) -D_WIN2K_COMPAT_SLIST_USAGE
+!endif
+
+SOURCES=InCDskFl.cpp    \
+	IoctlInfo.cpp 	\
+	CDskNode.cpp    \
+        InCDskFl.rc	\
+	InCDskFlLog.mc	
+

@@ -1,0 +1,55 @@
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = DiskDrive
+ClassGuid   = {4d36e967-e325-11ce-bfc1-08002be10318}
+Provider    = %msft%
+DriverVer   = 06/21/2016,10.0.22621.1
+CatalogFile = indskflt.cat
+
+;
+; General installation section
+;
+
+[DefaultInstall.NT]
+CopyFiles = @indskflt.sys
+Addreg    = indskflt.AddReg
+
+[DestinationDirs]
+DefaultDestDir = 12
+
+[indskfflt.AddReg]
+HKLM, System\CurrentControlSet\Control\Class\{4d36e967-e325-11ce-bfc1-08002be10318}, UpperFilters, 0x00010008, indskflt
+
+
+;  
+; Service installation section  
+;  
+  
+[DefaultInstall.NT.Services]
+AddService = indskflt, , indskflt.Service.Install
+
+[indskflt.Service.Install]
+DisplayName    = %service_desc%
+ServiceType    = 1
+StartType      = 0
+ErrorControl   = 1
+ServiceBinary  = %12%\indskflt.sys
+LoadOrderGroup = "PnP Filter"
+
+[SourceDisksNames]
+1 = %diskName%,,,""
+
+[SourceDisksFiles]
+indskflt.sys=1
+
+[Manufacturer]
+%ManufacturerName%=Standard,NTx86,NTAMD64
+
+[Standard.NT$ARCH$]
+
+
+[Strings]
+msft         = "Microsoft Corporation"
+service_desc = "Partition Manager Upper Filter Driver" 
+ClassName    = ""
+diskName     = "InDskFlt Source Disk"

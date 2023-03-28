@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TestMap>
+  <TestJobGroup Name="[Azure].Win.CVT" TestSystem="Default" ConfigPath="[BuildRoot]\[BuildType]-[BuildArch]\cloudtest\wincvt\WinAzureCVTTestJobGroup.xml" IsActive="true"/>
+</TestMap>

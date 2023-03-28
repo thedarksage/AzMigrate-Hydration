@@ -1,0 +1,31 @@
+{
+    "_no_hydration_targets": [
+        {
+            "_azure": 
+                {
+                    "os": {
+                      "windows": {
+                        "boot_drivers": [ "intelide", "atapi", "storflt" ],
+                        "automatic_services": [ "dhcp" ],
+                        "w2k8_sanpolicy": [ "OFFLINE_ALL" ],
+                        "w2k19_sanpolicy": [ "ONLINE_ALL" ],
+                        "cond_ondemanddrivers": [
+                          {
+                            "drivers": [ "storvsc", "vmbus" ],
+                            "condition": {
+                              "contains_dynamic_disks": "false",
+                              "unsupported_os": "WIN2K19",
+                              "bootdisklayout" : "mbr",
+                              "indsk_bootinfo": {
+                                "VendorId": [ "vmware" ],
+                                "BusType": [ 10 ]
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                }
+        }
+    ]
+}

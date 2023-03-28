@@ -1,0 +1,31 @@
+**************************************************
+TO BUILD:
+**************************************************
+1. Run command:
+   make clean
+
+2. Run command:
+   make
+
+
+
+**************************************************
+TO RUN:
+**************************************************
+e.g. with two disks:
+
+1. Run command:
+   chmod +x WalTest
+
+2. Please make sure "inm_dmit" utility is present at below location, if not please
+   copy it at below location:
+   /usr/local/ASR/Vx/bin/inm_dmit
+    
+3. Run command, to issue tag in 5 minutes interval and run wal test for 25 minutes:
+   ./WalTest -n 2 -t 300 -w 1500 -s /dev/sdb,/dev/sdc -p _dev_sdb,_dev_sdc
+
+4. Path of log file to view the WAL test result:
+   /var/wallog/waltest_result.log
+
+5. Path of log file to get detailed information for WAL test run:
+   /var/wallog/waltest_dbg.log

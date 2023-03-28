@@ -1,0 +1,74 @@
+!IF 0
+
+
+Module Name:
+
+    sources.
+
+!ENDIF
+
+TARGETNAME=involflt
+TARGETPATH=obj
+TARGETTYPE=DRIVER
+
+#VERIFIER_DDK_EXTENSIONS=1
+
+!if "$(DDK_TARGET_OS)"=="Win2K"
+C_DEFINES=$(C_DEFINES) -D_WIN2K_COMPAT_SLIST_USAGE -DNT_VER=500 -DTESTING -DSV_DRIVER
+!else
+C_DEFINES = $(C_DEFINES) -DNT_VER=500 -DTESTING -DSV_DRIVER
+!endif
+
+#USER_C_FLAGS = $(USER_C_FLAGS) /Zi
+# for asm listings use below
+#USER_C_FLAGS = $(USER_C_FLAGS) /Zi /FAs
+TARGETLIBS=$(DDK_LIB_PATH)\ntstrsafe.lib
+
+# get the message compiler to set the customer bit on every error value
+MC_FLAGS = -c
+
+MSC_WARNING_LEVEL=/W3 /WX
+
+#BROWSER_INFO=1
+#USE_MAPSYM=1
+
+LINKER_FLAGS=$(LINKER_FLAGS) -merge:PAGECONST=PAGE
+
+INCLUDES=..\..\Include\win32;..\..\..\Common;..\..\..\common\win32
+
+SOURCES=InVolFlt.cpp                \
+        MntMgr.cpp                  \
+        DriverContext.cpp           \
+        VContext.cpp                \
+        DirtyBlock.cpp              \
+        WorkQueue.cpp               \
+        BitmapAPI.cpp               \
+        classes.cpp                 \
+        BaseClass.cpp               \
+        FileStream.cpp              \
+        IOBuffer.cpp                \
+        FileStreamSegmentMapper.cpp \
+        SegmentedBitmap.cpp         \
+        AsyncIORequest.cpp          \
+        BitmapOperations.cpp        \
+        Registry.cpp                \
+        Bypass.cpp                  \
+        IoctlInfo.cpp               \
+        mscs.cpp                    \
+        RegMultiSz.cpp              \
+        ListNode.cpp                \
+        TagNode.cpp                 \
+        InVolFlt.rc                 \
+        md5.cpp                       \
+        misc.cpp                    \
+        VBitmap.cpp                 \
+        DataFlt.cpp                 \
+        MetaDataMode.cpp            \
+        ChangeNode.cpp              \
+        DataFileWriterMgr.cpp       \
+        DataFileWriter.cpp          \
+        DataFile.cpp                \
+        HelperFunctions.cpp         \
+        Profiler.cpp                \
+        BitmapPersistentValues.cpp  \
+        InVolFltLog.mc

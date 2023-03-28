@@ -1,0 +1,302 @@
+﻿<ns0:BasePageForWpfControls
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+    xmlns:ns0="clr-namespace:ASRSetupFramework;assembly=ASRSetupFramework"
+    xmlns:resx="clr-namespace:ASRResources;assembly=ASRResources"
+    x:Class="UnifiedSetup.MySQLPage"
+    x:Uid="ns0:BasePageForWpfControls_1"
+    Height="415"
+    Width="685">
+
+    <Grid x:Uid="Grid_1" Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition x:Uid="RowDefinition_1" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_2" Height="10" />
+            <RowDefinition x:Uid="RowDefinition_3" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_4" Height="30" />
+            <RowDefinition x:Uid="RowDefinition_5" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_6" Height="10" />
+            <RowDefinition x:Uid="RowDefinition_7" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_8" Height="80" />
+            <RowDefinition x:Uid="RowDefinition_9" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_10" Height="5" />
+            <RowDefinition x:Uid="RowDefinition_11" Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition x:Uid="ColumnDefinition_1" MaxWidth="27" Width="27" />
+            <ColumnDefinition x:Uid="ColumnDefinition_2" Width="*" />
+            <ColumnDefinition x:Uid="ColumnDefinition_3" Width="240" />
+            <ColumnDefinition x:Uid="ColumnDefinition_4" Width="32" />
+        </Grid.ColumnDefinitions>
+        <TextBlock
+            x:Name="MySQLRootPasswordTextblock"
+            x:Uid="MySQLRootPasswordTextblock" 
+            Grid.Column="1"
+            Grid.Row="0"
+            TextWrapping="Wrap"
+            Text="{x:Static resx:StringResources.MySQLRootPasswordText}">
+        </TextBlock>
+        <PasswordBox
+            x:Name="MySQLRootPasswordPasswordbox"
+            x:Uid="MySQLRootPasswordPasswordbox" 
+            Grid.Column="1"
+            Grid.Row="2"
+            Height="25"
+            Width="300"
+            MaxLength="256"
+            HorizontalAlignment="Left"
+            AutomationProperties.Name="{x:Static resx:StringResources.MySQLRootPasswordText}"
+            PasswordChanged="RootPasswordBoxChanged"
+            GotFocus="MySQLRootPasswordPasswordbox_GotFocus">
+        </PasswordBox>
+        <Image
+            x:Name="MainPasswordRulesRootPwdSuccessImage"
+            x:Uid="MainPasswordRulesRootPwdSuccessImage"
+            Height="16"
+            Grid.Column="1" 
+            Grid.Row="2"
+            VerticalAlignment="Center"
+            HorizontalAlignment="right"
+            Visibility="Collapsed"
+            Source="pack://application:,,,/Resources/smallGreenCheck.png"
+            Width="16" />
+        <Image
+            x:Name="MainPasswordRulesRootPwdErrorImage"
+            x:Uid="MainPasswordRulesRootPwdErrorImage"
+            Height="15"
+            Grid.Column="1" 
+            Grid.Row="2"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Right"
+            Visibility="Collapsed"
+            Source="pack://application:,,,/Resources/smallError.png"
+            Width="15"/>
+        <TextBlock
+            x:Name="MySQLDatabasePasswordTextblock"
+            x:Uid="MySQLDatabasePasswordTextblock" 
+            Grid.Column="1"
+            Grid.Row="4"
+            TextWrapping="Wrap"
+            Text="{x:Static resx:StringResources.MySQLDatabasePasswordText}">
+        </TextBlock>
+        <PasswordBox
+            x:Name="MySQLDatabasePasswordbox"
+            x:Uid="MySQLDatabasePasswordbox" 
+            Grid.Column="1"
+            Grid.Row="6"
+            Height="25"
+            Width="300"
+            MaxLength="256"
+            HorizontalAlignment="Left"
+            AutomationProperties.Name="{x:Static resx:StringResources.MySQLDatabasePasswordText}"
+            PasswordChanged="DatabasePasswordBoxChanged"
+            GotFocus="MySQLDatabasePasswordbox_GotFocus">
+        </PasswordBox>
+        <Image
+            x:Name="MainPasswordRulesDBPwdSuccessImage"
+            x:Uid="MainPasswordRulesDBPwdSuccessImage"
+            Height="16"
+            Grid.Column="1" 
+            Grid.Row="6"
+            VerticalAlignment="Center"
+            HorizontalAlignment="right"
+            Visibility="Collapsed"
+            Source="pack://application:,,,/Resources/smallGreenCheck.png"
+            Width="16" />
+        <Image
+            x:Name="MainPasswordRulesDBPwdErrorImage"
+            x:Uid="MainPasswordRulesDBPwdErrorImage"
+            Height="16"
+            Grid.Column="1" 
+            Grid.Row="6"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Right"
+            Visibility="Collapsed"
+            Source="pack://application:,,,/Resources/smallError.png"
+            Width="16"/>
+        <TextBlock
+            x:Name="PasswordRulesTextblock"
+            x:Uid="PasswordRulesTextblock" 
+            Grid.Column="1"
+            Grid.Row="8"
+            TextWrapping="Wrap"
+            Text="{x:Static resx:StringResources.PasswordRulesText}">
+        </TextBlock>
+        <GroupBox x:Name="MySQLPagegrpBox" Grid.Row="10" Grid.Column="1" Grid.RowSpan="2" Grid.ColumnSpan="2" Grid.IsSharedSizeScope="True" BorderThickness="0" Margin="0,0,0,0">
+            <StackPanel x:Name="MySQLPagestackPanel" Background="Transparent">
+                <Grid x:Uid="Grid_radioButton"
+                        Margin="-6,0,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition x:Uid="RowDefinition_10_1" Height="20" />
+                        <RowDefinition x:Uid="RowDefinition_10_2" Height="20" />
+                        <RowDefinition x:Uid="RowDefinition_10_3" Height="20" />
+                        <RowDefinition x:Uid="RowDefinition_10_4" Height="20" />
+                        <RowDefinition x:Uid="RowDefinition_10_5" Height="20" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition x:Uid="ColumnDefinition_2_1" Width="40" />
+                        <ColumnDefinition x:Uid="ColumnDefinition_2_2" Width="124*" />
+                        <ColumnDefinition Width="39*"/>
+                        <ColumnDefinition Width="40*"/>
+                        <ColumnDefinition Width="337*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock
+                        x:Name="PasswordRulesLetterTextblock"
+                        x:Uid="PasswordRulesLetterTextblock" 
+                        Grid.Column="1"
+                        Grid.Row="0"
+                        Grid.ColumnSpan="4"
+                        TextWrapping="Wrap"
+                        Text="{x:Static resx:StringResources.PasswordRulesLetterText}">
+                    </TextBlock>
+                    <Image
+                        x:Name="PasswordRulesLetterSuccessImage"
+                        x:Uid="PasswordRulesLetterSuccessImage"
+                        Height="12"
+                        Grid.Column="0" 
+                        Grid.Row="0"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Source="pack://application:,,,/Resources/smallGreenCheck.png"
+                        Width="12" Margin="14,4" />
+                    <Image
+                        x:Name="PasswordRulesLetterErrorImage"
+                        x:Uid="PasswordRulesLetterErrorImage"
+                        Height="12"
+                        Grid.Column="0" 
+                        Grid.Row="0"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Source="pack://application:,,,/Resources/smallError.png"
+                        Width="12" Margin="14,4" />
+                    <TextBlock
+                        x:Name="PasswordRulesNumberTextblock"
+                        x:Uid="PasswordRulesNumberTextblock" 
+                        Grid.Column="1"
+                        Grid.Row="1"
+                        TextWrapping="Wrap"
+                        Grid.ColumnSpan="4"
+                        Text="{x:Static resx:StringResources.PasswordRulesNumberText}">
+                    </TextBlock>
+                    <Image
+                        x:Name="PasswordRulesNumberSuccessImage"
+                        x:Uid="PasswordRulesNumberSuccessImage"
+                        Height="12"
+                        Grid.Column="0" 
+                        Grid.Row="1"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Source="pack://application:,,,/Resources/smallGreenCheck.png"
+                        Width="12" Margin="14,4" />
+                    <Image
+                        x:Name="PasswordRulesNumberErrorImage"
+                        x:Uid="PasswordRulesNumberErrorImage"
+                        Height="12"
+                        Grid.Column="0" 
+                        Grid.Row="1"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Source="pack://application:,,,/Resources/smallError.png"
+                        Width="12" Margin="14,4" />
+                    <TextBlock
+                        x:Name="PasswordRulesSplCharTextblock"
+                        x:Uid="PasswordRulesSplCharTextblock" 
+                        Grid.Column="1"
+                        Grid.Row="2"
+                        Grid.ColumnSpan="4"
+                        TextWrapping="Wrap"
+                        Text="{x:Static resx:StringResources.PasswordRulesSplCharText}">
+                    </TextBlock>
+                    <Image
+                        x:Name="PasswordRulesSplCharSuccessImage"
+                        x:Uid="PasswordRulesSplCharSuccessImage"
+                        Height="12"
+                        Grid.Column="0" 
+                        Grid.Row="2"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Source="pack://application:,,,/Resources/smallGreenCheck.png"
+                        Width="12" Margin="14,4" />
+                    <Image
+                        x:Name="PasswordRulesSplCharErrorImage"
+                        x:Uid="PasswordRulesSplCharErrorImage"
+                        Height="12"
+                        Grid.Column="0" 
+                        Grid.Row="2"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Source="pack://application:,,,/Resources/smallError.png"
+                        Width="12" Margin="14,4" />
+                    <TextBlock
+                        x:Name="PasswordRulesMinLengthTextblock"
+                        x:Uid="PasswordRulesMinLengthTextblock" 
+                        Grid.Column="1"
+                        Grid.Row="3"
+                        Grid.ColumnSpan="4"
+                        TextWrapping="Wrap"
+                        Text="{x:Static resx:StringResources.PasswordRulesMinLengthText}">
+                    </TextBlock>
+                    <Image
+                        x:Name="PasswordRulesMinLengthSuccessImage"
+                        x:Uid="PasswordRulesMinLengthSuccessImage"
+                        Height="12"
+                        Grid.Column="0" 
+                        Grid.Row="3"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Source="pack://application:,,,/Resources/smallGreenCheck.png"
+                        Width="12" Margin="14,4" />
+                    <Image
+                        x:Name="PasswordRulesMinLengthErrorImage"
+                        x:Uid="PasswordRulesMinLengthErrorImage"
+                        Height="12"
+                        Grid.Column="0" 
+                        Grid.Row="3"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Source="pack://application:,,,/Resources/smallError.png"
+                        Width="12" Margin="14,4" />
+                    <TextBlock
+                        x:Name="PasswordRulesNoSpaceTextblock"
+                        x:Uid="PasswordRulesNoSpaceTextblock" 
+                        Grid.Column="1"
+                        Grid.Row="4"
+                        Grid.ColumnSpan="4"
+                        TextWrapping="Wrap"
+                        Text="{x:Static resx:StringResources.PasswordRulesNoSpaceText}">
+                    </TextBlock>
+                    <Image
+                        x:Name="PasswordRulesNoSpaceSuccessImage"
+                        x:Uid="PasswordRulesNoSpaceSuccessImage"
+                        Height="12"
+                        Grid.Column="0" 
+                        Grid.Row="4"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Source="pack://application:,,,/Resources/smallGreenCheck.png"
+                        Width="12" Margin="14,4" />
+                    <Image
+                        x:Name="PasswordRulesNoSpaceErrorImage"
+                        x:Uid="PasswordRulesNoSpaceErrorImage"
+                        Height="12"
+                        Grid.Column="0" 
+                        Grid.Row="4"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Source="pack://application:,,,/Resources/smallError.png"
+                        Width="12" Margin="14,4" />
+                </Grid>
+            </StackPanel>
+        </GroupBox>
+    </Grid>
+</ns0:BasePageForWpfControls>

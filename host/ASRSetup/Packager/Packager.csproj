@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{FEB07364-663B-4DEB-A70B-B36E8733D829}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Packager</RootNamespace>
+    <AssemblyName>Packager</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>
+    </DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>0</WarningLevel>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>
+    </DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>0</WarningLevel>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DelaySign>false</DelaySign>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\..\common\version.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="AfterBuild">
+    <Message Text="Creating Layout and Package directories" />
+    <MakeDir Directories="$(ProjectDir)Layout/en" />
+    <MakeDir Directories="$(ProjectDir)Package" />
+    <Message Text="Generating PropertySheet.txt" />
+    <Exec Command="$(ProjectDir)GeneratePropertySheet\bin\$(ConfigurationName)\GeneratePropertySheet.exe $(SolutionDir)\..\common\version.cs $(ProjectDir)PropertySheet.txt" />
+    <Message Text="Copying required binaries of packaging" />
+    <Exec Command="$(ProjectDir)CopyBinaries.bat $(SolutionDir) $(ProjectDir) $(ConfigurationName)" IgnoreExitCode="true" />
+    <Message Text="Packing Files" />
+    <Exec Command="$(ProjectDir)Package.bat $(ProjectDir)" />
+    <Message Text="Copy setup to target" />
+    <Copy SourceFiles="$(ProjectDir)Package\MicrosoftAzureSiteRecoveryUnifiedSetup.exe" DestinationFolder="$(TargetDir)" />
+  </Target>
+  <Target Name="AfterClean">
+    <Message Text="Deleting directories and files" />
+    <Delete Files="$(ProjectDir)\manifest.xml" ContinueOnError="true" />
+    <Delete Files="$(ProjectDir)\propertysheet.txt" ContinueOnError="true" />
+    <Delete Files="$(ProjectDir)\boxtool.exe" ContinueOnError="true" />
+    <Delete Files="$(ProjectDir)\boxstub.exe" ContinueOnError="true" />
+    <Delete Files="$(ProjectDir)\veredit.exe" ContinueOnError="true" />
+    <RemoveDir Directories="Layout" ContinueOnError="true" />
+    <RemoveDir Directories="Package" ContinueOnError="true" />
+    <RemoveDir Directories="PRSConfigFiles" ContinueOnError="true" />
+  </Target>
+</Project>

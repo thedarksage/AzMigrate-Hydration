@@ -1,0 +1,108 @@
+#!/bin/sh
+
+# This is for RHEL systems
+# chkconfig: 1235 13 13
+# description: Scout script to boot time stack the mirror setup devices
+# description: chkconfig 1234 13 13 for phase1
+
+# This is for SLES systems
+### BEGIN INIT INFO
+# Provides: Scout_Boottimemirroring_Phase1
+# Required-Start: 
+# Required-Stop:
+# Default-Start: 1 2 3 5
+# Default-Stop:
+# Description:  Scout script for setting up boot time mirror configuration-phase1
+### END INIT INFO
+
+# This script can be introduced into runlevel directories by just executing this command:
+# "chkconfig --add boottimemirroring[_phase?]"
+# RHEL chkconfig is a binary executable itself and also behaves well, i.e. the start/stop link numbers remain 92
+# SLES chkconfig is a perl wrapper over insserv which is not at all under our control when it comes to link numbers
+# TODO - So for SLES we have to use dependency mechanism
+# For now, after running chkconfig, rename links to S92 and K92 (TODO)
+
+# Adding bin dirs to PATH for 'sleep' command
+PATH=/bin:/sbin:/usr/sbin:/usr/bin:$PATH
+export PATH
+
+get_runlevel()
+{
+    # Check for systemd
+    which systemctl > /dev/null 2>&1
+    if [ $? -eq 0 ]
+    then
+        # The 'runlevel' command in systemd works different than
+        # sysvinit runlevels. On systemd, the a specific runlevel
+        # is only returned when it is reached, while sysvinit would
+        # return it as soon as the switch was requested. IOW, runlevel
+        # is changed at start in sysv init and at the end by systemd
+        # so we cant rely on runlevel command for systemd
+        #
+        # We check if shutdown.target (common for reboot and poweroff)
+        # is currently active to set appropriate runlevel. Current logic
+        # does not distinguish between poweroff and reboot and always
+        # marks runlevel=0 == poweroff. Similarly, it always returns
+        # runlevel=3 == multiuser+nw even for graphical env or single
+        # user mode. This needs to be changed if finer distinction is 
+        # required.
+        #
+        systemctl list-units --type=target | grep start | grep -q "shutdown\.target" && RUNLEVEL=0 || RUNLEVEL=3
+    else
+        # RUNLEVEL variable is set only when this control script is invoked by init
+        # Other times, we have to fetch the runlevel ourselves
+        RUNLEVEL=${RUNLEVEL:-`/sbin/runlevel | cut -d' ' -f2`}
+    fi
+}
+
+#SUSE11 DRIVER LD OPTION
+if [ -f /etc/SuSE-release ] &&  grep -q 'VERSION = 11' /etc/SuSE-release ; then
+        OSN=SLES11
+fi
+
+CreateFiltDrvNode()
+{
+	if lsmod | grep involflt > /dev/null 2>&1 && [ ! -c /dev/involflt ]; then
+		local FILTDRVNODE_MAJ_NUM=`cat /proc/devices | grep involflt | cut -d" " -f1`
+		mknod /dev/involflt c $FILTDRVNODE_MAJ_NUM 0
+	fi
+}
+
+case "$1" in
+
+	start)
+		echo "Starting boottimemirroring service"
+        get_runlevel
+		date 2>&1 >> /.boottimemirroring.log
+		/etc/vxagent/bin/boottimemirroring.sh 2>&1 > /.boottimemirroring.log.tmp
+		cat  /.boottimemirroring.log.tmp >> /.boottimemirroring.log
+		RETVAL=$?
+
+        # Touch /var/lock/subsys/boottimemirroring only if the OS is non-debian
+        if [ ! -e /etc/debian_version ] ; then
+		   [ ! -f /var/lock/subsys/boottimemirroring ] && touch /var/lock/subsys/boottimemirroring
+        fi
+		;;
+
+	stop)
+		echo "Stopping boottimemirroring service"
+		RETVAL=0
+		;;
+
+	restart)
+		echo "Restarting boottimemirroring service"
+		RETVAL=$?
+		;;
+
+	status)
+		echo "Checking status for  boottimemirroring service"
+		RETVAL=0
+		;;
+
+	*)
+		echo "Usage: $0 {start|stop|restart|status}"
+		exit 1
+		;;
+esac
+
+exit $RETVAL

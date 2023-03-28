@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TestJobGroup>
+  <!-- Resource spec points to an image that is defined in CloudTest pools as a Windows platform image -->
+  <ResourceSpec>
+    <Resource SKU="Standard_DS2_V2" Image="DefaultImage"/>
+  </ResourceSpec>
+
+  <Setup TimeoutMins="60">
+    <BuildFiles>
+      <!-- Copy Test Scripts from build drop -->
+      <Copy Src="[BuildRoot]\[BuildType]-[BuildArch]\cloudtest\wincvt\*" Dest="[WorkingDirectory]" Writable="true"/>
+    </BuildFiles>
+    <Scripts>
+      <!-- Populate runsettings file -->
+	    <Script Path="[WorkingDirectory]\UpdateConfig.ps1" Args='-LoggingDirectory "C:\LoggingDirectory" -WorkingDirectory "C:\CVTScripts" -SettingsFileDirectory [WorkingDirectory]' />
+      <!-- Install Azure Powershell and other prereq's -->
+	    <Script Path="[WorkingDirectory]\InstallPrereq.ps1" />
+	  </Scripts>
+  </Setup>
+
+  <!-- Trigger Win CVT -->
+  <TestJob Name="Test" Type="SingleBox" Tags="Tests=SourceV2AWinCVT" OwnerAliases="rishabhdubey" TimeoutMins="1440" >
+    <Execution Type="Exe" Path="C:\WINDOWS\system32\cmd.exe" Args="/c powershell.exe [WorkingDirectory]\CloudVMCVTWrapper.ps1 -IPAddress %JB_IPAddress% -TimeoutInMins %TimeoutInMins% -Job %Job% -Branch %Branch%"/>
+  </TestJob>
+
+  <Cleanup TimeoutMins="1" />
+</TestJobGroup>
+ 

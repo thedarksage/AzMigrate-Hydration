@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TestJobGroup>
+  <ResourceSpec>
+    <Resource SKU="Standard_DS2_V2" Image="2022-DataCenter"/>
+  </ResourceSpec>
+  
+  <Setup TimeoutMins="90">
+    <BuildFiles>
+      <!-- Copy Test Scripts from build drop -->
+      <Copy Src="[BuildRoot]\[BuildType]-[BuildArch]\cloudtest\V2AGQL\*" Dest="[WorkingDirectory]" IsRecursive="true" Writable="true"/>
+    </BuildFiles>
+	  <Scripts>
+      <!-- Install Azure Powershell and other prereq's -->
+	    <Script Path="[WorkingDirectory]\InstallPrereq.ps1" />
+	  </Scripts>
+  </Setup>
+
+  <!-- Trigger V2A 540 GQL -->
+  <TestJob Name="[V2A].GQL" Type="SingleBox" Tags="Tests=SourceV2AGQL" OwnerAliases="sisunkar" TimeoutMins="600" >
+    <Execution Type="Exe" Path="C:\WINDOWS\system32\cmd.exe " Args="/c powershell.exe [WorkingDirectory]\RunGQL.ps1"/>
+  </TestJob>
+
+  <Cleanup TimeoutMins="1" />
+</TestJobGroup>

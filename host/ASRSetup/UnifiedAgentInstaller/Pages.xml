@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Pages>
+  <!--Installation Flow-->
+  <Page Id ="LaunchPage" Implementation="UnifiedAgentInstaller.LaunchPage">
+    <PreviousPage delegateId="UnifiedAgentInstaller.CustomDelegates.NullPageHandler"></PreviousPage>
+    <NextPage delegateId="UnifiedAgentInstaller.CustomDelegates.DefaultNextPage">ComponentSelectionPage</NextPage>
+    <SetupStage></SetupStage>
+    <HelpPage>{D035D6FD-0E32-463B-8C45-34502ECBC611}</HelpPage>
+  </Page>
+  <Page Id ="ComponentSelectionPage" Implementation="UnifiedAgentInstaller.ComponentSelectionPage">
+    <PreviousPage delegateId="UnifiedAgentInstaller.CustomDelegates.NullPageHandler"></PreviousPage>
+    <NextPage delegateId="UnifiedAgentInstaller.CustomDelegates.DefaultNextPage">InstallationPage</NextPage>
+    <SetupStage>installation_option</SetupStage>
+    <HelpPage>{D035D6FD-0E32-463B-8C45-34502ECBC611}</HelpPage>
+  </Page>
+  <Page Id ="InstallationPage" Implementation="UnifiedAgentInstaller.InstallationPage">
+    <PreviousPage delegateId="UnifiedAgentInstaller.CustomDelegates.NullPageHandler"></PreviousPage>
+    <NextPage delegateId="UnifiedAgentInstaller.CustomDelegates.NullPageHandler"></NextPage>
+    <SetupStage>installation_progress</SetupStage>
+    <HelpPage>{D035D6FD-0E32-463B-8C45-34502ECBC611}</HelpPage>
+  </Page>
+</Pages>
+

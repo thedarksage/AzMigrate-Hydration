@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<A2AGQLConfig>
+  <AzureEnvironment>
+    <VMSubName>DR_Prod_TenantSub8</VMSubName>
+    <VMSubId>e3918a06-5d5a-458f-8975-10dc29c7bda8</VMSubId>
+    <VMSubUserName>idcdlslb@microsoft.com</VMSubUserName>
+    <VMSubPassword>%GoldFinger-BCDR098%</VMSubPassword>
+    <VaultName>asrbvttest</VaultName>
+	<VaultSubName>adminDogfood253</VaultSubName>
+    <VaultSubId>8d29733f-80ae-41b5-95d5-de86bb160521</VaultSubId>
+    <VaultSubUserName>admin@aad291.ccsctp.net</VaultSubUserName>
+    <VaultSubPassword></VaultSubPassword>
+	<VaultRGName>asrbvttest-rg</VaultRGName>
+  </AzureEnvironment>
+  <AzureFabric>
+    <VMName>asrbvttest</VMName>
+    <OSType>windows</OSType>
+    <IsManagedDisk>false</IsManagedDisk>
+    <TFOVMName>asrbvttest-test</TFOVMName>
+    <ReplicationPolicy>ReplicationPol-asrbvttest</ReplicationPolicy>
+    <PrimaryFabrics>
+      <PrimaryLocation>eastasia</PrimaryLocation>
+      <PrimaryResourceGroup>A2ASRCBVT</PrimaryResourceGroup>
+      <PrimaryStorageAccount>a2asrcbvtstr</PrimaryStorageAccount>
+      <StagingStorageAccount>a2asrcbvtstrsg</StagingStorageAccount>
+      <PrimaryVnet>A2ASRCBVT-vnet</PrimaryVnet>
+      <PrimaryFabric>PriFabric-asrbvttest-ea</PrimaryFabric>
+      <PrimaryContainer>PriCon-asrbvttest-ea</PrimaryContainer>
+      <ForwardContainerMap>PriConMap-asrbvttest-ea</ForwardContainerMap>
+      <ForwardNetworkMap>PriNetMap-asrbvttest-ea</ForwardNetworkMap>
+    </PrimaryFabrics>
+    <RecoveryFabrics>
+      <RecoveryLocation>southeastasia</RecoveryLocation>
+      <RecoveryResourceGroup>A2ASRCBVT-sea-94-rg</RecoveryResourceGroup>
+      <RecoveryStorageAccount>a2asrcbvtsea</RecoveryStorageAccount>
+      <RecoveryVnet>A2ASRCBVT-sea-vnet</RecoveryVnet>
+      <RecoveryFabric>RecFabric-asrbvttest-sea</RecoveryFabric>
+      <RecoveryContainer>RecCon-asrbvttest-sea</RecoveryContainer>
+      <ReverseContainerMap>RecConMap-asrbvttest-sea</ReverseContainerMap>
+      <ReverseNetworkMap>RecNetMap-asrbvttest-sea</ReverseNetworkMap>
+    </RecoveryFabrics>
+  </AzureFabric>
+  <ChurnConfig>
+    <TotalChurnSize>3</TotalChurnSize>
+    <ChurnFileSize>1</ChurnFileSize>
+  </ChurnConfig>
+</A2AGQLConfig>

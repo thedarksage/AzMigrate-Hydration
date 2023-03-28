@@ -1,0 +1,49 @@
+#!/bin/sh
+
+prog=$0
+
+usage ()
+{
+	echo "Usage: $prog dev_name"
+	exit 1
+}
+
+if [ $# != 1 ]
+then
+	usage
+fi
+
+dev=$1
+
+
+# get the directory name where to create link
+dir=`dirname $dev`
+# remove dsk/rdsk from directory name
+dir=`dirname $dir`/lun
+
+if [ ! -L "$dev" ]
+then
+	echo "$dev: No such device link"
+	usage
+fi
+
+# get device name from dev entry and check for existence
+device=`ls -l $dev | awk '{print $NF}' | cut -f 1-2 -d ":"`
+if [ ! -b "$device" ]
+then
+	echo "Unknown device ... is it a dead link?"
+	usage
+fi
+
+# remove directory name from device name and remove any trailing s/p* from it
+dev=`basename $dev | sed 's/\(.*\)[sp][0-9][0-9]*/\1/g'`
+
+# create the resident directories
+mkdir -p "$dir"/dsk
+mkdir -p "$dir"/rdsk
+
+# create the links to full dev vsnaps/volpacks
+ln -fs "$device" "$dir"/dsk/"$dev"
+ln -fs "${device},raw" "$dir"/rdsk/"$dev"
+
+echo "Created full device links $dir/[r]dsk/$dev"

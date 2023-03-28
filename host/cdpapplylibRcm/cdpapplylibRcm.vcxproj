@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{A6A3E169-BA3F-4DC0-A11B-92DB80D9EABE}</ProjectGuid>
+    <RootNamespace>cdpapplylibRcm</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+    <SpectreMitigation>Spectre</SpectreMitigation>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\win-rules.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>Release\</OutDir>
+    <IntDir>Release\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <SDLCheck>
+      </SDLCheck>
+      <ConformanceMode>false</ConformanceMode>
+      <AdditionalIncludeDirectories>..\CommitTagLib;..\volumeinfocollector;..\volumeinfocollector\win32;..\AzureRcmLib;$(ESJSON_INCLUDES);..\genericprofiler;..\errorexception;..\cxpslib;..\curlwrapperlib;$(OPENSSL_INCLUDES);..\ClusterCustomerResource\clustmon\;..\dplibs;..\common;..\inmsafeint;..\inmsafeint\win;..\inmsafecapis;..\inmsafecapis\win;..\securitylib;..\securitylib\win;..\common\win32;$(BOOST_INCLUDES);..\config;..\devicefilter;..\devicefilter\win;..\drivers\InVolFlt\windows\Interface;$(CURL_INCLUDES);..\s2libs\common;..\s2libs\foundation;..\s2libs\foundation\win32;..\s2libs\thread;..\s2libs\streams;..\s2libs;..\s2\domain;..\tal;$(ACE_INCLUDES);..\drivers\Include\win32;$(SQLITE3X_INCLUDES);..\cdplibs;..\cdplibs\v1;..\cdplibs\v3;..\config\win;..\vsnaplib;..\drivers\Tests\win32\drvutil;$(ZLIB_INCLUDES);..\log;..\conversionlib;..\vacplibs;..\cxtransportlib;..\fio;..\fio\win;..\simplelogger;..\simplelogger\win;..\zflate;..\listfile;..\listfile\win;..\scopeguard;..\localdirectsynclib;..\cdpapplylib;..\cdpapplylib\win;$(INM_MD5_INCLUDES);$(SIGSLOT_INCLUDES);..\azureagentapi;..\azureagentapi\win;..\volumeinfocollector;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <PreprocessorDefinitions>DP_SYNC_RCM;ACE_AS_STATIC_LIBS;_WIN32_WINNT=0x0502;WIN32;NDEBUG;_CONSOLE;SV_WINDOWS;_LARGEFILE_SOURCE=1;_LARGEFILE64_SOURCE=1;_FILE_OFFSET_BITS=64;CURL_STATICLIB;WIN32_LEAN_AND_MEAN;VSNAP_USER_MODE;SV_USES_LONGPATHS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PrecompiledHeader />
+      <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>ACEs.lib</AdditionalDependencies>
+    </Lib>
+    <Lib>
+      <AdditionalLibraryDirectories>$(ACE_LIB_DIR)</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\cdpapplylib\cdpapply.cpp" />
+    <ClCompile Include="..\cdpapplylib\cdpresyncapply.cpp" />
+    <ClCompile Include="..\cdpapplylib\cdptargetapply.cpp" />
+    <ClCompile Include="..\cdpapplylib\cdpv2writer.cpp" />
+    <ClCompile Include="..\cdpapplylib\dataprotectionsync.cpp" />
+    <ClCompile Include="..\cdpapplylib\dataprotectionutils.cpp" />
+    <ClCompile Include="..\cdpapplylib\differentialsync.cpp" />
+    <ClCompile Include="..\cdpapplylib\diffinfo.cpp" />
+    <ClCompile Include="..\cdpapplylib\diffsortcriterion.cpp" />
+    <ClCompile Include="..\cdpapplylib\dpdrivercomm.cpp" />
+    <ClCompile Include="..\cdpapplylib\groupinfo.cpp" />
+    <ClCompile Include="..\cdpapplylib\programargs.cpp" />
+    <ClCompile Include="..\cdpapplylib\retentionvolumeapplier.cpp" />
+    <ClCompile Include="..\cdpapplylib\svproactor.cpp" />
+    <ClCompile Include="..\cdpapplylib\volumeinfo.cpp" />
+    <ClCompile Include="..\cdpapplylib\win\dataprotectionsyncmajor.cpp" />
+    <ClCompile Include="..\cdpapplylib\win\svproactormajor.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\cdpapplylib\cdpapply.h" />
+    <ClInclude Include="..\cdpapplylib\cdpresyncapply.h" />
+    <ClInclude Include="..\cdpapplylib\cdptargetapply.h" />
+    <ClInclude Include="..\cdpapplylib\cdpv2writer.h" />
+    <ClInclude Include="..\cdpapplylib\dataprotectionexception.h" />
+    <ClInclude Include="..\cdpapplylib\dataprotectionsync.h" />
+    <ClInclude Include="..\cdpapplylib\dataprotectionutils.h" />
+    <ClInclude Include="..\cdpapplylib\differentialsync.h" />
+    <ClInclude Include="..\cdpapplylib\diffinfo.h" />
+    <ClInclude Include="..\cdpapplylib\diffsortcriterion.h" />
+    <ClInclude Include="..\cdpapplylib\dpdrivercomm.h" />
+    <ClInclude Include="..\cdpapplylib\groupinfo.h" />
+    <ClInclude Include="..\cdpapplylib\programargs.h" />
+    <ClInclude Include="..\cdpapplylib\retentionvolumeapplier.h" />
+    <ClInclude Include="..\cdpapplylib\svproactor.h" />
+    <ClInclude Include="..\cdpapplylib\theconfigurator.h" />
+    <ClInclude Include="..\cdpapplylib\volumeinfo.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\azureagentapi\azureagentapi.vcxproj">
+      <Project>{4008e995-d123-4385-a57c-e1d4a4f6a875}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

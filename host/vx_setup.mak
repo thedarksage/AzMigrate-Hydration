@@ -58,7 +58,10 @@ involflt_overall_list_redhat := 2.6.18-194.el5 \
 				4.18.0-147.el8.x86_64 \
 				4.18.0-305.el8.x86_64 \
 				4.18.0-348.el8.x86_64 \
-				5.4.17-2011.1.2.el8uek.x86_64
+				4.18.0-425.3.1.el8.x86_64 \
+				4.18.0-425.10.1.el8_7.x86_64 \
+				5.14.0-70.13.1.0.3.el9_0.x86_64 \
+				5.14.0-162.6.1.el9_1.x86_64
 
 
 involflt_overall_list_sles := 2.6.5-7.191-bigsmp 2.6.5-7.191-default 2.6.5-7.191-smp 2.6.5-7.244-bigsmp 2.6.5-7.244-default 2.6.5-7.244-smp 2.6.16.21-0.8-bigsmp 2.6.16.21-0.8-default 2.6.16.21-0.8-smp 2.6.16.46-0.12-bigsmp 2.6.16.46-0.12-default 2.6.16.46-0.12-smp 2.6.16.60-0.21-bigsmp 2.6.16.60-0.21-default 2.6.16.60-0.21-smp 2.6.13-15-bigsmp 2.6.13-15-default 2.6.13-15-smp 2.6.27.19-5-default 2.6.27.19-5-pae 2.6.27.19-5-xen 2.6.16.60-0.54.5-default 2.6.16.60-0.54.5-smp 2.6.16.60-0.54.5-bigsmp 2.6.16.60-0.54.5-xen 2.6.32.12-0.7-default 2.6.32.12-0.7-xen 2.6.32.12-0.7-pae 2.6.16.60-0.85.1-default 2.6.16.60-0.85.1-smp 2.6.16.60-0.85.1-bigsmp 2.6.16.60-0.85.1-xen 3.0.13-0.27-default 3.0.13-0.27-pae 3.0.13-0.27-xen 3.0.76-0.11-default 3.0.76-0.11-pae 3.0.76-0.11-xen 3.0.101-63-default 3.0.101-63-xen
@@ -82,7 +85,12 @@ endif
 
 # RHEL8-64
 ifeq ($(X_OS), RHEL8-64)
-  involflt:: 4.18.0-80.el8.x86_64 4.18.0-147.el8.x86_64 4.18.0-305.el8.x86_64 4.18.0-348.el8.x86_64
+  involflt:: 4.18.0-80.el8.x86_64 4.18.0-147.el8.x86_64 4.18.0-305.el8.x86_64 4.18.0-348.el8.x86_64 4.18.0-425.3.1.el8.x86_64 4.18.0-425.10.1.el8_7.x86_64
+endif
+
+# RHEL9-64
+ifeq ($(X_OS), RHEL9-64)
+  involflt:: 5.14.0-70.13.1.0.3.el9_0.x86_64 5.14.0-162.6.1.el9_1.x86_64
 endif
 
 # OL6-64
@@ -100,7 +108,12 @@ endif
 
 # OL8-64
 ifeq ($(X_OS), OL8-64)
-  involflt:: 4.18.0-80.el8.x86_64 4.18.0-147.el8.x86_64 4.18.0-305.el8.x86_64 4.18.0-348.el8.x86_64 5.4.17-2011.1.2.el8uek.x86_64
+  involflt:: ol8_drv
+endif
+
+# OL9-64
+ifeq ($(X_OS), OL9-64)
+  involflt:: ol9_drv
 endif
 
 #For SLES11-SP3-64 platforms
@@ -113,7 +126,7 @@ ifeq ($(X_OS), SLES11-SP4-64)
  involflt:: 3.0.101-63-default 3.0.101-63-xen
 endif
 
-ifeq ($(X_OS),$(filter $(X_OS), UBUNTU-14.04-64 UBUNTU-16.04-64 UBUNTU-18.04-64 UBUNTU-20.04-64 DEBIAN7-64 DEBIAN8-64 DEBIAN9-64 DEBIAN10-64))
+ifeq ($(X_OS),$(filter $(X_OS), UBUNTU-14.04-64 UBUNTU-16.04-64 UBUNTU-18.04-64 UBUNTU-20.04-64 UBUNTU-22.04-64 DEBIAN7-64 DEBIAN8-64 DEBIAN9-64 DEBIAN10-64 DEBIAN11-64))
  involflt:: ubuntu_drv
 endif
 
@@ -132,6 +145,14 @@ $(involflt_overall_list_sles): drivers/InVolFlt/linux
 	@echo $@
 	cd drivers/InVolFlt/linux && mkdir -p drivers_dbg && make -f involflt.mak KDIR=/lib/modules/$@/build clean && make -f involflt.mak KDIR=/lib/modules/$@/build debug=$(debug) && mv bld_involflt/involflt.ko drivers_dbg/involflt.ko.$@.dbg && strip -g drivers_dbg/involflt.ko.$@.dbg -o involflt.ko.$@
 
+ol8_drv: drivers/InVolFlt/linux
+	@echo "Building $(X_OS) Drivers"
+	cd drivers/InVolFlt/linux && user_space/build/ol8.sh
+
+ol9_drv: drivers/InVolFlt/linux
+	@echo "Building $(X_OS) Drivers"
+	cd drivers/InVolFlt/linux && user_space/build/ol9.sh
+
 ubuntu_drv: drivers/InVolFlt/linux
 	@echo "Building $(X_OS) Drivers"
 	cd drivers/InVolFlt/linux && user_space/build/ubuntu.sh build
@@ -140,7 +161,7 @@ sles_drv: drivers/InVolFlt/linux
 	@echo "Building $(X_OS) Drivers"
 	cd drivers/InVolFlt/linux && user_space/build/sles.sh
 
-non_driver_build: inmshutnotify_build inmstkops_build jq_build
+non_driver_build: inmshutnotify_build inmstkops_build jq_build cvt_build
 
 inmshutnotify_build: drivers/InVolFlt/linux/user_space/shutdownt
 	cd $(INMSHUT_NOTIFY) && $(MAKE) clean && $(MAKE)
@@ -150,6 +171,9 @@ inmstkops_build: drivers/InVolFlt/linux/user_space/inmdmit
 
 jq_build:
 	cd $(JQ_ROOT) && autoreconf -fi && ./configure --disable-maintainer-mode && make clean && make LDFLAGS=-all-static
+
+cvt_build:
+	-$(VERBOSE)gmake tests_test_agent debug=$(debug) verbose=$(verbose) 2>&1
 
 ifeq ($(NON_RPM), YES)
 VX_TAR_NAME := $(COMPANY)_VX_$(X_VERSION_DOTTED)_$(X_OS)_$(X_VERSION_PHASE)_$(shell date "+%d%h%Y")_$(X_CONFIGURATION).tar.gz
@@ -540,7 +564,7 @@ $(X_ARCH)/setup_vx/$(X_CONFIGURATION)/$(COMPANY)Vx-$(X_VERSION_MAJOR).$(X_VERSIO
 	$(RULE_SEPARATOR)
 endif
 
-ifeq ($(X_OS),$(filter $(X_OS), UBUNTU-14.04-64 UBUNTU-16.04-64 UBUNTU-18.04-64 UBUNTU-20.04-64 DEBIAN7-64 DEBIAN8-64 DEBIAN9-64 DEBIAN10-64))
+ifeq ($(X_OS),$(filter $(X_OS), UBUNTU-14.04-64 UBUNTU-16.04-64 UBUNTU-18.04-64 UBUNTU-20.04-64 UBUNTU-22.04-64 DEBIAN7-64 DEBIAN8-64 DEBIAN9-64 DEBIAN10-64 DEBIAN11-64))
 copy_filter_driver: drivers/InVolFlt/linux/ubuntu_drivers
 	$(VERBOSE)mkdir -p $(VX_BUILD_PATH)/bin/drivers
 	$(VERBOSE)cp $</involflt.ko* $(VX_BUILD_PATH)/bin/drivers
@@ -552,7 +576,7 @@ else
 	    $(VERBOSE)cp $</involflt.ko* $</supported_kernels $(VX_BUILD_PATH)/bin/drivers
 	    $(RULE_SEPARATOR)
 else
-    ifeq ($(X_OS),$(filter $(X_OS), OL7-64 OL8-64)) 
+    ifeq ($(X_OS),$(filter $(X_OS), OL7-64 OL8-64  OL9-64)) 
 # For new distros, ship in drivers directory
         copy_filter_driver: drivers/InVolFlt/linux
 	    $(VERBOSE)mkdir -p $(VX_BUILD_PATH)/bin/drivers
@@ -578,7 +602,7 @@ copy_initrd_generic_scripts: drivers/InVolFlt/linux/user_space/initrd
 	$(VERBOSE)cp $</*.sh $(VX_BUILD_PATH)/scripts/initrd
 	$(RULE_SEPARATOR)
 
-ifeq ($(X_OS),$(filter $(X_OS), OL6-64 RHEL6-64 RHEL7-64 RHEL8-64 SLES12-64 SLES15-64 OL7-64 OL8-64))
+ifeq ($(X_OS),$(filter $(X_OS), OL6-64 RHEL6-64 RHEL7-64 RHEL8-64 RHEL9-64 SLES12-64 SLES15-64 OL7-64 OL8-64  OL9-64))
 copy_initrd_specific_scripts: drivers/InVolFlt/linux/user_space/initrd/dracut
 	$(VERBOSE)cp -r $</* $(VX_BUILD_PATH)/scripts/initrd
 	$(VERBOSE)find $(VX_BUILD_PATH)/scripts/initrd -type d -name "CVS" | xargs rm -rf
@@ -592,7 +616,7 @@ copy_initrd_specific_scripts: drivers/InVolFlt/linux/user_space/initrd/sles11
 	$(RULE_SEPARATOR)
 endif
 
-ifeq ($(X_OS),$(filter $(X_OS), UBUNTU-14.04-64 UBUNTU-16.04-64 UBUNTU-18.04-64 UBUNTU-20.04-64 DEBIAN7-64 DEBIAN8-64 DEBIAN9-64 DEBIAN10-64))
+ifeq ($(X_OS),$(filter $(X_OS), UBUNTU-14.04-64 UBUNTU-16.04-64 UBUNTU-18.04-64 UBUNTU-20.04-64 UBUNTU-22.04-64 DEBIAN7-64 DEBIAN8-64 DEBIAN9-64 DEBIAN10-64 DEBIAN11-64))
 copy_initrd_specific_scripts: drivers/InVolFlt/linux/user_space/initrd/initramfs-tools
 	$(VERBOSE)cp -r $</* $(VX_BUILD_PATH)/scripts/initrd
 	$(VERBOSE)find $(VX_BUILD_PATH)/scripts/initrd -type d -name "CVS" | xargs rm -rf
@@ -604,8 +628,8 @@ giving_recurssive_permissions:
 	$(VERBOSE)chmod -R 755 $(VX_BUILD_PATH)/bin/* $(VX_BUILD_PATH)/scripts/* $(VX_BUILD_PATH)/etc/*
 	$(RULE_SEPARATOR)
 
-# Copying involflt.conf to /etc/init for UBUNTU-14.04-64/UBUNTU-16.04-64/UBUNTU-18.04-64/UBUNTU-20.04-64/DEBIAN7-64/DEBIAN8-64/DEBIAN9-64/DEBIAN10-64
-ifeq ($(X_OS),$(filter $(X_OS), UBUNTU-14.04-64 UBUNTU-16.04-64 UBUNTU-18.04-64 UBUNTU-20.04-64 DEBIAN7-64 DEBIAN8-64 DEBIAN9-64 DEBIAN10-64))
+# Copying involflt.conf to /etc/init for UBUNTU-14.04-64/UBUNTU-16.04-64/UBUNTU-18.04-64/UBUNTU-20.04-64/UBUNTU-22.04-64/DEBIAN7-64/DEBIAN8-64/DEBIAN9-64/DEBIAN10-64/DEBIAN11-64
+ifeq ($(X_OS),$(filter $(X_OS), UBUNTU-14.04-64 UBUNTU-16.04-64 UBUNTU-18.04-64 UBUNTU-20.04-64 UBUNTU-22.04-64 DEBIAN7-64 DEBIAN8-64 DEBIAN9-64 DEBIAN10-64 DEBIAN11-64))
 involflt_conf:
 	$(VERBOSE)cp ../host/drivers/InVolFlt/linux/user_space/hotplug/involflt.conf $(VX_BUILD_PATH)/etc/involflt.conf
 involflt.ubuntu:

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TestJobGroup>
+  <!-- Resource spec points to a Windows platform image that is defined in asrsrc-prod-sea cloudtestpool -->
+  <ResourceSpec>
+    <Resource SKU="Standard_DS2_V2" Image="2022-DataCenter"/>
+  </ResourceSpec>
+  
+  <Setup TimeoutMins="15">
+    <BuildFiles>
+      <!-- Copy Test Scripts from build drop -->
+      <Copy Src="[BuildRoot]\CloudTest\*" Dest="[WorkingDirectory]\" IsRecursive="true" Writable="true"/>
+    </BuildFiles>
+  </Setup>
+
+  <TestJob Name="UnitTests" OwnerAliases="sisunkar" TimeoutMins="15" >
+    <Execution Type="MsTest" Path="[WorkingDirectory]\CloudTestUT\CloudTestUT.dll" Args="/Tests:SampleTest" />
+  </TestJob>
+
+  <Cleanup TimeoutMins="1" />
+</TestJobGroup>

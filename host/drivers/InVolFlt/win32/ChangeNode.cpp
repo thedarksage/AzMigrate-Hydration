@@ -1,0 +1,330 @@
+#include "Common.h"
+#include "ChangeNode.h"
+#include "VContext.h"
+#include "TagNode.h"
+#include "MntMgr.h"
+
+/**
+ * InitializeChangeList
+ */
+void
+InitializeChangeList(PCHANGE_LIST   pList)
+{
+    ASSERT(NULL != pList);
+
+    RtlZeroMemory(pList, sizeof(CHANGE_LIST));
+    InitializeListHead(&pList->Head);
+    InitializeListHead(&pList->TempQueueHead);
+    InitializeListHead(&pList->DataCaptureModeHead);
+
+    return;
+}
+
+void
+MoveChangeList(PCHANGE_LIST pSrc, PCHANGE_LIST pDst)
+{
+    ASSERT((NULL != pSrc) && (NULL != pDst));
+
+    if (IsListEmpty(&pSrc->Head)) {
+        InitializeListHead(&pDst->Head);
+    } else {
+        pDst->Head = pSrc->Head;
+        pSrc->Head.Flink->Blink = &pDst->Head;
+        pSrc->Head.Blink->Flink = &pDst->Head;
+    }
+
+    InitializeListHead(&pSrc->Head);
+    pDst->CurrentNode = NULL;
+    pSrc->CurrentNode = NULL;
+    pDst->lDirtyBlocksInQueue = pSrc->lDirtyBlocksInQueue;
+    pSrc->lDirtyBlocksInQueue = 0;
+    return;
+}
+
+void
+DeductChangeCountersOnDataSource(PCHANGE_LIST pList, ULONG ulDataSource, ULONG ulChanges, ULONGLONG ullcbChanges)
+{
+    ASSERT(NULL != pList);
+    switch (ulDataSource) {
+    case INVOLFLT_DATA_SOURCE_DATA:
+        ASSERT((pList->ulDataChangesPending >= ulChanges) && (pList->ullcbDataChangesPending >= ullcbChanges));
+        pList->ulDataChangesPending -= ulChanges;
+        pList->ullcbDataChangesPending -= ullcbChanges;
+        ASSERT((0 != pList->ulDataChangesPending) || (0 == pList->ullcbDataChangesPending));
+        ASSERT((0 != pList->ullcbDataChangesPending) || (0 == pList->ulDataChangesPending));
+        break;
+    case INVOLFLT_DATA_SOURCE_META_DATA:
+        ASSERT((pList->ulMetaDataChangesPending >= ulChanges) && (pList->ullcbMetaDataChangesPending >= ullcbChanges));
+        pList->ulMetaDataChangesPending -= ulChanges;
+        pList->ullcbMetaDataChangesPending -= ullcbChanges;
+        ASSERT((0 != pList->ulMetaDataChangesPending) || (0 == pList->ullcbMetaDataChangesPending));
+        ASSERT((0 != pList->ullcbMetaDataChangesPending) || (0 == pList->ulMetaDataChangesPending));
+        break;
+    case INVOLFLT_DATA_SOURCE_BITMAP:
+        ASSERT((pList->ulBitmapChangesPending >= ulChanges) && (pList->ullcbBitmapChangesPending >= ullcbChanges));
+        pList->ulBitmapChangesPending -= ulChanges;
+        pList->ullcbBitmapChangesPending -= ullcbChanges;
+        ASSERT((0 != pList->ulBitmapChangesPending) || (0 == pList->ullcbBitmapChangesPending));
+        ASSERT((0 != pList->ullcbBitmapChangesPending) || (0 == pList->ulBitmapChangesPending));
+        break;
+    default:
+        ASSERTMSG(0, "DeductChangeCountersOnDataSource: DataSource did not match any");
+        break;
+    }
+
+    pList->ulTotalChangesPending -= ulChanges;
+    pList->ullcbTotalChangesPending -= ullcbChanges;
+    ASSERT((0 != pList->ulTotalChangesPending) || (0 == pList->ullcbTotalChangesPending));
+    ASSERT((0 != pList->ullcbTotalChangesPending) || (0 == pList->ulTotalChangesPending));
+
+    return;
+}
+
+void
+AddChangeCountersOnDataSource(PCHANGE_LIST pList, ULONG ulDataSource, ULONG ulChanges, ULONGLONG ullcbChanges)
+{
+    ASSERT(NULL != pList);
+    switch (ulDataSource) {
+    case INVOLFLT_DATA_SOURCE_DATA:
+        pList->ulDataChangesPending += ulChanges;
+        pList->ullcbDataChangesPending += ullcbChanges;
+        break;
+    case INVOLFLT_DATA_SOURCE_META_DATA:
+        pList->ulMetaDataChangesPending += ulChanges;
+        pList->ullcbMetaDataChangesPending += ullcbChanges;
+        break;
+    case INVOLFLT_DATA_SOURCE_BITMAP:
+        pList->ulBitmapChangesPending += ulChanges;
+        pList->ullcbBitmapChangesPending += ullcbChanges;
+        break;
+    default:
+        ASSERTMSG(0, "AddChangeCountersOnDataSource: DataSource did not match any");
+        break;
+    }
+
+    pList->ulTotalChangesPending += ulChanges;
+    pList->ullcbTotalChangesPending += ullcbChanges;
+
+    return;
+}
+
+void
+FreeChangeNodeList(PCHANGE_LIST pList)
+{
+    ASSERT(NULL != pList);
+
+    while(!IsListEmpty(&pList->TempQueueHead)) {
+        //Extract in LIFO order and insert from the head in the main list
+        InsertHeadList(&pList->Head, RemoveTailList(&pList->TempQueueHead));
+    }
+
+    while (!IsListEmpty(&pList->Head)) {
+        PCHANGE_NODE    ChangeNode = (PCHANGE_NODE)RemoveHeadList(&pList->Head);
+
+        if (pList->CurrentNode == ChangeNode) {
+            pList->CurrentNode = NULL;
+        }
+
+        if (ChangeNode->DataCaptureModeListEntry.Flink != NULL &&
+            ChangeNode->DataCaptureModeListEntry.Blink != NULL) {
+                PKDIRTY_BLOCK DirtyBlock = ChangeNode->DirtyBlock;
+                ASSERT(DirtyBlock->eWOState != ecWriteOrderStateData && DirtyBlock->ulDataSource == INVOLFLT_DATA_SOURCE_DATA);
+                ASSERT(!IsListEmpty(&ChangeNode->DirtyBlock->VolumeContext->ChangeList.DataCaptureModeHead));
+                RemoveEntryList(&ChangeNode->DataCaptureModeListEntry);
+                ChangeNode->DataCaptureModeListEntry.Flink = NULL;
+                ChangeNode->DataCaptureModeListEntry.Blink = NULL;
+                if (IsListEmpty(&pList->Head)) {
+                    ASSERT(IsListEmpty(&ChangeNode->DirtyBlock->VolumeContext->ChangeList.DataCaptureModeHead));
+                    ASSERT(pList->CurrentNode == NULL);
+                }
+        }
+
+        switch (ChangeNode->eChangeNode) {
+            case ecChangeNodeDataFile:
+            case ecChangeNodeDirtyBlock:
+            {
+                PKDIRTY_BLOCK   DirtyBlock = ChangeNode->DirtyBlock;
+    
+                DeductChangeCountersOnDataSource(pList, DirtyBlock->ulDataSource,
+                                                 DirtyBlock->cChanges, DirtyBlock->ulicbChanges.QuadPart);
+
+                if (DirtyBlock->ulFlags & KDIRTY_BLOCK_FLAG_CONTAINS_TAGS) {
+                    ASSERT(NULL != DirtyBlock->VolumeContext);
+                    DirtyBlock->VolumeContext->ulNumberOfTagPointsDropped++;
+
+                    if (DirtyBlock->ulFlags & KDIRTY_BLOCK_FLAG_TAG_WAITING_FOR_COMMIT) {
+                        PTAG_NODE TagNode = AddStatusAndReturnNodeIfComplete(DirtyBlock->TagGUID, DirtyBlock->ulTagVolumeIndex, ecTagStatusDeleted);
+                        if (NULL != TagNode) {
+                            // Complete the Irp with Status
+                            PIRP Irp = TagNode->Irp;
+
+                            CopyStatusToOutputBuffer(TagNode, (PTAG_VOLUME_STATUS_OUTPUT_DATA)Irp->AssociatedIrp.SystemBuffer);
+                            Irp->IoStatus.Information = SIZE_OF_TAG_VOLUME_STATUS_OUTPUT_DATA(TagNode->ulNoOfVolumes);
+                            Irp->IoStatus.Status = STATUS_SUCCESS;
+                            IoCompleteRequest(Irp, IO_NO_INCREMENT);
+
+                            DeallocateTagNode(TagNode);
+                        }
+                        DirtyBlock->ulFlags &= ~KDIRTY_BLOCK_FLAG_TAG_WAITING_FOR_COMMIT;
+                    }
+                }
+
+                ASSERT(pList->lDirtyBlocksInQueue > 0);
+                pList->lDirtyBlocksInQueue--;
+                if (pList->lDirtyBlocksInQueue == 0) {
+                    ASSERT(IsListEmpty(&ChangeNode->DirtyBlock->VolumeContext->ChangeList.DataCaptureModeHead));
+                    ASSERT(pList->CurrentNode == NULL);
+                    ASSERT(IsListEmpty(&pList->Head));
+                }
+                if (DirtyBlock->eWOState == ecWriteOrderStateData &&
+                        DirtyBlock->ulDataSource == INVOLFLT_DATA_SOURCE_DATA) {
+                            // This ChangeNode is going away, we assume this as drain condition.
+                            DirtyBlock->VolumeContext->NumChangeNodeInDataWOSDrained++;
+                }                
+    
+                QueueWorkerRoutineForChangeNodeCleanup(ChangeNode);
+                break;
+            }
+            default:
+            ASSERTMSG(0, "Unhandled message type");
+                break;
+        }
+
+        DereferenceChangeNode(ChangeNode);
+    }
+
+    ASSERT((0 == pList->ulTotalChangesPending) && (0 == pList->ullcbTotalChangesPending));
+    ASSERT((0 == pList->ulDataChangesPending) && (0 == pList->ullcbDataChangesPending));
+    ASSERT((0 == pList->ulMetaDataChangesPending) && (0 == pList->ullcbMetaDataChangesPending));
+    ASSERT((0 == pList->ulBitmapChangesPending) && (0 == pList->ullcbBitmapChangesPending));
+    ASSERT(0 == pList->lDirtyBlocksInQueue);
+}
+
+VOID
+ChangeNodeCleanup(PCHANGE_NODE ChangeNode)
+{
+    PAGED_CODE();
+
+    PKDIRTY_BLOCK       DirtyBlock = ChangeNode->DirtyBlock;
+    PVOLUME_CONTEXT     VolumeContext = DirtyBlock->VolumeContext;
+    NTSTATUS            Status;
+
+    // Keep the change node, as we are acquiring the mutex
+    ReferenceChangeNode(ChangeNode);
+    KeWaitForSingleObject(&ChangeNode->Mutex, Executive, KernelMode, FALSE, NULL);
+
+    switch (ChangeNode->eChangeNode) {
+    case ecChangeNodeDirtyBlock:
+        if(ChangeNode->ulFlags & CHANGE_NODE_FLAGS_QUEUED_FOR_DATA_WRITE) {
+            KIRQL   OldIrql;
+
+            KeAcquireSpinLock(&VolumeContext->Lock, &OldIrql);
+            VolumeContext->lDataBlocksQueuedToFileWrite -= ChangeNode->DirtyBlock->ulDataBlocksAllocated;
+            KeReleaseSpinLock(&VolumeContext->Lock, OldIrql);
+        }
+        
+        ChangeNode->ulFlags &= ~CHANGE_NODE_FLAGS_QUEUED_FOR_DATA_WRITE; 
+        break;
+    case ecChangeNodeDataFile:
+        InVolDbgPrint(DL_TRACE_L1, DM_DATA_FILTERING,
+                      ("%s: Deleting file %wZ\n", __FUNCTION__, &DirtyBlock->FileName));
+
+        // File has to be deleted here.
+        Status = CDataFile::DeleteFile(&DirtyBlock->FileName);
+        if (!NT_SUCCESS(Status)) {
+            InMageFltLogError(VolumeContext->FilterDeviceObject, __LINE__, INVOLFLT_DELETE_FILE_FAILED, STATUS_SUCCESS,
+                              VolumeContext->wDriveLetter, VOLUME_LETTER_SIZE_IN_BYTES, VolumeContext->wGUID, GUID_SIZE_IN_BYTES,
+                              (ULONG)Status);
+        }
+
+        KeWaitForSingleObject(&VolumeContext->Mutex, Executive, KernelMode, FALSE, NULL);
+        ASSERT(VolumeContext->ullcbDataWrittenToDisk >= DirtyBlock->ullFileSize);
+        VolumeContext->ullcbDataWrittenToDisk -= DirtyBlock->ullFileSize;
+        VolumeContext->ChangeList.ulDataFilesPending--;
+        KeReleaseMutex(&VolumeContext->Mutex, FALSE);
+        break;
+    default:
+        ASSERTMSG(0, "Unhandled message type");
+        break;
+    }
+
+    ASSERT(!(DirtyBlock->ulFlags & KDIRTY_BLOCK_FLAG_TAG_WAITING_FOR_COMMIT));
+
+    DeallocateDirtyBlock(DirtyBlock, false);
+    KeReleaseMutex(&ChangeNode->Mutex, FALSE);
+    DereferenceChangeNode(ChangeNode);
+
+    return;
+}
+
+PCHANGE_NODE
+AllocateChangeNode()
+{
+    InVolDbgPrint(DL_FUNC_TRACE, DM_DATA_FILTERING, ("%s: Called\n", __FUNCTION__));
+
+    if (MaxNonPagedPoolLimitReached()) {
+        InVolDbgPrint(DL_WARNING, DM_DATA_FILTERING, 
+                      ("%s: Allocation failed as NonPagedPoolAlloc(%#x) reached MaxNonPagedLimit(%#x)\n", 
+                       __FUNCTION__, DriverContext.lNonPagedMemoryAllocated, DriverContext.ulMaxNonPagedPool));
+        return NULL;
+    }
+
+    PCHANGE_NODE    Node = (PCHANGE_NODE)ExAllocateFromNPagedLookasideList(&DriverContext.ChangeNodePool);
+
+    if (Node) {
+        ULONG ulSize = (ULONG)sizeof(CHANGE_NODE);
+
+        RtlZeroMemory(Node, sizeof(CHANGE_NODE));
+        //PreAllocation of WorkQueueEntry for cleanup of ChangeNode
+        Node->pCleanupWorkQueueEntry = AllocateWorkQueueEntry();
+        //Cleanup if Allocation of WorkQueuEnty fail
+        if (NULL == Node->pCleanupWorkQueueEntry) {
+            ExFreeToNPagedLookasideList(&DriverContext.ChangeNodePool, Node);
+            return NULL;
+        }
+        Node->lRefCount = 0x01;
+        KeInitializeMutex(&Node->Mutex, 0);
+        InterlockedIncrement(&DriverContext.lChangeNodesAllocated);
+        InterlockedExchangeAdd(&DriverContext.lNonPagedMemoryAllocated, ulSize);
+        Node->DataCaptureModeListEntry.Flink = NULL;
+        Node->DataCaptureModeListEntry.Blink = NULL;
+    } else {
+        InVolDbgPrint(DL_WARNING, DM_DATA_FILTERING, ("%s: Allocation failed\n", __FUNCTION__));
+    }
+
+    return Node;
+}
+
+void
+DeallocateChangeNode(PCHANGE_NODE Node)
+{
+    LONG lSize = (LONG)sizeof(CHANGE_NODE);
+    ASSERT(0 == Node->lRefCount);
+
+    ExFreeToNPagedLookasideList(&DriverContext.ChangeNodePool, Node);
+    InterlockedDecrement(&DriverContext.lChangeNodesAllocated);
+    InterlockedExchangeAdd(&DriverContext.lNonPagedMemoryAllocated, -lSize);
+    ASSERT(DriverContext.lNonPagedMemoryAllocated >= 0);
+}
+
+PCHANGE_NODE
+ReferenceChangeNode(PCHANGE_NODE Node)
+{
+    ASSERT(Node->lRefCount >= 0x01);
+    InterlockedIncrement(&Node->lRefCount);
+
+    return Node;
+}
+
+void
+DereferenceChangeNode(PCHANGE_NODE Node)
+{
+    ASSERT(Node->lRefCount >= 0x01);
+    if (0 == InterlockedDecrement(&Node->lRefCount)) {
+    	ASSERT(NULL != Node->pCleanupWorkQueueEntry);
+    	ASSERT(0 == Node->bCleanupWorkQueueRef);
+    	//Free WorkQueueEntry
+        DereferenceWorkQueueEntry(Node->pCleanupWorkQueueEntry);
+        DeallocateChangeNode(Node);
+    }
+}

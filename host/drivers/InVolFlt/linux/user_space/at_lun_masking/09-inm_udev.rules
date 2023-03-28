@@ -1,0 +1,6 @@
+SUBSYSTEM!="block" GOTO="end_inmrule"
+#KERNEL=="sd*[!0-9]", SUBSYSTEM=="scsi", PROGRAM="scsi_id --whitelisted -p0x80 -d$tempnode | grep 'InMage'", RESULT=="?*", ENV{INM_VENDOR_ID}="$result", RUN+="cat ENV{INM_VENDOR_ID} >> /etc/vxagent/logs/at_lun_masking.txt" 
+ACTION=="add|change", KERNEL=="sd*[!0-9]", RUN+="/etc/vxagent/bin/at_lun_masking_udev %k add"
+#ACTION=="add|change", KERNEL=="sd*[!0-9]", PROGRAM="/etc/vxagent/bin/at_lun_masking_udev %k add"
+ACTION=="remove", KERNEL=="sd*[!0-9]", PROGRAM="/etc/vxagent/bin/at_lun_masking_udev %k del"
+LABEL="end_inmrule"

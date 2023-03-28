@@ -1,0 +1,57 @@
+﻿<ns0:BasePageForWpfControls
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+    xmlns:ns0="clr-namespace:ASRSetupFramework;assembly=ASRSetupFramework"
+    xmlns:resx="clr-namespace:ASRResources;assembly=ASRResources"
+    x:Class="UnifiedSetup.ASRRegistrationPage"
+    x:Uid="ns0:BasePageForWpfControls_1"
+    Height="415"
+    Width="685">
+
+    <Grid x:Uid="Grid_1" Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition x:Uid="RowDefinition_1" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_2" Height="20" />
+            <RowDefinition x:Uid="RowDefinition_3" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_4" Height="30" />
+            <RowDefinition x:Uid="RowDefinition_5" Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition x:Uid="ColumnDefinition_1" MaxWidth="27" Width="27" />
+            <ColumnDefinition x:Uid="ColumnDefinition_2" Width="*" />
+            <ColumnDefinition x:Uid="ColumnDefinition_3" Width="200" />
+        </Grid.ColumnDefinitions>
+        <TextBlock
+            x:Name="ASRPageMainTextBlock"
+            x:Uid="ASRPageMainTextBlock" 
+            Grid.Column="1"
+            Grid.Row="0"
+            TextWrapping="Wrap"
+            Text="{x:Static resx:StringResources.ASRPageMainTextBlockText}">
+        </TextBlock>
+        <Button
+            x:Name="ASRPageBrowseButton"
+            x:Uid="ASRPageBrowseButton"
+            Grid.Row="2"
+            Grid.Column="2"
+            Width="90"
+            Height="25"
+            HorizontalAlignment="Left"
+            Click="ASRKeyBrowserClick"
+            Content="{x:Static resx:StringResources.ASRPageBrowsebuttonText}">
+        </Button>
+        <TextBox 
+            x:Name="ASRPageTextBox"
+            x:Uid="ASRPageTextBox"
+            Grid.Row="2"
+            Grid.Column="1"
+            Width="400"
+            Height="25"
+            IsEnabled="False"
+            HorizontalAlignment="Left" 
+            VerticalAlignment="Center"
+            AutomationProperties.Name="{x:Static resx:StringResources.ASRPageMainTextBlockText}">
+        </TextBox>
+    </Grid>
+</ns0:BasePageForWpfControls>
+

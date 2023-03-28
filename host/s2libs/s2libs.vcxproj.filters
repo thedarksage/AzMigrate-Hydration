@@ -1,0 +1,608 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\common">
+      <UniqueIdentifier>{10894565-85e1-4186-b60e-a291d06a0ba7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\common\win32">
+      <UniqueIdentifier>{a8ceb12c-4505-4224-ba95-a645d9b8d437}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\common\unix">
+      <UniqueIdentifier>{5971d099-1e71-425b-b880-ea4609e38421}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\foundation">
+      <UniqueIdentifier>{04aa57f1-ce44-414a-b37c-940c537560d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\foundation\win32">
+      <UniqueIdentifier>{0e4e3b0d-3943-4bea-be40-b611c7d067e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\foundation\unix">
+      <UniqueIdentifier>{7c706754-5ff8-472c-ac15-a973d8594e9e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\foundation\linux">
+      <UniqueIdentifier>{db747ed3-8770-488f-a2a5-68f21e9cd753}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\foundation\sun">
+      <UniqueIdentifier>{383ee0ad-e9f5-4c4b-94a6-f759732d2a88}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\foundation\aix">
+      <UniqueIdentifier>{a40dda30-9f2a-4191-a8b2-a9a8d34df495}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\streams">
+      <UniqueIdentifier>{0f4fa57f-dfd1-4902-9260-aa683901c59d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\streams\win32">
+      <UniqueIdentifier>{ca6b5a8c-a522-4092-945e-2e9797a4a820}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\streams\unix">
+      <UniqueIdentifier>{cd15d2f6-dc30-48f9-83b7-f471a7485df8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\thread">
+      <UniqueIdentifier>{d8b64866-de0e-47d7-b04e-c93c7ee28b0e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\thread\win32">
+      <UniqueIdentifier>{74487e27-7893-47c2-bd9a-6d66e2353cde}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\thread\unix">
+      <UniqueIdentifier>{f3bd85e8-eb75-4340-9006-6a34d7e52fb9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\common">
+      <UniqueIdentifier>{e6e47e52-87f1-4f4c-9285-690231f9aaf9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\foundation">
+      <UniqueIdentifier>{8ab4062a-df0e-45bc-90f0-f1ab6dee5060}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\foundation\win32">
+      <UniqueIdentifier>{1df81890-afea-4f3d-9364-6031cbe6d3f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\foundation\unix">
+      <UniqueIdentifier>{6bf81743-381f-4dc5-bbd9-26e56823e20d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\foundation\sun">
+      <UniqueIdentifier>{ac5cf83a-3c4d-4215-977c-cb4815c09c56}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\foundation\linux">
+      <UniqueIdentifier>{bf4a92e1-a35d-4c3d-ba5f-3532a21a20be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\streams">
+      <UniqueIdentifier>{6e95cad1-4e08-499b-8315-77c98de6aea2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\thread">
+      <UniqueIdentifier>{3ec44631-f73a-4449-8717-90a491b3cc31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="common\cxmediator.cpp">
+      <Filter>Source Files\common</Filter>
+    </ClCompile>
+    <ClCompile Include="common\replicationpairoperations.cpp">
+      <Filter>Source Files\common</Filter>
+    </ClCompile>
+    <ClCompile Include="common\resyncrequestor.cpp">
+      <Filter>Source Files\common</Filter>
+    </ClCompile>
+    <ClCompile Include="common\win32\resyncrequestormajor.cpp">
+      <Filter>Source Files\common\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="common\unix\replicationpairoperationsmajor.cpp">
+      <Filter>Source Files\common\unix</Filter>
+    </ClCompile>
+    <ClCompile Include="common\unix\resyncrequestor_xspoolmajor.cpp">
+      <Filter>Source Files\common\unix</Filter>
+    </ClCompile>
+    <ClCompile Include="common\unix\resyncrequestormajor.cpp">
+      <Filter>Source Files\common\unix</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\basicio.cpp">
+      <Filter>Source Files\foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\device.cpp">
+      <Filter>Source Files\foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\drivermirrorerror.cpp">
+      <Filter>Source Files\foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\error.cpp">
+      <Filter>Source Files\foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\file.cpp">
+      <Filter>Source Files\foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\fileclusterinformer.cpp">
+      <Filter>Source Files\foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\fileclusterinformerimp.cpp">
+      <Filter>Source Files\foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\filesystem.cpp">
+      <Filter>Source Files\foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\filterdrvif.cpp">
+      <Filter>Source Files\foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\genericdata.cpp">
+      <Filter>Source Files\foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\genericfile.cpp">
+      <Filter>Source Files\foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\generichost.cpp">
+      <Filter>Source Files\foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\host.cpp">
+      <Filter>Source Files\foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\inmageproduct.cpp">
+      <Filter>Source Files\foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\inmnofsclusterinfo.cpp">
+      <Filter>Source Files\foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\mirrorerror.cpp">
+      <Filter>Source Files\foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\operatingsystem.cpp">
+      <Filter>Source Files\foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\readinfo.cpp">
+      <Filter>Source Files\foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\remotehost.cpp">
+      <Filter>Source Files\foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\volume.cpp">
+      <Filter>Source Files\foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\volumechangedata.cpp">
+      <Filter>Source Files\foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\volumeclusterinfo.cpp">
+      <Filter>Source Files\foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\volumeclusterinfoimp.cpp">
+      <Filter>Source Files\foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\volumeop.cpp">
+      <Filter>Source Files\foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\win32\drivermirrorerrormajor.cpp">
+      <Filter>Source Files\foundation\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\win32\errormajor.cpp">
+      <Filter>Source Files\foundation\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\win32\fileclusterinformerimpmajor.cpp">
+      <Filter>Source Files\foundation\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\win32\filemajor.cpp">
+      <Filter>Source Files\foundation\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\win32\filterdrvifmajor.cpp">
+      <Filter>Source Files\foundation\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\win32\hostinfocollectormajor.cpp">
+      <Filter>Source Files\foundation\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\win32\hostmajor.cpp">
+      <Filter>Source Files\foundation\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\win32\inmageproductmajor.cpp">
+      <Filter>Source Files\foundation\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\win32\ntfsclusterinfo.cpp">
+      <Filter>Source Files\foundation\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\win32\ntfsfileclusterinquirer.cpp">
+      <Filter>Source Files\foundation\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\win32\operatingsysteminfomajor.cpp">
+      <Filter>Source Files\foundation\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\win32\operatingsystemmajor.cpp">
+      <Filter>Source Files\foundation\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\win32\volumechangedatamajor.cpp">
+      <Filter>Source Files\foundation\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\win32\volumeclusterinfoimpmajor.cpp">
+      <Filter>Source Files\foundation\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\win32\volumemajor.cpp">
+      <Filter>Source Files\foundation\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\unix\drivermirrorerrormajor.cpp">
+      <Filter>Source Files\foundation\unix</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\unix\errormajor.cpp">
+      <Filter>Source Files\foundation\unix</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\unix\filemajor.cpp">
+      <Filter>Source Files\foundation\unix</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\unix\filterdrvifmajor.cpp">
+      <Filter>Source Files\foundation\unix</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\unix\hostinfocollectormajor.cpp">
+      <Filter>Source Files\foundation\unix</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\unix\inmageproductmajor.cpp">
+      <Filter>Source Files\foundation\unix</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\unix\mirrorermajor.cpp">
+      <Filter>Source Files\foundation\unix</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\unix\operatingsystemmajor.cpp">
+      <Filter>Source Files\foundation\unix</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\unix\volumechangedatamajor.cpp">
+      <Filter>Source Files\foundation\unix</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\unix\volumemajor.cpp">
+      <Filter>Source Files\foundation\unix</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\linux\fileclusterinformerimpminor.cpp">
+      <Filter>Source Files\foundation\linux</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\Linux\fileminor.cpp">
+      <Filter>Source Files\foundation\linux</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\linux\hostinfocollectorminor.cpp">
+      <Filter>Source Files\foundation\linux</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\linux\hostminor.cpp">
+      <Filter>Source Files\foundation\linux</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\linux\operatingsystemminor.cpp">
+      <Filter>Source Files\foundation\linux</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\Linux\volumeclusterinfoimpminor.cpp">
+      <Filter>Source Files\foundation\linux</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\Linux\volumeminor.cpp">
+      <Filter>Source Files\foundation\linux</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\sun\fileclusterinformerimpminor.cpp">
+      <Filter>Source Files\foundation\sun</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\sun\fileminor.cpp">
+      <Filter>Source Files\foundation\sun</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\sun\hostinfocollectorminor.cpp">
+      <Filter>Source Files\foundation\sun</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\sun\hostminor.cpp">
+      <Filter>Source Files\foundation\sun</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\sun\operatingsystemminor.cpp">
+      <Filter>Source Files\foundation\sun</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\sun\volumeclusterinfoimpminor.cpp">
+      <Filter>Source Files\foundation\sun</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\sun\volumeminor.cpp">
+      <Filter>Source Files\foundation\sun</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\aix\fileclusterinformerimpminor.cpp">
+      <Filter>Source Files\foundation\aix</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\aix\fileminor.cpp">
+      <Filter>Source Files\foundation\aix</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\aix\hostinfocollectorminor.cpp">
+      <Filter>Source Files\foundation\aix</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\aix\hostminor.cpp">
+      <Filter>Source Files\foundation\aix</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\aix\operatingsystemminor.cpp">
+      <Filter>Source Files\foundation\aix</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\aix\volumechangedataminor.cpp">
+      <Filter>Source Files\foundation\aix</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\aix\volumeclusterinfoimpminor.cpp">
+      <Filter>Source Files\foundation\aix</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\aix\volumeminor.cpp">
+      <Filter>Source Files\foundation\aix</Filter>
+    </ClCompile>
+    <ClCompile Include="streams\compress.cpp">
+      <Filter>Source Files\streams</Filter>
+    </ClCompile>
+    <ClCompile Include="streams\devicestream.cpp">
+      <Filter>Source Files\streams</Filter>
+    </ClCompile>
+    <ClCompile Include="streams\dummytransportstream.cpp">
+      <Filter>Source Files\streams</Filter>
+    </ClCompile>
+    <ClCompile Include="streams\filestream.cpp">
+      <Filter>Source Files\streams</Filter>
+    </ClCompile>
+    <ClCompile Include="streams\genericstream.cpp">
+      <Filter>Source Files\streams</Filter>
+    </ClCompile>
+    <ClCompile Include="streams\memorystream.cpp">
+      <Filter>Source Files\streams</Filter>
+    </ClCompile>
+    <ClCompile Include="streams\transportstream.cpp">
+      <Filter>Source Files\streams</Filter>
+    </ClCompile>
+    <ClCompile Include="streams\volumestream.cpp">
+      <Filter>Source Files\streams</Filter>
+    </ClCompile>
+    <ClCompile Include="streams\win32\devicestreammajor.cpp">
+      <Filter>Source Files\streams\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="streams\win32\volumestreammajor.cpp">
+      <Filter>Source Files\streams\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="streams\unix\devicestreammajor.cpp">
+      <Filter>Source Files\streams\unix</Filter>
+    </ClCompile>
+    <ClCompile Include="streams\unix\volumestreammajor.cpp">
+      <Filter>Source Files\streams\unix</Filter>
+    </ClCompile>
+    <ClCompile Include="thread\s2libsthread.cpp">
+      <Filter>Source Files\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="thread\synchronize.cpp">
+      <Filter>Source Files\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="thread\threadmanager.cpp">
+      <Filter>Source Files\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="thread\win32\s2libsthreadmajor.cpp">
+      <Filter>Source Files\thread\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="thread\unix\s2libsthreadmajor.cpp">
+      <Filter>Source Files\thread\unix</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\disk.cpp">
+      <Filter>Source Files\foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\win32\diskmajor.cpp">
+      <Filter>Source Files\foundation\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\unix\diskmajor.cpp">
+      <Filter>Source Files\foundation\unix</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\filterdrivernotifier.cpp">
+      <Filter>Source Files\foundation</Filter>
+    </ClCompile>
+    <ClCompile Include="streams\azureblobstream.cpp">
+      <Filter>Source Files\streams</Filter>
+    </ClCompile>
+    <ClCompile Include="foundation\win32\volumeopmajor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="streams\azureblockblobstream.cpp">
+      <Filter>Source Files\streams</Filter>
+    </ClCompile>
+    <ClCompile Include="streams\azurepageblobstream.cpp">
+      <Filter>Source Files\streams</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="common\cxmediator.h">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\resyncrequestor.h">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\basicio.h">
+      <Filter>Header Files\foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\device.h">
+      <Filter>Header Files\foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\drivermirrorerror.h">
+      <Filter>Header Files\foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\entity.h">
+      <Filter>Header Files\foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\error.h">
+      <Filter>Header Files\foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\file.h">
+      <Filter>Header Files\foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\fileclusterinformer.h">
+      <Filter>Header Files\foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\fileclusterinformerimp.h">
+      <Filter>Header Files\foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\fileclusterinquirer.h">
+      <Filter>Header Files\foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\filesystem.h">
+      <Filter>Header Files\foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\filterdrvif.h">
+      <Filter>Header Files\foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\fssupportactions.h">
+      <Filter>Header Files\foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\genericdata.h">
+      <Filter>Header Files\foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\genericfile.h">
+      <Filter>Header Files\foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\generichost.h">
+      <Filter>Header Files\foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\host.h">
+      <Filter>Header Files\foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\inmageproduct.h">
+      <Filter>Header Files\foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\inmnofsclusterinfo.h">
+      <Filter>Header Files\foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\involfltfeatures.h">
+      <Filter>Header Files\foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\mirrorer.h">
+      <Filter>Header Files\foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\mirrorerror.h">
+      <Filter>Header Files\foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\operatingsystem.h">
+      <Filter>Header Files\foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\remotehost.h">
+      <Filter>Header Files\foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\volume.h">
+      <Filter>Header Files\foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\volumechangedata.h">
+      <Filter>Header Files\foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\volumeclusterinfo.h">
+      <Filter>Header Files\foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\volumeclusterinfoif.h">
+      <Filter>Header Files\foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\volumeclusterinfoimp.h">
+      <Filter>Header Files\foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\volumeop.h">
+      <Filter>Header Files\foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\win32\filterdrvifmajor.h">
+      <Filter>Header Files\foundation\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\win32\hostinfocollectormajor.h">
+      <Filter>Header Files\foundation\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\win32\ntfsclusterinfo.h">
+      <Filter>Header Files\foundation\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\win32\ntfsfileclusterinquirer.h">
+      <Filter>Header Files\foundation\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\win32\operatingsysteminfomajor.h">
+      <Filter>Header Files\foundation\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="streams\compress.h">
+      <Filter>Header Files\streams</Filter>
+    </ClInclude>
+    <ClInclude Include="streams\devicestream.h">
+      <Filter>Header Files\streams</Filter>
+    </ClInclude>
+    <ClInclude Include="streams\dummytransportstream.h">
+      <Filter>Header Files\streams</Filter>
+    </ClInclude>
+    <ClInclude Include="streams\filestream.h">
+      <Filter>Header Files\streams</Filter>
+    </ClInclude>
+    <ClInclude Include="streams\genericdevicestream.h">
+      <Filter>Header Files\streams</Filter>
+    </ClInclude>
+    <ClInclude Include="streams\genericstream.h">
+      <Filter>Header Files\streams</Filter>
+    </ClInclude>
+    <ClInclude Include="streams\inputoutputstream.h">
+      <Filter>Header Files\streams</Filter>
+    </ClInclude>
+    <ClInclude Include="streams\inputstream.h">
+      <Filter>Header Files\streams</Filter>
+    </ClInclude>
+    <ClInclude Include="streams\memorystream.h">
+      <Filter>Header Files\streams</Filter>
+    </ClInclude>
+    <ClInclude Include="streams\outputstream.h">
+      <Filter>Header Files\streams</Filter>
+    </ClInclude>
+    <ClInclude Include="streams\transportstream.h">
+      <Filter>Header Files\streams</Filter>
+    </ClInclude>
+    <ClInclude Include="streams\volumestream.h">
+      <Filter>Header Files\streams</Filter>
+    </ClInclude>
+    <ClInclude Include="thread\event.h">
+      <Filter>Header Files\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="thread\runnable.h">
+      <Filter>Header Files\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="thread\s2libsthread.h">
+      <Filter>Header Files\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="thread\synchronize.h">
+      <Filter>Header Files\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="thread\threadmanager.h">
+      <Filter>Header Files\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\disk.h">
+      <Filter>Header Files\foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\filterdrivernotifier.h">
+      <Filter>Header Files\foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\devicefilterfeatures.h">
+      <Filter>Header Files\foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="foundation\indskfltfeatures.h">
+      <Filter>Header Files\foundation</Filter>
+    </ClInclude>
+    <ClInclude Include="streams\azureblobstream.h">
+      <Filter>Header Files\streams</Filter>
+    </ClInclude>
+    <ClInclude Include="streams\azureblockblobstream.h">
+      <Filter>Header Files\streams</Filter>
+    </ClInclude>
+    <ClInclude Include="streams\azurepageblobstream.h">
+      <Filter>Header Files\streams</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="foundation\win32\mirrorermajor.h">
+      <Filter>Header Files\foundation\win32</Filter>
+    </CustomBuild>
+    <CustomBuild Include="foundation\unix\filterdrvifmajor.h">
+      <Filter>Header Files\foundation\unix</Filter>
+    </CustomBuild>
+    <CustomBuild Include="foundation\unix\hostinfocollectormajor.h">
+      <Filter>Header Files\foundation\unix</Filter>
+    </CustomBuild>
+    <CustomBuild Include="foundation\unix\mirrorermajor.h">
+      <Filter>Header Files\foundation\unix</Filter>
+    </CustomBuild>
+    <CustomBuild Include="foundation\sun\hostinfocollectorminor.h">
+      <Filter>Header Files\foundation\sun</Filter>
+    </CustomBuild>
+    <CustomBuild Include="foundation\sun\operatingsystemdefsminor.h">
+      <Filter>Header Files\foundation\sun</Filter>
+    </CustomBuild>
+    <CustomBuild Include="foundation\linux\hostinfocollectorminor.h">
+      <Filter>Header Files\foundation\linux</Filter>
+    </CustomBuild>
+    <CustomBuild Include="foundation\Linux\operatingsystemdefsminor.h">
+      <Filter>Header Files\foundation\linux</Filter>
+    </CustomBuild>
+  </ItemGroup>
+</Project>

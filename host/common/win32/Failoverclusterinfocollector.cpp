@@ -33,6 +33,55 @@ bool FailoverClusterInfo::IsClusterNode()
     return bRet;
 }
 
+SVSTATUS FailoverClusterInfo::CheckClusterHealth(const std::string& clusterName, bool& isClusterUp)
+{
+    DebugPrintf(SV_LOG_DEBUG, "ENTERED %s\n", FUNCTION_NAME);
+
+    SVSTATUS status = SVS_OK;
+    isClusterUp = true;
+
+    do
+    {
+        if (clusterName.empty())
+        {
+            status = SVE_ABORT;
+            DebugPrintf(SV_LOG_ERROR, "%s: cluster name is empty. skipping cluster connection.\n", FUNCTION_NAME);
+            break;
+        }
+
+        wstring tmp = wstring(clusterName.begin(), clusterName.end());
+        LPCWSTR lpcClusterName = tmp.c_str();
+        
+        HCLUSTER hcluster = OpenCluster(
+            lpcClusterName
+        );
+
+        if (!hcluster)
+        {
+            DWORD errorCode = GetLastError();
+            if (errorCode == EPT_S_NOT_REGISTERED)
+            {
+                isClusterUp = false;
+            }
+            else
+            {
+                status = SVE_ABORT;
+            }
+
+            std::stringstream err_msg; 
+            err_msg << "Failed to open a handle to cluster" << clusterName << " with error code : " << errorCode;
+            m_ErroMessage = err_msg.str();
+
+            DebugPrintf(SV_LOG_ERROR, "%s: %s\n", FUNCTION_NAME, m_ErroMessage.c_str());
+
+        }
+
+    } while (false);
+
+    DebugPrintf(SV_LOG_DEBUG, "EXITED %s, Status %d\n", FUNCTION_NAME, status);
+    return status;
+}
+
 bool FailoverClusterInfo::GetClusSvcStatusOnCurrentNode(FailoverCluster::ClusterServiceStatus& status)
 {
     DebugPrintf(SV_LOG_DEBUG, "ENTERED %s\n", FUNCTION_NAME);
@@ -267,7 +316,6 @@ SVSTATUS FailoverClusterInfo::GetFailoverClusterName()
 
     return status;
 }
-
 
 SVSTATUS FailoverClusterInfo::GetFailoverClusterNodesInfo()
 {
@@ -793,8 +841,7 @@ void FailoverClusterInfo::GetClusterUpNodesMap(std::map<std::string, NodeEntity>
             downNodes += nodeName;
             continue;
         }
-            
-        boost::to_upper(nodeName);
+
         clusterNodesMap.insert(std::pair<std::string, NodeEntity>(nodeName, (*itr)));
     }
 

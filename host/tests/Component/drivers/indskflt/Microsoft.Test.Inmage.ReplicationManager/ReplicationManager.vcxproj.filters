@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="ReplicationManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SegStream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SVDStream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Validations.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ReplicationWorker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ReplicationManager.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ReplicationWorker.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="SegStream.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="StdLogger.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="SVDStream.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{84fee36f-f0d4-414a-8fb2-fc6b07082ed6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{dd55e795-7529-4cf9-94fb-b186bba8ab77}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

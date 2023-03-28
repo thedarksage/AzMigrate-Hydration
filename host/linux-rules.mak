@@ -148,6 +148,10 @@ ifeq (SLES11-64, $(X_OS))
 	CFLAGS += -DINMAGE_ALLOW_UNSUPPORTED
 endif
 
+ifeq ($(X_OS),$(filter $(X_OS), RHEL9-64  UBUNTU-22.04-64 OL9-64))
+	CFLAGS += -DBOOST_ASIO_DISABLE_STD_FUTURE
+endif
+
 ifeq (XenServer,$(X_XENOS))
 # get gcc to do garbage collection before it runs out of memory
 # can increase compile times, but these seem to work and improve 

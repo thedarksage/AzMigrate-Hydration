@@ -1,0 +1,32 @@
+# START: ASR SHUTDOWN
+#
+# NOTE:
+#
+# ASR Shutdown should always be the last to be executed 
+# and will exit at the end after processing its shutdown.
+# Place all your custom halt.local code above this section
+# for it to be executed.
+#
+
+NOLOCALE=1
+. /etc/init.d/functions
+
+CreateFiltDrvNode()
+{
+    if lsmod | grep involflt > /dev/null 2>&1 && [ ! -c /dev/involflt ]; then
+        local FILTDRVNODE_MAJ_NUM=`cat /proc/devices | grep involflt | cut -d" " -f1`
+        mknod /dev/involflt c $FILTDRVNODE_MAJ_NUM 0
+    fi
+}
+
+CreateFiltDrvNode
+sync
+action "ASR Shutdown Notification" /etc/vxagent/hotplug_utils/inmshutnotify
+
+#
+# NOTE: We exit the script here
+#
+exit
+
+#
+# END: ASR SHUTDOWN

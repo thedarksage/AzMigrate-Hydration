@@ -1,0 +1,1 @@
+﻿(Get-Content "$PSScriptRoot\windows_spv.json" -Raw | ConvertFrom-Json).'Windows' | ConvertTo-Json | Set-Content -Path "$PSScriptRoot\spv.json"

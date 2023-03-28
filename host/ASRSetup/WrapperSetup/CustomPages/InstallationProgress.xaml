@@ -1,0 +1,1654 @@
+﻿<ns0:BasePageForWpfControls
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+    xmlns:ns0="clr-namespace:ASRSetupFramework;assembly=ASRSetupFramework"
+    xmlns:resx="clr-namespace:ASRResources;assembly=ASRResources"
+    x:Class="UnifiedSetup.InstallationProgress"
+    x:Uid="ns0:BasePageForWpfControls_1"
+    Height="415"
+    Width="695">
+
+    <Grid x:Uid="Grid_1" Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition x:Uid="RowDefinition_1" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_2" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_3" Height="20" />
+            <RowDefinition x:Uid="RowDefinition_4" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_5" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_6" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_7" Height="10" />
+            <RowDefinition x:Uid="RowDefinition_8" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_9" Height="10" />
+            <RowDefinition x:Uid="RowDefinition_10" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_11" Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition x:Uid="ColumnDefinition_1" MaxWidth="27" Width="27" />
+            <ColumnDefinition x:Uid="ColumnDefinition_2" Width="*" />
+            <ColumnDefinition x:Uid="ColumnDefinition_3" Width="32" />
+        </Grid.ColumnDefinitions>
+
+        <TextBlock
+            x:Name="InstallationProgressCurrentOperationTextBlock"
+            x:Uid="InstallationProgressCurrentOperationTextBlock" 
+            Grid.Column="1"
+            Grid.Row="1"
+            TextWrapping="Wrap"
+            Visibility="Collapsed"
+            Text="{x:Static resx:StringResources.InstallationProgressCurrentOperationTPText}">
+        </TextBlock>
+        <ProgressBar
+            x:Name="InstallationShowProgress"
+            x:Uid="InstallationShowProgress"
+            Grid.Row ="3"
+            Grid.Column="1"
+            IsIndeterminate="True"
+            Width="450"
+            HorizontalAlignment="Left"
+            Height="15"
+            Maximum="100"
+            Minimum="0"
+            Visibility="Collapsed"/>
+        <GroupBox x:Name="GrpBox" Grid.Row="7" Grid.ColumnSpan="2" Grid.IsSharedSizeScope="True" BorderThickness="0" Margin="0,0,0,0" >
+            <StackPanel Orientation="Horizontal">
+                <Grid x:Uid="Grid_2" Margin="20">
+                    <Grid.RowDefinitions>
+                        <RowDefinition x:Uid="RowDefinition_8_1" Height="25" />
+                        <RowDefinition x:Uid="RowDefinition_8_2" Height="Auto" />
+                        <RowDefinition x:Uid="RowDefinition_8_3" Height="Auto" />
+                        <RowDefinition x:Uid="RowDefinition_8_4" Height="Auto" />
+                        <RowDefinition x:Uid="RowDefinition_8_5" Height="Auto" />
+                        <RowDefinition x:Uid="RowDefinition_8_6" Height="Auto" />
+                        <RowDefinition x:Uid="RowDefinition_8_7" Height="Auto" />
+                        <RowDefinition x:Uid="RowDefinition_8_8" Height="Auto" />
+                        <RowDefinition x:Uid="RowDefinition_8_9" Height="Auto" />
+                        <RowDefinition x:Uid="RowDefinition_8_10" Height="Auto" />
+                        <RowDefinition x:Uid="RowDefinition_8_11" Height="Auto" />
+                        <RowDefinition x:Uid="RowDefinition_8_12" Height="Auto" />
+						<RowDefinition x:Uid="RowDefinition_8_13" Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition x:Uid="ColumnDefinition_1" Width="*" />
+                        <ColumnDefinition x:Uid="ColumnDefinition_2" Width="6*" />
+                        <ColumnDefinition x:Uid="ColumnDefinition_3" Width="2*" />
+                    </Grid.ColumnDefinitions>
+
+                    <!--Heading row-->
+                    <TextBox 
+                        x:Name="InstProgressHeadingTextbox0" 
+                        x:Uid="InstProgressHeadingTextbox0" 
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Width="50"
+                        IsEnabled="False">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressHeadingTextbox1" 
+                        x:Uid="InstProgressHeadingTextbox1" 
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        Width="300"
+                        IsEnabled="False"
+                        FontWeight="ExtraBold" 
+                        Text="{x:Static resx:StringResources.InstProgressTableHeadingText}" 
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressHeadingTextbox2" 
+                        x:Uid="InstProgressHeadingTextbox2" 
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="0"
+                        Grid.Column="2"
+                        Width="120"
+                        IsEnabled="False"
+                        FontWeight="ExtraBold" 
+                        Text="{x:Static resx:StringResources.InstProgressTableHeadingText1}" 
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center">
+                    </TextBox>
+
+                    <!--MySQL row-->
+                    <TextBox 
+                        x:Name="InstProgressMySQLImageTextbox"
+                        x:Uid="InstProgressMySQLImageTextbox" 
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        Width="50"
+                        IsEnabled="False">
+                    </TextBox>
+                    <Image
+                        x:Name="MySQLSuccessImage"
+                        x:Uid="MySQLSuccessImage"
+                        Height="16"
+                        Grid.Row="1"
+                        Grid.Column="0" 
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Source="pack://application:,,,/Resources/smallGreenCheck.png"
+                        Width="16" />
+                    <Image
+                        x:Name="MySQLErrorImage"
+                        x:Uid="MySQLErrorImage"
+                        Height="16"
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Source="pack://application:,,,/Resources/smallError.png"
+                        Width="16" />
+                    <TextBox 
+                        x:Name="InstProgressMySQLTextbox" 
+                        x:Uid="InstProgressMySQLTextbox" 
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        Width="300"
+                        Text="Download MySQL" 
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        IsEnabled="False"
+                        FontWeight="Bold">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressMySQLStatusPending" 
+                        x:Uid="InstProgressMySQLStatusPending"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="1"
+                        Grid.Column="2"
+                        Width="120"
+                        FontStyle="Italic"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Visibility="Visible"
+                        IsEnabled="False"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusPendingText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressMySQLStatusDownloading" 
+                        x:Uid="InstProgressMySQLStatusDownloading"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="1"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Blue"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        IsReadOnly="True"
+                        FontWeight="Bold"
+                        Text="Downloading">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressMySQLStatusDone" 
+                        x:Uid="InstProgressMySQLStatusDone"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="1"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Blue"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        IsReadOnly="True"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusDoneText}"
+                        MouseDoubleClick="InstProgressMySQL_MouseDoubleClick"
+                        ToolTip="{x:Static resx:StringResources.InstProgressLogFileOpenText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressMySQLStatusFailed" 
+                        x:Uid="InstProgressMySQLStatusFailed"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="1"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Red"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        IsReadOnly="True"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusFailedText}"
+                        MouseDoubleClick="InstProgressMySQL_MouseDoubleClick"
+                        ToolTip="{x:Static resx:StringResources.InstProgressLogFileOpenText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressMySQLStatusAlreadyInstalled" 
+                        x:Uid="InstProgressMySQLStatusAlreadyInstalled"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="1"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Blue"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        IsReadOnly="True"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressTPStatusAlreadyInstalledText}"
+                        MouseDoubleClick="InstProgressMySQL_MouseDoubleClick"
+                        ToolTip="{x:Static resx:StringResources.InstProgressLogFileOpenText}">
+                    </TextBox>
+
+                    <!--IIS row-->
+                    <TextBox 
+                        x:Name="InstProgressIISImageTextbox"
+                        x:Uid="InstProgressIISImageTextbox" 
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="2"
+                        Grid.Column="0"
+                        Width="50"
+                        IsEnabled="False">
+                    </TextBox>
+                    <Image
+                        x:Name="IISSuccessImage"
+                        x:Uid="IISSuccessImage"
+                        Height="16"
+                        Grid.Row="2"
+                        Grid.Column="0" 
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Source="pack://application:,,,/Resources/smallGreenCheck.png"
+                        Width="16" />
+                    <Image
+                        x:Name="IISErrorImage"
+                        x:Uid="IISErrorImage"
+                        Height="16"
+                        Grid.Row="2"
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Source="pack://application:,,,/Resources/smallError.png"
+                        Width="16" />
+                    <TextBox 
+                        x:Name="InstProgressIISTextbox" 
+                        x:Uid="InstProgressIISTextbox" 
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="2"
+                        Grid.Column="1"
+                        Width="300"
+                        Text="{x:Static resx:StringResources.InstProgressIISText}" 
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        IsEnabled="False"
+                        FontWeight="Bold">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressIISStatusPending" 
+                        x:Uid="InstProgressIISStatusPending"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="2"
+                        Grid.Column="2"
+                        Width="120"
+                        FontStyle="Italic"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Visibility="Visible"
+                        IsEnabled="False"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusPendingText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressIISStatusInstalling" 
+                        x:Uid="InstProgressIISStatusInstalling"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="2"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Blue"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        IsReadOnly="True"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusInstallingText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressIISStatusDone" 
+                        x:Uid="InstProgressIISStatusDone"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="2"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Blue"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        IsReadOnly="True"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusDoneText}"
+                        MouseDoubleClick="InstProgressIIS_MouseDoubleClick"
+                        ToolTip="{x:Static resx:StringResources.InstProgressLogFileOpenText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressIISStatusFailed" 
+                        x:Uid="InstProgressIISStatusFailed"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="2"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Red"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        IsReadOnly="True"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusFailedText}"
+                        MouseDoubleClick="InstProgressIIS_MouseDoubleClick"
+                        ToolTip="{x:Static resx:StringResources.InstProgressLogFileOpenText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressIISStatusAlreadyInstalled" 
+                        x:Uid="InstProgressIISStatusAlreadyInstalled"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="2"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Blue"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        IsReadOnly="True"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressTPStatusAlreadyInstalledText}"
+                        MouseDoubleClick="InstProgressIIS_MouseDoubleClick"
+                        ToolTip="{x:Static resx:StringResources.InstProgressLogFileOpenText}">
+                    </TextBox>
+
+                    <!--CX TP row-->
+                    <TextBox 
+                        x:Name="InstProgressImageTextbox1"
+                        x:Uid="InstProgressImageTextbox1" 
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="3"
+                        Grid.Column="0"
+                        Width="50"
+                        IsEnabled="False">
+                    </TextBox>
+                    <Image
+                        x:Name="SuccessImage1"
+                        x:Uid="SuccessImage1"
+                        Height="16"
+                        Grid.Column="0" 
+                        Grid.Row="3"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Source="pack://application:,,,/Resources/smallGreenCheck.png"
+                        Width="16" />
+                    <Image
+                        x:Name="ErrorImage1"
+                        x:Uid="ErrorImage1"
+                        Height="16"
+                        Grid.Column="0" 
+                        Grid.Row="3"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Source="pack://application:,,,/Resources/smallError.png"
+                        Width="16" />
+                    <TextBox 
+                        x:Name="InstProgressTPTextbox" 
+                        x:Uid="InstProgressTPTextbox" 
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="3"
+                        Grid.Column="1"
+                        Width="300"
+                        Text="{x:Static resx:StringResources.InstProgressTPText}" 
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        IsEnabled="False"
+                        FontWeight="Bold">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressTPStatusPending" 
+                        x:Uid="InstProgressTPStatusPending"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="3"
+                        Grid.Column="2"
+                        Width="120"
+                        FontStyle="Italic"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Visibility="Visible"
+                        IsEnabled="False"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusPendingText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressTPStatusInstalling" 
+                        x:Uid="InstProgressTPStatusInstalling"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="3"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Blue"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        IsReadOnly="True"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusInstallingText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressTPStatusDone" 
+                        x:Uid="InstProgressTPStatusDone"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="3"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Blue"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        IsReadOnly="True"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusDoneText}"
+                        MouseDoubleClick="InstProgressCXTP_MouseDoubleClick"
+                        ToolTip="{x:Static resx:StringResources.InstProgressLogFileOpenText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressTPStatusFailed" 
+                        x:Uid="InstProgressTPStatusFailed"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="3"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Red"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        IsReadOnly="True"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusFailedText}"
+                        MouseDoubleClick="InstProgressCXTP_MouseDoubleClick"
+                        ToolTip="{x:Static resx:StringResources.InstProgressLogFileOpenText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressTPStatusAlreadyInstalled" 
+                        x:Uid="InstProgressTPStatusAlreadyInstalled"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="3"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Blue"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        IsReadOnly="True"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressTPStatusAlreadyInstalledText}"
+                        MouseDoubleClick="InstProgressCXTP_MouseDoubleClick"
+                        ToolTip="{x:Static resx:StringResources.InstProgressLogFileOpenText}">
+                    </TextBox>
+
+                    <!--CX row-->
+                    <TextBox 
+                        x:Name="InstProgressImageTextbox2" 
+                        x:Uid="InstProgressImageTextbox2" 
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="4"
+                        Grid.Column="0"
+                        Width="50"
+                        IsEnabled="False">
+                    </TextBox>
+                    <Image
+                        x:Name="SuccessImage2"
+                        x:Uid="SuccessImage2"
+                        Height="16"
+                        Grid.Column="0" 
+                        Grid.Row="4"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Source="pack://application:,,,/Resources/smallGreenCheck.png"
+                        Width="16" />
+                    <Image
+                        x:Name="ErrorImage2"
+                        x:Uid="ErrorImage2"
+                        Height="16"
+                        Grid.Column="0" 
+                        Grid.Row="4"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Source="pack://application:,,,/Resources/smallError.png"
+                        Width="16" />
+                    <TextBox 
+                        x:Name="InstProgressCSPSTextbox" 
+                        x:Uid="InstProgressCSPSTextbox" 
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="4"
+                        Grid.Column="1"
+                        Width="300"
+                        Text="{x:Static resx:StringResources.InstProgressCSPSText}" 
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Visibility="Collapsed"
+                        IsEnabled="False"
+                        FontWeight="Bold">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressPSTextbox" 
+                        x:Uid="InstProgressPSTextbox" 
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="4"
+                        Grid.Column="1"
+                        Width="300"
+                        Text="{x:Static resx:StringResources.InstProgressPSText}" 
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Visibility="Collapsed"
+                        IsEnabled="False"
+                        FontWeight="Bold">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressCSPSStatusPending" 
+                        x:Uid="InstProgressCSPSStatusPending"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="4"
+                        Grid.Column="2"
+                        Width="120"
+                        FontStyle="Italic"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Visibility="Visible"
+                        IsEnabled="False"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusPendingText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressCSPSStatusInstalling" 
+                        x:Uid="InstProgressCSPSStatusInstalling"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="4"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Blue"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        IsReadOnly="True"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusInstallingText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressCSPSStatusDone" 
+                        x:Uid="InstProgressCSPSStatusDone"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="4"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Blue"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        IsReadOnly="True"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusDoneText}"
+                        MouseDoubleClick="InstProgressCSPS_MouseDoubleClick"
+                        ToolTip="{x:Static resx:StringResources.InstProgressLogFileOpenText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressCSPSStatusFailed" 
+                        x:Uid="InstProgressCSPSStatusFailed"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="4"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Red"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        IsReadOnly="True"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusFailedText}"
+                        MouseDoubleClick="InstProgressCSPS_MouseDoubleClick"
+                        ToolTip="{x:Static resx:StringResources.InstProgressLogFileOpenText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressCSPSStatusAlreadyInstalled" 
+                        x:Uid="InstProgressCSPSStatusAlreadyInstalled"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="4"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Blue"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        IsReadOnly="True"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressTPStatusAlreadyInstalledText}"
+                        MouseDoubleClick="InstProgressCSPS_MouseDoubleClick"
+                        ToolTip="{x:Static resx:StringResources.InstProgressLogFileOpenText}">
+                    </TextBox>
+
+                    <!--DRA installation row-->
+                    <TextBox 
+                        x:Name="InstProgressDRAImageTextbox"
+                        x:Uid="InstProgressDRAImageTextbox" 
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="5"
+                        Grid.Column="0"
+                        Width="50"
+                        IsEnabled="False">
+                    </TextBox>
+                    <Image
+                        x:Name="DRASuccessImage"
+                        x:Uid="DRASuccessImage"
+                        Height="16"
+                        Grid.Column="0" 
+                        Grid.Row="5"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Source="pack://application:,,,/Resources/smallGreenCheck.png"
+                        Width="16" />
+                    <Image
+                        x:Name="DRAErrorImage"
+                        x:Uid="DRAErrorImage"
+                        Height="16"
+                        Grid.Column="0" 
+                        Grid.Row="5"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Source="pack://application:,,,/Resources/smallError.png"
+                        Width="16" />
+                    <TextBox 
+                        x:Name="InstProgressDRATextbox" 
+                        x:Uid="InstProgressDRATextbox" 
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="5"
+                        Grid.Column="1"
+                        Width="300"
+                        Text="Install Microsoft azure site recovery provider" 
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        IsEnabled="False"
+                        FontWeight="Bold">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressDRAStatusPending" 
+                        x:Uid="InstProgressDRAStatusPending"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="5"
+                        Grid.Column="2"
+                        Width="120"
+                        FontStyle="Italic"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Visibility="Visible"
+                        IsEnabled="False"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusPendingText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressDRAStatusInstalling" 
+                        x:Uid="InstProgressDRAStatusInstalling"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="5"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Blue"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        IsReadOnly="True"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusInstallingText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressDRAStatusDone" 
+                        x:Uid="InstProgressDRAStatusDone"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="5"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Blue"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusDoneText}"
+                        IsReadOnly="True"
+                        MouseDoubleClick="InstProgressDRA_MouseDoubleClick"
+                        ToolTip="{x:Static resx:StringResources.InstProgressLogFileOpenText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressDRAStatusFailed" 
+                        x:Uid="InstProgressDRAStatusFailed"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="5"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Red"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusFailedText}"
+                        IsReadOnly="True"
+                        MouseDoubleClick="InstProgressDRA_MouseDoubleClick"
+                        ToolTip="{x:Static resx:StringResources.InstProgressLogFileOpenText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressDRAStatusAlreadyInstalled" 
+                        x:Uid="InstProgressDRAStatusAlreadyInstalled"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="5"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Blue"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressTPStatusAlreadyInstalledText}"
+                        IsReadOnly="True"
+                        MouseDoubleClick="InstProgressDRA_MouseDoubleClick"
+                        ToolTip="{x:Static resx:StringResources.InstProgressLogFileOpenText}">
+                    </TextBox>
+                    
+                    <!--Install Master target row-->
+                    <TextBox 
+                        x:Name="InstProgressImageTextbox3"
+                        x:Uid="InstProgressImageTextbox3" 
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="6"
+                        Grid.Column="0"
+                        Width="50"
+                        IsEnabled="False">
+                    </TextBox>
+                    <Image
+                        x:Name="SuccessImage3"
+                        x:Uid="SuccessImage3"
+                        Height="16"
+                        Grid.Column="0" 
+                        Grid.Row="6"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Source="pack://application:,,,/Resources/smallGreenCheck.png"
+                        Width="16" />
+                    <Image
+                        x:Name="ErrorImage3"
+                        x:Uid="ErrorImage3"
+                        Height="16"
+                        Grid.Column="0" 
+                        Grid.Row="6"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Source="pack://application:,,,/Resources/smallError.png"
+                        Width="16" />
+                    <TextBox 
+                        x:Name="InstProgressMTTextbox" 
+                        x:Uid="InstProgressMTTextbox" 
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="6"
+                        Grid.Column="1"
+                        Width="300"
+                        Text="{x:Static resx:StringResources.InstProgressMTText}" 
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        IsEnabled="False"
+                        FontWeight="Bold">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressMTStatusPending" 
+                        x:Uid="InstProgressMTStatusPending"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="6"
+                        Grid.Column="2"
+                        Width="120"
+                        FontStyle="Italic"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Visibility="Visible"
+                        IsEnabled="False"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusPendingText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressMTStatusInstalling" 
+                        x:Uid="InstProgressMTStatusInstalling"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="6"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Blue"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        IsReadOnly="True"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusInstallingText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressMTStatusDone" 
+                        x:Uid="InstProgressMTStatusDone"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="6"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Blue"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusDoneText}"
+                        IsReadOnly="True"
+                        MouseDoubleClick="InstProgressMT_MouseDoubleClick"
+                        ToolTip="{x:Static resx:StringResources.InstProgressLogFileOpenText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressMTStatusFailed" 
+                        x:Uid="InstProgressMTStatusFailed"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="6"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Red"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusFailedText}"
+                        IsReadOnly="True"
+                        MouseDoubleClick="InstProgressMT_MouseDoubleClick"
+                        ToolTip="{x:Static resx:StringResources.InstProgressLogFileOpenText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressMTStatusAlreadyInstalled" 
+                        x:Uid="InstProgressMTStatusAlreadyInstalled"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="6"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Blue"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressTPStatusAlreadyInstalledText}"
+                        IsReadOnly="True"
+                        MouseDoubleClick="InstProgressMT_MouseDoubleClick"
+                        ToolTip="{x:Static resx:StringResources.InstProgressLogFileOpenText}">
+                    </TextBox>
+
+                    <!--Configure Master target row-->
+                    <TextBox 
+                        x:Name="ConfigureMTImageTextbox"
+                        x:Uid="ConfigureMTImageTextbox" 
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="7"
+                        Grid.Column="0"
+                        Width="50"
+                        IsEnabled="False">
+                    </TextBox>
+                    <Image
+                        x:Name="ConfigureMTSuccessImage"
+                        x:Uid="ConfigureMTSuccessImage"
+                        Height="16"
+                        Grid.Column="0" 
+                        Grid.Row="7"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Source="pack://application:,,,/Resources/smallGreenCheck.png"
+                        Width="16" />
+                    <Image
+                        x:Name="ConfigureMTErrorImage"
+                        x:Uid="ConfigureMTErrorImage"
+                        Height="16"
+                        Grid.Column="0" 
+                        Grid.Row="7"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Source="pack://application:,,,/Resources/smallError.png"
+                        Width="16" />
+                    <TextBox 
+                        x:Name="ConfigureMTTextbox" 
+                        x:Uid="ConfigureMTTextbox" 
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="7"
+                        Grid.Column="1"
+                        Width="300"
+                        Text="{x:Static resx:StringResources.ConfigureMTText}" 
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        IsEnabled="False"
+                        FontWeight="Bold">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="ConfigureMTStatusPending" 
+                        x:Uid="ConfigureMTStatusPending"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="7"
+                        Grid.Column="2"
+                        Width="120"
+                        FontStyle="Italic"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Visibility="Visible"
+                        IsEnabled="False"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusPendingText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="ConfigureMTStatusConfiguring" 
+                        x:Uid="ConfigureMTStatusConfiguring"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="7"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Blue"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        IsReadOnly="True"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.ConfiguringStatusText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="ConfigureMTStatusDone" 
+                        x:Uid="ConfigureMTStatusDone"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="7"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Blue"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusDoneText}"
+                        IsReadOnly="True"
+                        MouseDoubleClick="InstProgressConfigureMT_MouseDoubleClick"
+                        ToolTip="{x:Static resx:StringResources.InstProgressLogFileOpenText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="ConfigureMTStatusFailed" 
+                        x:Uid="ConfigureMTStatusFailed"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="7"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Red"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusFailedText}"
+                        IsReadOnly="True"
+                        MouseDoubleClick="InstProgressConfigureMT_MouseDoubleClick"
+                        ToolTip="{x:Static resx:StringResources.InstProgressLogFileOpenText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="ConfigureMTStatusAlreadyConfigured" 
+                        x:Uid="ConfigureMTStatusAlreadyConfigured"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="7"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Blue"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.AlreadyConfiguredStatusText}"
+                        IsReadOnly="True"
+                        MouseDoubleClick="InstProgressConfigureMT_MouseDoubleClick"
+                        ToolTip="{x:Static resx:StringResources.InstProgressLogFileOpenText}">
+                    </TextBox>
+                    
+                    <!--MARS installation row-->
+                    <TextBox 
+                        x:Name="InstProgressMARSImageTextbox"
+                        x:Uid="InstProgressMARSImageTextbox" 
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="8"
+                        Grid.Column="0"
+                        Width="50"
+                        IsEnabled="False">
+                    </TextBox>
+                    <Image
+                        x:Name="MARSSuccessImage"
+                        x:Uid="MARSSuccessImage"
+                        Height="16"
+                        Grid.Column="0" 
+                        Grid.Row="8"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Source="pack://application:,,,/Resources/smallGreenCheck.png"
+                        Width="16" />
+                    <Image
+                        x:Name="MARSErrorImage"
+                        x:Uid="MARSErrorImage"
+                        Height="16"
+                        Grid.Column="0" 
+                        Grid.Row="8"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Source="pack://application:,,,/Resources/smallError.png"
+                        Width="16" />
+                    <TextBox 
+                        x:Name="InstProgressMARSTextbox" 
+                        x:Uid="InstProgressMARSTextbox" 
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="8"
+                        Grid.Column="1"
+                        Width="300"
+                        Text="Install Microsoft azure recovery services agent" 
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        IsEnabled="False"
+                        FontWeight="Bold">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressMARSStatusPending" 
+                        x:Uid="InstProgressMARSStatusPending"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="8"
+                        Grid.Column="2"
+                        Width="120"
+                        FontStyle="Italic"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Visibility="Visible"
+                        IsEnabled="False"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusPendingText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressMARSStatusInstalling" 
+                        x:Uid="InstProgressMARSStatusInstalling"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="8"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Blue"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        IsReadOnly="True"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusInstallingText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressMARSStatusDone" 
+                        x:Uid="InstProgressMARSStatusDone"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="8"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Blue"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusDoneText}"
+                        IsReadOnly="True"
+                        MouseDoubleClick="InstProgressMARS_MouseDoubleClick"
+                        ToolTip="{x:Static resx:StringResources.InstProgressLogFileOpenText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressMARSStatusFailed" 
+                        x:Uid="InstProgressMARSStatusFailed"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="8"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Red"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusFailedText}"
+                        IsReadOnly="True"
+                        MouseDoubleClick="InstProgressMARS_MouseDoubleClick"
+                        ToolTip="{x:Static resx:StringResources.InstProgressLogFileOpenText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressMARSStatusAlreadyInstalled" 
+                        x:Uid="InstProgressMARSStatusAlreadyInstalled"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="8"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Blue"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressTPStatusAlreadyInstalledText}"
+                        IsReadOnly="True"
+                        MouseDoubleClick="InstProgressMARS_MouseDoubleClick"
+                        ToolTip="{x:Static resx:StringResources.InstProgressLogFileOpenText}">
+                    </TextBox>
+
+                    <!--Configuration Manager installation row-->
+                    <TextBox 
+                        x:Name="InstProgressConfigManagerImageTextbox"
+                        x:Uid="InstProgressConfigManagerImageTextbox" 
+                        Background="WhiteSmoke"
+			BorderBrush="#FFB1B1B1"
+                        Grid.Row="9"
+                        Grid.Column="0"
+                        Width="50"
+                        IsEnabled="False">
+                    </TextBox>
+                    <Image
+                        x:Name="ConfigManagerSuccessImage"
+                        x:Uid="ConfigManagerSuccessImage"
+                        Height="16"
+                        Grid.Column="0" 
+                        Grid.Row="9"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Source="pack://application:,,,/Resources/smallGreenCheck.png"
+                        Width="16" />
+                    <Image
+                        x:Name="ConfigManagerErrorImage"
+                        x:Uid="ConfigManagerErrorImage"
+                        Height="16"
+                        Grid.Column="0" 
+                        Grid.Row="9"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Source="pack://application:,,,/Resources/smallError.png"
+                        Width="16" />
+                    <TextBox 
+                        x:Name="InstProgressConfigManagerTextbox" 
+                        x:Uid="InstProgressConfigManagerTextbox" 
+                        Background="WhiteSmoke"
+			BorderBrush="#FFB1B1B1"
+                        Grid.Row="9"
+                        Grid.Column="1"
+                        Width="300"
+                        Text="Install Azure Site Recovery Configuration Manager" 
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        IsEnabled="False"
+                        FontWeight="Bold">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressConfigManagerStatusPending" 
+                        x:Uid="InstProgressConfigManagerStatusPending"
+                        Background="WhiteSmoke"
+			BorderBrush="#FFB1B1B1"
+                        Grid.Row="9"
+                        Grid.Column="2"
+                        Width="120"
+                        FontStyle="Italic"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Visibility="Visible"
+                        IsEnabled="False"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusPendingText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressConfigManagerStatusInstalling" 
+                        x:Uid="InstProgressConfigManagerStatusInstalling"
+                        Background="WhiteSmoke"
+			BorderBrush="#FFB1B1B1"
+                        Grid.Row="9"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Blue"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        IsReadOnly="True"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusInstallingText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressConfigManagerStatusDone" 
+                        x:Uid="InstProgressConfigManagerStatusDone"
+                        Background="WhiteSmoke"
+			BorderBrush="#FFB1B1B1"
+                        Grid.Row="9"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Blue"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusDoneText}"
+                        IsReadOnly="True"
+                        MouseDoubleClick="InstProgressConfigManager_MouseDoubleClick"
+                        ToolTip="{x:Static resx:StringResources.InstProgressLogFileOpenText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressConfigManagerStatusFailed" 
+                        x:Uid="InstProgressConfigManagerStatusFailed"
+                        Background="WhiteSmoke"
+			BorderBrush="#FFB1B1B1"
+                        Grid.Row="9"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Red"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusFailedText}"
+                        IsReadOnly="True"
+                        MouseDoubleClick="InstProgressConfigManager_MouseDoubleClick"
+                        ToolTip="{x:Static resx:StringResources.InstProgressLogFileOpenText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressConfigManagerStatusAlreadyInstalled" 
+                        x:Uid="InstProgressConfigManagerStatusAlreadyInstalled"
+                        Background="WhiteSmoke"
+			BorderBrush="#FFB1B1B1"
+                        Grid.Row="9"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Blue"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressTPStatusAlreadyInstalledText}"
+                        IsReadOnly="True"
+                        MouseDoubleClick="InstProgressConfigManager_MouseDoubleClick"
+                        ToolTip="{x:Static resx:StringResources.InstProgressLogFileOpenText}">
+                    </TextBox>
+
+                    <!--Registering with site recovery row-->
+                    <TextBox 
+                        x:Name="InstProgressRegistrationImageTextbox"
+                        x:Uid="InstProgressRegistrationImageTextbox" 
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="10"
+                        Grid.Column="0"
+                        Width="50"
+                        IsEnabled="False">
+                    </TextBox>
+                    <Image
+                        x:Name="RegistrationSuccessImage"
+                        x:Uid="RegistrationSuccessImage"
+                        Height="16"
+                        Grid.Column="0" 
+                        Grid.Row="10"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Source="pack://application:,,,/Resources/smallGreenCheck.png"
+                        Width="16" />
+                    <Image
+                        x:Name="RegistrationErrorImage"
+                        x:Uid="RegistrationErrorImage"
+                        Height="16"
+                        Grid.Column="0" 
+                        Grid.Row="10"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Source="pack://application:,,,/Resources/smallError.png"
+                        Width="16" />
+                    <TextBox 
+                        x:Name="InstProgressRegistrationTextbox" 
+                        x:Uid="InstProgressRegistrationTextbox" 
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="10"
+                        Grid.Column="1"
+                        Width="300"
+                        Text="{x:Static resx:StringResources.InstProgressRegistrationText}"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        IsEnabled="False"
+                        FontWeight="Bold">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressRegistrationStatusPending" 
+                        x:Uid="InstProgressRegistrationStatusPending"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="10"
+                        Grid.Column="2"
+                        Width="120"
+                        FontStyle="Italic"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Visibility="Visible"
+                        IsEnabled="False"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusPendingText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressRegistrationStatusRegistering" 
+                        x:Uid="InstProgressRegistrationStatusRegistering"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="10"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Blue"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        IsReadOnly="True"
+                        FontWeight="Bold"
+                        Text="Registering">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressRegistrationStatusDone" 
+                        x:Uid="InstProgressRegistrationStatusDone"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="10"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Blue"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusDoneText}"
+                        IsReadOnly="True"
+                        MouseDoubleClick="InstProgressRegistration_MouseDoubleClick"
+                        ToolTip="{x:Static resx:StringResources.InstProgressLogFileOpenText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressRegistrationStatusFailed" 
+                        x:Uid="InstProgressRegistrationStatusFailed"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="10"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Red"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusFailedText}"
+                        IsReadOnly="True"
+                        MouseDoubleClick="InstProgressRegistration_MouseDoubleClick"
+                        ToolTip="{x:Static resx:StringResources.InstProgressLogFileOpenText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressComponentsAlreadyRegistered" 
+                        x:Uid="InstProgressComponentsAlreadyRegistered"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="10"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Blue"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        FontWeight="Bold"
+                        Text="Registered"
+                        IsReadOnly="True"
+                        MouseDoubleClick="InstProgressMARS_MouseDoubleClick"
+                        ToolTip="{x:Static resx:StringResources.InstProgressLogFileOpenText}">
+                    </TextBox>
+
+                    <!--Validating server configuration row-->
+                    <TextBox 
+                        x:Name="InstProgressConfiguringServerImageTextbox"
+                        x:Uid="InstProgressConfiguringServerImageTextbox" 
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="11"
+                        Grid.Column="0"
+                        Width="50"
+                        IsEnabled="False">
+                    </TextBox>
+                    <Image
+                        x:Name="ConfiguringServerSuccessImage"
+                        x:Uid="ConfiguringServerSuccessImage"
+                        Height="16"
+                        Grid.Row="11"
+                        Grid.Column="0" 
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Source="pack://application:,,,/Resources/smallGreenCheck.png"
+                        Width="16" />
+                    <Image
+                        x:Name="ConfiguringServerErrorImage"
+                        x:Uid="ConfiguringServerErrorImage"
+                        Height="16"
+                        Grid.Row="11"
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Source="pack://application:,,,/Resources/smallError.png"
+                        Width="16" />
+                    <TextBox 
+                        x:Name="InstProgressConfiguringServerTextbox" 
+                        x:Uid="InstProgressConfiguringServerTextbox" 
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="11"
+                        Grid.Column="1"
+                        Width="300"
+                        Text="{x:Static resx:StringResources.ConfiguringServerText}" 
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        IsEnabled="False"
+                        FontWeight="Bold">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressConfiguringServerStatusPending" 
+                        x:Uid="InstProgressConfiguringServerStatusPending"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="11"
+                        Grid.Column="2"
+                        Width="120"
+                        FontStyle="Italic"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Visibility="Visible"
+                        IsEnabled="False"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusPendingText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressConfiguringServerStatusConfiguring" 
+                        x:Uid="InstProgressConfiguringServerStatusConfiguring"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="11"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Blue"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        IsReadOnly="True"
+                        FontWeight="Bold"
+                        Text="Validating">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressConfiguringServerStatusDone" 
+                        x:Uid="InstProgressConfiguringServerStatusDone"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="11"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Blue"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        IsReadOnly="True"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusDoneText}"
+                        MouseDoubleClick="InstProgressConfiguringServer_MouseDoubleClick"
+                        ToolTip="{x:Static resx:StringResources.InstProgressLogFileOpenText}">
+                    </TextBox>
+                    <TextBox 
+                        x:Name="InstProgressConfiguringServerStatusFailed" 
+                        x:Uid="InstProgressConfiguringServerStatusFailed"
+                        Background="WhiteSmoke"
+					    BorderBrush="#FFB1B1B1"
+                        Grid.Row="11"
+                        Grid.Column="2"
+                        Width="120"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        Foreground="Red"
+                        TextDecorations="Underline"
+                        Visibility="Collapsed"
+                        IsReadOnly="True"
+                        FontWeight="Bold"
+                        Text="{x:Static resx:StringResources.InstProgressStatusFailedText}"
+                        MouseDoubleClick="InstProgressConfiguringServer_MouseDoubleClick"
+                        ToolTip="{x:Static resx:StringResources.InstProgressLogFileOpenText}">
+                    </TextBox>
+                </Grid>
+            </StackPanel>
+        </GroupBox>
+        <Image
+            x:Name="IncompleteOperationsErrorImage"
+            x:Uid="IncompleteOperationsErrorImage"
+            Height="20"
+            Grid.Column="1" 
+            Grid.Row="12"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Left"
+            Visibility="Collapsed"
+            Source="pack://application:,,,/Resources/smallError.png"
+            Width="20" />
+        <TextBlock
+            x:Name="InstProgressIncompleteOperationsTextBlock"
+            x:Uid="InstProgressIncompleteOperationsTextBlock" 
+            Margin="30,0,0,0"
+            Grid.Column="1"
+            Grid.Row="12"
+            TextWrapping="Wrap"
+            Visibility="Collapsed"
+            Text="{x:Static resx:StringResources.InstProgressIncompleteOperationsText}" />
+    </Grid>
+</ns0:BasePageForWpfControls>

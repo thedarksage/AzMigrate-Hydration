@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="Source Files\win32">
+      <UniqueIdentifier>{7cd0aa19-2b7f-4e88-81df-5721334dca5c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\unix">
+      <UniqueIdentifier>{c351d217-27c3-495d-a42c-d2a7fceafb0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\aix">
+      <UniqueIdentifier>{905581bc-e609-424f-bc3b-2dd5990524ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\sun">
+      <UniqueIdentifier>{ad92aec0-7b48-4f80-be05-4d1e2d706ca5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\linux">
+      <UniqueIdentifier>{52fb5b3e-4b46-48b6-9c21-900477611c0f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="domain\protectedgroupvolumes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="domain\volumemanager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="domain\win32\protectedgroupvolumesmajor.cpp">
+      <Filter>Source Files\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="domain\win32\stopvolumegroupsmajor.cpp">
+      <Filter>Source Files\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="domain\aix\protectedgroupvolumesminor.cpp">
+      <Filter>Source Files\aix</Filter>
+    </ClCompile>
+    <ClCompile Include="domain\linux\protectedgroupvolumesminor.cpp">
+      <Filter>Source Files\linux</Filter>
+    </ClCompile>
+    <ClCompile Include="domain\sun\protectedgroupvolumesminor.cpp">
+      <Filter>Source Files\sun</Filter>
+    </ClCompile>
+    <ClCompile Include="domain\unix\protectedgroupvolumesmajor.cpp">
+      <Filter>Source Files\unix</Filter>
+    </ClCompile>
+    <ClCompile Include="domain\unix\stopvolumegroupsmajor.cpp">
+      <Filter>Source Files\unix</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="domain\protectedgroupvolumes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="domain\stopvolumegroups.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="domain\volumemanager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,161 @@
+include top.mak
+
+SRCS =  common/resyncrequestor.cpp \
+	common/cxmediator.cpp \
+	common/$(X_MAJOR_ARCH)/resyncrequestormajor.cpp \
+	common/$(X_MAJOR_ARCH)/resyncrequestor_xspoolmajor.cpp \
+	common/replicationpairoperations.cpp \
+	foundation/error.cpp \
+	foundation/device.cpp \
+	foundation/file.cpp \
+	foundation/filesystem.cpp \
+	foundation/fileclusterinformer.cpp \
+	foundation/fileclusterinformerimp.cpp \
+	foundation/$(X_MINOR_ARCH)/fileclusterinformerimpminor.cpp \
+	foundation/genericdata.cpp \
+	foundation/genericfile.cpp \
+	foundation/generichost.cpp \
+	foundation/host.cpp \
+	foundation/operatingsystem.cpp \
+	foundation/$(X_MINOR_ARCH)/operatingsystemminor.cpp \
+	foundation/remotehost.cpp \
+	foundation/volume.cpp \
+	foundation/disk.cpp \
+	foundation/basicio.cpp \
+	foundation/volumechangedata.cpp \
+	foundation/$(X_MINOR_ARCH)/hostminor.cpp \
+	foundation/$(X_MINOR_ARCH)/hostinfocollectorminor.cpp \
+	foundation/$(X_MAJOR_ARCH)/hostinfocollectormajor.cpp \
+	foundation/inmageproduct.cpp \
+	foundation/mirrorerror.cpp \
+	foundation/filterdrvif.cpp \
+	foundation/filterdrivernotifier.cpp \
+	foundation/drivermirrorerror.cpp \
+	foundation/$(X_MAJOR_ARCH)/filterdrvifmajor.cpp \
+	foundation/$(X_MINOR_ARCH)/filterdrvifminor.cpp \
+	foundation/$(X_MAJOR_ARCH)/volumemajor.cpp \
+	foundation/$(X_MINOR_ARCH)/volumeminor.cpp \
+	foundation/$(X_MAJOR_ARCH)/diskmajor.cpp \
+	foundation/$(X_MAJOR_ARCH)/volumechangedatamajor.cpp \
+	foundation/$(X_MAJOR_ARCH)/errormajor.cpp \
+	foundation/$(X_MAJOR_ARCH)/filemajor.cpp \
+	foundation/$(X_MAJOR_ARCH)/hostmajor.cpp \
+	foundation/$(X_MINOR_ARCH)/volumechangedataminor.cpp \
+	foundation/$(X_MAJOR_ARCH)/inmageproductmajor.cpp \
+	foundation/$(X_MINOR_ARCH)/fileminor.cpp \
+	foundation/$(X_MAJOR_ARCH)/inmageproductmajor.cpp \
+	foundation/$(X_MAJOR_ARCH)/drivermirrorerrormajor.cpp \
+	foundation/$(X_MAJOR_ARCH)/mirrorermajor.cpp \
+	foundation/$(X_MAJOR_ARCH)/volumeopmajor.cpp \
+	foundation/inmnofsclusterinfo.cpp \
+	foundation/volumeclusterinfo.cpp \
+	foundation/volumeclusterinfoimp.cpp \
+	foundation/volumeop.cpp \
+	foundation/$(X_MINOR_ARCH)/volumeclusterinfoimpminor.cpp \
+	foundation/readinfo.cpp \
+	streams/compress.cpp \
+	streams/genericstream.cpp \
+	streams/genericdevicestream.cpp \
+	streams/devicestream.cpp \
+	streams/$(X_MAJOR_ARCH)/devicestreammajor.cpp \
+	streams/filestream.cpp \
+	streams/transportstream.cpp \
+	streams/memorystream.cpp \
+	streams/dummytransportstream.cpp \
+	streams/volumestream.cpp \
+	streams/$(X_MAJOR_ARCH)/volumestreammajor.cpp \
+	streams/azureblobstream.cpp \
+	streams/azurepageblobstream.cpp \
+	streams/azureblockblobstream.cpp \
+	thread/synchronize.cpp \
+	thread/s2libsthread.cpp \
+	thread/$(X_MAJOR_ARCH)/s2libsthreadmajor.cpp \
+	thread/threadmanager.cpp
+#	tests2libs.cpp
+
+X_CFLAGS = \
+	-Icxpslib \
+	-Icxpslib/$(X_MINOR_ARCH) \
+	-Icxpslib/$(X_MAJOR_ARCH) \
+	-Ifio \
+	-Ifio/$(X_MINOR_ARCH) \
+	-Ifio/$(X_MAJOR_ARCH) \
+	-Icxtransportlib \
+	-Ierrorexception \
+	-Ilistfile \
+	-Ilistfile/$(X_MAJOR_ARCH) \
+	-Iscopeguard \
+	-Isimplelogger \
+	-Isimplelogger/$(X_MAJOR_ARCH) \
+	-Izflate \
+	-Is2libs/thread \
+	-Is2libs/foundation \
+	-Is2libs/foundation/$(X_MINOR_ARCH) \
+	-Is2libs/foundation/$(X_MAJOR_ARCH) \
+	-Is2libs/common \
+	-Is2libs/streams \
+	-Ilog \
+	-Inpwwn \
+	-Iconfig \
+	-Iconfig/unix \
+    -Ideviceidinformer \
+    -Iplatforminfo \
+    -Iplatforminfo/$(X_MAJOR_ARCH) \
+    -Iplatforminfo/$(X_MINOR_ARCH) \
+    -Iexecutecommand \
+    -Iexecutecommand/$(X_MINOR_ARCH) \
+    -Iscsicommandissuer \
+    -Iscsicommandissuer/$(X_MINOR_ARCH) \
+    -Idirbasename \
+    -Idirbasename/$(X_MAJOR_ARCH) \
+	-Ivolumeinfocollector \
+	-Ivolumeinfocollector/$(X_MAJOR_ARCH) \
+	-Ivolumeinfocollector/$(X_MINOR_ARCH) \
+	-Ital \
+	-Icommon \
+    -Iinmsafeint \
+    -Iinmsafeint/$(X_MAJOR_ARCH) \
+	-Icommon/$(X_MINOR_ARCH) \
+	-Icdplibs -Icdplibs/v1 -Icdplibs/v3 \
+	-Icommon/$(X_MAJOR_ARCH) \
+	-Idevicefilter \
+    -Idevicefilter/$(X_MAJOR_ARCH) \
+    -Idrivers/InVolFlt/common \
+	-Idrivers/InVolFlt/$(X_MINOR_ARCH) \
+	-Idrivers/lib/$(X_MINOR_ARCH) \
+	-Icdpapplylib \
+	-Idplibs \
+	-Iconversionlib \
+	-Iinmsafecapis \
+	-Iinmsafecapis/$(X_MAJOR_ARCH) \
+	-Iazureagentapi \
+	-Iazureagentapi/$(X_MAJOR_ARCH) \
+	-IAzureRecoveryLib \
+	-IAzureRecoveryLib/resthelper \
+	-Igenericprofiler \
+	-Isecuritylib \
+	-Isecuritylib/$(X_MAJOR_ARCH) \
+	$(CURL_INCLUDE) \
+	$(ACE_INCLUDE) \
+	$(BOOST_INCLUDE) \
+	$(OPENSSL_INCLUDE) \
+	$(ZLIB_INCLUDE) \
+	$(BOOST_INCLUDE) \
+	$(SQLITE_INCLUDE) \
+	$(SIGSLOT_INCLUDE) \
+	$(INM_MD5_INCLUDE) \
+	$(ESJSON_INCLUDES) \
+	$(LIBXML2_INCLUDE) \
+
+X_LIBS = 
+
+X_THIRDPARTY_LIBS = 
+
+X_SYSTEM_LIBS =
+
+X_LDFLAGS =
+
+BINARY=$(X_LIBPRE)s2libs
+BINARY_EXT=$(X_LIBEXT)
+
+include bottom.mak

@@ -1,0 +1,11 @@
+
+
+		CHANGE HISTORY for VOLUME FILTER DRIVER
+		----------------------------------------
+
+1. Integration with metadata code, by simha on 21st Mar 2007
+2. Fixed bug (txn id 0) on 26th Mar 2007
+3. Enabled driver to execute to run in metadata mode only on 26th Mar 2007
+4. Enabled switching criteria between data and meta data mode, when high water mark exceeds in meta data mode, while service is running then it looses all the changes, releases buffers, and switches to data mode.
+5. Integrated bitmap mode code on 25 May 2007
+6. Integrated sysfs code + splitting large change into multiple change nodes on 30th may 2007

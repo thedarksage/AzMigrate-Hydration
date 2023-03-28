@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TestJobGroup>
+  <!-- Resource spec points to an image that is defined in CloudTest pools as a Windows platform image -->
+  <ResourceSpec>
+    <Resource SKU="Standard_DS2_V2" Image="DefaultImage" />
+  </ResourceSpec>
+
+  <Setup TimeoutMins="60">
+    <BuildFiles>
+      <!-- Copy Test Scripts and Binaries from build drop -->
+      <Copy Src="[BuildRoot]\[BuildType]-[BuildArch]\cloudtest\wincvt\*" Dest="[WorkingDirectory]" Writable="true" />
+    </BuildFiles>
+
+    <Scripts>
+      <!-- Populate runsettings file -->
+	    <Script Path="[WorkingDirectory]\UpdateConfig.ps1" Args="-LoggingDirectory [LoggingDirectory] -WorkingDirectory [WorkingDirectory] -SettingsFileDirectory [WorkingDirectory]" />
+      <!-- Install Azure Powershell and other prereq's -->
+	    <Script Path="[WorkingDirectory]\InstallPrereq.ps1" />
+       <!-- Get latest mobility agent from the Jumpbox-->
+      <Script Path="[WorkingDirectory]\AzureCloudUnifiedAgent.ps1" />
+      <!-- <Execution Type="Exe" Path="C:\WINDOWS\system32\cmd.exe" Args="/c powershell.exe [WorkingDirectory]\AzureCloudUnifiedAgent.ps1 -IPAddress %JB_IPAddress% -Job %Job% -Branch %Branch%"/> -->
+      <!-- Installing Mobility Agent on the CloudTest Machine -->
+      <Script Path="[WorkingDirectory]\CVTDeployment.ps1" Args="-InstallAgentAzureCloudTest $true -LocalBuildPath [WorkingDirectory]\UnifiedAgentInstaller -Platform azure" />
+	  </Scripts>
+
+  </Setup>
+
+  <!-- Trigger Win CVT -->
+
+  <TestJob Name="Test" Type="SingleBox" Tags="Tests=SourceA2AWinCVT" OwnerAliases="rishabhdubey" TimeoutMins="720">
+    <Execution Type="Exe" Path="[WorkingDirectory]\CVTExecution.cmd" />
+  </TestJob>
+
+  <Cleanup TimeoutMins="1" />
+
+</TestJobGroup>

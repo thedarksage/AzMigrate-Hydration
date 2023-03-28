@@ -1,0 +1,49 @@
+!IF 0
+
+
+Module Name:
+
+    sources.
+
+!ENDIF
+
+TARGETNAME=InVirVol
+TARGETPATH=obj
+TARGETTYPE=DRIVER
+
+#get the message compiler to set the customer bit on every error value
+MC_FLAGS = -c
+
+#INCLUDES=..\inc;..\..\InVolFlt\win32
+INCLUDES=..\inc;..\..\Include\win32;
+
+TARGETLIBS=$(DDK_LIB_PATH)\ntstrsafe.lib
+!if "$(DDK_TARGET_OS)"=="Win2K"
+C_DEFINES=$(C_DEFINES) -D_WIN2K_COMPAT_SLIST_USAGE -DVSNAP_WIN_KERNEL_MODE
+!else
+C_DEFINES=$(C_DEFINES) -DVSNAP_WIN_KERNEL_MODE
+!endif
+
+#BROWSER_INFO=1
+
+SOURCES=VVDispatch.cpp			\
+    VVDriverContext.cpp			\
+    VVDevControl.cpp			\
+    VVCmdQueue.cpp				\
+    VVolumeExport.cpp			\
+    VVolumeImage.cpp			\
+    IoctlInfo.cpp				\
+    VVolumeImageTest.cpp		\
+    FileIOKernel.cpp			\
+    VVolumeRetentionLog.cpp		\
+    VVolumeRetentionTest.cpp	\
+    DiskChange.cpp				\
+    DiskBtreeCore.cpp			\
+    VsnapCommon.cpp				\
+    VsnapKernel.cpp				\
+    WinVsnapKernelHelpers.cpp	\
+    VVthreadPool.cpp            \
+    RegistryHelper.cpp          \
+    InVirVol.rc                 \
+    InVirVolLog.mc    
+

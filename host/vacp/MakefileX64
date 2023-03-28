@@ -1,0 +1,242 @@
+# Makefile for generating VACP's Release and Debug Builds
+# for Windows 2008 and above.
+#
+# To build all Release and Debug builds, use below command
+# 	nmake -f MakefileX64 All
+#
+# To build only Release build, use below command
+# 	nmake -f MakefileX64 Release
+#
+# To build only Debug build, use below command
+# 	nmake -f MakefileX64 Debug
+#
+# To Clean existing builds, use below command
+# 	nmake -f MakefileX64 Clean
+#
+#   {X64/Release/Debug}\vacp_X64.exe is generated for 64-bit Windows 2008 and above
+#
+
+
+
+## Specify Compiler and Linker Executables
+CC=cl.exe
+LINK=link.exe
+RC=rc.exe
+MIDL=midl.exe
+MT=mt.exe
+
+# Specify HeaderFiles (.h suffix)
+HEADERS=Communicator.h \
+        ..\common\win32\registry.h \
+	    ..\common\win32\Failoverclusterinfocollector.h \
+	    ArgParser.h CmdRequest.h macros.h stdafx.h util.h common.h \
+        VssRequestor.h VssWriter.h vacp.h VacpConf.h PerfCounter.h SecureTransport.h SecureTransport.h \
+        deviceutils.h  diskutils.h  vacpwmiutils.h \
+        ..\common\win32\DiskHelpers.h ..\common\VacpErrors.h \
+		StreamEngine\InvoltTypes.h StreamEngine\StreamEngine.h StreamEngine\StreamRecords.h \
+		..\config\vacp_tag_info.h ..\devicefilter\devicefilter.h \
+		..\drivers\InVolFlt\windows\interface\InmFltIOCTL.h \
+		..\drivers\InVolFlt\windows\interface\InmFltInterface.h \
+		..\errorexception\errorexception.h ..\cxpslib\win\setsockettimeoutsminor.h \
+        ..\vacplibs\VacpErrorCodes.h ..\s2libs\thread\event.h ..\InMageVssProvider\VacpProviderCommon.h \
+		..\hydrationconfigurator\HydrationConfigurator.h\
+		..\hydrationconfigurator\win\HydrationProvider.h
+
+	
+# Specify Source Files (.cpp suffix)
+SRC=Communicator.cpp \
+	..\common\win32\registry.cpp\
+	..\common\win32\Failoverclusterinfocollector.cpp \
+	CmdRequest.cpp VssRequestor.cpp vacp.cpp util.cpp \
+    ArgParser.cpp VssWriter.cpp StreamEngine\StreamEngine.cpp VacpLogger.cpp \
+    ..\common\win32\DiskHelpers.cpp \
+    SecureTransport.cpp deviceutils.cpp diskutils.cpp wmiutils.cpp \
+	..\hydrationconfigurator\HydrationConfigurator.cpp \
+	..\hydrationconfigurator\win\HydrationProvider.cpp 
+
+#Specify resource Files (.rc suffix)
+RC_SOURCE=vacp.rc
+
+DEBUG_RCFLAGS=/d "X64" /fo X64\Debug\vacp.res
+RELEASE_RCFLAGS=/d "X64" /fo X64\Release\vacp.res
+
+
+# Specify precompile header file
+PCHFILE="stdafx.h"
+
+# Specify Compilation Flags for FabricRelease build
+RELEASE_CPPFLAGS=/O2 /D "WIN64" /D "_CONSOLE" /D "_CRT_SECURE_NO_WARNINGS" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "_WIN32_WINNT=0x0600"\
+                 /D "VSS_SERVER" /D "_ATL_STATIC_REGISTRY" /D "_USING_V110_SDK71_" /FD /EHsc /MT\
+                 /W3 /nologo /c /Zc:wchar_t /Wp64 /Zi /TP /D"ACE_AS_STATIC_LIBS" /D"VACP" /D"SV_WINDOWS" /guard:cf /Qspectre /DYNAMICBASE /D"NOMINMAX"\
+				 /D "VACP_CONTEXT"
+               
+RELEASE_HOST_CPPFLAGS= /Fo"X64/Release/"
+
+# Specify Compilation Flags for Debug build
+DEBUG_CPPFLAGS=/Od /D "WIN64" /D "_DEBUG" /D "_CONSOLE" /D "_CRT_SECURE_NO_WARNINGS" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "_ATL_NO_DEBUG_CRT"\
+               /D "VSS_SERVER"  /D "_USING_V110_SDK71_" /Gm /EHsc /MTd\
+               /D "_ATL_STATIC_REGISTRY" /W3 /nologo /c /Zc:wchar_t /Wp64 /Zi /TP /D"ACE_AS_STATIC_LIBS" /D"VACP" /D"SV_WINDOWS"   /guard:cf /Qspectre /DYNAMICBASE /D"NOMINMAX"\
+			   /D "VACP_CONTEXT"
+				    
+DEBUG_HOST_CPPFLAGS= /Fo"X64/Debug/"
+
+VACP_CUR_DIR=..\Vacp
+
+# Specify VSS SKD Libraries
+VSS_LIBS=vssapi.lib vss_uuid.lib 
+
+# specify boost libraries
+BOOST_LIBS=
+
+# specify openssl libraries
+OPENSSL_LIBS=libssl.lib libcrypto.lib
+
+# specify ACE libraries
+ACE_RELEASE_LIB=ACEs.lib
+ACE_DEBUG_LIB=ACEsd.lib
+
+# specify CURL libraries
+CURL_RELEASE_LIBS=libcurl.lib
+CURL_DEBUG_LIBS=libcurld.lib
+
+# specify other libraries
+AGENT_LIBS_RELEASE=..\AzureADAuthProviderLib\x64\Release\AzureADAuthProviderLib.lib \
+                   ..\AzureRecoveryLib\x64\Release\AzureRecoveryLib.lib \
+                   ..\securitylib\x64\Release\securitylib.lib
+                   
+AGENT_LIBS_DEBUG=..\AzureADAuthProviderLib\x64\Debug\AzureADAuthProviderLib.lib \
+                 ..\AzureRecoveryLib\x64\Debug\AzureRecoveryLib.lib \
+                 ..\securitylib\x64\Debug\securitylib.lib
+
+#This debug flag gets enabled 
+ENABLE_DEBUG=
+
+# Specify Windows Static libraries
+OS_LIBS=rpcrt4.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib\
+        advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib\
+        odbccp32.lib ws2_32.lib WinInet.lib secur32.lib Crypt32.lib NCrypt.lib clusapi.lib
+
+# Specify Linking flags for FabricRelease build
+RELEASE_LFLAGS=/INCREMENTAL:NO /NOLOGO /SUBSYSTEM:CONSOLE,5.02 /OPT:NOREF /OPT:ICF /DYNAMICBASE\
+               /MACHINE:AMD64 /MAP /MAPINFO:EXPORTS /DEBUG /DEBUGTYPE:CV,FIXUP /guard:cf
+              
+               
+# Specify Linking flags for Debug build
+DEBUG_LFLAGS=/INCREMENTAL /NOLOGO /SUBSYSTEM:CONSOLE,5.02 /MACHINE:AMD64 /DEBUG /DYNAMICBASE /guard:cf
+
+# current boost version
+BOOST_LOC=..\..\thirdparty\boost\boost_1_78_0
+OPENSSL_LOC=..\..\thirdparty\openssl-1.1.1n
+ACE_LOC=..\..\thirdparty\ace-6.4.6\ACE_wrappers
+CURL_LOC=..\..\thirdparty\curl-7.87.0
+JSON_LOC=..\..\thirdparty\g40-esj-1.05
+
+# Path of thirdparty libraries that are converted as NuGet packages.
+OPENSSL_LIB=..\packages\openssl.1.1.1-n-1
+ACE_LIB=..\packages\ace.6.4.6\ACE_wrappers
+
+# specify boost flags
+BOOST_LFLAGS=/LIBPATH:"$(BOOST_LOC)\stage\win\x64\lib"
+ACE_LFLAGS=/LIBPATH:"$(ACE_LIB)\lib\x64"
+
+#specify openssl flags
+OPENSSL_LFLAGS_DEBUG=/LIBPATH:"$(OPENSSL_LIB)\out64.dbg"
+OPENSSL_LFLAGS_RELEASE=/LIBPATH:"$(OPENSSL_LIB)\out64"
+
+#specify CURL flags
+CURL_LFLAGS_DEBUG=/LIBPATH:"$(CURL_LOC)\build\Win64\VC14.30\LIB Debug - LIB OpenSSL"
+CURL_LFLAGS_RELEASE=/LIBPATH:"$(CURL_LOC)\build\Win64\VC14.30\LIB Release - LIB OpenSSL"
+
+BOOST_BUILD_CMD=..\..\thirdparty\boost\boost-build-win\inmage_config_build.bat
+
+# Specify other include directories
+OTHER_INC_DIR=.\StreamEngine
+
+WIN_2K8_VERSION=/D "_WIN32_WINNT=0x0600"
+
+# Compute Include directories for Windows 2008 and above build
+WIN2K8_INC_DIR=/I $(VACP_CUR_DIR) /I $(OTHER_INC_DIR)\
+	/I"..\devicefilter" /I"..\devicefilter\win" /I"..\drivers\InVolFlt\windows\Interface"  /I"..\drivers\include\win32" \
+	/I"..\inmsafecapis" /I"..\inmsafecapis\win" /I"..\common" /I"..\inmsafeint" /I"..\inmsafeint\win" \
+	/I"$(BOOST_LOC)" /I"$(OPENSSL_LOC)\include" /I "$(JSON_LOC)" /I"..\securitylib" /I"..\securitylib\win" /I"..\scopeguard" /I"..\errorexception" \
+        /I"..\cxpslib\win" /I"..\vacplibs" /I"$(ACE_LOC)" /I"$(CURL_LOC)\include" \
+	/I"..\cxpslib" /I"..\AzureADAuthProviderLib" \
+	/I"..\AzureRecoveryLib" /I"..\AzureRecoveryLib\resthelper" /I"..\AzureRcmLib" /I"..\InMageVssProvider"\
+			/I"..\hydrationconfigurator" /I"..\common\win32" 
+    
+# Compute Link flags for WIndows 2008 Release Build
+RELEASE_WIN2K8_LFLAGS=$(RELEASE_LFLAGS) $(BOOST_LFLAGS) $(OPENSSL_LFLAGS_RELEASE) $(ACE_LFLAGS) $(CURL_LFLAGS_RELEASE) /PDB:"X64/Release/vacp_X64.pdb"
+
+# Compute Link flags for WIndows 2008 Debug Build
+DEBUG_WIN2K8_LFLAGS=$(DEBUG_LFLAGS) $(BOOST_LFLAGS) $(OPENSSL_LFLAGS_DEBUG) $(ACE_LFLAGS) $(CURL_LFLAGS_DEBUG) /PDB:"X64/Debug/vacp_X64.pdb"
+
+#Generate both release and debug builds
+all: Debug Release
+
+#Generate Release build for Windows 2008
+Release: X64\Release\vacprpc_s.obj X64\Release\vacp_X64.exe 
+
+#Generate Debug build for Windows 2008
+Debug: X64\Debug\vacprpc_s.obj X64\Debug\vacp_X64.exe 
+
+# vacprpcs stub file
+X64\Release\vacprpc_s.obj : vacprpc\vacprpc.idl vacprpc\vacprpc.acf
+	@$(MIDL) /env x64 /Oicf /acf vacprpc\vacprpc.acf vacprpc\vacprpc.idl
+	@$(CC) $(RELEASE_CPPFLAGS) $(RELEASE_HOST_CPPFLAGS) $(WIN_2K8_VERSION) $(WIN2K8_INC_DIR) vacprpc_s.c
+
+X64\Debug\vacprpc_s.obj : vacprpc\vacprpc.idl vacprpc\vacprpc.acf
+	@$(MIDL) /env x64 /Oicf /acf vacprpc\vacprpc.acf vacprpc\vacprpc.idl
+	@$(CC) $(DEBUG_CPPFLAGS) $(DEBUG_HOST_CPPFLAGS) $(WIN_2K8_VERSION) $(WIN2K8_INC_DIR) vacprpc_s.c
+
+#Generate Release build for Windows 2008
+X64\Release\vacp_X64.exe: $(HEADERS) $(SRC) MakefileX64
+	@echo ---------------------------------------------------------------------------
+	@echo Generating Windows 2008 and above Release build(X64\Release\vacp.exe)...
+	@echo ---------------------------------------------------------------------------
+	@IF NOT EXIST X64\Release MD X64\Release
+	@$(MIDL) ..\InMageVssProvider\InMageVssProvider.idl /nologo /char signed /env x64 /Oicf /h "InMageVssProvider_i.h" /iid "InMageVssProvider_i.c" /error stub_data
+	@$(CC) $(RELEASE_CPPFLAGS) $(RELEASE_HOST_CPPFLAGS) $(WIN_2K8_VERSION) /Yc$(PCHFILE) $(WIN2K8_INC_DIR) $(SRC)
+	@$(CC) $(RELEASE_CPPFLAGS) $(RELEASE_HOST_CPPFLAGS) $(WIN_2K8_VERSION) $(PCHFILE) $(WIN2K8_INC_DIR) $(SRC)
+	@$(RC) $(RELEASE_RCFLAGS) $(RC_SOURCE)
+	@$(LINK) $(RELEASE_WIN2K8_LFLAGS) -out:X64\Release\vacp_X64.exe X64\Release\*.obj X64\Release\*.res $(VSS_LIBS) $(OS_LIBS) $(OPENSSL_LIBS) $(BOOST_LIBS) $(ACE_RELEASE_LIB) $(AGENT_LIBS_RELEASE) $(CURL_RELEASE_LIBS)
+    @$(MT) -manifest ..\common\win32\osmanifest.xml -outputresource:X64\Release\vacp_X64.exe;1
+
+	
+#Generate Debug build for Windows 2008
+X64\Debug\vacp_X64.exe: $(HEADERS) $(SRC) MakefileX64
+	@echo --------------------------------------------------------------------------
+	@echo Generating Windows 2008 and above Debug build(X64\Debug\vacp.exe)...
+	@echo --------------------------------------------------------------------------
+	@IF NOT EXIST X64\Debug MD X64\Debug
+	@$(MIDL) ..\InMageVssProvider\InMageVssProvider.idl /D "_DEBUG" /nologo /char signed /env x64 /Oicf /h "InMageVssProvider_i.h" /iid "InMageVssProvider_i.c" /error stub_data
+	@$(CC) $(DEBUG_CPPFLAGS) $(DEBUG_HOST_CPPFLAGS) $(WIN_2K8_VERSION) /Yc$(PCHFILE) $(WIN2K8_INC_DIR) $(SRC)
+	@$(CC) $(DEBUG_CPPFLAGS) $(DEBUG_HOST_CPPFLAGS) $(WIN_2K8_VERSION) $(PCHFILE) $(WIN2K8_INC_DIR) $(SRC)
+	@$(RC) $(DEBUG_RCFLAGS) $(RC_SOURCE)
+	@$(LINK) $(DEBUG_WIN2K8_LFLAGS) -out:X64\Debug\vacp_X64.exe X64\Debug\*.obj X64\Debug\*.res $(VSS_LIBS) $(OS_LIBS) $(OPENSSL_LIBS) $(BOOST_LIBS) $(ACE_DEBUG_LIB) $(AGENT_LIBS_DEBUG) $(CURL_DEBUG_LIBS)
+
+
+#Clean both Release and Debug builds
+clean:	
+	@echo ----------------------------------------------------
+	@echo Cleaning Windows 2008 X64 Release,Debug builds...
+	@echo ----------------------------------------------------
+	@IF EXIST X64\Release DEL /Q X64\Release\*.*
+	@IF EXIST X64\Debug DEL /Q X64\Debug\*.*
+	DEL InMageVssProvider*.*
+
+#Clean both Release build only
+clean_release:
+	@echo ----------------------------------------------------
+	@echo Cleaning Windows 2008 X64 Release and FabricRelease build...
+	@echo ----------------------------------------------------
+	@IF EXIST X64\Release DEL /Q X64\Release\*.*
+	DEL InMageVssProvider*.*
+
+#Clean Debug build only
+clean_debug:
+	@echo ----------------------------------------------------
+	@echo Cleaning Windows 2008 X64 Debug and FabricDebug build...
+	@echo ----------------------------------------------------
+	@IF EXIST X64\Debug DEL /Q X64\Debug\*.*
+	DEL InMageVssProvider*.*
+
