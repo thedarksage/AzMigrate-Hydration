@@ -23,6 +23,14 @@ _E_AZURE_SMS_INITRD_IMAGE_GENERATION_FAILED=7
 _E_AZURE_SMS_HV_DRIVERS_MISSING=8
 _E_AZURE_GA_INSTALLATION_FAILED=9
 _E_AZURE_ENABLE_DHCP_FAILED=10
+_E_AZURE_UNSUPPORTED_FS_FOR_CVM=11
+_E_AZURE_ROOTFS_LABEL_FAILED=12
+_E_RESOLV_CONF_COPY_FAILURE=13
+_E_RESOLV_CONF_RESTORE_FAILURE=14
+_E_AZURE_REPOSITORY_UPDATE_FAILED=15
+_E_INSTALL_LINUX_AZURE_FDE_FAILED=16
+_E_AZURE_UNSUPPORTED_FIRMWARE_FOR_CVM=17
+_E_AZURE_BOOTLOADER_CONFIGURATION_FAILED=18
 
 ###End: Script error codes.
 
@@ -32,6 +40,7 @@ _AM_STARTUP_="azure-migrate-startup"
 _STARTUP_SCRIPT_="${_AM_STARTUP_}.sh"
 _AM_SCRIPT_DIR_="/usr/local/azure-migrate"
 _AM_SCRIPT_LOG_FILE_="/var/log/${_AM_STARTUP_}.log"
+_AM_SCRIPT_CVM_LOG_FILE_="/usr/local/AzureRecovery/AzureCvmMigration.log"
 _AM_INSTALLGA_="asr-installga"
 _AM_HYDRATION_LOG_="/var/log/am-hydration-log"
 ###End: Constants
@@ -218,7 +227,7 @@ restore_file()
     
     [[ -f $_backup_file_ ]] || {
         trace "$_backup_file_ file not found.";
-        return;
+        return 1;
     }
     
     mv -f $_backup_file_ $_final_file_
@@ -922,7 +931,7 @@ update_vm_repositories()
         UBUNTU*)
             # https://docs.microsoft.com/en-us/azure/virtual-machines/linux/create-upload-ubuntu#manual-steps
             sources_list_file="$chroot_path/etc/apt/sources.list"
-            copy_file "$sources_list_file" "$(sources_list_file)_azr_sms_bak"
+            copy_file "$sources_list_file" "${sources_list_file}_azr_sms_bak"
             sed -i 's/http:\/\/archive\.ubuntu\.com\/ubuntu\//http:\/\/azure\.archive\.ubuntu\.com\/ubuntu\//g' "$sources_list_file"
             sed -i 's/http:\/\/[a-z][a-z]\.archive\.ubuntu\.com\/ubuntu\//http:\/\/azure\.archive\.ubuntu\.com\/ubuntu\//g' "$sources_list_file"
         ;;
@@ -989,6 +998,46 @@ install_linux_guest_agent()
     fi
 
     chmod +x $chroot_path/$base_linuxga_path/*
+}
+
+install_guest_agent_package()
+{
+    local package="Azure Linux Agent (the guest extensions handler) package."
+    trace "Installing $package in ${chroot_path}."
+    echo -e "\nInstalling $package in ${chroot_path}." >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+
+
+    case "${src_distro}" in
+        "UBUNTU"*)
+            chroot "${chroot_path}" apt-get install -y walinuxagent >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+            ;;
+        *)
+            throw_error $_E_AZURE_SMS_OS_UNSUPPORTED $src_distro
+            ;;
+    esac
+}
+
+enable_linux_agent_and_cloud_init()
+{
+    echo -e "\nEnabling the linux agent service in ${chroot_path}." >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+    chroot "${chroot_path}" systemctl enable walinuxagent.service >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+}
+
+install_guest_agent_pre_boot()
+{
+    install_guest_agent_package
+    if [ $? -eq 0 ]; then
+        trace "Successfully installed guest agent package in ${chroot_path}."
+    else
+        trace "Error: Failed to install guest package in ${chroot_path}."
+    fi
+
+    enable_linux_agent_and_cloud_init
+    if [ $? -eq 0 ]; then
+        trace "Successfully enabled the linux agent in ${chroot_path}."
+    else
+        trace "Error: Failed to enable the linux agent in ${chroot_path}."
+    fi
 }
 
 configure_dhcp_rhel()
@@ -1221,7 +1270,6 @@ verify_uefi_bootloader_files()
     else
         trace "Boot folder verification not required for BIOS."
     fi
-
 }
 
 #@1 - Kernel version
@@ -2141,32 +2189,372 @@ update_root_device_uuid_in_boot_cmd()
     4<&-
 }
 
+is_confidential_vm_migration_enabled()
+{
+    is_confidential_vm_migration="IsConfidentialVmMigration:true"
+
+    if [[ $hydration_config_settings =~ .*$is_confidential_vm_migration.* ]]; then
+        if [[ "$src_distro" == "UBUNTU20"* || "$src_distro" == "UBUNTU22"* ]]; then
+            echo "Confidential VM migration is enabled."
+        else
+            echo "Error: Unsupported OS - $src_distro"
+            throw_error $_E_AZURE_SMS_OS_UNSUPPORTED $src_distro
+        fi
+    else
+        echo "Confidential VM migration is not enabled."
+    fi
+}
+
+verfiy_firmware_type_for_cvm()
+{
+    if [ "$firmware_type" = "UEFI" ]; then
+        trace "Firmware type: $firmware_type"
+    else
+        trace "Firmware type: $firmware_type"
+        throw_error  $_E_AZURE_UNSUPPORTED_FIRMWARE_FOR_CVM "Firmware type: $firmware_type"
+    fi
+}
+
+label_rootfs()
+{
+    
+    trace "Labelling root file system in ${chroot_path}."    
+
+    # Find all root file systems in the chroot environment
+    root_info=$(findmnt -n -o SOURCE,FSTYPE --target "${chroot_path}/")
+    root_count=$(echo "${root_info}" | wc -l)
+
+    # Check if there is more than one root file system
+    if [ "${root_count}" -gt 1 ]; then
+        trace "Error: Multiple root file systems found in chroot."
+        throw_error  $_E_AZURE_UNSUPPORTED_FS_FOR_CVM "Multiple root file systems found in chroot."
+    fi
+
+    # Find the device name and type of the root file system
+    if [ -z "${root_info}" ]; then
+        trace "Error: Unable to find root file system in chroot."
+        throw_error  $_E_AZURE_UNSUPPORTED_FS_FOR_CVM "Multiple root file systems found in chroot."
+    fi
+
+    root_device=$(echo "${root_info}" | awk '{print $1}')
+    root_type=$(echo "${root_info}" | awk '{print $2}')
+    device_type=$(lsblk -n -o TYPE "${root_device}")
+    
+    if [ "$device_type" != "disk" ] && [ "$device_type" != "part" ]; then
+        trace "Warning: Device Type is not supported. Unable to label root file system."
+        throw_error $_E_AZURE_UNSUPPORTED_DEVICE "Unsupported Device Type: ${device_type}."
+    fi
+
+    # Trace the root device and file system type
+    trace "Found root file system device: ${root_device}"
+    trace "Root file system type: ${root_type}"
+    trace "Root device type: ${device_type}"
+
+    # Check if the file system type is supported by e2label
+    if [ "${root_type}" != "ext2" ] && [ "${root_type}" != "ext3" ] && [ "${root_type}" != "ext4" ]; then
+        trace "Error: File system type not supported by e2label."
+        throw_error $_E_AZURE_UNSUPPORTED_FS_FOR_CVM "Unsupported File System Type: ${root_type}."
+    fi
+
+    # Label the root file system using e2label
+    e2label "${root_device}" cloudimg-rootfs
+    if [ $? -eq 0 ]; then
+        trace "Successfully labeled root file system." 
+    else
+        trace "Error: Failed to label root file system." 
+        throw_error $_E_AZURE_ROOTFS_LABEL_FAILED "Failed to label root file system with root device: ${root_device} and type ${root_type}."
+    fi
+}
+
+unset current_target
+unset is_symlink
+copy_resolv_conf()
+{
+    if [ -L "${chroot_path}/etc/resolv.conf" ]; then
+        is_symlink=true
+        trace "${chroot_path}/etc/resolv.conf is a symlink. Trying to store its target path."
+        current_target=$(readlink "${chroot_path}/etc/resolv.conf") # store the current target of the symlink
+        if [ $? -eq 0 ]; then
+            trace "Current target of ${chroot_path}/etc/resolv.conf : ${current_target}"
+            rm -f "${chroot_path}/etc/resolv.conf"
+            if [ $? -ne 0 ]; then
+                trace "Error: Failed to remove ${chroot_path}/etc/resolv.conf symlink"
+                throw_error $_E_RESOLV_CONF_COPY_FAILURE "Unable to remove ${chroot_path}/etc/resolv.conf symlink."
+            fi
+        else
+            trace "Error: Failed to read the target of ${chroot_path}/etc/resolv.conf symlink"
+            throw_error $_E_RESOLV_CONF_COPY_FAILURE "Unable to read the target of ${chroot_path}/etc/resolv.conf symlink."
+        fi
+    else
+        move_to_backup "${chroot_path}/etc/resolv.conf"
+        if [ $? -eq 0 ]; then
+            trace "Successfully backed up /etc/resolv.conf to ${chroot_path}/etc/resolv.conf.bak"
+        else
+            trace "Error: Failed to back up /etc/resolv.conf to ${chroot_path}/etc/resolv.conf.bak"
+            throw_error $_E_RESOLV_CONF_COPY_FAILURE "Unable to backup ${chroot_path}/etc/resolv.conf file."
+        fi
+    fi
+
+    trace "Copying /etc/resolv.conf to ${chroot_path}/etc/resolv.conf"
+    cp /etc/resolv.conf "${chroot_path}/etc/resolv.conf"
+    if [ $? -eq 0 ]; then
+        trace "Successfully copied /etc/resolv.conf to ${chroot_path}/etc/resolv.conf"
+    else
+        trace "Error: Failed to copy /etc/resolv.conf to ${chroot_path}/etc/resolv.conf"
+        throw_error $_E_RESOLV_CONF_COPY_FAILURE "Unable to copy /etc/resolv.conf to ${chroot_path}/etc/resolv.conf"
+    fi
+}
+
+restore_resolv_conf()
+{
+    if [ $is_symlink ]; then
+        rm -f "${chroot_path}/etc/resolv.conf"
+        if [ $? -ne 0 ]; then
+            trace "Error: Failed to remove ${chroot_path}/etc/resolv.conf"
+            throw_error $_E_RESOLV_CONF_RESTORE_FAILURE "Unable to remove ${chroot_path}/etc/resolv.conf file."
+        elif [ -n "$current_target" ]; then # if the symlink was pointing somewhere else, restore it
+            ln -sf "$current_target" "${chroot_path}/etc/resolv.conf"
+            if [ $? -ne 0 ]; then
+                trace "Error: Failed to restore original target of ${chroot_path}/etc/resolv.conf"
+                throw_error $_E_RESOLV_CONF_RESTORE_FAILURE "Unable to restore original target of ${chroot_path}/etc/resolv.conf"
+            else
+                trace "Successfully restored original target of ${chroot_path}/etc/resolv.conf: ${current_target}"
+            fi
+        fi
+    else 
+        restore_file "${chroot_path}/etc/resolv.conf"
+        if [ $? -ne 0 ]; then
+            trace "Error: Failed to restore ${chroot_path}/etc/resolv.conf from backup"
+            throw_error $_E_RESOLV_CONF_RESTORE_FAILURE "Unable to restore ${chroot_path}/etc/resolv.conf from backup."
+        else
+            trace "Successfully restored ${chroot_path}/etc/resolv.conf from backup"
+        fi
+    fi
+}
+
+
+update_repositories_and_packages() 
+{
+    trace "Updating repositories in ${chroot_path}."
+
+    update_vm_repositories
+    if [ $? -eq 0 ]; then
+        trace "Successfully updated repositories in ${chroot_path}."
+    else 
+        trace "Error: Failed to update repositories in ${chroot_path}." 
+        throw_error $_E_AZURE_REPOSITORY_UPDATE_FAILED "Failed to update repositories in ${chroot_path}."
+    fi
+
+    trace "Updating available packages in ${chroot_path}."
+    echo -e "\nUpdating available packages in ${chroot_path}." >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+
+    chroot "${chroot_path}" apt-get update -y >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+    if [ $? -eq 0 ]; then
+        trace "Successfully updated packages in ${chroot_path}."
+    else 
+        trace "Error: Failed to update packages in ${chroot_path}." 
+        throw_error $_E_AZURE_REPOSITORY_UPDATE_FAILED "Failed to update packages in ${chroot_path}."
+    fi
+}
+
+purge_chroot_grub_and_kernel_packages() 
+{
+    trace "Purging GRUB and kernel related packages in ${chroot_path}."
+    chroot "${chroot_path}" apt-get purge grub *linux-* -y &> /dev/null
+    if [ $? -eq 0 ]; then
+        trace "Successfully purged the packages in ${chroot_path}."
+    else 
+        trace "Error: Failed in purging packages in ${chroot_path}." 
+    fi
+}
+
+install_linux_azure_fde()
+{
+    trace "Installing linux-azure-fde kernel in ${chroot_path}."
+    echo -e "\nInstalling linux-azure-fde kernel in ${chroot_path} ." >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+
+    chroot "${chroot_path}" apt-get install -y linux-azure-fde >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+    if [ $? -eq 0 ]; then
+        trace "Successfully installed linux-azure-fde kernel in ${chroot_path}."
+    else 
+        trace "Error: Failed to install linux-azure-fde kernel in ${chroot_path}."
+        throw_error $_E_INSTALL_LINUX_AZURE_FDE_FAILED "Failed to install linux-azure-fde kernel in ${chroot_path}."
+    fi
+}
+
+
+install_and_configure_nullboot()
+{
+    trace "Installing and configuring in nullboot in ${chroot_path}."
+    echo -e "\nInstalling and configuring in nullboot in ${chroot_path}." >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+
+    chroot "${chroot_path}" apt-get install -y nullboot >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+    # Check for errors
+    if [ $? -eq 0 ]; then
+        trace "Successfully installed nullboot in ${chroot_path}."
+    else
+        trace "Error: Failed to install nullboot in ${chroot_path}."
+    fi
+
+    # Execute nullbootctl with no TPM and no EFIVars
+    chroot "${chroot_path}" nullbootctl --no-tpm --no-efivars >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+        # Check for errors
+    if [ $? -eq 0 ]; then
+        trace "Successfully executed the command nullbootctl --no-tpm --no-efivars in ${chroot_path}."
+    else
+        trace "Error: Failed to execute the command nullbootctl --no-tpm --no-efivars in ${chroot_path}."
+        throw_error $_E_AZURE_BOOTLOADER_CONFIGURATION_FAILED "Failed to configure nullboot in ${chroot_path}."
+    fi
+}
+
+setup_waagent_provision_using_azure()
+{
+    cat > "${chroot_path}/etc/cloud/cloud.cfg.d/90_dpkg.cfg" << EOF
+datasource_list: [ Azure ]
+EOF
+
+    cat > "${chroot_path}/etc/cloud/cloud.cfg.d/90-azure.cfg" << EOF
+system_info:
+   package_mirrors:
+     - arches: [i386, amd64]
+       failsafe:
+         primary: http://archive.ubuntu.com/ubuntu
+         security: http://security.ubuntu.com/ubuntu
+       search:
+         primary:
+           - http://azure.archive.ubuntu.com/ubuntu/
+         security: []
+     - arches: [armhf, armel, default]
+       failsafe:
+         primary: http://ports.ubuntu.com/ubuntu-ports
+         security: http://ports.ubuntu.com/ubuntu-ports
+EOF
+}
+
+configure_azure_linux_agent_for_waagent()
+{
+    chroot "${chroot_path}" sed -i 's/Provisioning.Enabled=n/Provisioning.Enabled=y/g' /etc/waagent.conf &> /dev/null
+    chroot "${chroot_path}" sed -i 's/Provisioning.UseCloudInit=y/Provisioning.UseCloudInit=n/g' /etc/waagent.conf &> /dev/null
+    chroot "${chroot_path}" sed -i 's/ResourceDisk.Format=y/ResourceDisk.Format=n/g' /etc/waagent.conf &> /dev/null
+    chroot "${chroot_path}" sed -i 's/ResourceDisk.EnableSwap=y/ResourceDisk.EnableSwap=n/g' /etc/waagent.conf &> /dev/null
+    cat >> "${chroot_path}/etc/waagent.conf" << EOF
+# For Azure Linux agent version >= 2.2.45, this is the option to configure,
+# enable, or disable the provisioning behavior of the Linux agent.
+# Accepted values are auto (default), waagent, cloud-init, or disabled.
+# A value of auto means that the agent will rely on cloud-init to handle
+# provisioning if it is installed and enabled.
+Provisioning.Agent=waagent
+EOF
+}
+
+configure_waagent_for_provisioning() {
+    trace "Configuring the waagent provisioning in the system."
+    case "${src_distro}" in
+        "UBUNTU"*)
+            trace "Configuring waagent to provision the system using the Azure datasource:."
+            setup_waagent_provision_using_azure
+            trace "Successfully configured waagent to provision the system using the Azure datasource:."
+
+            trace "Configuring the Azure Linux agent to rely on waagent to perform provisioning."
+            configure_azure_linux_agent_for_waagent
+            trace "Successfully configured the Azure Linux agent to rely on waagent to perform provisioning."
+            ;;
+        *)
+            trace "Error: Distribution provided: ${src_distro} is currently not supported for these changes."
+            ;;
+    esac
+    trace "Successfully configured the waagent provisioning in the system."
+}
+
+clean_agent_runtime_artifacts_logs()
+{
+    trace "Cleaning cloud-init and Azure Linux agent runtime artifacts and logs."
+    echo -e "\nCleaning cloud-init and Azure Linux agent runtime artifacts and logs." >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+    case "${src_distro}" in
+        "UBUNTU"*)
+            chroot "${chroot_path}" cloud-init clean --logs --seed &> /dev/null
+            chroot "${chroot_path}" rm -rf /var/lib/cloud/ &> /dev/null
+            chroot "${chroot_path}" rm -rf /var/lib/waagent/ &> /dev/null
+            chroot "${chroot_path}" rm -f /var/log/waagent.log &> /dev/null
+            chroot "${chroot_path}" waagent -force -deprovision+user >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+            trace "Successfully cleaned the cloud-init and Azure Linux agent runtime artifacts and logs, and deprovisioning the VM."
+            ;;
+        *)
+            trace "Error: Distribution provided: ${src_distro} is currently not supported for these changes."
+            ;;
+    esac
+}
+
 main()
 {
     local error_in_generate_initrd_image=0
     validate_script_input "$@"
-    
+
     verify_src_os_version
 
-    get_firmware_type
+    confidential_migration_enabled=$(is_confidential_vm_migration_enabled)
 
-    mount_runtime_partitions
+    if [[ "$confidential_migration_enabled" == "Confidential VM migration is enabled." ]]; then
 
-    verify_requited_tools
+        get_firmware_type
+        
+        verify_uefi_bootloader_files
 
-    verify_generate_initrd_images
+        verfiy_firmware_type_for_cvm
+
+        mount_runtime_partitions
+
+        copy_resolv_conf
+
+        update_repositories_and_packages
+
+        set_serial_console_grub_options
+
+        install_guest_agent_pre_boot
+
+        configure_waagent_for_provisioning
+
+        clean_agent_runtime_artifacts_logs
+
+        label_rootfs
+
+        purge_chroot_grub_and_kernel_packages
+
+        install_linux_azure_fde
+
+        install_and_configure_nullboot
+
+        fix_network_config
     
-    set_serial_console_grub_options
+        update_lvm_conf_to_allow_all_device_types
 
-    verify_uefi_bootloader_files
+        install_linux_guest_agent
 
-    update_root_device_uuid_in_boot_cmd
+        restore_resolv_conf
+
+    else
+
+        get_firmware_type
+
+        mount_runtime_partitions    
+
+        verify_requited_tools
+
+        verify_generate_initrd_images
+        
+        set_serial_console_grub_options
+
+        verify_uefi_bootloader_files
+
+        update_root_device_uuid_in_boot_cmd
+
+        fix_network_config
     
-    fix_network_config
-    
-    update_lvm_conf_to_allow_all_device_types
+        update_lvm_conf_to_allow_all_device_types
 
-    install_linux_guest_agent
+        install_linux_guest_agent
+
+    fi
 
     # Most Hard failures will be immediately thrown.
     # Return Soft Failures, call failure checks in increasing order of priority
