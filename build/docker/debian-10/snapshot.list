@@ -1,0 +1,59 @@
+#4.19.0-5
+deb http://snapshot.debian.org/archive/debian/20190831T085941Z buster main
+deb http://snapshot.debian.org/archive/debian/20190831T085941Z buster-updates main
+
+#4.19.0-6
+deb http://snapshot.debian.org/archive/debian/20200129T091834Z buster main
+deb http://snapshot.debian.org/archive/debian/20200129T091834Z buster-updates main
+
+#4.19.0-8
+deb http://snapshot.debian.org/archive/debian/20200427T151833Z buster main
+deb http://snapshot.debian.org/archive/debian/20200427T151833Z buster-updates main
+
+#4.19.0-9
+deb http://snapshot.debian.org/archive/debian/20200711T025138Z buster main
+deb http://snapshot.debian.org/archive/debian/20200711T025138Z buster-updates main
+
+#4.19.0-10
+deb http://snapshot.debian.org/archive/debian/20200918T210532Z buster main
+deb http://snapshot.debian.org/archive/debian/20200918T210532Z buster-updates main
+
+#4.19.0-11
+deb http://snapshot.debian.org/archive/debian/20201024T150941Z buster main
+deb http://snapshot.debian.org/archive/debian/20201024T150941Z buster-updates main
+
+#4.19.0-12
+deb http://snapshot.debian.org/archive/debian-security/20201019T121403Z buster/updates main
+
+#4.19.0-13
+deb http://snapshot.debian.org/archive/debian/20210202T092117Z buster main
+deb http://snapshot.debian.org/archive/debian/20210202T092117Z buster-updates main
+
+#4.19.0-14
+deb http://snapshot.debian.org/archive/debian/20210204T151138Z buster main
+deb http://snapshot.debian.org/archive/debian/20210204T151138Z buster-updates main
+
+#4.19.0-16
+deb http://snapshot.debian.org/archive/debian/20210504T212757Z buster main
+deb http://snapshot.debian.org/archive/debian/20210504T212757Z buster-updates main
+
+#4.19.0-17
+deb http://snapshot.debian.org/archive/debian/20210809T023130Z buster main
+deb http://snapshot.debian.org/archive/debian/20210809T023130Z buster-updates main
+
+#4.19.0-18
+deb http://snapshot.debian.org/archive/debian/20211108T091209Z buster main
+deb http://snapshot.debian.org/archive/debian/20211108T091209Z buster-updates main
+
+#5.8.0-0.bpo.2
+deb http://snapshot.debian.org/archive/debian/20201217T150631Z buster-backports main
+
+
+# 5.10.0-0.bpo.7-amd64 5.10.0-0.bpo.7-cloud-amd64
+deb http://snapshot.debian.org/archive/debian/20210710T025009Z buster-backports main
+
+# 5.10.0-0.bpo.9-amd64 5.10.0-0.bpo.9-cloud-amd64 5.10.0-0.bpo.11-amd64 5.10.0-0.bpo.11-cloud-amd64 5.10.0-0.bpo.12-amd64 5.10.0-0.bpo.12-cloud-amd64
+deb http://snapshot.debian.org/archive/debian/20220405T091827Z buster-backports main
+
+# 5.10.0-0.bpo.15-amd64 5.10.0-0.bpo.15-cloud-amd64
+deb http://snapshot.debian.org/archive/debian/20220706T150041Z buster-backports main

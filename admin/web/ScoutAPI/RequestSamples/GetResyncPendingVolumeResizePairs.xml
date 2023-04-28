@@ -1,0 +1,18 @@
+<Request Id="0021" Version="1.0">
+<Header>
+<Authentication>
+<AccessKeyID>DDC9525FF275C104EFA1DFFD528BD0145F903CB1</AccessKeyID>
+<AccessSignature></AccessSignature>
+</Authentication>
+</Header>
+<Body>
+<FunctionRequest Name="GetResyncPendingVolumeResizePairs" Include="No">
+<Parameter Name="PlanId1" Value="1"/>
+<Parameter Name="PlanId2" Value="2"/>
+<Parameter Name="PlanId3" Value="3"/>
+<Parameter Name="PlanId4" Value="4"/>
+<Parameter Name="PlanId5" Value="5"/>
+<Parameter Name="PlanId6" Value="6"/>
+</FunctionRequest>
+</Body>
+</Request>

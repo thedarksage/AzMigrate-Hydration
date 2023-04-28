@@ -41,7 +41,7 @@ logger "------------------------------------------------------------------------
 
 try
 {
-	$cert = Get-ChildItem -path 'cert:\LocalMachine\My' | Where-Object { $_.Subject.Contains('AgentSpnCert') }
+	$cert = Get-ChildItem -path 'cert:\LocalMachine\My' | Where-Object { $_.Subject.Contains('AgentSpnCert') } | Sort-Object -Property "NotAfter" -Descending | Select-Object -First 1
 	logger "User: $env:username"
 	$TPrint = $cert.ThumbPrint
 	if ($TPrint -eq $null) {

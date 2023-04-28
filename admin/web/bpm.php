@@ -1,0 +1,5 @@
+<?php
+include_once ('functions.php');
+
+$bpm_functions_included = 1;
+?>

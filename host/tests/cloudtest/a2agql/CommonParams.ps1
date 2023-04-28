@@ -82,6 +82,7 @@ $global:IsPremiumDR = $AzureEnvironment.IsPremiumDR
 $AzureFabric = $configXml.A2AGQLConfig.AzureFabric
 $global:VMName = $AzureFabric.VMName
 $global:OSType = $AzureFabric.OSType
+$global:RunFSHealthCheck = $AzureFabric.RunFSHealthCheck
 $global:IsManagedDisk = $AzureFabric.IsManagedDisk
 $global:TFOVMName = $AzureFabric.TFOVMName
 $global:ReplicationPolicy = $AzureFabric.ReplicationPolicy
@@ -132,5 +133,13 @@ if( $OSType -eq "linux")
 {
     $global:CustomExtensionName = "ConfigureLinuxMachine"
 }
+
+# Event ID 55 indicates that the file system on the disk is corrupt and unusable
+# https://learn.microsoft.com/en-us/troubleshoot/windows-server/backup-and-storage/troubleshoot-data-corruption-and-disk-errors
+# Add comma(,) seperated values to verify for multiple eventids (Eg: $global:EventIds=55,98)
+$global:EventIds = 55
+
+# Mount Point Dir for data disks on linux machines
+$global:MntPointDir = "/datadisks"
 
 Write-Host "CommonParams.ps1 executed"

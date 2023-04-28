@@ -1,0 +1,13 @@
+<Request Id="0001" Version="1.0">
+  	<Header> 
+		<Authentication>
+			<AccessKeyID>DDC9525FF275C104EFA1DFFD528BD0145F903CB1</AccessKeyID>
+		<AccessSignature></AccessSignature>   
+		</Authentication> 
+ 	</Header> 
+ 	<Body>
+		<FunctionRequest Name="GetAvailableBuilds">
+			<Parameter Name="HostOSType"   Value="All/Windows/Linux" />
+		</FunctionRequest>
+ 	</Body> 
+</Request>

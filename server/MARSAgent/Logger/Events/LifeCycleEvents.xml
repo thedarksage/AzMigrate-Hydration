@@ -1,0 +1,159 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+
+<!-- 
+    This file contains the definitions for the all the events.
+-->
+<SRSEventsCollection xmlns:srs="http://schemas.microsoft.com/2010/dls/SRSEventsConfig.xsd">
+
+  <!--All the success events go here.-->
+  <SRSEvents Type="Success" MinEventCode="2201" MaxEventcode="2300">
+
+    <SRSEvent>
+      <Name>ServiceStarted</Name>
+      <Code>2201</Code>
+      <EventLogLevel>Information</EventLogLevel>
+      <Message>Service started.</Message>
+      <RecommendedAction>No action needed.</RecommendedAction>
+      <Owner>Jaysha</Owner>
+      <FeatureTeamReviewed>false</FeatureTeamReviewed>
+      <element Name="Version" Type="string"></element>
+    </SRSEvent>
+
+    <SRSEvent>
+      <Name>ServiceStopped</Name>
+      <Code>2202</Code>
+      <EventLogLevel>Information</EventLogLevel>
+      <Message>Service stopped.</Message>
+      <RecommendedAction>No action needed.</RecommendedAction>
+      <Owner>Jaysha</Owner>
+      <FeatureTeamReviewed>false</FeatureTeamReviewed>
+      <element Name="Version" Type="string"></element>
+    </SRSEvent>
+
+    <SRSEvent>
+      <Name>ServiceConfigured</Name>
+      <Code>2203</Code>
+      <EventLogLevel>Information</EventLogLevel>
+      <Message>Service configured succesfully.</Message>
+      <RecommendedAction>No action needed.</RecommendedAction>
+      <Owner>Jaysha</Owner>
+      <FeatureTeamReviewed>false</FeatureTeamReviewed>
+    </SRSEvent>
+
+    <SRSEvent>
+      <Name>ServiceRegistered</Name>
+      <Code>2204</Code>
+      <EventLogLevel>Information</EventLogLevel>
+      <Message>Service registered succesfully.</Message>
+      <RecommendedAction>No action needed.</RecommendedAction>
+      <Owner>Jaysha</Owner>
+      <FeatureTeamReviewed>false</FeatureTeamReviewed>
+    </SRSEvent>
+
+    <SRSEvent>
+      <Name>WebProxyUpdated</Name>
+      <Code>2205</Code>
+      <EventLogLevel>Information</EventLogLevel>
+      <Message>Web proxy details updated succesfully.</Message>
+      <RecommendedAction>No action needed.</RecommendedAction>
+      <Owner>chpadh</Owner>
+      <FeatureTeamReviewed>false</FeatureTeamReviewed>
+    </SRSEvent>
+
+    <SRSEvent>
+      <Name>ServiceUnregistered</Name>
+      <Code>2206</Code>
+      <EventLogLevel>Information</EventLogLevel>
+      <Message>Service unregistered succesfully.</Message>
+      <RecommendedAction>No action needed.</RecommendedAction>
+      <Owner>chpadh</Owner>
+      <FeatureTeamReviewed>false</FeatureTeamReviewed>
+    </SRSEvent>
+
+    <SRSEvent>
+      <Name>ServiceUnconfigured</Name>
+      <Code>2207</Code>
+      <EventLogLevel>Information</EventLogLevel>
+      <Message>Service unconfigured succesfully.</Message>
+      <RecommendedAction>No action needed.</RecommendedAction>
+      <Owner>chpadh</Owner>
+      <FeatureTeamReviewed>false</FeatureTeamReviewed>
+    </SRSEvent>
+
+  </SRSEvents>
+
+  <!--This group contains all the failure events.-->
+  <SRSEvents Type="Failure-PGActionable" MinEventCode="4201" MaxEventcode="4300">
+
+    <SRSEvent>
+      <Name>SampleLifeCycleErrorEvent</Name>
+      <Code>4201</Code>
+      <EventLogLevel>Error</EventLogLevel>
+      <Message>Stuff did not work.</Message>
+      <RecommendedAction>Missing!!!</RecommendedAction>
+      <Owner>Jaysha</Owner>
+      <FeatureTeamReviewed>false</FeatureTeamReviewed>
+    </SRSEvent>
+
+    <SRSEvent>
+      <Name>ServiceConfigurationFailed</Name>
+      <Code>4202</Code>
+      <EventLogLevel>Error</EventLogLevel>
+      <Message>Service configuration failed.</Message>
+      <RecommendedAction>No action needed.</RecommendedAction>
+      <Owner>Jaysha</Owner>
+      <FeatureTeamReviewed>false</FeatureTeamReviewed>
+      <element Name="exceptionType" Type="string"></element>
+      <element Name="exceptionMessage" Type="string"></element>
+    </SRSEvent>
+
+    <SRSEvent>
+      <Name>ServiceRegisterationFailed</Name>
+      <Code>4203</Code>
+      <EventLogLevel>Error</EventLogLevel>
+      <Message>Service registeration failed.</Message>
+      <RecommendedAction>No action needed.</RecommendedAction>
+      <Owner>Jaysha</Owner>
+      <FeatureTeamReviewed>false</FeatureTeamReviewed>
+      <element Name="exceptionType" Type="string"></element>
+      <element Name="exceptionMessage" Type="string"></element>
+    </SRSEvent>
+
+    <SRSEvent>
+      <Name>WebProxyUpdationFailed</Name>
+      <Code>4204</Code>
+      <EventLogLevel>Error</EventLogLevel>
+      <Message>Web proxy details updation failed.</Message>
+      <RecommendedAction>No action needed.</RecommendedAction>
+      <Owner>chpadh</Owner>
+      <FeatureTeamReviewed>false</FeatureTeamReviewed>
+      <element Name="exceptionType" Type="string"></element>
+      <element Name="exceptionMessage" Type="string"></element>
+    </SRSEvent>
+
+    <SRSEvent>
+      <Name>ServiceUnregisterationFailed</Name>
+      <Code>4205</Code>
+      <EventLogLevel>Error</EventLogLevel>
+      <Message>Service unregisteration failed.</Message>
+      <RecommendedAction>No action needed.</RecommendedAction>
+      <Owner>chpadh</Owner>
+      <FeatureTeamReviewed>false</FeatureTeamReviewed>
+      <element Name="exceptionType" Type="string"></element>
+      <element Name="exceptionMessage" Type="string"></element>
+    </SRSEvent>
+
+    <SRSEvent>
+      <Name>ServiceUnconfigurationFailed</Name>
+      <Code>4206</Code>
+      <EventLogLevel>Error</EventLogLevel>
+      <Message>Service unconfiguration failed.</Message>
+      <RecommendedAction>No action needed.</RecommendedAction>
+      <Owner>chpadh</Owner>
+      <FeatureTeamReviewed>false</FeatureTeamReviewed>
+      <element Name="exceptionType" Type="string"></element>
+      <element Name="exceptionMessage" Type="string"></element>
+    </SRSEvent>
+    
+  </SRSEvents>
+</SRSEventsCollection>

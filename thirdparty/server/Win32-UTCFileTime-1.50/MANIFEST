@@ -1,0 +1,36 @@
+Artistic                             The "Artistic License"
+Changes                              Differences from previous version
+Copying                              The GNU General Public License
+INSTALL                              Detailed installation instructions
+LICENCE                              The Licence
+Makefile.PL                          Makefile writer
+MANIFEST                             This list of files
+MANIFEST.SKIP                        Manifest skip specs
+META.yml                             Distribution meta-data in YAML
+README                               The Instructions
+ppport.h                             Perl/Pollution/Portability header
+typemap                              Win32::UTCFileTime extension interface types
+UTCFileTime.xs                       Win32::UTCFileTime extension external subroutines
+fallback/const-c.inc                 Win32::UTCFileTime extension constants fallback file
+fallback/const-xs.inc                Win32::UTCFileTime extension constants fallback file
+inc/Module/AutoInstall.pm            Module::AutoInstall Perl module
+inc/Module/Install.pm                Module::Install Perl module
+inc/Module/Install/AutoInstall.pm    Module::Install::AutoInstall Perl module
+inc/Module/Install/Base.pm           Module::Install::Base Perl module
+inc/Module/Install/Can.pm            Module::Install::Can Perl module
+inc/Module/Install/Include.pm        Module::Install::Include Perl module
+inc/Module/Install/Makefile.pm       Module::Install::Makefile Perl module
+inc/Module/Install/MakeMaker.pm      Module::Install::MakeMaker Perl module
+inc/Module/Install/Metadata.pm       Module::Install::Metadata Perl module
+inc/Module/Install/PRIVATE.pm        Module::Install::PRIVATE Perl module
+lib/Win32/UTCFileTime.pm             Win32::UTCFileTime extension Perl module
+t/01_file_times.t                    See if getting/setting file times works
+t/02_dir_times.t                     See if getting/setting directory times works
+t/03_file_mode.t                     See if getting file mode works
+t/04_dir_mode.t                      See if getting directory mode works
+t/05_file_misc.t                     See if getting miscellaneous file information works
+t/06_dir_misc.t                      See if getting miscellaneous directory information works
+t/07_dir_name.t                      See if getting information for various directory names works
+t/08_default_arg.t                   See if default arguments work
+t/09_errstr.t                        See if $ErrStr variable works
+t/10_pod.t                           See if POD is OK

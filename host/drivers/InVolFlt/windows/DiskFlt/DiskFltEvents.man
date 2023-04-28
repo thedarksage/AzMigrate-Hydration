@@ -4393,6 +4393,14 @@ Steps to view/edit this manifest file:
                 channel="INDSKFLT_CHANNEL_ADMIN"
                 version="1"
                 message="$(string.INDSKFLT_ERROR_RESYNC_END_FAILED.Message)"/>
+
+            <event value="30177"
+                symbol="INDSKFLT_ERROR_INVALID_CAPTURE_STATE"
+                template="INDSKFLT_TEMPLATE_BASIC_DISK_IDENTIFIERS"
+                level="win:Error"
+                channel="INDSKFLT_CHANNEL_ADMIN"
+                version="1"
+                message="$(string.INDSKFLT_ERROR_INVALID_CAPTURE_STATE.Message)"/>
             <!--Error, Admin events (30001:33000) - End-->
 
           <!--Error, Operational events (33001:36000) - Start-->
@@ -5920,7 +5928,10 @@ Steps to view/edit this manifest file:
         <string id="INDSKFLT_WARN_CLUSTER_KEY_WRITE_FAILED.Message"
             value="Disk %1 (ID = %2) Failed to write ClusterAttributes Key Status: %3."/>
 
-        <string id="INDSKFLT_WARN_PREV_BOOT_DEVICEID_FAILED.Message"
+          <string id="INDSKFLT_ERROR_INVALID_CAPTURE_STATE.Message"
+              value="Disk %1 (ID = %2) is in invalid capture state."/>
+
+          <string id="INDSKFLT_WARN_PREV_BOOT_DEVICEID_FAILED.Message"
               value="Failed to query BootDeviceID value Status: %1."/>
 
         <string id="INDSKFLT_WARN_PREV_BOOT_VENDORID_FAILED.Message"

@@ -9,7 +9,7 @@ SRCS = \
 	Microsoft.Test.Inmage.ReplicationManager/SegStream.cpp \
 	Microsoft.Test.Inmage.ReplicationManager/SVDStream.cpp \
 	Microsoft.Test.Inmage.ReplicationManager/Validations.cpp \
-	S2Agent/S2Agent.cpp 
+	S2Agent/S2Agent.cpp
 
 X_CFLAGS = \
 	-Idrivers/lib/$(X_MINOR_ARCH) \
@@ -37,13 +37,14 @@ X_CFLAGS = \
 	-Itests/common/Logger/$(X_MAJOR_ARCH) \
 	-Idrivers/InVolFlt/common \
 	-Idrivers/InVolFlt/$(X_MINOR_ARCH) \
+	-Is2libs/thread \
 	$(BOOST_INCLUDE) \
 	$(INM_MD5_INCLUDE) \
 	$(ACE_INCLUDE)
 
-X_LIBS = 
+X_LIBS =
 
-X_THIRDPARTY_LIBS = 
+X_THIRDPARTY_LIBS =
 
 X_SYSTEM_LIBS =
 

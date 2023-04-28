@@ -3549,7 +3549,7 @@ void BaselineConsistency::Process()
 
 static void LogCallback(unsigned int logLevel, const char *msg)
 {
-    inm_printf(logLevel, msg);
+    inm_printf(logLevel, "%s", msg);
 }
 
 void RunBaselineConsistency(const CLIRequest_t &CmdRequest)

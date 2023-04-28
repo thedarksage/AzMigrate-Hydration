@@ -1,0 +1,34 @@
+<Request Id="1" Version="1.0">
+ <Header>
+  <Authentication>
+  <AccessKeyID>11F3242118FF2ADD5D117CBF216F29AC578F6BA6</AccessKeyID>
+  <AuthMethod>CXAuth</AuthMethod>
+  <CXUserName>admin</CXUserName>
+  </Authentication>
+</Header>
+<Body>
+ <FunctionRequest Name="ModifyProtectionV2" Id="d303ee5b-97c9-4f7b-90e4-804682225eca" include="No">
+ <Parameter Name="ProtectionPlanId" Value="14"/>
+ <ParameterGroup Id="Servers">
+ <ParameterGroup Id="SourceServer1">
+ <Parameter Name="HostId" Value="37164b12-4112-4f70-8984-f974d6817ced"/>
+ <Parameter Name="ProcessServer" Value="4D9FDED9-9F6B-C449-B05CB78764AEB96F"/>
+ <Parameter Name="MasterTarget" Value="4D9FDED9-9F6B-C449-B05CB78764AEB96F"/>
+ <Parameter Name="UseNatIPFor" Value="None"/>
+ <Parameter Name="ProtectionDirection" Value="E2A"/>
+ <ParameterGroup Id="DiskDetails">
+ <ParameterGroup Id="Disk1">
+ <Parameter Name="SourceDiskName" Value="{202144727}"/>
+ </ParameterGroup>
+ <ParameterGroup Id="Disk2">
+ <Parameter Name="SourceDiskName" Value="{102144726}"/>
+ </ParameterGroup>
+ <ParameterGroup Id="Disk3">
+ <Parameter Name="SourceDiskName" Value="{75708395}"/>
+ </ParameterGroup>
+ </ParameterGroup>
+ </ParameterGroup>
+ </ParameterGroup>
+ </FunctionRequest>
+</Body> 
+</Request>

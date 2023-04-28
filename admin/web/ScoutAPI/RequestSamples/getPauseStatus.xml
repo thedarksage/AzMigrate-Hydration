@@ -1,0 +1,13 @@
+<Request Id="0504" Version="1.0">
+<Header>
+  <Authentication>
+    <AccessKeyID>8A1681E612A2025087B703FDF1F8F617E506B053</AccessKeyID>
+    <AccessSignature>ZDAxODVmMGM4MjYzOGFiMTYzYzUwODUxYzFmYWQ5Njg2ZTE5YjY3ZA==</AccessSignature>
+  </Authentication>
+</Header>
+<Body>
+  <FunctionRequest Name="getPauseStatus">
+    <Parameter Name="RequestId" Value="43" />
+  </FunctionRequest>
+</Body>
+</Request>

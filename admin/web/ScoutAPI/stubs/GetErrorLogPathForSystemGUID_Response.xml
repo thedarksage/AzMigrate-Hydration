@@ -1,0 +1,5 @@
+<Function Name="GetErrorLogPathForSystemGUID" ReturnCode="0" Message="">
+		<FunctionResponse>	
+			<Parameter  Name="ErrorLogPathName" Value="/home/svsystems/var"/>
+   		</FunctionResponse> 
+</Function>

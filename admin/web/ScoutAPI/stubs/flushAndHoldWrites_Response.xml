@@ -1,0 +1,5 @@
+<Function Name="flushAndHoldWrites" Id="" Returncode="0" Message="Success">
+<FunctionResponse>
+    <Parameter Name="RequestId" Value="43"/>
+</FunctionResponse>
+</Function>

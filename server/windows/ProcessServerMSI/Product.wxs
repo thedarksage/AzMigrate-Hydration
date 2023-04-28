@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+
+  <?include $(sys.SOURCEFILEDIR)\Version.wxi ?>
+
+  <?if $(var.Configuration) = "Release" ?>
+  <?define ConfigurationMin = "ReleaseMinDependency" ?>
+  <?else ?>
+  <?define ConfigurationMin = "Debug" ?>
+  <?endif?>
+
+  <?if $(var.Configuration) = "Release" ?>
+  <?define DebugLogLevel = "3" ?>
+  <?else ?>
+  <?define DebugLogLevel = "7" ?>
+  <?endif?>
+
+  <?define productName="Microsoft Azure Site Recovery Process Server" ?>
+  <?define programFilesDir="ProgramFiles64Folder" ?>
+  <?define upgradeCode="DF83CFC5-474B-47CB-8687-3154BE167CD2" ?>
+  <?define LanguageID="1033" ?>
+  <?define SourceDirectory=$(var.SolutionDir)?>
+  <?define SoftwareRegHive="Software"?>
+
+  <Product
+    Id="B182EE86-D3DE-493A-BF5B-8D45BE416746"
+    Name="$(var.productName)"
+    Language="1033"
+    Version="$(var.BuildVersion)"
+    Manufacturer="Microsoft Corporation"
+    UpgradeCode="$(var.upgradeCode)">
+
+    <Package
+      Keywords="Installer; MSI"
+      Id="*"
+      Description="$(var.productName) Setup v$(var.BuildVersion)"
+      Comments="This installer contains the logic and data required to install $(var.productName)."
+      Manufacturer="Microsoft Corporation"
+      InstallerVersion="301"
+      InstallScope="perMachine"
+      Platform="$(var.Platform)"
+      Languages="$(var.LanguageID)"
+      Compressed="yes"
+      SummaryCodepage="1252" />
+
+    <Media Id="1" Cabinet="media1.cab" EmbedCab="yes" CompressionLevel="high"/>
+    <Property Id="INSTALLLOCATION" Secure="yes" />
+    <Property Id="MODE" Secure="yes" />
+
+    <Binary Id="ProcessServerCA" SourceFile="$(var.SourceDirectory)windows\ProcessServerCustomActions\bin\Release\ProcessServerCustomActions.CA.dll" />
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="$(var.programFilesDir)" Name='PFiles'>
+        <Directory Id="INSTALLLOCATION" Name="Microsoft Azure Site Recovery Process Server">
+          <Directory Id="HOME" Name="home" >
+            <Directory Id="SVSYSTEMS" Name="svsystems">
+              <Component Id="PS_Delete_InstallDir" Guid="1F4B1F84-725D-46AB-B388-3B239E376AC5">
+                <CreateFolder />
+                <RemoveFile Id="Delete_insdir" Name="*.*" Directory="INSTALLLOCATION" On="uninstall" />
+                <RemoveFile Id="Delete_bin" Name="*.*" Directory="BIN" On="uninstall" />
+                <RemoveFile Id="Delete_etc" Name="*.*" Directory="ETC" On="uninstall" />
+                <RemoveFile Id="Delete_psbin" Name="*.*" Directory="PSBIN" On="uninstall" />
+                <RemoveFile Id="Delete_var" Name="*.*" Directory="VAR" On="uninstall" />
+                <RemoveFile Id="Delete_transport" Name="*.*" Directory="TRANSPORT" On="uninstall" />
+                <RemoveFile Id="Delete_transprtlog" Name="*.*" Directory="TRANSPORTLOG" On="uninstall" />
+                <RemoveFile Id="Delete_transportprivate" Name="*.*" Directory="TRANSPORTPRIVATE" On="uninstall" />
+                <util:RemoveFolderEx On="uninstall" Property="INSTALLLOCATION" />
+                <!--Added this explicit delete to put the latest version of this file during upgrade,
+                    even after any modifications to this file-->
+                <RemoveFile Id="DeleteOnUpgrade_cxpsgoldenconf" Name="cxps_golden.conf" Directory="TRANSPORT" On="install"/>
+              </Component>
+              <Directory Id="BIN" Name="bin" >
+                <Directory Id="PSBIN" Name="ProcessServer" />
+              </Directory>
+              <Directory Id="ETC" Name="etc" />
+              <Directory Id="VAR" Name="var" />
+              <Directory Id="TRANSPORT" Name="transport" >
+                <Directory Id="TRANSPORTLOG" Name="log" />
+                <Directory Id="TRANSPORTPRIVATE" Name="private" />
+              </Directory>
+            </Directory>
+          </Directory>
+        </Directory>
+      </Directory>
+    </Directory>
+
+    <DirectoryRef Id="TRANSPORT">
+      <Component Id="PS_cxpsconf" Guid="0899E045-F62F-4DE4-A00F-94EC7180C2D9" NeverOverwrite="yes">
+        <File Id="file_cxps_conf" Name="cxps.conf" DiskId="1" Source="$(var.SourceDirectory)..\host\cxpslib\cxps.conf" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="PS_cxpsgoldenconf" Guid="2C100ACE-E974-45AA-AE13-1758D4F88EF6">
+        <File Id="file_cxps_golden_conf" Name="cxps_golden.conf" DiskId="1" Source="$(var.SourceDirectory)..\host\cxpslib\cxps.conf" Vital="yes" KeyPath="yes" Hidden="yes" ReadOnly="yes"/>
+      </Component>
+      <Component Id="PS_cxpsexe" Guid="FEF1C0C9-54E8-44B4-ADDE-F22C4244BD11">
+        <File Id="file_cxps_exe" Name="cxps.exe" DiskId="1" Source="$(var.SourceDirectory)..\host\cxps\x64\$(var.Configuration)\cxps.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="PS_cxpscli" Guid="A29FD679-2B0C-4001-B716-1184BB31AE0A">
+        <File Id="file_cxpscli_exe" Name="cxpscli.exe" DiskId="1" Source="$(var.SourceDirectory)..\host\cxpscli\x64\$(var.Configuration)\cxpscli.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="BIN">
+      <Component Id="PS_GencertExe" Guid="3DF29203-A241-49A5-97BF-65536E0C6498">
+        <File Id="file_gencert_exe" Name="gencert.exe" DiskId="1" Source="$(var.SourceDirectory)..\host\gencert\x64\$(var.Configuration)\gencert.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="PS_ProcessServerCoreDll" Guid="2820EF43-ABF0-42D6-9B2A-CE74880629C6">
+        <File Id="file_process_server_core_dll" Name="Microsoft.Azure.SiteRecovery.ProcessServer.Core.dll" DiskId="1" Source="$(var.SourceDirectory)ProcessServerCore\bin\$(var.Configuration)\Microsoft.Azure.SiteRecovery.ProcessServer.Core.dll" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="PS_ProcessServerMonitorExe" Guid="e8b8e027-440a-4875-bb5b-2f5ef6f84f27">
+        <File Id="file_process_server_monitor_exe" Name="ProcessServerMonitor.exe" DiskId="1" Source="$(var.SourceDirectory)windows\ProcessServerMonitor\bin\$(var.Configuration)\ProcessServerMonitor.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="PS_ProcessServerMonitorConfig" Guid="0D7D5E85-45BA-4034-9E4D-1B4A45F82A22">
+        <File Id="file_process_server_monitor_config" Name="ProcessServerMonitor.exe.config" DiskId="1" Source="$(var.SourceDirectory)windows\ProcessServerMonitor\bin\$(var.Configuration)\ProcessServerMonitor.exe.config" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="PS_ProcessServerExe" Guid="C78FB175-ADEA-4C37-86E6-96C3C5C310C1">
+        <File Id="file_process_server_exe" Name="ProcessServer.exe" DiskId="1" Source="$(var.SourceDirectory)windows\ProcessServer\bin\$(var.Configuration)\ProcessServer.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="PS_ProcessServerConfig" Guid="077AFBBF-2E40-4A75-AE3C-277B0D7A04F0">
+        <File Id="file_process_server_config" Name="ProcessServer.exe.config" DiskId="1" Source="$(var.SourceDirectory)windows\ProcessServer\bin\$(var.Configuration)\ProcessServer.exe.config" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="PS_PSConfigurator" Guid="F84BA8F3-0141-4009-ADC5-C6337329698C">
+        <File Id="file_process_server_configurator" Name="PS_Configurator.ps1" DiskId="1" Source="$(var.SourceDirectory)windows\PS_Configurator.ps1" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="PS_EvtCollForw" Guid="C51C1DAC-1A74-4F63-9290-79494014D5E9">
+        <File Id="file_evtcollforw" Name="evtcollforw.exe" DiskId="1" Source="$(var.SourceDirectory)..\host\EvtCollForw\Release\evtcollforw.exe" Vital="yes" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="PSBIN">
+      <Component Id="PS_AppInsightsDll" Guid="FD6F4156-106C-4911-9164-BAC9DE971C09">
+        <File Id="file_app_insights_dll" Name="Microsoft.ApplicationInsights.dll" DiskId="1" Source="$(var.SourceDirectory)packages\Microsoft.ApplicationInsights.2.15.0\lib\net46\Microsoft.ApplicationInsights.dll" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="PS_AIServerTelChannelDll" Guid="9D14616C-B045-4BA4-A58F-35331ECBA01F">
+        <File Id="file_ai_server_telchannel_dll" Name="Microsoft.AI.ServerTelemetryChannel.dll" DiskId="1" Source="$(var.SourceDirectory)packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.15.0\lib\net452\Microsoft.AI.ServerTelemetryChannel.dll" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="PS_ClientLibHelpersDll" Guid="8B35F411-E59D-41C2-8312-66B3E1A77B79">
+        <File Id="file_client_lib_helpers_dll" Name="ClientLibHelpers.dll" DiskId="1" Source="$(var.SourceDirectory)packages\ClientLibHelpers.1.0.0.47\lib\net462\ClientLibHelpers.dll" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="PS_CredentialStoreDll" Guid="31845236-65B2-49BC-9A37-DB09DC9A51DB">
+        <File Id="file_credential_store_dll" Name="CredentialStore.dll" DiskId="1" Source="$(var.SourceDirectory)packages\CredentialStore.1.1.0.6\lib\net462\CredentialStore.dll" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="PS_MSALDll" Guid="41BB0F2A-78B9-4FDB-8BEA-6E44A7EB9CB0">
+        <File Id="file_msal_dll" Name="Microsoft.Identity.Client.dll" DiskId="1" Source="$(var.SourceDirectory)packages\Microsoft.Identity.Client.4.48.1\lib\net461\Microsoft.Identity.Client.dll" Vital="yes" KeyPath="yes"/>
+      </Component>
+	  <Component Id="PS_MSABDll" Guid="8329EEF5-BDFF-45A2-8463-42223F30F8D0">
+        <File Id="file_msab_dll" Name="Microsoft.IdentityModel.Abstractions.dll" DiskId="1" Source="$(var.SourceDirectory)packages\Microsoft.IdentityModel.Abstractions.6.22.0\lib\net461\Microsoft.IdentityModel.Abstractions.dll" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="PS_NewtonsoftJsonDll" Guid="C7F31EE9-19AC-40F7-8321-A6939C232989">
+        <File Id="file_newtonsoft_json_dll" Name="Newtonsoft.Json.dll" DiskId="1" Source="$(var.SourceDirectory)packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="PS_RcmAgentCommonLibDll" Guid="FBB5F2D0-95C4-43C8-92C7-F9BDAE27AF1F">
+        <File Id="file_rcm_agent_common_lib_dll" Name="RcmAgentCommonLib.dll" DiskId="1" Source="$(var.SourceDirectory)packages\RcmAgentCommonLib.1.30.8485.9888\lib\net462\RcmAgentCommonLib.dll" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="PS_RcmClientLibDll" Guid="5307F4D3-96B9-4CAD-9D3E-D60E8344BB84">
+        <File Id="file_rcm_client_lib_dll" Name="RcmClientLib.dll" DiskId="1" Source="$(var.SourceDirectory)packages\RcmClientLib.1.37.8450.18164\lib\net462\RcmClientLib.dll" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="PS_RcmContractDll" Guid="1036B3DA-44A0-4B9C-A6DC-F97B14F677EB">
+        <File Id="file_rcm_contract_dll" Name="RcmContract.dll" DiskId="1" Source="$(var.SourceDirectory)packages\RcmContract.1.37.8450.18164\lib\net462\RcmContract.dll" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="PS_SystemValueTupleDll" Guid="9C2A567F-EBE0-4EB0-A395-C5A4B6C0A078">
+        <File Id="file_system_value_tuple_dll" Name="System.ValueTuple.dll" DiskId="1" Source="$(var.SourceDirectory)packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="PS_ServiceBusDll" Guid="56628CFA-A58F-4AF3-9222-D24EC9B85ED7">
+        <File Id="file_servicebus_dll" Name="Microsoft.ServiceBus.dll" DiskId="1" Source="$(var.SourceDirectory)packages\WindowsAzure.ServiceBus.6.0.2\lib\net462\Microsoft.ServiceBus.dll" Vital="yes" KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="SVSYSTEMS">
+      <Component Id="PS_ThirdPartyNotice" Guid="1108A1BD-90B1-4976-A66D-99FEFC6C87C5">
+        <File Id="file_thirdparty_notice" Name="Third-Party_Notices.rtf" DiskId="1" Source="$(var.SourceDirectory)..\thirdparty\Notices\Third-Party_Notices.rtf" Vital="yes" KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="ETC">
+      <Component Id="PS_etc" Guid="05A48B05-825C-4768-B3CE-548191E0D20B">
+        <CreateFolder />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="VAR">
+      <Component Id="PS_var" Guid="A6224B77-B646-4A12-B659-404FE0755EF3">
+        <CreateFolder />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="TRANSPORTLOG">
+      <Component Id="PS_transportlog" Guid="CEE75C32-BD0D-437B-9194-72709F226166">
+        <CreateFolder />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="TRANSPORTPRIVATE">
+      <Component Id="PS_transportprivate" Guid="3A2073CE-0C1D-40F6-BB84-EF76BD877486">
+        <CreateFolder />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="INSTALLLOCATION">
+      <Component Id="PS_Registry" Guid="594F7189-19ED-4DC0-AF80-AE17EC4702BF">
+        <RegistryKey Root="HKLM" Key="$(var.SoftwareRegHive)\Microsoft\Azure Site Recovery Process Server" ForceCreateOnInstall="yes" ForceDeleteOnUninstall="yes" Action="createAndRemoveOnUninstall">
+          <RegistryValue Type="string" Name="Product_Name" Value="$(var.productName)"/>
+          <RegistryValue Type="string" Name="Version" Value="$(var.ProductVersion)"/>
+          <RegistryValue Type="string" Name="Build_Tag" Value="$(var.BuildTag)"/>
+          <RegistryValue Type="string" Name="Build_Phase" Value="$(var.BuildPhase)"/>
+          <RegistryValue Type="string" Name="Build_Number" Value="$(var.BuildNumber)"/>
+          <RegistryValue Type="string" Name="Build_Version" Value="$(var.BuildVersion)"/>
+          <RegistryValue Type="expandable" Name="Install Location" Value="[INSTALLLOCATION]"/>
+          <RegistryValue Type="expandable" Name="Configurator Path" Value="[BIN]PS_Configurator.ps1"/>
+          <RegistryValue Type="expandable" Name="Settings Path" Value="[ETC]PSSettings.json"/>
+          <RegistryValue Type="expandable" Name="Idempotency Lock File Path" Value="[ETC]Idempotency.lck"/>
+          <RegistryValue Type="string" Name="Last Updated On UTC" Value="[DATETIME]" />
+          <RegistryValue Type="string" Name="CS Mode" Value="[MODE]" />
+        </RegistryKey>
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="TRANSPORT">
+      <Component Id="PS_CXPS_InstallDir" Guid="A5F525D0-6810-4D1C-B1D8-11C0ADA2B0A1">
+        <IniFile Id="cxps_InstallDir" Action="addLine" Directory="TRANSPORT" Name="cxps.conf" Section="cxps" Key="install_dir" Value="[TRANSPORT]" />
+      </Component>
+      <Component Id="PS_CXPS_CsUseSecure" Guid="629F9018-9CC9-4092-8108-25939E0A09D6">
+        <IniFile Id="cxps_CSUseSecure" Action="addLine"  Directory="TRANSPORT" Name="cxps.conf" Section="cxps" Key="cs_use_secure " Value="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <MajorUpgrade
+      AllowDowngrades="no"
+      AllowSameVersionUpgrades="yes"
+      MigrateFeatures="yes"
+      IgnoreRemoveFailure="yes"
+      Schedule="afterInstallFinalize"
+      DowngradeErrorMessage="A newer version of this product is already installed. Setup will now exit" />
+
+    <!--CA for install-->
+    <CustomAction Id="PS_Prechecks" BinaryKey="ProcessServerCA" DllEntry="PSPrechecks" Execute="immediate" />
+    <CustomAction Id="Create_Folder" BinaryKey="ProcessServerCA" DllEntry="CreateFolder" Execute="immediate" />
+    <CustomAction Id="Set_Reg" BinaryKey="ProcessServerCA" DllEntry="SetRegistry" Execute="immediate" />
+    <CustomAction Id="Install_service" BinaryKey="ProcessServerCA" DllEntry="InstallServices" Execute="immediate" />
+    <CustomAction Id="Input_Validation" BinaryKey="ProcessServerCA" DllEntry="InputValidation" Execute="immediate" />
+    <!--CA for upgrade-->
+    <CustomAction Id="GetdateTime" BinaryKey="ProcessServerCA" DllEntry="GetCurrentDateTime" Execute="immediate" />
+    <CustomAction Id="VersionCheck" BinaryKey="ProcessServerCA" DllEntry="VersionCheck" Execute="immediate" />
+    <CustomAction Id="Get_Install_Directory" BinaryKey="ProcessServerCA" DllEntry="GetInstallDirectory" Execute="immediate" />
+    <CustomAction Id="Stop_Service" BinaryKey="ProcessServerCA" DllEntry="StopServices" Execute="immediate" />
+    <CustomAction Id="Start_Service" BinaryKey="ProcessServerCA" DllEntry="StartServices" Execute="immediate" />
+    <!--CA for uninstall-->
+    <CustomAction Id="Unregister_PS" BinaryKey="ProcessServerCA" DllEntry="UnregisterPS" Execute="immediate" />
+    <CustomAction Id="Unconfigure_PS" BinaryKey="ProcessServerCA" DllEntry="UnconfigurePS" Execute="immediate" />
+    <CustomAction Id="Delete_Directory" BinaryKey="ProcessServerCA" DllEntry="DeleteDirectory" Execute="immediate" />
+    <CustomAction Id="Delete_Reg" BinaryKey="ProcessServerCA" DllEntry="DeleteRegistry" Execute="immediate" />
+    <CustomAction Id="Delete_Service" BinaryKey="ProcessServerCA" DllEntry="StopAndDeleteServices" Execute="immediate" />
+    <CustomAction Id="Delete_Firewall_Rule" BinaryKey="ProcessServerCA" DllEntry="DeleteFirewallRules" Execute="immediate" />
+
+    <InstallExecuteSequence>
+      <!--CA for install-->
+      <Custom Action="PS_Prechecks" Before="Input_Validation" >NOT Installed</Custom>
+      <Custom Action="Input_Validation" Before="Create_Folder">NOT Installed</Custom>
+      <Custom Action="Create_Folder" Before="CostFinalize" >NOT Installed</Custom>
+      <Custom Action="Install_service" After="InstallFinalize" >NOT Installed</Custom>
+      <Custom Action="Set_Reg" After="Install_service" >NOT Installed</Custom>
+
+      <!--CA for upgrade-->
+      <Custom Action="GetdateTime" Before="VersionCheck" />
+      <Custom Action="VersionCheck" Before="Get_Install_Directory" />
+      <Custom Action="Get_Install_Directory" Before="Stop_Service">Installed</Custom>
+      <Custom Action="Stop_Service" Before="CostFinalize">Installed</Custom>
+      <Custom Action="Start_Service" After="InstallFinalize">Installed AND NOT REMOVE~="All"</Custom>
+      <!--CA for uninstall-->
+      <Custom Action="Unregister_PS" Before="Delete_Service" >(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL")</Custom>
+      <Custom Action="Unconfigure_PS" After="Unregister_PS" >(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL")</Custom>
+      <Custom Action="Delete_Service" Before="Delete_Firewall_Rule" >(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL")</Custom>
+      <Custom Action="Delete_Firewall_Rule" Before="RemoveFiles" >(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL")</Custom>
+      <Custom Action="Delete_Directory" After="InstallFinalize" >(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL")</Custom>
+      <Custom Action="Delete_Reg" After="Delete_Directory" >(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL")</Custom>
+    </InstallExecuteSequence>
+
+    <Feature Id="ProductFeature" Title="ProcessServerMSI" Level="1">
+      <ComponentRef Id="PS_Delete_InstallDir" />
+      <ComponentRef Id="PS_cxpsconf" />
+      <ComponentRef Id="PS_cxpsgoldenconf" />
+      <ComponentRef Id="PS_cxpsexe" />
+      <ComponentRef Id="PS_cxpscli" />
+      <ComponentRef Id="PS_GencertExe" />
+      <ComponentRef Id="PS_ProcessServerCoreDll" />
+      <ComponentRef Id="PS_ProcessServerMonitorExe" />
+      <ComponentRef Id="PS_ProcessServerMonitorConfig" />
+      <ComponentRef Id="PS_ProcessServerExe" />
+      <ComponentRef Id="PS_ProcessServerConfig" />
+      <ComponentRef Id="PS_AppInsightsDll" />
+      <ComponentRef Id="PS_AIServerTelChannelDll" />
+      <ComponentRef Id="PS_ClientLibHelpersDll" />
+      <ComponentRef Id="PS_CredentialStoreDll" />
+      <ComponentRef Id="PS_MSALDll" />
+      <ComponentRef Id="PS_MSABDll" />
+      <ComponentRef Id="PS_NewtonsoftJsonDll" />
+      <ComponentRef Id="PS_RcmAgentCommonLibDll" />
+      <ComponentRef Id="PS_RcmClientLibDll" />
+      <ComponentRef Id="PS_RcmContractDll" />
+      <ComponentRef Id="PS_SystemValueTupleDll" />
+      <ComponentRef Id="PS_ThirdPartyNotice" />
+      <ComponentRef Id="PS_etc" />
+      <ComponentRef Id="PS_var" />
+      <ComponentRef Id="PS_transportlog" />
+      <ComponentRef Id="PS_transportprivate" />
+      <ComponentRef Id="PS_Registry" />
+      <ComponentRef Id="PS_PSConfigurator" />
+      <ComponentRef Id="PS_CXPS_InstallDir" />
+      <ComponentRef Id="PS_CXPS_CsUseSecure" />
+      <ComponentRef Id="PS_EvtCollForw" />
+      <ComponentRef Id="PS_ServiceBusDll" />
+    </Feature>
+  </Product>
+
+</Wix>

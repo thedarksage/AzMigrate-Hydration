@@ -1,0 +1,6 @@
+<Function Name="AssociateSystemWithBackupServer" Id="" ReturnCode="0" Message="">
+	<FunctionResponse>	
+		<Parameter Name="HostAgentGUID" Value="95bf8328-449b-455a-b38a-ece68e262131" />	
+   	</FunctionResponse> 
+</Function>
+

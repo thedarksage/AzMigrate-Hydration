@@ -1,0 +1,21 @@
+# deb http://snapshot.debian.org/archive/debian/20190812T000000Z buster main
+deb http://deb.debian.org/debian buster main
+# deb http://snapshot.debian.org/archive/debian-security/20190812T000000Z buster/updates main
+deb http://security.debian.org/debian-security buster/updates main
+# deb http://snapshot.debian.org/archive/debian/20190812T000000Z buster-updates main
+deb http://deb.debian.org/debian buster-updates main
+
+#Newly added
+deb-src http://deb.debian.org/debian/ buster main
+deb-src http://security.debian.org/debian-security buster/updates main
+deb-src http://deb.debian.org/debian/ buster-updates main
+
+#From Azure
+deb http://debian-archive.trafficmanager.net/debian buster main
+deb-src http://debian-archive.trafficmanager.net/debian buster main
+deb http://debian-archive.trafficmanager.net/debian-security buster/updates main
+deb-src http://debian-archive.trafficmanager.net/debian-security buster/updates main
+deb http://debian-archive.trafficmanager.net/debian buster-updates main
+deb-src http://debian-archive.trafficmanager.net/debian buster-updates main
+deb http://debian-archive.trafficmanager.net/debian buster-backports main
+deb-src http://debian-archive.trafficmanager.net/debian buster-backports main

@@ -1,0 +1,72 @@
+#!/bin/sh
+#
+# This script is responsible for detecting a node
+# failure for the primary host that it is run from.
+# If the network connectivity between the active 
+# and the passive node fails, the heartbeat services 
+# on the current node are shutdown to avoid a split 
+# brain problem.
+#
+# bknathan  05/09/2008  Created
+#
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+# Source networking configuration.
+. /etc/sysconfig/network
+
+prog="node_ntw_fail"
+HA_HOST_NAME=`hostname`
+
+base_dir="/usr/lib64/heartbeat"
+
+start(){
+    
+     while /bin/true
+     do
+	#
+	# Get the list of active and passive nodes from ha.cf
+	#
+        for line in `grep node /etc/ha.d/ha.cf | awk '{print $2}'`
+	do
+	    if [ "$line" != "$HA_HOST_NAME" ]; then
+
+		    #
+		    # Ping the passive node to check if the host
+		    # is reachable
+		    #
+		    if ! ping -q -c3 $line > /dev/null 2>&1 ; then
+
+			#
+			# Get the ping node from ha.cf 
+			# 
+			ping_node=`grep ping /etc/ha.d/ha.cf | awk '{print $2}'`
+                        
+			#
+			# If the ping node is not reachable, just stop
+			# the heartbeat service
+			#
+			if ! ping -q -c3 $ping_node > /dev/null 2>&1 ; then
+                            /etc/init.d/heartbeat stop  > /dev/null 2>&1 
+			    exit
+			fi    
+			
+	            fi
+		
+            fi     
+	done 
+
+     #
+     # Check the behaviour every 5 mins 
+     # to avoid split brain
+     #
+     sleep 5 
+     done  
+}
+
+
+#
+# 
+#
+start

@@ -1,0 +1,11 @@
+    <Function Name="ListHosts" Id="" ReturnCode="0" Message="">
+       <FunctionResponse>	
+	<ParameterGroup Id="70dcfa40-2261-4740-aed9-5240c7f7fd14">
+		<Parameter Name="HostName" Value="GR2 . VM1" />
+		<Parameter Name="HostIP" Value="192.168.15.25" />
+		<Parameter Name="HostAgentGUID" Value="70dcfa40-2261-4740-aed9-5240c7f7fd14" />
+		<Parameter Name="SystemGUID" Value="70dcfa40-2261-4740-aed9-5240c7f7fd14" />
+	</ParameterGroup>
+        </FunctionResponse> 
+    </Function>
+

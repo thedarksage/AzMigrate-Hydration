@@ -1267,6 +1267,7 @@ InstallAgent() {
     set_scenario "Install"
     SetOP "InstallVxAgent"
 
+    [ "$IsAzureStackHub" -eq 1 ] && VM_PLATFORM="AzureStackHub"
     # Initiating Vx agent installation.
     trace_log_message -q "$PWD/install_vx -A $ACTION_TO_BE_PERFORMED -d $CHOSEN_DEPLOY_DIR -r $AGENT_ROLE -v $VM_PLATFORM -l $INSTALL_LOGFILE -c $CS_TYPE -e $INSTALL_ERRORS_JSON"
     $PWD/install_vx -A $ACTION_TO_BE_PERFORMED -d $CHOSEN_DEPLOY_DIR -r $AGENT_ROLE -v $VM_PLATFORM -l $INSTALL_LOGFILE -c $CS_TYPE -e $INSTALL_ERRORS_JSON
@@ -1276,6 +1277,7 @@ InstallAgent() {
         RecordOP $vx_return_code "VxAgent installation failed"
         return_exit_code $vx_return_code
     fi
+    [ "$IsAzureStackHub" -eq 1 ] && VM_PLATFORM="VmWare"
 
     RecordOP 0 ""
     return_exit_code $vx_return_code
@@ -1525,7 +1527,7 @@ usage() {
     trace_log_message "Options:"    
     trace_log_message "  -d <Installation Directory>"
     trace_log_message "  -r <Role of agent MT|MS (MT:MasterTarget, MS:MobilityService> "
-    trace_log_message "  -v <Virtual Machine Platform VmWare|Azure> "
+    trace_log_message "  -v <Virtual Machine Platform VmWare|Azure|AzureStackHub> "
     trace_log_message "  -l <Install Log Name (absolute path)> "
     trace_log_message "  -e <Install errors json file path (absolute path)> "
     trace_log_message "  -q <Quiet> "
@@ -1587,8 +1589,9 @@ main() {
         done
     fi
 	
-	echo "$VM_PLATFORM" | grep -qi "vmware" && VM_PLATFORM="VmWare"
-    	echo "$VM_PLATFORM" | grep -qi "azure" && VM_PLATFORM="Azure"
+	echo "$VM_PLATFORM" | grep -qi "vmware" && VM_PLATFORM="VmWare" && IsAzureStackHub=0
+	echo "$VM_PLATFORM" | grep -qi "azurestackhub" && VM_PLATFORM="VmWare" && IsAzureStackHub=1
+	echo "$VM_PLATFORM" | grep -qi "azure" && VM_PLATFORM="Azure" && IsAzureStackHub=0
 	if [ -z "$CS_TYPE" ]; then
 		CS_TYPE="CSLegacy"
 	fi
@@ -1637,7 +1640,6 @@ main() {
 		log_to_json_file ASRMobilityServiceInstallerCommandLineParametersMissingFailure "Following command line params are missing : ${arg}" MissingCmdArguments ${arg}
 		exit 97
 	fi
-
     if [ ! -z "$CUSTOM_LOGFILE" ] && [ "$INSTALL_LOGFILE" != "$CUSTOM_LOGFILE" ]; then
         # Till this point we written log to INSTALL_LOGFILE, but now
         # user input log file name CUSTOM_LOGFILE, copy log so far
@@ -1672,7 +1674,7 @@ main() {
             log_to_json_file ASRMobilityServiceUninstallationInternalError  "ASR incompatible agent is installed on the system. Uninstallation failed." UninstallCommand "$uninstall_cmd"
             return_exit_code $FailedWithErrors
         fi
-    fi
+    fi    
 
     # Read conf values from vx_version file (needed upfront for telemetry)
     is_agent_installed "Vx"

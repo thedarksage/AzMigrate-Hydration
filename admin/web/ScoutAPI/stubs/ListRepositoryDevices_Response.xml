@@ -1,0 +1,17 @@
+<Function Name="ListRepositoryDevices" Id="" ReturnCode="0" Message="">        
+	<FunctionResponse>	
+		<ParameterGroup Id="rep3">
+				<Parameter Name="RepositoryName" Value="rep3" />
+				<Parameter Name="AvailableRepository" Value="Repository1" />
+				<Parameter Name="RepositoryDeviceCapacity" Value="12312313" />
+				<Parameter Name="RepositoryDeviceFreeSpace" Value="234234234" />
+			
+		</ParameterGroup>	
+		<ParameterGroup Id="rep4">
+				<Parameter Name="DeviceName" Value="Repository2" />
+				<Parameter Name="RepositoryDeviceCapacity" Value="12312313" />
+				<Parameter Name="RepositoryDeviceFreeSpace" Value="234234234" />
+				<Parameter Name="DeviceType" Value="DISK" />
+		</ParameterGroup>	
+   	</FunctionResponse> 
+</Function>

@@ -31,7 +31,7 @@
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <SpectreMitigation>false</SpectreMitigation>
+    <SpectreMitigation>Spectre</SpectreMitigation>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -77,7 +77,8 @@
       <PreprocessorDefinitions>SV_WINDOWS;WIN32;_WINDOWS;_USRDLL;INMAGEIOCTLCONTROLLER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(BOOST_INCLUDES);..\..\..\..\..\drivers\Include\win32;..\..\..\..\..\drivers\InVolFlt\windows\Interface;..\..\..\..\..\common\win32;..\..\..\..\common\Logger\win;..\..\..\..\common\Logger;..\..\..\..\common\InmageTestException\win;..\..\..\..\common\InmageTestException;..\..\..\..\common\PlatformAPIs\win;..\..\..\..\common\PlatformAPIs;..\..\..\..\common\BlockDevice\win;..\..\..\..\common\BlockDevice;..\..\..\..\..\inmsafecapis\win;..\..\..\..\..\inmsafecapis;..\..\..\..\..\common;..\..\..\..\common;..\Microsoft.Test.Inmage.ReplicationManager;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

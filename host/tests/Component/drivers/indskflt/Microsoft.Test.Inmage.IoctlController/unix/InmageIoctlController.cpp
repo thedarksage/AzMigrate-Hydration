@@ -55,7 +55,7 @@ void CInmageIoctlController::ServiceShutdownNotify(unsigned long ulFlags)
 {
 
     SHUTDOWN_NOTIFY_INPUT inputData = { 0 };
-    m_shutdownNotify.reset(new Event(true,false,std::string()));
+    m_shutdownNotify.reset(new Event(true, false, std::string("ServiceShutdownNotify")));
 
     inputData.ulFlags = ulFlags;
     inputData.ulFlags |= SHUTDOWN_NOTIFY_FLAGS_ENABLE_DATA_FILTERING;
@@ -63,7 +63,7 @@ void CInmageIoctlController::ServiceShutdownNotify(unsigned long ulFlags)
     if (!m_platformApis->DeviceIoControlSync(
         s_hInmageCtrlDevice,
         (unsigned long)IOCTL_INMAGE_SERVICE_SHUTDOWN_NOTIFY,
-        &inputData,sizeof(inputData),NULL,0,NULL))
+        &inputData, sizeof(inputData), NULL, 0, NULL))
     {
         throw CAgentException("\n%s failed with error=0x%x\n",
             __FUNCTION__, m_platformApis->GetLastError());

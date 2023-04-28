@@ -31,6 +31,7 @@ $global:distros = @{
     RHEL78        = @("Linux", "RedHat", "RHEL", "7.8")
     RHEL77        = @("Linux", "RedHat", "RHEL", "7.7")
     RHEL6         = @("Linux", "RedHat", "RHEL", "6.10")
+    OEL91         = @("Linux", "Oracle", "Oracle-Linux", "ol91-lvm")
     OEL90         = @("Linux", "Oracle", "Oracle-Linux", "ol9-lvm")
     OEL87         = @("Linux", "Oracle", "Oracle-Linux", "ol87-lvm")
     OEL86         = @("Linux", "Oracle", "Oracle-Linux", "ol86-lvm")
@@ -63,7 +64,6 @@ $AutoPatchSupportedDistros = @(
     'UB2004'
     'UB1804'
     'UB1604'
-    'UB1404'
     'SLES15SP2'
     'SLES12SP5'
     'RHEL84'

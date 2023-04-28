@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SOFTPKG NAME="DBD-mysql" VERSION="2,9008,0,0">
+  <IMPLEMENTATION>
+    <CODEBASE HREF="MSWin32-x86-multi-thread-5.8/DBD-mysql-2.9008.tar.gz" />
+    <DEPENDENCY NAME="DBI" VERSION="0,0,0,0" />
+    <ARCHITECTURE NAME="MSWin32-x86-multi-thread-5.8" />
+    <OS NAME="MSWin32" />
+  </IMPLEMENTATION>
+  <ABSTRACT>A MySQL driver for the Perl5 Database Interface (DBI)</ABSTRACT>
+  <AUTHOR>Rudy Lippan (rlippan@remotelinux.com)</AUTHOR>
+  <TITLE>DBD-mysql</TITLE>
+</SOFTPKG>

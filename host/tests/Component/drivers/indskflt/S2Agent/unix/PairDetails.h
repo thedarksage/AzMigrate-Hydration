@@ -10,6 +10,7 @@ namespace PairInfo
         TC_DI,
         TC_WAL,
         TC_BARRIER_HONOUR,
+        TC_BARRIER_HONOUR_WITHOUT_TAG,
         TC_NONE
     } TC;
 

@@ -232,24 +232,36 @@ namespace securitylib{
                 X509_NAME_oneline(X509_get_subject_name(cert), subject_name, 256);
                 addedCertDetailsMsg << "cert " << subject_name << " ";
 
-                if (!X509_STORE_add_cert(store, cert))
+                if (X509_cmp_time(X509_get_notAfter(cert), 0) > 0)
                 {
-                    sslErrorMsg << "failed to add cert "
-                        << subject_name
-                        << " to the cert store. ";
 
-                    // in testing it is observed that the add may fail if the cert
-                    // is already in the store but the API doesn't have a way to
-                    // indicate this error. So status is set to error so the
-                    // caller can continue the validation using openSSL
-                    status = X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT;
+                    if (!X509_STORE_add_cert(store, cert))
+                    {
+                        sslErrorMsg << "failed to add cert "
+                            << subject_name
+                            << " to the cert store. ";
 
-                    addedCertDetailsMsg << "not added. " << std::endl;
+                        // in testing it is observed that the add may fail if the cert
+                        // is already in the store but the API doesn't have a way to
+                        // indicate this error. So status is set to error so the
+                        // caller can continue the validation using openSSL
+                        status = X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT;
 
+                        addedCertDetailsMsg << "not added. " << std::endl;
+
+                    }
+                    else
+                    {
+                        addedCertDetailsMsg << "added. " << std::endl;
+                    }
                 }
                 else
                 {
-                    addedCertDetailsMsg << "added. " << std::endl;
+                    sslErrorMsg << "cert "
+                        << subject_name
+                        << " expired and not added to the cert store. ";
+
+                    addedCertDetailsMsg << "expired, not added. " << std::endl;
                 }
 
                 X509_free(cert);

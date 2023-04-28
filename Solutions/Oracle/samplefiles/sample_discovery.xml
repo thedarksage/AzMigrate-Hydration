@@ -1,0 +1,25 @@
+<discovery>
+    <operation>MYOPERATION</operation>
+    <host_name>MYSERVER</host_name>
+    <ipaddress></ipaddress>
+    <application>
+        <application_name>MYAPPLICATION</application_name>
+        <devices>
+	  <device>
+            <device_name>MYMOUNTPOINT</device_name>
+            <storage_group_name></storage_group_name>
+            <database_name></database_name>
+            <database_path></database_path>
+            <logfile_path></logfile_path>
+       	  </device>
+	  <device>
+            <device_name></device_name>
+            <storage_group_name></storage_group_name>
+            <database_name></database_name>
+            <database_path></database_path>
+            <logfile_path></logfile_path>
+       	  </device>
+	</devices>
+	</devices>
+    </application>
+</discovery>

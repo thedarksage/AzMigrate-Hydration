@@ -2,10 +2,9 @@ include top.mak
 
 SRCS = \
 	unix/InmageIoctlController.cpp \
-	unix/event.cpp \
 	Logger.cpp \
 	unix/LoggerMajor.cpp \
-	unix/UnixAPIs.cpp 
+	unix/UnixAPIs.cpp
 
 X_CFLAGS = \
 	-Itests/common/Logger/$(X_MAJOR_ARCH) \

@@ -636,7 +636,7 @@ Function LoginToAzure {
 	$sleep = 0
 	while ($retry -ge 0) {
 		Start-Sleep -Seconds $sleep
-		$cert = Get-ChildItem -path 'cert:\LocalMachine\My' | Where-Object { $_.Subject.Contains($global:AgentSpnCertName) }
+		$cert = Get-ChildItem -path 'cert:\LocalMachine\My' | Where-Object { $_.Subject.Contains($global:AgentSpnCertName) } | Sort-Object -Property "NotAfter" -Descending | Select-Object -First 1
 		LogMessage -Message ("Logging using User: {0}" -f $env:username) -LogType ([LogType]::Info)
 		Start-Sleep -Seconds $sleep
 		$TPrint = $cert.ThumbPrint

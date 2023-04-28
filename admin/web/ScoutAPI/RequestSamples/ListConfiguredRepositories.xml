@@ -1,0 +1,11 @@
+<Request Id="0010" Version="1.0">
+<Header>
+  <Authentication>
+    <AccessKeyID>39F830AD9C46DE48B87EBE56F4C919D7C7E96CD9</AccessKeyID>
+    <AccessSignature>ZGIyZjZmZWQxYzE4MTdiMWEwMjA3OTk5ZTRmNGM5MzhiNzU2NWFhOA==</AccessSignature>
+  </Authentication>
+</Header>
+<Body>
+  <FunctionRequest Name="ListConfiguredRepositories" Include="No"/>
+</Body>
+</Request>

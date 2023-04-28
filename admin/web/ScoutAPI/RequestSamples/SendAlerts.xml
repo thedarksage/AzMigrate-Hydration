@@ -1,0 +1,39 @@
+<Request Id="1" Version="1.0">
+ <Header>
+  <Authentication>
+	<AccessKeyID>11F3242118FF2ADD5D117CBF216F29AC578F6BA6</AccessKeyID>
+	<AuthMethod>CXAuth</AuthMethod>
+	<CXUserName>admin</CXUserName>
+  </Authentication>
+</Header>
+<Body>
+  <FunctionRequest Name="SendAlerts">
+        <ParameterGroup Id="1">
+            <Parameter Name="EventCode" Value="AA0306"/>
+            <Parameter Name="HostId" Value="AD84022-71CB-5E43-B69AF768614FF3DC"/>               
+            <Parameter Name="Category" Value="Agent Has Logged Alerts"/>
+            <Parameter Name="Message" Value="Running out of free space on retention folder R:\.
+            Retention folder was cleaned to free up space "/>
+            <Parameter Name="Severity" Value="NOTICE"/>
+            <ParameterGroup Id="PlaceHolders">
+                <Parameter Name="RetentionFolderName" Value="R:\"/>	
+            </ParameterGroup>
+	    </ParameterGroup>
+	    <ParameterGroup Id="2">
+            <Parameter Name="EventCode" Value="EC0114"/>
+            <Parameter Name="HostId" Value="E6H4022-71CB-5E43-B69AF768614FF3DC"/>               
+            <Parameter Name="Category" Value="Agent Has Logged Alerts"/>
+            <Parameter Name="Message" Value="For source device E target device F  : target raw volume size 2436152423 is less than source capacity 2541361233
+            Increase it appropriately, and restart resync (after UI flashes target volume resize), to continue replication.
+            (Ignore this message if already target volume was resized appropriately and restart resync was done)" />            
+            <Parameter Name="Severity" Value="NOTICE"/>
+            <ParameterGroup Id="PlaceHolders">
+                <Parameter Name="SrcDeviceName" Value="E"/>	
+                <Parameter Name="DestDeviceName" Value="F"/>	
+                <Parameter Name="DestVolumeRawSize" Value="2436152423"/>
+                <Parameter Name="SrcVolumeSize" Value="2541361233"/>
+            </ParameterGroup>       
+        </ParameterGroup>   
+ </FunctionRequest>
+</Body>	
+</Request>

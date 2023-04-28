@@ -3756,6 +3756,10 @@ This is the common function for both the filters
 #ifdef VOLUME_CLUSTER_SUPPORT
     }
 #endif
+    if (!pDevContext->bResyncRequired && DriverContext.bResyncOnReboot) {
+        pDevContext->bResyncRequired = true;
+    }
+
     // Get data filtering values.
     if (DriverContext.bEnableDataCapture) {
         if (DriverContext.bEnableDataModeCaptureForNewDevices) {

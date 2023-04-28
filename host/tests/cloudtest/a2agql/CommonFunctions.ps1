@@ -582,7 +582,7 @@ Function LoginToAzureSubscription {
 	    $sleep = 0
 	    while ($retry -ge 0) {
 		    Start-Sleep -Seconds $sleep
-		    $cert = Get-ChildItem -path 'cert:\LocalMachine\My' | Where-Object { $_.Subject.Contains($global:AgentSpnCertName) }
+		    $cert = Get-ChildItem -path 'cert:\LocalMachine\My' | Where-Object { $_.Subject.Contains($global:AgentSpnCertName) } | Sort-Object -Property "NotAfter" -Descending | Select-Object -First 1
 		    #LogMessage -Message ("User: {0}, Cert: {1}" -f $env:username, ($cert | ConvertTo-json -Depth 1)) -LogType ([LogType]::Info1)
 		    Start-Sleep -Seconds $sleep
 		    $Thumbprint = $cert.ThumbPrint
@@ -736,6 +736,7 @@ Function ASREnableProtectionWithDataDisks
         $v2StagingSA = $AzureArtifactsData.StagingStorageAcc.Id
         $recoveryResourceGroupId = $AzureArtifactsData.RecResourceGroup.ResourceId
         $enableStartTime = Get-Date
+        $startTime = Get-Date -Format "MM/dd/yyyy HH:mm:ss"
 
         if ($IsManagedDisk)
         {
@@ -804,11 +805,17 @@ Function ASREnableProtectionWithDataDisks
             }
 
             GetExtensionVersion
+
             WaitForIRCompletion -VM $vmObject -ProtectionContainer $ProtectionContainer -JobQueryWaitTimeInSeconds ($JobQueryWaitTime60Seconds * 2) -provider A2A
             WaitForProtectedItemState -state "Protected" -containerObject $ProtectionContainer -vmName $VmName
-            
+
             $replicationProtectedItem = Get-AzRecoveryServicesAsrReplicationProtectedItem -ProtectionContainer $ProtectionContainer -FriendlyName $VmName
             LogMessage -Message ("Vm: {0} is protected now." -f $VmName) -LogType ([LogType]::Info2)
+
+            # FileSystem health check once the VM reaches Protected State. Start Time is the time captured before starting the ER job
+            LogMessage -Message ("Running filesystem health check on the source VM {0} once the VM reached protected state, startTime : {1}" -f $vmName, $startTime) -LogType ([LogType]::Info1)
+            VerifyFileSystemHealth -ResourceGroup $AzureArtifactsData.PriResourceGroup.ResourceGroupName -VMName $VmName -StartTime $startTime -protectedItemObject $replicationProtectedItem -ApplyChurn $true
+            LogMessage -Message ("Successfully ran filesystem health check on the Azure VM {0}" -f $vmName) -LogType ([LogType]::Info1)
         }
         else
         {
@@ -864,6 +871,14 @@ Function ASRTestFailover
         WaitForAzureVMReadyState -vmName "$($ReplicationProtectedItem.FriendlyName)-test" -resourceGroupName $CurrentTargetResourceGroup
 
         LogMessage -Message ("*****Test Failover Cleanup required for Completion*****") -LogType ([LogType]::Info2)
+
+        # FileSystem health check on the TFO VM
+        $startTime = Get-Date -Format "MM/dd/yyyy HH:mm:ss"
+        Start-Sleep -Seconds 600
+
+        LogMessage -Message ("Running filesystem health check on the tfo VM {0}, startTime : {1}" -f "$($protectedItemObject.FriendlyName)-test", $startTime) -LogType ([LogType]::Info1)
+        VerifyFileSystemHealth -ResourceGroup $CurrentTargetResourceGroup -VMName "$($protectedItemObject.FriendlyName)-test" -StartTime $startTime -protectedItemObject $ReplicationProtectedItem -ApplyChurn $false
+        LogMessage -Message ("Successfully ran filesystem health check on the Azure VM {0}" -f $vmName) -LogType ([LogType]::Info2)
     }
 }
 
@@ -975,6 +990,14 @@ Function ASRUnplannedFailoverWithRecoveryTag
         LogMessage -Message ("*****Validation finished on UFO VM*****") -LogType ([LogType]::Info2)
 
         LogMessage -Message ("*****Unplanned Failover Completed*****") -LogType ([LogType]::Info2)
+
+        # FileSystem health check on the UFO VM
+        $startTime = Get-Date -Format "MM/dd/yyyy HH:mm:ss"
+        Start-Sleep -Seconds 600
+
+        LogMessage -Message ("Running filesystem health check on the failover VM {0}, startTime : {1}" -f $ReplicationProtectedItem.RecoveryAzureVMName, $startTime) -LogType ([LogType]::Info1)
+        VerifyFileSystemHealth -ResourceGroup $CurrentTargetResourceGroup -VMName $ReplicationProtectedItem.RecoveryAzureVMName -StartTime $startTime -protectedItemObject $ReplicationProtectedItem -ApplyChurn $false
+        LogMessage -Message ("Successfully ran filesystem health check on the Azure VM {0}" -f $vmName) -LogType ([LogType]::Info2)
     }
     else
     {
@@ -1203,13 +1226,19 @@ Function ASRSwitchProtectionWithDataDisks
                 Name       = $job.TargetObjectId
                 TargetObjectName=$job.TargetObjectName
             }
-                    
+            
+            $startTime = Get-Date -Format "MM/dd/yyyy HH:mm:ss"
             WaitForIRCompletion -VM $vmObject -JobQueryWaitTimeInSeconds ($JobQueryWaitTime60Seconds * 2) -provider A2A
             # Wait for VM state to change to protected
             WaitForProtectedItemState -state "Protected" -containerObject $ProtectionContainer -vmName $ReplicationProtectedItem.RecoveryAzureVMName
 
             $replicationProtectedItem = Get-AzRecoveryServicesAsrReplicationProtectedItem -ProtectionContainer $ProtectionContainer -FriendlyName $ReplicationProtectedItem.RecoveryAzureVMName
             LogMessage -Message ("Vm: {0} is reprotected now." -f $replicationProtectedItem.FriendlyName) -LogType ([LogType]::Info1)
+
+            # FileSystem health check after reprotect once the VM reaches Protected State
+            LogMessage -Message ("Running filesystem health check on the VM {0} after reprotect once the VM reached protected state, startTime : {1}" -f $vmName, $startTime) -LogType ([LogType]::Info1)
+            VerifyFileSystemHealth -ResourceGroup $resourceGroupName -VMName $VmName -StartTime $startTime -protectedItemObject $replicationProtectedItem -ApplyChurn $true
+            LogMessage -Message ("Successfully ran filesystem health check on the Azure VM {0}" -f $vmName) -LogType ([LogType]::Info1)
         }else
         {
             LogMessage -Message ("Error while reprotecting for Vm: {0} Aborting..." -f $replicationProtectedItem.FriendlyName) -LogType ([LogType]::Error)
@@ -1683,6 +1712,92 @@ Function GetProtectedItemObject
 
     LogObject -Object $protectedItemObject
     return $protectedItemObject
+}
+
+#
+# Wait for Recovery Points
+#
+Function WaitForRecoveryPoints
+{
+    param(
+        [parameter(Mandatory=$True)][int] $MaxWaitTimeInSeconds,
+        [parameter(Mandatory=$True)][PSObject] $ProtectedItemObject
+    )
+
+    LogMessage -Message ("Getting Recovery Points") -LogType ([LogType]::Info1);
+    $rpCount = GetRecoveryPointsCount -protectedItemObject $ProtectedItemObject
+    $expectedRPCount = $rpCount + 1
+    LogMessage -Message ("Recovery Points Count : {0}" -f $rpCount) -LogType ([LogType]::Info1);
+
+    # Wait for 6 minutes
+    Start-Sleep -Seconds 360
+
+    $operationCompleted = $false
+    $queryWaitTimeInSeconds = 300
+    $waitTimeCounter = 0
+
+    do
+    {
+        $currRpCount = GetRecoveryPointsCount -protectedItemObject $ProtectedItemObject
+        LogMessage -Message ("Current Recovery Points Count : {0}, Expected Recovery Points Count : {1}" -f $currRpCount, $expectedRPCount) -LogType ([LogType]::Info1);
+
+        # Resetting the expectedRpCount if recovery points were pruned
+        if ($currRpCount -lt $rpCount)
+        {
+            LogMessage -Message ("Current Recovery Points Count : {0} is less than the Previous Recovery Points Count : {1}.`
+                                    Resetting the expected Recovery Points Count to : {2}" -f $currRpCount, $rpCount, $currRpCount) -LogType ([LogType]::Info1);
+
+            $rpCount = $currRpCount
+        }
+        elseif($currRpCount -gt $rpCount)
+        {
+            LogMessage -Message ("Recovery Points were successfully generated after applying churn :{0}" -f $currRpCount) -LogType ([LogType]::Info1);
+            $operationCompleted = $true
+            break
+        }
+        else {
+            $waitTimeCounter += $queryWaitTimeInSeconds
+            LogMessage -Message ("Waiting for: {0} sec before querying again for the recovery points." -f $queryWaitTimeInSeconds) -LogType ([LogType]::Info1)
+            Start-Sleep -Seconds $queryWaitTimeInSeconds
+        }
+    }While(!$operationCompleted -and ($waitTimeCounter -le $MaxWaitTimeInSeconds))
+
+    if (!$operationCompleted)
+    {
+        $errorMsg = ("New recovery points were not generated after applying the churn even after wait time of '{0}' seconds. Failing test." -f $MaxWaitTimeInSeconds)
+        Throw $errorMsg
+    }
+}
+
+#
+# Get Recovery points
+#
+Function GetRecoveryPointsCount
+{
+    param(
+        [parameter(Mandatory=$True)][PSObject] $protectedItemObject
+    )
+    
+    $numOfRecPoits = 0;
+    do
+    {
+        $flag = $false;
+        LogMessage -Message ("Triggering Get RecoveryPoint.") -LogType ([LogType]::Info1)
+        $recoveryPoints = Get-AzRecoveryServicesAsrRecoveryPoint -ReplicationProtectedItem $protectedItemObject `
+                            | Where-Object { $_.RecoveryPointType -eq "CrashConsistent" } | Sort-Object RecoveryPointTime -Descending
+        
+        if ($recoveryPoints.Count -eq 0)
+        {
+            $flag = $true;
+            LogMessage -Message ("No Recovery Points Available. Waiting for: {0} sec before querying again." -f ($JobQueryWaitTime60Seconds * 2)) -LogType ([LogType]::Info1);
+            Start-Sleep -Seconds ($JobQueryWaitTime60Seconds * 2);
+        }
+
+        $numOfRecPoits = $recoveryPoints.Count;
+    }while($flag)
+    LogMessage -Message ("Number of RecoveryPoints found: {0}" -f $recoveryPoints.Count) -LogType ([LogType]::Info1);
+
+    return $numOfRecPoits
 }
 
 #
@@ -2691,6 +2806,115 @@ Function DeleteNetworkMapping
     } else {
         LogMessage -Message ("*****No Fabric Object exists*****") -LogType ([LogType]::Info2)
     }
+}
+
+Function VerifyFileSystemHealth
+{
+    param (
+        [Parameter(Mandatory=$true)][string] $ResourceGroup,
+        [Parameter(Mandatory=$true)][string] $VMName,
+        [Parameter(Mandatory=$true)][string] $StartTime,
+        [parameter(Mandatory=$True)][PSObject] $ProtectedItemObject,
+        [parameter(Mandatory=$True)][bool] $ApplyChurn
+    )
+    
+    if($global:RunFSHealthCheck.ToLower() -eq "false")
+    {
+        LogMessage -Message ("Skipping File System Health check on the Azure VM {0} as the RunFSHealthCheck flag is turned off" -f $vmName) -LogType ([LogType]::Info1)
+        return
+    }
+
+    if ( $OSType -eq "windows")
+    {
+        # Event ID 55 indicates that the file system on the disk is corrupt and unusable
+        # https://learn.microsoft.com/en-us/troubleshoot/windows-server/backup-and-storage/troubleshoot-data-corruption-and-disk-errors
+        $eventId = 55
+        $endTime = Get-Date -Format "MM/dd/yyyy HH:mm:ss"
+
+        $params=@{
+            "LogDirectory" = $global:LogDir
+            "LogName" = "System"
+            "StartTime" = $StartTime
+            "EndTime" = $endTime
+            "EventId" = $global:EventIds
+            "ProviderName" = "Ntfs"
+        }
+
+        # Running File System Health Check
+        LogMessage -Message ("Running File System Health check on the Azure VM {0}" -f $vmName) -LogType ([LogType]::Info1)
+        RunAzVMCommand -ResourceGroup $ResourceGroup -VMName $VMName -ScriptName 'WinFSHealthCheck.ps1' -Params $params
+        LogMessage -Message ("Successfully ran file system health check on the Azure VM {0}" -f $vmName) -LogType ([LogType]::Info1)
+    }
+    else
+    {
+        # Applying churn and waiting for recovery point only when the replication is in protected state
+        if ($ApplyChurn)
+        {
+            # Applying churn on the source machine
+            LogMessage -Message ("Applying churn on the data disks of the Azure VM {0}" -f $vmName) -LogType ([LogType]::Info1)
+            $vmPassword = GetSecretFromKeyVault -SecretName $global:SecretName
+            $params=@{
+                "MNTDIR" = $global:MntPointDir
+                "MaxFileSize" = 2
+                "TotalFileSize" = 200
+                "VerifyFlag" = 0
+                "RootPassword" = $vmPassword
+            }
+            RunAzVMCommand -ResourceGroup $ResourceGroup -VMName $VMName -ScriptName 'ApplyLoad.sh' -Params $params
+            LogMessage -Message ("Successfully applied churn on the data disks of the Azure VM {0}" -f $vmName) -LogType ([LogType]::Info1)
+
+            # Waiting for the atleast one tag after applying the churn
+            LogMessage -Message ("Waiting for atleast 1 recovery point to be generated on the Azure VM {0} after applying the churn" -f $vmName) -LogType ([LogType]::Info1)
+            WaitForRecoveryPoints -ProtectedItemObject $ProtectedItemObject -MaxWaitTimeInSeconds 1800
+        }
+
+        # Running File System Health Check
+        LogMessage -Message ("Running File System Health check on the Azure VM {0}" -f $vmName) -LogType ([LogType]::Info1)
+        $vmPassword = GetSecretFromKeyVault -SecretName $global:SecretName
+        $params=@{
+            "MNTDIR" = $global:MntPointDir
+            "RootPassword" = $vmPassword
+        }
+        RunAzVMCommand -ResourceGroup $ResourceGroup -VMName $VMName -ScriptName 'LinFSHealthCheck.sh' -Params $params
+        LogMessage -Message ("Successfully ran file system health check on the Azure VM {0}" -f $vmName) -LogType ([LogType]::Info1)
+    }
+}
+
+Function RunAzVMCommand
+{
+    param (
+        [Parameter(Mandatory=$true)][string] $ResourceGroup,
+        [Parameter(Mandatory=$true)][string] $VMName,
+        [Parameter(Mandatory=$true)][string] $ScriptName,
+        [parameter(Mandatory=$True)][PSObject] $Params
+    )
+
+    LogMessage -Message ("Running Invoke-AzVMRunCommand on the VM: {0} of RG : {1}" -f $VMName, $ResourceGroup) -LogType ([LogType]::Info1)
+    LogObject -Object $params
+
+    if ( $OSType -eq "windows")
+    {
+        $result = Invoke-AzVMRunCommand -ResourceGroupName $ResourceGroup -Name $VMName -CommandId 'RunPowerShellScript' -ScriptPath $ScriptName -Parameter $Params
+    }
+    else {
+        $result = Invoke-AzVMRunCommand -ResourceGroupName $ResourceGroup -Name $VMName -CommandId 'RunShellScript' -ScriptPath $ScriptName -Parameter $Params
+    }
+
+    LogMessage -Message ("Ran Invoke-AzVMRunCommand Command on the VM: {0} of RG : {1}" -f $VMName, $ResourceGroup) -LogType ([LogType]::Info1)
+
+    $result
+    LogObject $result
+    LogObject $result.Value
+
+    If ($result.Status -ne "Succeeded" -or ($result.Value[0].Message.Contains("Failed")))
+    {
+        LogMessage -Message ("Issue encountered while running Invoke-AzVMRunCommand command on the VM : {0}" -f $VMName) -LogType ([LogType]::Error)
+        Throw "Issue encountered while running Invoke-AzVMRunCommand command on the VM: $result.Value[0].Message"
+    }
+
+    LogObject $result.Value[0]
+
+    return $result
 }
 
 #####

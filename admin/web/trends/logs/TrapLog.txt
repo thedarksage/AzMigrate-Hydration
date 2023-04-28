@@ -1,0 +1,1 @@
+#InMage Scout CX Trap Log. Format: Date, Host IP, Trap, Source GUID, Destination GUID.

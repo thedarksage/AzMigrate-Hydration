@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<srs:SRSErrors xmlns:srs="http://schemas.microsoft.com/2012/DisasterRecovery/SRSErrors.xsd">
+  <!-- Not mapped in SRS XMLs, unhandled error -->
+  <Error>
+    <ErrorCode>7500</ErrorCode>
+    <EnumName>UnhandledException</EnumName>
+    <Message>The operation failed due to an internal error.</Message>
+    <PossibleCauses>The operation failed due to an internal error.</PossibleCauses>
+    <RecommendedAction>Retry the operation. If the issue persists, contact support.</RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags/>
+  </Error>
+  <!-- Not mapped in SRS XMLs, not visible to user -->
+  <Error>
+    <ErrorCode>7501</ErrorCode>
+    <EnumName>RcmOperationFailed</EnumName>
+    <Message>The operation failed due to an internal error.</Message>
+    <PossibleCauses>Please see the related errors.</PossibleCauses>
+    <RecommendedAction>Retry the operation. If the issue persists, contact support.</RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags/>
+  </Error>
+  <!-- Not mapped in SRS XMLs, not visible to user -->
+  <Error>
+    <ErrorCode>7502</ErrorCode>
+    <EnumName>RcmAgentOperationFailed</EnumName>
+    <Message>The operation failed due to an internal error.</Message>
+    <PossibleCauses>Please see the related errors.</PossibleCauses>
+    <RecommendedAction>Retry the operation. If the issue persists, contact support.</RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags/>
+  </Error>
+  <!-- Mapped in SRS XMLs, reviewed by PMs -->
+  <Error>
+    <ErrorCode>7503</ErrorCode>
+    <EnumName>MarsAgentConfigurationValidationFailed</EnumName>
+    <Message>Set up of appliance failed as service '%ComponentServiceName;' health check failed with error '%ErrorLabel;'('%ErrorCodeName;').</Message>
+    <PossibleCauses>
+        1. Proxy settings are incorrectly configured on the ASR replication appliance.
+        2. Firewall or network security provider is blocking the access to the required URLs.
+        3. There is a no network connectivity or the required URLs are not accessible from the ASR replication appliance.
+        4. There is a time synchronization error.
+    </PossibleCauses>
+    <RecommendedAction>
+        1. Ensure that the proxy settings are configured properly.
+        2. Resolve the proxy or network security provider or firewall configurations to allow connection to the URLs mentioned
+           in the below registry keys of HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows Azure Backup\Config\InMageMT path.
+            a. AADAuthority
+            b. ProtectionServiceSVCEndpoint
+        3. Fix the system time on the appliance.
+        4. Retry the operation after fixing the error. Please reach out to Microsoft Support for further assistance.
+    </RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags/>
+  </Error>
+  <Error>
+    <ErrorCode>7504</ErrorCode>
+    <EnumName>ServicesNotRunning</EnumName>
+    <Message>Microsoft Recovery services agent service '%Service;' is not running.</Message>
+    <PossibleCauses>Microsoft Recovery services agent service '%Service;' is not running.</PossibleCauses>
+    <RecommendedAction>Navigate to services.msc and ensure the service 'Microsoft Azure Recovery Services Agent' is not disabled and is in running state.</RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags/>
+  </Error>
+  <Error>
+    <ErrorCode>7505</ErrorCode>
+    <EnumName>ServicesNotInstalled</EnumName>
+    <Message>Microsoft Recovery services agent service '%Service;' is not installed.</Message>
+    <PossibleCauses>Microsoft Recovery services agent service '%Service;' is not installed.</PossibleCauses>
+    <RecommendedAction>Ensure that the service 'Microsoft Azure Recovery Services Agent' is installed.</RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags/>
+  </Error>
+  <Error>
+    <ErrorCode>7506</ErrorCode>
+    <EnumName>ServiceIsInDisabledState</EnumName>
+    <Message>Microsoft Recovery services agent service '%Service;' is in disabled state.</Message>
+    <PossibleCauses>Microsoft Recovery services agent service '%Service;' is in disabled state.</PossibleCauses>
+    <RecommendedAction>Navigate to services.msc and search for the service '%ServiceName;'. Ensure that it is not disabled. If it is, then turn it on.</RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags/>
+  </Error>
+</srs:SRSErrors>

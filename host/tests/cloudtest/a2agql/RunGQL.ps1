@@ -22,6 +22,8 @@ $RequiredKernel = $env:RequiredKernel
 $ValidationType = $env:ValidationType
 $EnableMailReporting = "false";
 $IsPremiumDR = $env:IsPremiumDR
+$DoReboot = $env:DoReboot
+$RunFSHealthCheck = $env:RunFSHealthCheck
 
 
 Write-Host "SourceVMUserName : $SourceVMUserName"
@@ -41,6 +43,8 @@ Write-Host "AgentVersion : $AgentVersion"
 Write-Host "RequiredKernel : $RequiredKernel"
 Write-Host "ValidationType : $ValidationType"
 Write-Host "IsPremiumDR : $IsPremiumDR"
+Write-Host "DoReboot : $DoReboot"
+Write-Host "RunFSHealthCheck : $RunFSHealthCheck"
 
 $global:LogDir = $LogDirectory
 
@@ -48,6 +52,18 @@ $Error.Clear()
 
 $host.ui.RawUI.WindowTitle = $OSName
 Write-Host "Test: $TestBinRoot"
+
+if ($null -eq $DoReboot)
+{
+    $DoReboot = "true"
+    Write-Host "DoReboot : $DoReboot"
+}
+
+if ($null -eq $RunFSHealthCheck)
+{
+    $RunFSHealthCheck = "true"
+    Write-Host "RunFSHealthCheck : $RunFSHealthCheck"
+}
 
 if ($null -ne $ValidationType)
 {
@@ -95,6 +111,7 @@ else {
                         "CLEANPREVIOUSRUN" = TestResultsMetaData
                         "CREATEVM" = TestResultsMetaData
                         "ENABLEREPLICATION" = TestResultsMetaData
+                        "REBOOT" = TestResultsMetaData
                         "TESTFAILOVER" = TestResultsMetaData
                         "FAILOVER" = TestResultsMetaData
                         "SWITCHPROTECTION" = TestResultsMetaData
@@ -158,11 +175,12 @@ Function UpdateConfigFile()
             {
                 .$Script -TestBinRoot $TestBinRoot -SubscriptionName "$SubscriptionName" -SubscriptionId $SubscriptionId -PrimaryLocation $PrimaryLocation -RecoveryLocation $RecoveryLocation `
                             -VaultRGLocation $VaultRGLocation -OSType $OSType -BranchRunPrefix $BranchRunPrefix -OSName $OSName -EnableMailReporting $EnableMailReporting -AgentVersion $AgentVersion `
-                            -ExtensionVersion $ExtensionVersion -ExtensionType $ExtensionType -ValidateDeployment "true" -IsPremiumDR $IsPremiumDR
+                            -ExtensionVersion $ExtensionVersion -ExtensionType $ExtensionType -ValidateDeployment "true" -IsPremiumDR $IsPremiumDR -RunFSHealthCheck $RunFSHealthCheck
             }
             else {
                 .$Script -TestBinRoot $TestBinRoot -SubscriptionName "$SubscriptionName" -SubscriptionId $SubscriptionId -PrimaryLocation $PrimaryLocation -RecoveryLocation $RecoveryLocation `
-                            -VaultRGLocation $VaultRGLocation -OSType $OSType -BranchRunPrefix $BranchRunPrefix -OSName $OSName -ExtensionType $ExtensionType -EnableMailReporting $EnableMailReporting -IsPremiumDR $IsPremiumDR
+                            -VaultRGLocation $VaultRGLocation -OSType $OSType -BranchRunPrefix $BranchRunPrefix -OSName $OSName -ExtensionType $ExtensionType -EnableMailReporting $EnableMailReporting `
+                            -IsPremiumDR $IsPremiumDR -RunFSHealthCheck $RunFSHealthCheck
             }
 
             $status = $?
@@ -934,6 +952,12 @@ Function Main
 
         Write-Host "EnableReplication"
         EnableReplication
+
+        if ($DoReboot -eq "true")
+        {
+            Write-Host "Reboot"
+            Reboot "Primary"
+        }
 
         if ($ValidationType -ne "PROD")
         {

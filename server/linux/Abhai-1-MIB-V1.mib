@@ -1,0 +1,434 @@
+    Abhai-1-MIB-V1
+
+    DEFINITIONS ::= BEGIN
+
+       IMPORTS
+         OBJECT-TYPE  FROM RFC-1212
+         DisplayString FROM RFC1213-MIB
+         TRAP-TYPE FROM RFC-1215
+         enterprises, IpAddress, Counter, TimeTicks FROM RFC1155-SMI;
+
+-- abhai-1 MODULE-IDENTITY
+--      LAST-UPDATED "200302040000Z"
+--      ORGANIZATION "Abhai, Inc."
+--      CONTACT-INFO
+--              "       (Authors)
+--                      Rajeev Atluri
+--              Postal: Abhai, Inc.
+--                      828, N. Hillview
+--                      Milpitas, CA 95035
+--                      info@svsysinc.com
+--              Tel:    +1 408 941 9494
+--              Fax:    +1 408 360 4951
+--              E-mail: rajeevat@svsysinc.com
+--      DESCRIPTION
+--              "This MIB module enables centralized management of the 
+--               TransBand family of systems."
+
+       abhai				OBJECT IDENTIFIER ::= { enterprises 17282 }
+        amethystSystem                 		OBJECT IDENTIFIER ::= { abhai  1  }
+		sentinelNodes                  		OBJECT IDENTIFIER ::= { amethystSystem  2  }
+		outpostAgentNodes              		OBJECT IDENTIFIER ::= { amethystSystem  3  }
+		intermediateNodes  		            OBJECT IDENTIFIER ::= { amethystSystem  4  }
+		replicationStreams             		OBJECT IDENTIFIER ::= { amethystSystem  5  }
+-- volOptTable is Deprecated
+--		volOptTable                    		OBJECT IDENTIFIER ::= { amethystSystem  6  }
+		returnHomeStreams              		OBJECT IDENTIFIER ::= { amethystSystem  7  }
+		outpostAgentRecoveryStreams    		OBJECT IDENTIFIER ::= { amethystSystem  8  }
+		trapConfiguration              		OBJECT IDENTIFIER ::= { amethystSystem  9  }
+		download                            OBJECT IDENTIFIER ::= { amethystSystem  10 }
+		proxy                          		OBJECT IDENTIFIER ::= { amethystSystem  11 }
+		lineCardMatrix                 		OBJECT IDENTIFIER ::= { amethystSystem  12 }
+		fsReplicationRootNode          		OBJECT IDENTIFIER ::= { amethystSystem  13 }
+		amethystTraps                  		OBJECT IDENTIFIER ::= { amethystSystem  14 }
+
+--
+-- Generic Trap Objects. These OIDs can be incorporated into the traps
+-- listed below. 
+--
+
+       trapAmethystGuid OBJECT-TYPE
+           SYNTAX    OCTET STRING (SIZE (1..255))
+           ACCESS    read-only
+           STATUS    mandatory
+           DESCRIPTION
+               "The deviceID of the device with the trap condition."
+           ::= { amethystTraps 1 }
+
+       trapHostGuid OBJECT-TYPE
+           SYNTAX    OCTET STRING (SIZE (35..50))
+           ACCESS    read-only
+           STATUS    mandatory
+           DESCRIPTION
+               "The GUID of a host, could be src, intermediate or destination."
+           ::= { amethystTraps 5 }
+
+       trapVolumeGuid OBJECT-TYPE
+           SYNTAX    OCTET STRING (SIZE (1..255))
+           ACCESS    read-only
+           STATUS    mandatory
+           DESCRIPTION
+               "The GUID of a Volume."
+           ::= { amethystTraps 10 }
+
+       trapAgentErrorMessage OBJECT-TYPE
+           SYNTAX    OCTET STRING (SIZE (1..65535))
+           ACCESS    read-only
+           STATUS    mandatory
+           DESCRIPTION
+               "Error messages logged by vx/fx agents."
+           ::= { amethystTraps 50}
+
+	   trapAgentLoggedErrorLevel OBJECT-TYPE
+           SYNTAX    OCTET STRING (SIZE (1..255))
+           ACCESS    read-only
+           STATUS    mandatory
+           DESCRIPTION
+             "Error level of logged messages by vx/fx agents. Ex: fatal/error"
+         ::= { amethystTraps 55}
+
+       trapAgentLoggedErrorMessageTime OBJECT-TYPE
+           SYNTAX    OCTET STRING (SIZE (1..50))
+           ACCESS    read-only
+           STATUS    mandatory
+           DESCRIPTION
+              "Time at which error message was logged by vx/fx agent. Ex: YYYY-MM-DD HH:MM:SS"
+           ::= { amethystTraps 60}
+
+       trapFilerepConfig  OBJECT-TYPE
+           SYNTAX    OCTET STRING (SIZE (1..50))
+           ACCESS    read-only
+           STATUS    mandatory
+           DESCRIPTION
+              "File Replication configuration."
+           ::= { amethystTraps 65}
+           
+       trapCSHostname OBJECT-TYPE
+           SYNTAX    OCTET STRING (SIZE (1..255))
+           ACCESS    read-only
+           STATUS    mandatory
+           DESCRIPTION
+               "CS host name."
+           ::= { amethystTraps 70 }
+
+       trapPSHostname OBJECT-TYPE
+           SYNTAX    OCTET STRING (SIZE (1..255))
+           ACCESS    read-only
+           STATUS    optional
+           DESCRIPTION
+               "PS host name."
+           ::= { amethystTraps 75 }
+           
+       trapSeverity OBJECT-TYPE
+           SYNTAX    OCTET STRING (SIZE (1..50))
+           ACCESS    read-only
+           STATUS    mandatory
+           DESCRIPTION
+               "Severity of the trap eg Critical, Major, Minor, Warning, Information, Clear."
+           ::= { amethystTraps 80 }
+
+       trapSourceHostName OBJECT-TYPE
+           SYNTAX    OCTET STRING (SIZE (1..1024))
+           ACCESS    read-only
+           STATUS    optional
+           DESCRIPTION
+               "host name of the source"
+           ::= { amethystTraps 85 }
+
+       trapSourceDeviceName OBJECT-TYPE
+           SYNTAX    OCTET STRING (SIZE (1..1024))
+           ACCESS    read-only
+           STATUS    optional
+           DESCRIPTION
+               "device name at source"
+           ::= { amethystTraps 90 }
+
+       trapTargetHostName OBJECT-TYPE
+           SYNTAX    OCTET STRING (SIZE (1..1024))
+           ACCESS    read-only
+           STATUS    optional
+           DESCRIPTION
+               "host name of the target"
+           ::= { amethystTraps 95 }
+
+       trapTargetDeviceName OBJECT-TYPE
+           SYNTAX    OCTET STRING (SIZE (1..1024))
+           ACCESS    read-only
+           STATUS    optional
+           DESCRIPTION
+               "device name at target"
+           ::= { amethystTraps 100 }
+           
+       trapRetentionDeviceName OBJECT-TYPE
+           SYNTAX    OCTET STRING (SIZE (1..1024))
+           ACCESS    read-only
+           STATUS    optional
+           DESCRIPTION
+               "device name for retention"
+           ::= { amethystTraps 105 }
+           
+       trapAffectedSystemHostName OBJECT-TYPE
+           SYNTAX    OCTET STRING (SIZE (1..1024))
+           ACCESS    read-only
+           STATUS    optional
+           DESCRIPTION
+               "host name of the affected system"
+           ::= { amethystTraps 110 }
+           
+--
+--       trapAmethystGuid OBJECT-TYPE
+--       trapHostGuid OBJECT-TYPE
+--       trapVolumeGuid OBJECT-TYPE
+--       trapAgentLoggedErrorMessageTime OBJECT-TYPE
+--       trapAgentLoggedErrorLevel OBJECT-TYPE
+--       trapAgentErrorMessage OBJECT-TYPE
+--       trapCSHostname OBJECT-TYPE
+--       trapPSHostname OBJECT-TYPE
+--       trapSeverity OBJECT-TYPE
+--       trapSourceHostName OBJECT-TYPE
+--       trapSourceDeviceName OBJECT-TYPE
+--       trapTargetHostName OBJECT-TYPE
+--       trapTargetDeviceName OBJECT-TYPE
+--       trapRetentionDeviceName OBJECT-TYPE
+--       trapAffectedSystemHostName OBJECT-TYPE
+--
+      
+            
+       trapSentinelResyncRequired TRAP-TYPE
+            ENTERPRISE  amethystTraps
+            VARIABLES   { trapAmethystGuid, trapHostGuid,trapHostGuid,trapVolumeGuid,trapVolumeGuid, trapAgentErrorMessage, trapSeverity, trapCSHostname, trapPSHostname, trapSourceHostName, trapSourceDeviceName, trapTargetHostName, trapTargetDeviceName }
+            DESCRIPTION
+                "Sentinel has detected that a resync of the replication src volume is required.
+                 Syntax: 'amethyst guid':'src (sentinel) host guid':'dest (outpost agent) host guid'
+                          :'src (sentinel) volume guid':'dest (outpost agent) volume guid,
+                "
+            ::= 215
+       
+            
+       trapSecondaryStorageUtilizationDangerLevel TRAP-TYPE
+            ENTERPRISE  amethystTraps
+            VARIABLES   { trapAmethystGuid,trapAgentErrorMessage }
+            DESCRIPTION
+                "Secondary storage is dangerously low on free space."
+            ::= 260 
+
+       trapAgentLoggedErrorMessage TRAP-TYPE
+            ENTERPRISE  amethystTraps
+            VARIABLES   { trapAmethystGuid, trapHostGuid, trapAgentLoggedErrorMessageTime, trapAgentLoggedErrorLevel, trapAgentErrorMessage, trapAffectedSystemHostName }
+            DESCRIPTION
+                "Error Message Logged by vx/fx agents.
+                 Syntax: 'amethyst guid':'host guid':'error time':'error level':'error message'
+                "
+            ::= 340 
+
+       volumeReSize TRAP-TYPE
+	    ENTERPRISE  amethystTraps
+	    VARIABLES   { trapAmethystGuid, trapAgentErrorMessage, trapSeverity, trapCSHostname, trapSourceHostName, trapSourceDeviceName, trapTargetHostName, trapTargetDeviceName }
+	    DESCRIPTION
+		"The pair has been paused due to source volume(volume name) resize from size1 to size2."
+	    ::= 250
+
+       processServerFailover TRAP-TYPE
+	    ENTERPRISE  amethystTraps
+	    VARIABLES   { trapAmethystGuid, trapAgentErrorMessage }
+	    DESCRIPTION
+		"Process server failover occured."
+	    ::= 350
+	
+       moveRetentionLog TRAP-TYPE
+            ENTERPRISE  amethystTraps
+            VARIABLES   { trapAmethystGuid, trapAgentErrorMessage }
+            DESCRIPTION
+                "The retention has been moved from so and so directory"
+            ::= 255
+
+       insufficientRetentionSpace TRAP-TYPE
+            ENTERPRISE  amethystTraps
+            VARIABLES   { trapAmethystGuid, trapAgentErrorMessage, trapSeverity, trapCSHostname, trapSourceHostName, trapSourceDeviceName, trapTargetHostName, trapTargetDeviceName, trapRetentionDeviceName }
+            DESCRIPTION
+                "There is not enough retention space in so and so directory"
+            ::= 270
+
+       CXNodeFailover TRAP-TYPE
+            ENTERPRISE  amethystTraps
+            VARIABLES   { trapAmethystGuid, trapAgentErrorMessage }
+            DESCRIPTION
+                "CX Node Failover"
+            ::= 370
+	
+       BandwidthShaping TRAP-TYPE
+            ENTERPRISE  amethystTraps
+            VARIABLES   { trapAmethystGuid, trapAgentErrorMessage }
+            DESCRIPTION
+                "Bandwidth Shaping Alert"
+            ::= 375
+
+       ProcessServerUnInstallation TRAP-TYPE
+            ENTERPRISE  amethystTraps
+            VARIABLES   { trapAmethystGuid, trapAgentErrorMessage, trapSeverity, trapCSHostname, trapPSHostname }
+            DESCRIPTION
+                "Process Server UnInstallation Alert"
+            ::= 380
+
+       trapFXJobError TRAP-TYPE
+            ENTERPRISE  amethystTraps
+            VARIABLES   { trapAmethystGuid, trapHostGuid, trapAgentErrorMessage, trapSeverity, trapCSHostname, trapSourceHostName, trapSourceDeviceName, trapTargetHostName, trapTargetDeviceName }
+            DESCRIPTION
+                "File Replication job progress threshold exceeded"
+            ::= 385
+		
+		ApplicationProtectionAlerts TRAP-TYPE
+            ENTERPRISE  amethystTraps
+            VARIABLES   { trapAmethystGuid, trapHostGuid, trapAgentErrorMessage }
+            DESCRIPTION
+                "Application Usability Alert"
+            ::= 390
+			
+		trapFXJobFailedWithError TRAP-TYPE
+            ENTERPRISE  amethystTraps
+            VARIABLES   { trapAmethystGuid, trapHostGuid, trapAgentErrorMessage, trapSeverity, trapCSHostname, trapSourceHostName, trapSourceDeviceName, trapTargetHostName, trapTargetDeviceName }
+            DESCRIPTION
+                "File Replication Job Failed With Error"
+            ::= 395
+			
+		trapCXHAClusterNodeFailover TRAP-TYPE
+            ENTERPRISE  amethystTraps
+            VARIABLES   { trapAmethystGuid, trapHostGuid, trapAgentErrorMessage }
+            DESCRIPTION
+                "A CX High Availability cluster node failover"
+            ::= 400
+
+		trapFXProtectionJobFailedWithError TRAP-TYPE
+            ENTERPRISE  amethystTraps
+            VARIABLES   { trapAmethystGuid, trapHostGuid, trapAgentErrorMessage, trapSeverity, trapCSHostname, trapSourceHostName, trapTargetHostName }
+            DESCRIPTION
+                "File Replication Job for Protection Failed With Error"
+            ::= 405
+
+		trapFXRecoveryJobFailedWithError TRAP-TYPE
+            ENTERPRISE  amethystTraps
+            VARIABLES   { trapAmethystGuid, trapHostGuid, trapAgentErrorMessage, trapSeverity, trapCSHostname, trapSourceHostName, trapTargetHostName }
+            DESCRIPTION
+                "File Replication Job for Recovery Failed With Error"
+            ::= 410
+			
+		trapFXConsistencyJobFailedWithError TRAP-TYPE
+            ENTERPRISE  amethystTraps
+            VARIABLES   { trapAmethystGuid, trapHostGuid, trapAgentErrorMessage, trapSeverity, trapCSHostname, trapSourceHostName, trapTargetHostName }
+            DESCRIPTION
+                "File Replication Job for Consistency Failed With Error"
+            ::= 415	
+			
+		trapFXProtectionJobSuccessful TRAP-TYPE
+            ENTERPRISE  amethystTraps
+            VARIABLES   { trapAmethystGuid, trapHostGuid, trapAgentErrorMessage, trapSeverity, trapCSHostname, trapSourceHostName, trapTargetHostName }
+            DESCRIPTION
+                "File Replication Job for Protection exited successfully"
+            ::= 420		
+		
+		trapFXFailoverJobSuccessful TRAP-TYPE
+            ENTERPRISE  amethystTraps
+            VARIABLES   { trapAmethystGuid, trapHostGuid, trapAgentErrorMessage, trapSeverity, trapCSHostname, trapSourceHostName, trapTargetHostName }
+            DESCRIPTION
+                "File Replication Job for Failover exited successfully"
+            ::= 425
+			
+		trapVXPairInitialDiffSync TRAP-TYPE
+            ENTERPRISE  amethystTraps
+            VARIABLES   { trapAmethystGuid, trapHostGuid, trapAgentErrorMessage }
+            DESCRIPTION
+                "Volume pair reached to diff sync"
+            ::= 430
+			
+		trapbitmapmodechange TRAP-TYPE
+            ENTERPRISE  amethystTraps
+            VARIABLES   { trapAmethystGuid, trapHostGuid, trapAgentErrorMessage }
+            DESCRIPTION
+                "Source drive come across bitmap mode"
+            ::= 435
+			
+		trapVersionMismatch TRAP-TYPE
+            ENTERPRISE  amethystTraps
+            VARIABLES   { trapAmethystGuid, trapAgentErrorMessage }
+            DESCRIPTION
+                "Version mismatch found among the hosts"
+            ::= 440
+
+		trapAppAgentDown TRAP-TYPE
+            ENTERPRISE  amethystTraps
+            VARIABLES   { trapAmethystGuid, trapHostGuid, trapAgentErrorMessage, trapSeverity, trapCSHostname, trapAffectedSystemHostName }
+            DESCRIPTION
+                "Information to be sent describing an VX agent going out of contact
+                 beyond configured threshold.
+                 Syntax: 'App agent host guid'
+                 "
+            ::= 230
+			
+		trapFxAgentDown TRAP-TYPE
+            ENTERPRISE  amethystTraps
+            VARIABLES   { trapAmethystGuid, trapHostGuid, trapAgentErrorMessage, trapSeverity, trapCSHostname, trapAffectedSystemHostName }
+            DESCRIPTION
+                "Information to be sent describing an FX agent going out of contact
+                 beyond configured threshold.
+                 Syntax: 'fx agent host guid'
+                 "
+            ::= 235
+
+		
+		trapVxAgentDown TRAP-TYPE
+            ENTERPRISE  amethystTraps
+            VARIABLES   { trapAmethystGuid, trapHostGuid, trapAgentErrorMessage, trapSeverity, trapCSHostname, trapAffectedSystemHostName }
+            DESCRIPTION
+                "Information to be sent describing an VX agent going out of contact
+                 beyond configured threshold.
+                 Syntax: 'vx agent host guid'
+                 "
+            ::= 240
+		
+		
+		trapPSNodeDown TRAP-TYPE
+            ENTERPRISE  amethystTraps
+            VARIABLES   { trapAmethystGuid, trapHostGuid, trapAgentErrorMessage, trapSeverity, trapCSHostname, trapPSHostname, trapAffectedSystemHostName }
+            DESCRIPTION
+                "Information to be sent describing an PS going out of contact
+                 beyond configured threshold.
+                 Syntax: 'PS host guid'
+                 "
+            ::= 245
+			
+		trapVXRPOSLAThresholdExceeded TRAP-TYPE
+            ENTERPRISE  amethystTraps
+            VARIABLES   { trapAmethystGuid, trapHostGuid, trapAgentErrorMessage, trapSeverity, trapCSHostname, trapPSHostname, trapSourceHostName, trapSourceDeviceName, trapTargetHostName, trapTargetDeviceName }
+            DESCRIPTION
+                "RPO threshold has been exceeded for the source host."
+            ::= 280
+
+		trapFXRPOSLAThresholdExceeded TRAP-TYPE
+            ENTERPRISE  amethystTraps
+            VARIABLES   { trapAmethystGuid, trapHostGuid, trapAgentErrorMessage, trapSeverity, trapCSHostname, trapSourceHostName, trapSourceDeviceName, trapTargetHostName, trapTargetDeviceName }
+            DESCRIPTION
+                "RPO threshold has been exceeded for the host."
+            ::= 285
+
+		trapPSRPOSLAThresholdExceeded TRAP-TYPE
+            ENTERPRISE  amethystTraps
+            VARIABLES   { trapAmethystGuid, trapHostGuid, trapAgentErrorMessage, trapSeverity, trapCSHostname, trapPSHostname, trapSourceHostName }
+            DESCRIPTION
+                "RPO threshold has been exceeded for PS."
+            ::= 290
+		
+		trapCSUpAndRunning TRAP-TYPE
+            ENTERPRISE  amethystTraps
+            VARIABLES   { trapAmethystGuid, trapAgentErrorMessage, trapCSHostname, trapSeverity }
+            DESCRIPTION
+                "CS server is up and running"
+            ::= 450
+			
+		trapDiskSpaceThresholdOnSwitchBPExceeded TRAP-TYPE
+            ENTERPRISE  amethystTraps
+            VARIABLES   { trapAmethystGuid, trapAgentErrorMessage }
+            DESCRIPTION
+                "Disk Space Threshold Exceeded Alert"
+            ::= 460
+		
+END

@@ -1,0 +1,14 @@
+<Request Id="0012" Version="1.0">
+<Header>
+  <Authentication>
+    <AccessKeyID>39F830AD9C46DE48B87EBE56F4C919D7C7E96CD9</AccessKeyID>
+    <AccessSignature>ZjliYWQxYzBkN2E0OWUyMTg5MGFkOTJmMWI1MjhhZTI2MmJkYWYzZA==</AccessSignature>
+  </Authentication>
+</Header>
+<Body>
+  <FunctionRequest Name="SetupRepository" Include="No">
+    <Parameter Name="RepositoryName" Value="Rep1" />
+    <Parameter Name="RepositoryDeviceName" Value="C" />
+  </FunctionRequest>   
+</Body>
+</Request>

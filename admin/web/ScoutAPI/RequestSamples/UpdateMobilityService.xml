@@ -1,0 +1,29 @@
+<Request Id="1" Version="1.0">
+<Header>
+  <Authentication>
+	<AccessKeyID>11F3242118FF2ADD5D117CBF216F29AC578F6BA6</AccessKeyID>
+	<AuthMethod>CXAuth</AuthMethod>
+	<CXUserName>admin</CXUserName>
+  </Authentication>
+</Header>
+<Body>
+  <FunctionRequest Name="UpdateMobilityService">
+	<ParameterGroup Id="ConfigServer">
+	  <Parameter Name="Protocol" Value="HTTPS" /> <!-- Optional (HTTP/HTTPS) default: HTTPS -->
+	  <Parameter Name="IPAddress" Value="23.101.25.57" />
+	  <Parameter Name="Port" Value="54322" />
+	</ParameterGroup>
+	<Parameter Name="PushServerId" Value="378DE98F-FB8F-7A43-A513ADFE78AC4C1B"/>
+	<ParameterGroup Id="Servers">
+	  <ParameterGroup Id="Server1">
+		<Parameter Name="HostId" Value="408DE98F-FB8F-7A43-A513ADFE78AC4C1B" />
+		<Parameter Name="UpdateType" Value="Update" /> <!-- default Update Update/ Upgrade-->
+		<Parameter Name="Domain" Value="dev-domain" /> <!-- Used only for Windows --> <!-- Optional -->
+		<Parameter Name="AccountId" Value="1"/>
+		<Parameter Name="UserName" Value="root"/>
+		<Parameter Name="AgentType" Value="ScoutAgent"/> <!-- ScoutAgent / MasterTarget --> <!--Optional, Default is ScoutAgent -->
+	  </ParameterGroup>
+    </ParameterGroup>
+  </FunctionRequest>
+</Body>
+</Request>

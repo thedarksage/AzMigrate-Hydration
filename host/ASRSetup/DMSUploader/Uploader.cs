@@ -16,7 +16,9 @@ using Release = Microsoft.Downloads.Services.Client.Release;
 using Configuration = Microsoft.Downloads.Services.Client.Configuration;
 using UST.Library.Dms.Contracts;
 using AD = Microsoft.IdentityModel.Clients.ActiveDirectory;
-using Microsoft.Azure.KeyVault;
+using Azure.Core;
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 using Microsoft.WindowsAzure.Management;
 
 namespace DMSUploader
@@ -785,12 +787,9 @@ namespace DMSUploader
         /// <returns>Secret value.</returns>
         public static string GetSecret()
         {
-            KeyVaultClient KeyVaultClient = new KeyVaultClient(
-                    new KeyVaultClient.AuthenticationCallback(GetAccessToken));
-            var fetchTask = KeyVaultClient.GetSecretAsync(keyVaultURL, Constants.SecretName);
-            var secret = fetchTask.GetAwaiter().GetResult().Value;
-
-            return secret;
+            var secretClient = new SecretClient(new Uri(keyVaultURL), new DefaultAzureCredential());
+            KeyVaultSecret secret = secretClient.GetSecret(Constants.SecretName);
+            return secret.Value;
         }
 
         /// <summary>

@@ -1,0 +1,7 @@
+<Function Name="GetHostByIP" Id="" ReturnCode="0" Message="">
+      	<FunctionResponse>	
+		<Parameter Name="HostName" Value="GRVM1" />
+		<Parameter Name="HostAgentGUID" Value="525b0508-d77e-41c6-ae58-30782d2bccd3 " />
+		<Parameter Name="SystemGUID" Value="5C1DAEF0-9386-44a5-B92A-31FE2C79236A " />	
+   	</FunctionResponse> 
+</Function> 

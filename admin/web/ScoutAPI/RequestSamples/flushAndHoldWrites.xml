@@ -1,0 +1,17 @@
+<Request Id="0503" Version="1.0">
+<Header>
+  <Authentication>
+    <AccessKeyID>8A1681E612A2025087B703FDF1F8F617E506B053</AccessKeyID>
+    <AccessSignature>YmY0NDgwNjk3ZWI3NzE3OWU2ODY5OWM0MDc1NjEzZDY5OTA4NGY5Mw==</AccessSignature>
+  </Authentication>
+</Header>
+<Body>
+  <FunctionRequest Name="flushAndHoldWrites">
+   <ParameterGroup Id="LunList">
+    <Parameter Name="LunId1" Value="2000b080000002807"/>
+    <Parameter Name="LunId2" Value="2000b080000002801"/>
+    <Parameter Name="LunId3" Value="2000b080000002809"/>
+   </ParameterGroup> 
+  </FunctionRequest>
+</Body>
+</Request>

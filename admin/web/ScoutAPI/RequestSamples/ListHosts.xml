@@ -1,0 +1,13 @@
+<Request Id="0001" Version="1.0">
+<Header>
+	<Authentication>
+		<AccessKeyID>A23FF8784CFE3F858A07B2CDEB25CBD27AA99808</AccessKeyID>
+		<AuthMethod>CXAuth/MessageAuth</AuthMethod>
+		<CXUserName>admin</CXUserName>
+		<AccessSignature></AccessSignature>
+	</Authentication>
+</Header>
+<Body>
+<FunctionRequest Name="ListHosts" Include="No"/>
+</Body>
+</Request>

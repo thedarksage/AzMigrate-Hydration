@@ -15,7 +15,7 @@ trace_log_message()
 {
     QUIET_MODE=FALSE
     EXIT=FALSE
-	
+
     if [ $# -gt 0 ]
     then
         if [ "X$1" = "X-q" ]
@@ -33,15 +33,15 @@ trace_log_message()
     if [ $# -gt 0 ]
     then
         DATE_TIME=`date '+%m/%d/%Y %H:%M:%S'`
-        
+
         if [ "${QUIET_MODE}" = "TRUE" ]
         then
             echo "${DATE_TIME} : $*" >> ${LOGFILE}
-        else	
+        else
             echo -e "$@"
-            echo "${DATE_TIME} : $@ " >> ${LOGFILE} 2>&1            
+            echo "${DATE_TIME} : $@ " >> ${LOGFILE} 2>&1
         fi
-		
+
 		if [ "${EXIT}" = "TRUE" ]
 		then
 			echo "Failed"

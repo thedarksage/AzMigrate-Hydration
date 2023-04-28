@@ -1447,7 +1447,7 @@ bool InitializeConfigurator()
 
 static void LogCallback(unsigned int logLevel, const char *msg)
 {
-    DebugPrintf((SV_LOG_LEVEL)logLevel, msg);
+    DebugPrintf((SV_LOG_LEVEL)logLevel, "%s", msg);
 }
 
 /*

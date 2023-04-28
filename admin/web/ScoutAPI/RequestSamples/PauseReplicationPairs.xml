@@ -1,0 +1,14 @@
+<Request Id="0001" Version="1.0">
+ 	<Header>
+  		<Authentication>
+    		<AccessKeyID>DDC9525FF275C104EFA1DFFD528BD0145F903CB1</AccessKeyID>
+    		<AccessSignature></AccessSignature>
+  		</Authentication>
+ 	</Header>
+ 	<Body>
+  		<FunctionRequest Name="PauseReplicationPairs" Include="No">
+			<Parameter Name="SourceHostGUID" Value="AE9BA9D3-0FF0-C645-ACA798079AB38AA4" />
+			<Parameter Name="TargetHostGUID" Value="AE9BA9D3-0FF0-C645-ACA798079AB38AA4" />
+ 		 </FunctionRequest>
+ 	</Body>
+</Request>

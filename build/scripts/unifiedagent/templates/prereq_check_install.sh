@@ -462,7 +462,12 @@ check_current_kernel_supported()
                esac
             fi
             ;;
-
+        
+	    "RHEL9-64")
+            echo ${CURR_KERNEL} | grep -q ".el9.*"
+            ret=$?
+            ;;    
+    
         "OL7-64")
             echo ${CURR_KERNEL} | egrep -q ".el7.x86_64$|.el7uek.x86_64"
             ret=$?
@@ -476,30 +481,32 @@ check_current_kernel_supported()
                 echo ${CURR_KERNEL} | grep -q ".el8.*"
                 if [ $? -eq "0" ]; then
                     minor_version=`echo ${CURR_KERNEL} | awk -F"-" '{print $2}' | awk -F"." '{print $1}'`
-                    if [ ${minor_version} -ge "80" -a ${minor_version} -le "348" ]; then
-                        case ${minor_version} in
-                            "305")
-                                is_supported_rhel8_kernel ${CURR_KERNEL} 30 1
-                                if [ $? -eq "0" ]; then
-                                    ret=0
-                                fi
-                                ;;
-
-                            "348")
-                                is_supported_rhel8_kernel ${CURR_KERNEL} 5 1
-                                if [ $? -eq "0" ]; then
-                                    ret=0
-                                fi
-                                ;;
-
-                            *)
+                    case ${minor_version} in
+                        "305")
+                            is_supported_rhel8_kernel ${CURR_KERNEL} 30 1
+                            if [ $? -eq "0" ]; then
                                 ret=0
-                                ;;
-                        esac
-                    fi
+                            fi
+                            ;;
+
+                        "348")
+                            is_supported_rhel8_kernel ${CURR_KERNEL} 5 1
+                            if [ $? -eq "0" ]; then
+                                ret=0
+                            fi
+                            ;;
+
+                        *)
+                            ret=0
+                            ;;
+                    esac
                 fi
             fi
 
+            ;;
+        "OL9-64")
+            echo ${CURR_KERNEL} | egrep -q ".el9uek.x86_64|.el9.*"
+            ret=$?
             ;;
 
         "SLES11-SP3-64"|"SLES11-SP4-64")

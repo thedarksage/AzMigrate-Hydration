@@ -203,7 +203,7 @@ Function CreateVM()
             $lunList += $lun
             
             LogMessage -Message ("Attached diskName {0}, disksize {1}GB, lun {2}" -f $dataDiskName, $diskSize, $lun) -LogType ([LogType]::Info1)
-            $vm = Add-AzVMDataDisk -VM $newVM -Name $dataDiskName -CreateOption Attach -ManagedDiskId $dataDisk.Id -Lun $lun -Verbose
+            $vm = Add-AzVMDataDisk -VM $newVM -Name $dataDiskName -CreateOption Attach -Caching ReadWrite -ManagedDiskId $dataDisk.Id -Lun $lun -Verbose
         }
         
         $diagSAName = $diagSAName -replace "-"
@@ -257,6 +257,10 @@ Function CreateVM()
             Invoke-AzVMRunCommand -ResourceGroupName $rgName -Name $vmName -CommandId 'RunPowerShellScript' -ScriptPath InitDisks.ps1
             Write-Host "Initialized disks"
 
+            LogMessage -Message ("EnableTLS12 on Azure VM {0}" -f $vmName) -LogType ([LogType]::Info1)
+            Invoke-AzVMRunCommand -ResourceGroupName $global:PriResourceGroup -Name $vmName -CommandId 'RunPowerShellScript' -ScriptPath 'EnableTLS12.ps1'
+            LogMessage -Message ("Successfully enabled TLS12 on the Azure VM {0}" -f $vmName) -LogType ([LogType]::Info1)
+
             LogMessage -Message ("Invoking Install Patch for Azure VM {0}" -f $vmName) -LogType ([LogType]::Info1)
             Invoke-AzVmInstallPatch -ResourceGroupName $global:PriResourceGroup -VMName $vmName -MaximumDuration "PT2H" -RebootSetting "Always" -Windows -ClassificationToIncludeForWindows "Critical", "Security"
             WaitForAzureVMReadyState -vmName $vmName -resourceGroupName $global:PriResourceGroup
@@ -267,6 +271,26 @@ Function CreateVM()
             Invoke-AzVmInstallPatch -ResourceGroupName $global:PriResourceGroup -VMName $vmName -MaximumDuration "PT2H" -RebootSetting "Always" -Linux -ClassificationToIncludeForLinux  "Critical", "Security"
             WaitForAzureVMReadyState -vmName $vmName -resourceGroupName $global:PriResourceGroup
             LogMessage -Message ("Successfully installed patches on the Azure VM {0}" -f $vmName) -LogType ([LogType]::Info1)
+
+            LogMessage -Message ("Initializing data disks on the Azure VM {0}" -f $vmName) -LogType ([LogType]::Info1)
+            RunAzVMCommand -ResourceGroup $global:PriResourceGroup -VMName $vmName -ScriptName 'InitDisks.sh' -Params @{"RootPassword" = $vmPassword; "MNTDIR" = $global:MntPointDir}
+            LogMessage -Message ("Successfully initialized data disks on the Azure VM {0}" -f $vmName) -LogType ([LogType]::Info1)
+
+            Start-Sleep -Seconds 60
+
+            if($global:RunFSHealthCheck.ToLower() -eq "true")
+            {
+                LogMessage -Message ("CreateNewVM : Applying churn on the data disks of the Azure VM {0}" -f $vmName) -LogType ([LogType]::Info1)
+                $params=@{
+                    "MNTDIR" = $global:MntPointDir
+                    "MaxFileSize" = 2
+                    "TotalFileSize" = 100
+                    "VerifyFlag" = 0
+                    "RootPassword" = $vmPassword
+                }
+                RunAzVMCommand -ResourceGroup $global:PriResourceGroup -VMName $vmName -ScriptName 'ApplyLoad.sh' -Params $params
+                LogMessage -Message ("CreateNewVM : Successfully applied churn on the data disks of the Azure VM {0}" -f $vmName) -LogType ([LogType]::Info1)
+            }
         }
     }
     else {
@@ -286,6 +310,7 @@ Function Main()
         LogMessage -Message ("Create VM Operation started") -LogType ([LogType]::Info1)
         LogMessage -Message ("Selected OS : {0}" -f $OSName) -LogType ([LogType]::Info1)
         $vmPassword = GetSecretFromKeyVault -SecretName $global:SecretName
+
         CreateVM $global:PriResourceGroup $OSName $global:VMName $vmPassword
         WaitForAzureVMReadyState -vmName $global:VMName -resourceGroupName $global:PriResourceGroup
         LogMessage -Message ("Create VM Operation Passed") -LogType ([LogType]::Info1)

@@ -103,7 +103,7 @@ Function LoginToAzureSubscription {
 	    $sleep = 0
 	    while ($retry -ge 0) {
 		    Start-Sleep -Seconds $sleep
-		    $cert = Get-ChildItem -path 'cert:\LocalMachine\My' | Where-Object { $_.Subject.Contains($global:AgentSpnCertName) }
+		    $cert = Get-ChildItem -path 'cert:\LocalMachine\My' | Where-Object { $_.Subject.Contains($global:AgentSpnCertName) } | Sort-Object -Property "NotAfter" -Descending | Select-Object -First 1
 		    #LogMessage -Message ("User: {0}, Cert: {1}" -f $env:username, ($cert | ConvertTo-json -Depth 1)) -LogType ([LogType]::Info)
 		    Start-Sleep -Seconds $sleep
 		    $Thumbprint = $cert.ThumbPrint

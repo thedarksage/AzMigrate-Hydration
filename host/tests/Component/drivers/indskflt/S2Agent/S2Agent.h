@@ -85,7 +85,7 @@ public:
     bool GetVolumeStats(std::string &volStats);
     void WaitForTSO();
     void ResetTSO();
-    bool BarrierHonour(std::vector<PairInfo::PairDetails *> pairDetails);
+    bool BarrierHonour(std::vector<PairInfo::PairDetails *> pairDetails, bool verifyTag = true);
     bool WaitForDataMode();
     bool VerifyBitmapMode();
 #endif
@@ -101,6 +101,7 @@ public:
     void StartFiltering();
     bool CreateDrainBarrierOnTag(std::string &tag);
     void ReleaseDrainBarrier();
+    std::string GenerateUuid();
     bool Validate();
     bool AreFilesEqual(std::string srcFile, std::string tgtFile);
     void GetSourceCheckSum(CHAR srcPath[], std::string &tag, std::string &tagContext);

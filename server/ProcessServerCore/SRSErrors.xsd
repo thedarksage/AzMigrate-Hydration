@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="SRSErrors"
+    targetNamespace="http://schemas.microsoft.com/2012/DisasterRecovery/SRSErrors.xsd"
+    elementFormDefault="qualified"
+    xmlns="http://schemas.microsoft.com/2012/DisasterRecovery/SRSErrors.xsd"
+    xmlns:srs="http://schemas.microsoft.com/2012/DisasterRecovery/SRSErrors.xsd"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:simpleType name="ErrorSeverityType">
+    <xs:annotation>
+      <xs:documentation>
+        This is a ToString() representation of the RcmContract.Severity enumeration.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Error" />
+      <xs:enumeration value="Warning" />
+      <xs:enumeration value="Information" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="CategoryType">
+    <xs:annotation>
+      <xs:documentation>
+        This is a ToString() representation of the RcmContract.ErrorTagCategory enumeration.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ClientError" />
+      <xs:enumeration value="SystemError" />
+      <xs:enumeration value="IgnorableSystemError" />
+      <xs:enumeration value="ComponentReportedError" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="ErrorTag">
+    <xs:annotation>
+      <xs:documentation>Tags associated to the error.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Category" type="srs:CategoryType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Error tag category.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ErrorType">
+    <xs:annotation>
+      <xs:documentation>Xml representation of a RcmAgentCommonLib.ErrorHandling.RcmAgentError object</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="ErrorCode" type="xs:int" minOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Unique error code at SRS and RCM</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="EnumName" type="xs:string" minOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Unique enumeration name at SRS and RCM</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Message" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Detailed error message -- requires localization</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PossibleCauses" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Possible causes for this condition to occur -- requires localization</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="RecommendedAction" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Recommended action -- requires localization</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Severity" type="srs:ErrorSeverityType" minOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Severity of the error.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ErrorTags" type="srs:ErrorTag" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SRSErrorType">
+    <xs:annotation>
+      <xs:documentation>Collection of RcmAgentErrors</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Error" type="srs:ErrorType" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="SRSErrors" type="srs:SRSErrorType"/>
+  
+</xs:schema>

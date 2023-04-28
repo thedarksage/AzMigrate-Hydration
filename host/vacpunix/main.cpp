@@ -3054,7 +3054,7 @@ bool Consistency::CheckTagsStatus(const char *buffer, const unsigned int size, c
 
 static void LogCallback(LogLevel logLevel, const char *msg)
 {
-    inm_printf(msg);
+    inm_printf("%s", msg);
 }
 
 void RunCrashConsistency()

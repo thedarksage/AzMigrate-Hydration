@@ -1,0 +1,16 @@
+<Request Id="0007" Version="1.0">
+<Header>
+  <Authentication>
+    <AccessKeyID>39F830AD9C46DE48B87EBE56F4C919D7C7E96CD9</AccessKeyID>
+    <AccessSignature>OTk1M2VhOGM0NDAxNGMwYTY0NzQ3N2E1YzRiYmEwZDc1NTY4ZWQ0OQ==</AccessSignature>
+  </Authentication>
+</Header>
+<Body>
+  <FunctionRequest Name="AssociateSystemWithBackupServer" Include="Y"> 
+    <Parameter Name="SystemGUID" Value="87BC3384-071D-744D-9A61A7BD3588CCE6_INTEL" /> 
+    <Parameter Name="HostName" Value="IMITS152" /> 
+    <Parameter Name="HostIp" Value="10.0.1.152" />
+	<Parameter Name="MacAddress" Value="DHE-DFF" />
+  </FunctionRequest>
+</Body>
+</Request>

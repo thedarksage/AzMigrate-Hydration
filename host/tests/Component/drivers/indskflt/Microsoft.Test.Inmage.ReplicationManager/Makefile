@@ -28,12 +28,13 @@ X_CFLAGS = \
 	-Idrivers/lib/$(X_MINOR_ARCH) \
 	-Itests/common/Logger \
 	-Itests/common/Logger/$(X_MAJOR_ARCH) \
+	-Is2libs/thread \
 	$(BOOST_INCLUDE) \
 	$(ACE_INCLUDE)
 
-X_LIBS = 
+X_LIBS =
 
-X_THIRDPARTY_LIBS = 
+X_THIRDPARTY_LIBS =
 
 X_SYSTEM_LIBS =
 

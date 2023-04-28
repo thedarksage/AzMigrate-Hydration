@@ -1,0 +1,78 @@
+#!/bin/bash
+# Source function library.
+. /etc/rc.d/init.d/functions
+base_dir="/usr/local/"
+start(){
+   	replay_count=`ps -ef | grep -v 'grep' | grep -c readonlycheckd.pl`
+    if [ $replay_count -ne 0 ]; then
+		process_id=`ps -ef | grep -v 'grep' | grep readonlycheckd.pl | awk '{ print $2 }'`
+        /usr/bin/kill -9 $"$process_id" >/dev/null 2>&1
+		ret=$?
+		if [ $ret -eq 0 ]; then
+		   	/usr/bin/perl $"$base_dir"/readonlycheckd.pl &
+	    	ret=$?
+	    	if [ $ret -eq 0 ]; then
+    			action $"Starting mount monitoring" /bin/true
+	    	else
+    	    	action $"Starting mount monitoring" /bin/false
+		    fi
+		else
+			action $"Starting mount monitoring" /bin/false
+		fi
+	else
+		/usr/bin/perl $"$base_dir"/readonlycheckd.pl &
+        ret=$?
+        if [ $ret -eq 0 ]; then
+            action $"Starting mount monitoring" /bin/true
+        else
+            action $"Starting mount monitoring" /bin/false
+        fi
+	fi
+	return $ret
+}
+
+stop(){
+   	replay_count=`ps -ef | grep -v 'grep' | grep -c readonlycheckd.pl`
+    if [ $replay_count -ne 0 ]; then
+		process_id=`ps -ef | grep -v 'grep' | grep readonlycheckd.pl | awk '{ print $2 }'`
+        /usr/bin/kill -9 $"$process_id" >/dev/null 2>&1
+        ret=$?
+        if [ $ret -eq 0 ]; then
+           action $"Stopping mount monitoring" /bin/true
+		   rm -f /var/run/readonlychecksd.pid
+        else
+           action $"Stopping mount monitoring" /bin/false
+        fi
+    else
+        action $"Mount monitor already stopped" /bin/true
+    fi
+	return $ret
+}
+
+restart(){
+    stop
+    start
+}
+
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  status)
+    status readonlychecksd
+	;;
+  restart)
+    restart
+    ;;
+  condrestart)
+    condrestart
+    ;;
+  *)
+    echo $"Usage: $0 {start|stop|status|condrestart|restart}"
+    exit 1
+esac
+
+exit $?

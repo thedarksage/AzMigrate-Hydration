@@ -1,4 +1,4 @@
-﻿  building ..\boost_1_78_0 using b2.exe --layout=versioned --abbreviate-paths --user-config=win-user-config.jam --build-dir=./build/win/Win32 --stagedir=./stage/win/Win32 --with-system --with-thread --with-date_time --with-atomic --with-regex --with-serialization --with-filesystem --disable-icu --with-program_options --with-random architecture=x86  variant=debug link=static threading=multi runtime-link=static stage debug-symbols=on
+﻿  building ..\boost_1_78_0 using b2.exe --layout=versioned --abbreviate-paths --user-config=win-user-config.jam --build-dir=./build/win/Win32 --stagedir=./stage/win/Win32 --with-system --with-thread --with-date_time --with-atomic --with-regex --with-serialization --with-filesystem --disable-icu --with-program_options --with-random architecture=x86  variant=debug link=static threading=multi runtime-link=static stage debug-symbols=on specter=on
   Performing configuration checks
   
       - default address-model    : 64-bit (cached) [1]
@@ -37,8 +37,8 @@
       - has_icu builds           : no  (cached) [3]
   
   [1] msvc-14.2
-  [2] msvc-14.2/dbg/adrs-mdl-32/lnk-sttc/pythn-3.8/rntm-lnk-sttc/thrdp-wn32/thrd-mlt/vsblt-hdn
-  [3] msvc-14.2/dbg/lnk-sttc/pythn-3.8/rntm-lnk-sttc/thrdp-wn32/thrd-mlt/vsblt-hdn
+  [2] msvc-14.2/dbg/adrs-mdl-32/lnk-sttc/rntm-lnk-sttc/thrdp-wn32/thrd-mlt/vsblt-hdn
+  [3] msvc-14.2/dbg/lnk-sttc/rntm-lnk-sttc/thrdp-wn32/thrd-mlt/vsblt-hdn
   
   Component configuration:
   

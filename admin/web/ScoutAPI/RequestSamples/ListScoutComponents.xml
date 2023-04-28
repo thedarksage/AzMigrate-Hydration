@@ -1,0 +1,19 @@
+<Request Id="1" Version="1.0"> 
+ <Header> 
+  <Authentication> 
+<AccessKeyID>11F3242118FF2ADD5D117CBF216F29AC578F6BA6</AccessKeyID> 
+<AuthMethod>CXAuth</AuthMethod> 
+<CXUserName>admin</CXUserName>
+  </Authentication> 
+</Header> 
+<Body> 
+  <FunctionRequest Name="ListScoutComponents"> 
+  <Parameter Name="ComponentType" Value="ProcessServers"/> <!--   All/ProcessServers/SourceServers/MasterTargets --> <!-- Optional, Default is All --> 
+  <Parameter Name="OSType" Value="OSType"/> <!-- Optional, Linux/Windows --> 
+  <ParameterGroup Id="Servers"> <!-- Optional --> 
+      <Parameter Name="HostId1" Value="6FEC2205-B58B-9F4B-8DD095F4991E72F6" /> 
+      <Parameter Name="HostId2" Value="4DEC2205-B58B-9F4B-8DD095F4991E72F6" /> 
+  </ParameterGroup> 
+  </FunctionRequest> 
+</Body> 
+</Request>

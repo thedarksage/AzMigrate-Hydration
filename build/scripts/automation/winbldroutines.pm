@@ -908,12 +908,15 @@ sub DoProductBuilds
 	if (Log_Do("\"$mvss_exe\" ${srcpath}\\thirdparty\\sqlite3x\\sqlite3x.sln /project sqlite3x /build \"Release|X64\" /out $logfile") != 0) {
 		die "Failed to build X64 sqlite3x.\n";
 	}
-
+	
+	system("mkdir ${srcpath}\\host\\packages\\sqlite3x\\lib\\win32\\release\\");
+	system("mkdir ${srcpath}\\host\\packages\\sqlite3x\\lib\\x64\\release\\");
+	
 	# workaround to generate the sqlite3x builds and copy to packages. this should be avoided by referring the libs from build path
-	Log_Do("copy /Y ${srcpath}\\thirdparty\\sqlite3x\\sqlite3x\\lib\\win32\\Release\\sqlite3x.lib ${srcpath}\\host\\packages\\sqlite3x.0.0.6\\lib\\win32\\release\\");
-	Log_Do("copy /Y ${srcpath}\\thirdparty\\sqlite3x\\sqlite3x\\lib\\win32\\Release\\sqlite3x.pdb ${srcpath}\\host\\packages\\sqlite3x.0.0.6\\lib\\win32\\release\\");
-	Log_Do("copy /Y ${srcpath}\\thirdparty\\sqlite3x\\sqlite3x\\lib\\x64\\Release\\sqlite3x.lib ${srcpath}\\host\\packages\\sqlite3x.0.0.6\\lib\\x64\\release\\");
-	Log_Do("copy /Y ${srcpath}\\thirdparty\\sqlite3x\\sqlite3x\\lib\\x64\\Release\\sqlite3x.pdb ${srcpath}\\host\\packages\\sqlite3x.0.0.6\\lib\\x64\\release\\");
+	Log_Do("copy /Y ${srcpath}\\thirdparty\\sqlite3x\\sqlite3x\\lib\\win32\\Release\\sqlite3x.lib ${srcpath}\\host\\packages\\sqlite3x\\lib\\win32\\release\\");
+	Log_Do("copy /Y ${srcpath}\\thirdparty\\sqlite3x\\sqlite3x\\lib\\win32\\Release\\sqlite3x.pdb ${srcpath}\\host\\packages\\sqlite3x\\lib\\win32\\release\\");
+	Log_Do("copy /Y ${srcpath}\\thirdparty\\sqlite3x\\sqlite3x\\lib\\x64\\Release\\sqlite3x.lib ${srcpath}\\host\\packages\\sqlite3x\\lib\\x64\\release\\");
+	Log_Do("copy /Y ${srcpath}\\thirdparty\\sqlite3x\\sqlite3x\\lib\\x64\\Release\\sqlite3x.pdb ${srcpath}\\host\\packages\\sqlite3x\\lib\\x64\\release\\");
 
     foreach my $product (@{$productlist})
     {
@@ -1542,6 +1545,7 @@ sub DoProductPackaging
 			$manifest_contents = $manifest_contents . "Microsoft-ASR_UA_${MajorVersion}.${MinorVersion}.${PatchSetVersion}.${PatchVersion}_DEBIAN8-64_${bldphase}_${date}${month}${year}_${config}.tar.gz,2,DEBIAN8-64,,${MajorVersion}.${MinorVersion}.${PatchSetVersion}.${PatchVersion},Upgrade,no\n";
 			$manifest_contents = $manifest_contents . "Microsoft-ASR_UA_${MajorVersion}.${MinorVersion}.${PatchSetVersion}.${PatchVersion}_DEBIAN9-64_${bldphase}_${date}${month}${year}_${config}.tar.gz,2,DEBIAN9-64,,${MajorVersion}.${MinorVersion}.${PatchSetVersion}.${PatchVersion},Upgrade,no\n";
 			$manifest_contents = $manifest_contents . "Microsoft-ASR_UA_${MajorVersion}.${MinorVersion}.${PatchSetVersion}.${PatchVersion}_DEBIAN10-64_${bldphase}_${date}${month}${year}_${config}.tar.gz,2,DEBIAN10-64,,${MajorVersion}.${MinorVersion}.${PatchSetVersion}.${PatchVersion},Upgrade,no\n";
+			$manifest_contents = $manifest_contents . "Microsoft-ASR_UA_${MajorVersion}.${MinorVersion}.${PatchSetVersion}.${PatchVersion}_DEBIAN11-64_${bldphase}_${date}${month}${year}_${config}.tar.gz,2,DEBIAN11-64,,${MajorVersion}.${MinorVersion}.${PatchSetVersion}.${PatchVersion},Upgrade,no\n";
 			
 			print FH_W_V_ISS $manifest_contents;
 			close(FH_W_V_ISS);

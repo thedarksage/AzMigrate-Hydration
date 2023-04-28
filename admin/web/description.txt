@@ -1,0 +1,53 @@
+access_functions.php: similar to functions.php
+admin_functions.php: similar to functions.php
+bpm.php: similar to functions.php
+clear_return_home.php: verb
+clear_snapshot_drive.php: verb
+clsDatabase.php: database functions
+config.php: similar to functions.php
+conn.php: more functions
+functions.php: functions
+get_all_fr_jobs.php: debugging script
+get_file_replication_config.php: config info
+get_ftp_config.php: config info
+get_initialsync_directories.php: config info
+get_outpost_agent_protected_drives.php: config info
+get_protected_drives.php: config info
+get_recovery_dest.php: return what the target volumes of snapshot are
+get_recovery_drive.php: return what the source volumes of snapshot are
+get_resync_directories.php: return the resync directories 
+get_resync_drives.php: return the resync drive mask
+get_return_home_drives.php: not used?
+get_snapshot_dest.php: seems redundant with get_recovery_dest.php
+get_snapshot_drive.php: seems redundant with get_recovery_drive.php
+get_sync_offset.php: debugging script?
+get_visible_drives.php: return all visible drives
+get_visible_readonly_drives.php: return read only visible drives
+get_visible_readwrite_drives.php: return read write visible drives
+get_volume_checkpoint.php: debugging function
+get_vx_secure_modes.php: returns whether resync should use 'secure mode' 
+license_functions.php: similar to functions.php
+local_replication_status.php: obsolete, should be deleted
+new_functions.php: obsolete, should be deleted
+query.php: returns various retention and recovery settings
+register_cluster_info.php: verb
+register_fr_agent.php: verb
+register_outpost_agent.php: verb
+register_sentinel.php: verb
+register_vxagent.php: verb
+report_resync_required_oa.php: verb
+report_resync_required.php: verb
+request_handler.php: attempt at generality, not in use yet
+set_visibility.php: verb
+should_throttle.php: returns whether should throttle  (redundant?)
+throttle_bootstrap.php: returns whether bootstrap should throttle
+throttle_outpost.php: returns whether OA should throttle
+throttle_sentinel.php: returns whether sentinel should throttle
+unregister_agents.php: unregister vx and fr agents (redundant?)
+unregister_fr_agent.php: unregister 
+unregister_outpost_agent.php: unregister (obsolete)
+unregister_sentinel.php: unregister (obsolete)
+unregister_vxagent.php: unregister
+update_agent_log.php: verb used to report log messages to CX
+update_file_replication_status.php: verb
+update_status.php: verb

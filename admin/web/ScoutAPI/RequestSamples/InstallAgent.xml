@@ -1,0 +1,32 @@
+<Request Id="0001" Version="1.0">
+<Header>  
+    <Authentication>
+		<AccessKeyID>A23FF8784CFE3F858A07B2CDEB25CBD27AA99808</AccessKeyID>
+		<AuthMethod>CXAuth/MessageAuth</AuthMethod>
+		<CXUserName>admin</CXUserName>
+		<AccessSignature></AccessSignature>
+	</Authentication> 
+</Header>
+<Body>   
+<FunctionRequest Name="InstallAgent" Include="No">      
+    <ParameterGroup Id="InstallAgentList1">
+        <Parameter Name="HostIP" Value="10.0.6.44"/>
+        <Parameter Name="OS" Value="Windows"/>
+        <Parameter Name="Username" Value="administrator"/>
+        <Parameter Name="Domain" Value="dev-domain"/>
+        <Parameter Name="PushServerId" Value="EF91F507-E8AD-7543-96881ACC71DADCF9"/>		
+        <Parameter Name="CSIP" Value="10.0.1.94"/>		
+        <Parameter Name="CXPort" Value="80"/>		
+    </ParameterGroup>
+    <ParameterGroup Id="InstallAgentList2">
+        <Parameter Name="HostIP" Value="10.0.1.87"/>
+        <Parameter Name="OS" Value="RHEL6-64"/>
+        <Parameter Name="Username" Value="root"/>
+		<Parameter Name="PushServerId" Value="29c18af8-8645-4d75-bb0c-9b840f240b13"/>	
+		<Parameter Name="CSIP" Value="10.0.1.94"/>		
+        <Parameter Name="CXPort" Value="80"/>	
+    </ParameterGroup>
+</FunctionRequest> 
+</Body> 
+</Request>
+

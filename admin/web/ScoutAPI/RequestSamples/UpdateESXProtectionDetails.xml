@@ -1,0 +1,52 @@
+<Request Id="0001" Version="1.0">
+<Header>
+        <Authentication>
+            <AccessKeyID>DDC9525FF275C104EFA1DFFD528BD0145F903CB1</AccessKeyID>
+            <AccessSignature></AccessSignature>
+    </Authentication>
+</Header>
+<Body>
+	<FunctionRequest Name="UpdateESXProtectionDetails" Include="N">
+		<Parameter Name="HostGUID" Value="C8408DF5-3E1C-A44B-9E1C42A2724516A9" />
+		<Parameter Name="PlanId" Value="1" />
+		<ParameterGroup Id="Step1">
+			<Parameter Name="ExecutionStep" Value="Protection/Recovery" />
+			<Parameter Name="Status" Value="Queued/InProgrss/Completed/Failed" />
+			<ParameterGroup Id="TaskList">
+				<ParameterGroup Id="Task1">
+					<Parameter Name="TaskName" Value="Task Description" />
+					<Parameter Name="Description" Value="Task Description" />
+					<Parameter Name="TaskStatus" Value="Queued/InProgrss/Completed/Failed" />
+					<Parameter Name="ErrorMessage" Value="1" />
+					<Parameter Name="FixSteps" Value="1" />
+					<Parameter Name="LogPath" Value="1" />
+				</ParameterGroup>
+				<ParameterGroup Id="Task2">
+					<Parameter Name="TaskName" Value="Task Description" />
+					<Parameter Name="Description" Value="Task Description" />
+					<Parameter Name="TaskStatus" Value="Queued/InProgrss/Completed/Failed" />
+					<Parameter Name="ErrorMessage" Value="1" />
+					<Parameter Name="FixSteps" Value="1" />
+					<Parameter Name="LogPath" Value="1" />
+				</ParameterGroup>
+				<ParameterGroup Id="Task3">
+					<Parameter Name="TaskName" Value="Task Description" />
+					<Parameter Name="Description" Value="Task Description" />
+					<Parameter Name="TaskStatus" Value="Queued/InProgrss/Completed/Failed" />
+					<Parameter Name="ErrorMessage" Value="1" />
+					<Parameter Name="FixSteps" Value="1" />
+					<Parameter Name="LogPath" Value="1" />
+				</ParameterGroup>
+				<ParameterGroup Id="Task4">
+					<Parameter Name="TaskName" Value="Task Description" />
+					<Parameter Name="Description" Value="Task Description" />
+					<Parameter Name="TaskStatus" Value="Queued/InProgrss/Completed/Failed" />
+					<Parameter Name="ErrorMessage" Value="1" />
+					<Parameter Name="FixSteps" Value="1" />
+					<Parameter Name="LogPath" Value="1" />
+				</ParameterGroup>
+			</ParameterGroup>
+		</ParameterGroup>
+	</FunctionRequest>
+</Body>
+</Request>

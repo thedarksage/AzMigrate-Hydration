@@ -1,23 +1,22 @@
 [Version]
-Signature   = "$WINDOWS NT$"
-Class       = DiskDrive
-ClassGuid   = {4d36e967-e325-11ce-bfc1-08002be10318}
-Provider    = %msft%
-DriverVer   = 06/21/2016,10.0.22621.1
+Signature="$Windows NT$"
+Class=DiskDrive
+ClassGuid={4D36E967-E325-11CE-BFC1-08002BE10318}
+Provider=%INMAGE%
+DriverVer=06/21/2006,10.0.14393.2007
 CatalogFile = indskflt.cat
+PnpLockdown=1
 
 ;
 ; General installation section
 ;
 
-[DefaultInstall.NT]
-CopyFiles = @indskflt.sys
-Addreg    = indskflt.AddReg
+
 
 [DestinationDirs]
 DefaultDestDir = 12
 
-[indskfflt.AddReg]
+[indskflt.AddReg]
 HKLM, System\CurrentControlSet\Control\Class\{4d36e967-e325-11ce-bfc1-08002be10318}, UpperFilters, 0x00010008, indskflt
 
 
@@ -25,11 +24,15 @@ HKLM, System\CurrentControlSet\Control\Class\{4d36e967-e325-11ce-bfc1-08002be103
 ; Service installation section  
 ;  
   
-[DefaultInstall.NT.Services]
-AddService = indskflt, , indskflt.Service.Install
+[indskflt_install.NT]
+CopyFiles = @indskflt.sys
+Addreg    = indskflt.AddReg
+
+[indskflt_install.NT.Services]
+AddService = indskflt,2, indskflt.Service.Install
 
 [indskflt.Service.Install]
-DisplayName    = %service_desc%
+DisplayName    = %indskflt_ServiceDesc%
 ServiceType    = 1
 StartType      = 0
 ErrorControl   = 1
@@ -43,13 +46,20 @@ LoadOrderGroup = "PnP Filter"
 indskflt.sys=1
 
 [Manufacturer]
-%ManufacturerName%=Standard,NTx86,NTAMD64
+%ManufacturerName%=Standard,NTamd64
 
-[Standard.NT$ARCH$]
+
+[Standard.NTamd64]
+%indskflt_devdesc% = indskflt_install, GenDisk
 
 
 [Strings]
-msft         = "Microsoft Corporation"
+INMAGE         = "Inmage"
 service_desc = "Partition Manager Upper Filter Driver" 
 ClassName    = ""
 diskName     = "InDskFlt Source Disk"
+indskflt_devdesc="Inmage Disk Filter"
+indskflt_ServiceDesc="Inmage Disk Filter"
+ManufacturerName="Inmage Disk Filter"
+
+

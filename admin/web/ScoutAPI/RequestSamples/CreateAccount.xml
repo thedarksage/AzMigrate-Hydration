@@ -1,0 +1,25 @@
+<Request Id="1" Version="1.0">
+ <Header>
+  <Authentication>
+	<AccessKeyID>11F3242118FF2ADD5D117CBF216F29AC578F6BA6</AccessKeyID>
+	<AuthMethod>CXAuth</AuthMethod>
+	<CXUserName>admin</CXUserName>
+  </Authentication>
+</Header>
+ <Body>
+  <FunctionRequest Name="CreateAccount">
+           <ParameterGroup Id="Accounts">
+                <ParameterGroup Id="Account1">
+                     <Parameter Name="AccountName" Value="vCenter1"/> <!-- Friendly name -->
+                     <Parameter Name="UserName" Value="root"/>
+                     <Parameter Name="Domain" Value="test123"/>
+                </ParameterGroup>
+                <ParameterGroup Id="Account2">
+                    <Parameter Name="AccountName" Value="MobilityService1"/> <!-- Friendly name -->
+                    <Parameter Name="UserName" Value="admin"/>
+                     <Parameter Name="Domain" Value="mydomain"/>
+                </ParameterGroup>
+          </ParameterGroup>
+  </FunctionRequest>
+</Body>
+</Request>

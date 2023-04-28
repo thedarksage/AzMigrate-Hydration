@@ -225,13 +225,27 @@ bool MonitorHostThread::VerifyDiskCxEvents(VM_CXFAILURE_STATS *ptrCxStats, bool&
         PWCHAR                  DeviceId = &vDeviceId[0];
 
         inm_memcpy_s(DeviceId, vDeviceId.size() * sizeof(WCHAR), ptrDevCxStats->DeviceId, GUID_SIZE_IN_CHARS * sizeof(WCHAR));
-        if (m_drvDevIdtoProtectedIdMap.end() == m_drvDevIdtoProtectedIdMap.find(DeviceId))
+        do
+        {
+            if (m_drvDevIdtoProtectedIdMap.end() != m_drvDevIdtoProtectedIdMap.find(DeviceId))
+            {
+                device = m_drvDevIdtoProtectedIdMap[DeviceId];
+                break;
+            }
+            boost::to_upper(DeviceId);
+            if (m_drvDevIdtoProtectedIdMap.end() != m_drvDevIdtoProtectedIdMap.find(DeviceId))
+            {
+                device = m_drvDevIdtoProtectedIdMap[DeviceId];
+                break;
+            }
+
+        } while (false);
+
+        if (device.empty())
         {
             DebugPrintf(SV_LOG_ERROR, "%s: Failed to get protected DeviceId for disk %s CxFlags: 0x%llx.\n", FUNCTION_NAME, convertWstringToUtf8(std::wstring(DeviceId)).c_str(), ptrDevCxStats->ullFlags);
             continue;
         }
-
-        device = m_drvDevIdtoProtectedIdMap[DeviceId];
 #else
         if (m_drvDevIdtoProtectedIdMap.end() == m_drvDevIdtoProtectedIdMap.find(ptrDevCxStats->DeviceId.volume_guid))
         {

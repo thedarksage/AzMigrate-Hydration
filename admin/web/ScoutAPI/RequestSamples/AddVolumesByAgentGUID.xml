@@ -1,0 +1,16 @@
+<Request Id="0021" Version="1.0">
+<Header>
+<Authentication>
+<AccessKeyID>DDC9525FF275C104EFA1DFFD528BD0145F903CB1</AccessKeyID>
+<AccessSignature></AccessSignature>
+</Authentication>
+</Header>
+<Body>
+<FunctionRequest Name="AddVolumesByAgentGUID" Include="No">
+<Parameter Name="AgentGUID" Value="525b0508-d77e-41c6-ae58-30782d2bccd3"/>
+<ParameterGroup Id="VolumeList">
+<Parameter Name="VolumeName1" Value="E"/>                                              
+</ParameterGroup>
+</FunctionRequest>
+</Body>
+</Request>

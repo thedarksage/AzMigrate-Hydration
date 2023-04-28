@@ -1,0 +1,1 @@
+c:\thirdparty\php5nts\php C:\home\admin\web\cx_config_backup.php %1

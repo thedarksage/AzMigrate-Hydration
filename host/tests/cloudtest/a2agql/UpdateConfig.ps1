@@ -66,6 +66,10 @@ Param(
     [string]
     $IsPremiumDR="false",
 
+    [Parameter(Mandatory=$False)]
+    [string]
+    $RunFSHealthCheck="false",
+
     # Reporting should be set to false for any testing purposes to avoid sending reports to wide audiance
     # Note that logs are available as part of A2AGQLLog. If you missed the session, you can right-click "Browse Jobs Logs" on respective WTT jobs
     [Parameter(Mandatory=$True)]
@@ -141,7 +145,9 @@ try
     $VaultGeo = $GeoNameGeoShortNameMap[$VaultRGLocation]
 
     $VmNameNew = $BranchRunPrefix + "-" + $OSName
-    CreateLogFileName $VmNameNew $OpName
+    $randNumber = Get-Random -Minimum 1 -Maximum 1000
+    $UniqVMName = $BranchRunPrefix + "-" + $randNumber + "-" + $OSName
+    CreateLogFileName $UniqVMName $OpName
 
     LogMessage -Message ("Update config Started") -LogType ([LogType]::Info1)
 
@@ -187,12 +193,13 @@ try
         
     # Azure Fabric
     $FabricElement = $xmlDoc.A2AGQLConfig.AzureFabric
-    $FabricElement.VMName = $VmNameNew
+    $FabricElement.VMName = $UniqVMName
     $FabricElement.OSType = $OSType.ToLower()
+    $FabricElement.RunFSHealthCheck = $RunFSHealthCheck
 
     # GQLs support only Managed disk
     $FabricElement.IsManagedDisk = "True"
-    $FabricElement.TFOVMName = $VmNameNew + "-test"
+    $FabricElement.TFOVMName = $UniqVMName + "-test"
     $FabricElement.ReplicationPolicy = "ReplicationPol-" + $VMNameNew
     
     # Primary Fabric

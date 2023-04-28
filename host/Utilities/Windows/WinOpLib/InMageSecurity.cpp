@@ -352,7 +352,9 @@ static BOOL DecryptPassword(const DWORD &algId, const std::string &szEncryptedPa
 		//the password is decrypted using this hardcoded key to generate plaintext password.
 		//Now hostconfig will encrypt this plaintext password using random generated passphrase and AES256
 		//and store it back in the registry for further encryption/decryption. After that this key will not be used.
-		secretKey = "InMage@01&#2UIQdnpKl"; 
+		bResult = FALSE;
+		errorMsg = "RC4 encryption is deprecated.\n";
+		return bResult;
 	}
 	//with default flag
 	if(CryptAcquireContext(&hCryptoServiceProvider,	NULL, NULL, dwProvType, dwFlags))

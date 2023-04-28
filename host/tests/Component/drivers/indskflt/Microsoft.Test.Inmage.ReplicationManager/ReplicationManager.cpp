@@ -119,6 +119,7 @@ void* ReplicationManager::SetFiltering(IBlockDevice* sourceDevice,
 
 void ReplicationManager::StartReplication(void* handle)
 {
+    m_pLogger->LogInfo("Entering: %s\n", __FUNCTION__);
     if (NULL == handle)
     {
         throw CAgentException("%s: Invalid Handle", __FUNCTION__);
@@ -126,6 +127,7 @@ void ReplicationManager::StartReplication(void* handle)
 
     CReplicationWorker* pReplicationProcessor = (CReplicationWorker*)handle;
     pReplicationProcessor->StartReplication();
+    m_pLogger->LogInfo("Exiting: %s\n", __FUNCTION__);
 }
 
 void ReplicationManager::ClearDifferentials(void* handle)

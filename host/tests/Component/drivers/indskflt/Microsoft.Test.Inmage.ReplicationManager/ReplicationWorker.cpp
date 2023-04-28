@@ -81,6 +81,8 @@ bool CReplicationWorker::ShouldWaitForNextDirtyBlock()
 
 void CReplicationWorker::StartReplication()
 {
+    m_pLogger->LogInfo("%s: device: %d", __FUNCTION__, m_pSourceDevice->GetDeviceNumber());
+
     try
     {
         m_hReplicationThread = boost::thread(&CReplicationWorker::Run, this);
@@ -89,6 +91,8 @@ void CReplicationWorker::StartReplication()
     {
         m_pLogger->LogError("%s Err: %s", __FUNCTION__, ex.what());
     }
+
+    m_pLogger->LogInfo("%s: Exited", __FUNCTION__);
 }
 
 void CReplicationWorker::StartFiltering()
@@ -118,6 +122,8 @@ void CReplicationWorker::StopFiltering(bool delBitmapFile = true)
 
 void CReplicationWorker::Run()
 {
+    m_pLogger->LogInfo("%s: device: %d", __FUNCTION__, m_pSourceDevice->GetDeviceNumber());
+
     try
     {
         StartFiltering();
@@ -126,7 +132,12 @@ void CReplicationWorker::Run()
     catch (exception& ex)
     {
         m_pLogger->LogError("%s Err: %s", __FUNCTION__, ex.what());
+#ifdef SV_WINDOWS
+        exit(-1);
+#endif
     }
+
+    m_pLogger->LogInfo("%s: Exited", __FUNCTION__);
 }
 
 void CReplicationWorker::ProcessDirtyBlock(PGET_DB_TRANS_DATA pDBTranData,
@@ -214,6 +225,8 @@ void CReplicationWorker::ProcessTags(PUDIRTY_BLOCK_V2 udbp)
 
 void CReplicationWorker::GetDBTransV2(PGET_DB_TRANS_DATA  pDBTranData)
 {
+    m_pLogger->LogInfo("ENTERED %s", __FUNCTION__);
+
     PUDIRTY_BLOCK_V2    pDirtyBlock;
     COMMIT_TRANSACTION  CommitTrans = { 0 };
     SV_ULONG            ulNumDirtyBlocksReturned;
@@ -327,4 +340,6 @@ void CReplicationWorker::GetDBTransV2(PGET_DB_TRANS_DATA  pDBTranData)
             m_pLogger->LogInfo("Exiting: %s", __FUNCTION__);
         }
     } while (bContinue);
+
+    m_pLogger->LogInfo("EXITED %s", __FUNCTION__);
 }

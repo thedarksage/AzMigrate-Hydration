@@ -3658,30 +3658,31 @@ CommitAndFillBufferWithDirtyBlock(
             ASSERT_CHECK(pUserDirtyBlock->uHdr.Hdr.ullPrevEndTimeStamp <=
                 DirtyBlock->TagTimeStampOfFirstChange.TimeInHundNanoSecondsFromJan1601, 0);
         }
-    } else {
-        if (DriverContext.ulValidationLevel >= ADD_TO_EVENT_LOG) {
-            if (pUserDirtyBlock->uHdr.Hdr.ullPrevEndSequenceNumber > 
+    }
+    else {
+        if (pUserDirtyBlock->uHdr.Hdr.ullPrevEndSequenceNumber > 
                         pUserDirtyBlock->uTagList.TagList.TagTimeStampOfFirstChange.ullSequenceNumber) {
                 InDskFltWriteEvent(INDSKFLT_ERROR_PREV_CUR_SEQUENCE_MISMATCH,
                     pUserDirtyBlock->uHdr.Hdr.ullPrevEndSequenceNumber,
                     pUserDirtyBlock->uTagList.TagList.TagTimeStampOfFirstChange.ullSequenceNumber,
                     SourceLocationCommitFillDBNonDataFile);
-            }   
+                SetDevOutOfSync(DevContext, MSG_INDSKFLT_ERROR_PREV_CUR_SEQUENCE_MISMATCH_Message, STATUS_INVALID_DEVICE_STATE, false);
         }
+
         if (pUserDirtyBlock->uHdr.Hdr.ullPrevEndSequenceNumber < MAX_PREV_SEQNUMBER) {
             ASSERT_CHECK(pUserDirtyBlock->uHdr.Hdr.ullPrevEndSequenceNumber <= 
                     pUserDirtyBlock->uTagList.TagList.TagTimeStampOfFirstChange.ullSequenceNumber, 0);
         }
 
-        if (DriverContext.ulValidationLevel >= ADD_TO_EVENT_LOG) {
-            if (pUserDirtyBlock->uHdr.Hdr.ullPrevEndTimeStamp >
-                        pUserDirtyBlock->uTagList.TagList.TagTimeStampOfFirstChange.TimeInHundNanoSecondsFromJan1601) {
-                InDskFltWriteEvent(INDSKFLT_ERROR_PREV_CUR_TIME_MISMATCH,
-                    pUserDirtyBlock->uHdr.Hdr.ullPrevEndTimeStamp,
-                    pUserDirtyBlock->uTagList.TagList.TagTimeStampOfFirstChange.TimeInHundNanoSecondsFromJan1601,
-                    SourceLocationCommitFillDBNonDataFile);
-            }   
-        }
+        if (pUserDirtyBlock->uHdr.Hdr.ullPrevEndTimeStamp >
+                    pUserDirtyBlock->uTagList.TagList.TagTimeStampOfFirstChange.TimeInHundNanoSecondsFromJan1601) {
+            InDskFltWriteEvent(INDSKFLT_ERROR_PREV_CUR_TIME_MISMATCH,
+                pUserDirtyBlock->uHdr.Hdr.ullPrevEndTimeStamp,
+                pUserDirtyBlock->uTagList.TagList.TagTimeStampOfFirstChange.TimeInHundNanoSecondsFromJan1601,
+                SourceLocationCommitFillDBNonDataFile);
+            SetDevOutOfSync(DevContext, MSG_INDSKFLT_ERROR_PREV_CUR_SEQUENCE_MISMATCH_Message, STATUS_INVALID_DEVICE_STATE, false);
+    }
+
         if (pUserDirtyBlock->uHdr.Hdr.ullPrevEndTimeStamp < MAX_PREV_TIMESTAMP) {
             ASSERT_CHECK(pUserDirtyBlock->uHdr.Hdr.ullPrevEndTimeStamp <=
                 pUserDirtyBlock->uTagList.TagList.TagTimeStampOfFirstChange.TimeInHundNanoSecondsFromJan1601, 0);

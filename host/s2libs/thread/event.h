@@ -60,12 +60,19 @@ public:
         }
         return (waitRet == WAIT_SUCCESS);
     }
-    
+
     void Signal(const bool bState)
     {
         m_bSignalled = bState;
         m_bSignalled ? m_hEvent->signal() : m_hEvent->reset();
     }
+
+#ifdef SV_UNIX
+    void ResetEvent()
+    {
+        Signal(false);
+    }
+#endif
 
     const bool IsSignalled() const
     {
@@ -82,7 +89,7 @@ public:
         return m_hEvent.get();
 #endif
     }
-    
+
     const std::string& GetEventName() const
     {
         return m_sEventName;
@@ -92,7 +99,7 @@ public:
     {
         m_sEventName = sName;
     }
-    
+
     WAIT_STATE Wait(const long int liSeconds, const long int liMilliSeconds = 0)
     {
         long int liStatus = 0;

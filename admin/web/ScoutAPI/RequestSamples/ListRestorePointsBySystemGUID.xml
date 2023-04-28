@@ -1,0 +1,13 @@
+<Request Id="0028" Version="1.0">
+     <Header>
+      	<Authentication>
+		<AccessKeyID>39F830AD9C46DE48B87EBE56F4C919D7C7E96CD9</AccessKeyID>
+             		<AccessSignature>MDViYTdlYzdkNmE5MTBmYTVkZWI0YTNhZjRhMWZhNTI1ODEzYjZjMA==</AccessSignature>
+        	</Authentication>
+     </Header>
+     <Body>
+	<FunctionRequest Name="ListRestorePointsBySystemGUID" Include="n">
+		<Parameter Name="SystemGUID" Value="84-071D-744D-9A61A7BD3588CCE6"/>
+	     </FunctionRequest>
+      </Body>
+</Request>

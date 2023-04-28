@@ -105,6 +105,28 @@ consistency_log()
     fi
 }
 
+check_openssl()
+{
+  # Check if OpenSSL is installed
+  if ! command -v openssl > /dev/null 2>&1; then
+    echo "Error: OpenSSL not found"
+    return 1
+  fi
+
+  # Check OpenSSL version
+  openssl_version=$(openssl version)
+  if [ $? -ne 0 ]
+  then
+    echo "Error: Failed to detect OpenSSL version"
+    return 1
+  fi
+
+  # Check if OpenSSL supports TLS 1.2
+  openssl_supports_tls12=$(openssl ciphers -v | grep -q TLSv1.2 && echo "yes" || echo "no")
+
+  # Print output
+  echo "OpenSSL [ Version - $openssl_version, TLS 1.2 - $openssl_supports_tls12 ]"
+}
 
 mds_log()
 {
@@ -156,6 +178,8 @@ mds_log()
     cat /var/log/InMage_drivers.log
     cat /var/log/InMage_drivers.log >> /var/log/InMage_drivers.old.log
     rm -f /var/log/InMage_drivers.log
+
+    check_openssl
 
 }
 

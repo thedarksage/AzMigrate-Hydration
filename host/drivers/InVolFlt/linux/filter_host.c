@@ -2344,7 +2344,7 @@ flt_revalidate_disk(struct gendisk *disk)
     int (*org_revalidate_disk) (struct gendisk *) = NULL;
     int error = 0;
 
-    err("Revalidating disk");
+    dbg("Revalidating disk");
 
     tgt_ctx = flt_gendisk_to_tgt_ctxt(disk);
     if (!tgt_ctx) {

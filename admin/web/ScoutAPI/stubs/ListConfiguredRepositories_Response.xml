@@ -1,0 +1,16 @@
+<Function Name="ListConfiguredRepositories" Id="" ReturnCode="0" Message="">        
+	<FunctionResponse>	
+		<ParameterGroup Id="rep3"  RepositoryName="rep3">
+			<Parameter Name="RepositoryName" Value="rep3" />
+			<Parameter Name="RepositoryStoragePath" Value="E:/rep_path" />
+			<Parameter Name="RepositoryCapacity" Value="23424234" />
+			<Parameter Name="RepositoryFreeSpace" Value="12345421" />
+		</ParameterGroup>
+		<ParameterGroup Id="rep2" RepositoryName="rep2" >
+			<Parameter Name="RepositoryName" Value="rep2" />
+			<Parameter Name="RepositoryStoragePath" Value="G:\rep_path" />
+			<Parameter Name="RepositoryCapacity" Value="1231432123" />
+			<Parameter Name="RepositoryFreeSpace" Value="32314214" />
+		</ParameterGroup>
+   	</FunctionResponse> 
+</Function>

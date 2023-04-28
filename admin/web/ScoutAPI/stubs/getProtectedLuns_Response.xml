@@ -1,0 +1,34 @@
+<Function Name="getProtectedLuns" Id="" ReturnCode="0" Message="Success">
+<FunctionResponse>
+<ParameterGroup Id="000B0800F499123">
+    <Parameter Name="LunId" Value="000B0800F499123" />
+    <Parameter Name="AxiomSerial" Value="A002806BBF" />
+    <Parameter Name="MirroredLunId" Value="/Host32Lun" />
+    <Parameter Name="FailedOver" Value="0" />
+    <Parameter Name="TargetLunName" Value="Host101Lun" />
+    <Parameter Name="TargetLunAxiomSerial" Value="A002806BBF" />
+</ParameterGroup>
+<ParameterGroup Id="000B0800F099120">
+    <Parameter Name="LunId" Value="000B0800F099120" />
+    <Parameter Name="AxiomSerial" Value="A002806BBF" />
+    <Parameter Name="MirroredLunId" Value="/Host32Lun2" />
+    <Parameter Name="FailedOver" Value="0" />
+    <Parameter Name="TargetLunName" Value="Host101Lun2" />
+    <Parameter Name="TargetLunAxiomSerial" Value="A002806BBF" />
+</ParameterGroup>
+<ParameterGroup Id="000B0800F599129">
+    <Parameter Name="LunId" Value="000B0800F599129" />
+    <Parameter Name="AxiomSerial" Value="A002806BBF" />
+    <Parameter Name="MirroredLunId" Value="/Host32Lun3" />
+    <Parameter Name="FailedOver" Value="0" />
+    <ParameterGroup Id="TargetLun1">
+        <Parameter Name="TargetLunName" Value="Host101Lun3" />
+        <Parameter Name="TargetLunAxiomSerial" Value="A002806BBF" />
+    </ParameterGroup>
+    <ParameterGroup Id="TargetLun2">
+        <Parameter Name="TargetLunName" Value="Host101Lun4" />
+        <Parameter Name="TargetLunAxiomSerial" Value="A002806BBF" />
+    </ParameterGroup>
+</ParameterGroup>
+</FunctionResponse>
+</Function> 

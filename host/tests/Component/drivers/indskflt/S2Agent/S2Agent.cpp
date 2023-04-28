@@ -8,10 +8,14 @@
 const ULONG ulMinDataPoolSizeInMB = 256;
 
 #ifdef SV_UNIX
+
+#include "svutils.h"
+
 using namespace PairInfo;
 const std::string FILTERING_MODE = "Filtering Mode/Write Order State";
 const std::string DATA_MODE = "Data/Data";
 const std::string BITMAP_MODE = "Bitmap";
+
 #endif
 
 /// <summary>
@@ -284,7 +288,8 @@ void CS2Agent::WaitForTSO(int uiSrcDisk)
 
 bool CS2Agent::StartReplication(SV_ULONGLONG currentOffset, SV_ULONGLONG endOffset, bool doIR)
 {
-    IDataProcessor* pDataProcessor;
+    m_s2Logger->LogInfo("Entering function %s\n", __FUNCTION__);
+    IDataProcessor* pDataProcessor = NULL;
 
     map<int, IBlockDevice*>::iterator it = m_sourceTargetMap.begin();
     IInmageChecksumProvider* chksumProvider;
@@ -296,9 +301,13 @@ bool CS2Agent::StartReplication(SV_ULONGLONG currentOffset, SV_ULONGLONG endOffs
         m_excludeBlockProvider = new CWin32ExcludeDiskBlocks(m_platformApis,
             m_s2Logger, m_ioctlController);
 #else
+        m_s2Logger->LogInfo("%s : issuing stop filtering for disk(if any)\n", __FUNCTION__);
         m_ioctlController->StopFiltering(std::string(), true, true);
+        m_s2Logger->LogInfo("%s : Initiating Service Shutdown Notify ioctl call\n", __FUNCTION__);
         m_ioctlController->ServiceShutdownNotify(0);
 #endif
+
+        m_s2Logger->LogInfo("%s : Set Data Processor\n", __FUNCTION__);
         for (; it != m_sourceTargetMap.end(); it++)
         {
             IBlockDevice* pSrcDisk = m_diskMap[it->first];
@@ -328,7 +337,7 @@ bool CS2Agent::StartReplication(SV_ULONGLONG currentOffset, SV_ULONGLONG endOffs
                 m_excludeBlockProvider->GetExcludeBlocks(pSrcDisk->GetDeviceId()), m_s2Logger);
 #else
             std::list<ExtentInfo> emptyList;
-            chksumProvider = new CInmageMD5ChecksumProvider(emptyList,m_s2Logger);
+            chksumProvider = new CInmageMD5ChecksumProvider(emptyList, m_s2Logger);
 #endif
             m_md5ChksumProvider[srcDiskNum] = chksumProvider;
 
@@ -345,24 +354,38 @@ bool CS2Agent::StartReplication(SV_ULONGLONG currentOffset, SV_ULONGLONG endOffs
             int srcDiskNum = pSrcDisk->GetDeviceNumber();
             int tgtDiskNum = pTargetDisk->GetDeviceNumber();
 
+            m_s2Logger->LogInfo("%s : Source Disk End Offset : %lu\n", __FUNCTION__, endOffset);
             // Do initial sync
             if (endOffset != 0)
             {
                 endOffset = pTargetDisk->GetDeviceSize();
+                m_s2Logger->LogInfo("%s : Target Disk End Offset : %lu\n", __FUNCTION__, endOffset);
+
+                m_s2Logger->LogInfo("%s : Start Filtering\n", __FUNCTION__);
                 m_replicationManager->StartFiltering(m_replicationHandle[srcDiskNum]);
+
+                m_s2Logger->LogInfo("%s : Clear Differentials\n", __FUNCTION__);
                 m_replicationManager->ClearDifferentials(m_replicationHandle[srcDiskNum]);
+
                 if (doIR)
                 {
+                    m_s2Logger->LogInfo("%s : Start Initial Sync\n", __FUNCTION__);
                     m_dataProcessorMap[srcDiskNum]->InitialSync(currentOffset, endOffset);
+                    m_s2Logger->LogInfo("%s : Initial Sync completed\n", __FUNCTION__);
                 }
             }
+
+            m_s2Logger->LogInfo("%s : Start Replication, srcDiskNum : %d, tgtDiskNum : %d",
+                __FUNCTION__, srcDiskNum, tgtDiskNum);
             m_replicationManager->StartReplication(m_replicationHandle[srcDiskNum]);
         }
 
 #ifdef SV_UNIX
         //Sleep for stacking to happen
+        m_s2Logger->LogInfo("%s : Sleeping for 30s to complete stacking", __FUNCTION__);
         boost::this_thread::sleep(boost::posix_time::milliseconds(30 * 1000));
         AllowDraining();
+        m_s2Logger->LogInfo("%s : Wait For Consistent State", __FUNCTION__);
         WaitForConsistentState(false);
 #endif
     }
@@ -373,6 +396,8 @@ bool CS2Agent::StartReplication(SV_ULONGLONG currentOffset, SV_ULONGLONG endOffs
     }
 
     return true;
+
+    m_s2Logger->LogInfo("Entering function %s\n", __FUNCTION__);
 }
 
 bool CS2Agent::InsertCrashTag(string tagContext, list<string> taglist)
@@ -520,8 +545,7 @@ void CS2Agent::GetSourceCheckSum(CHAR srcPath[], std::string &tag, std::string &
                 m_ioctlController->ReleaseWrites(tagContext, TAG_ALL_PROTECTED_VOLUME_IOBARRIER);
                 m_ioctlController->CommitTag(tagContext, TAG_ALL_PROTECTED_VOLUME_IOBARRIER);
 #endif
-                boost::uuids::uuid uuid = boost::uuids::random_generator()();
-                tag = boost::lexical_cast<std::string>(uuid);
+                tag = GenerateUuid();
             }
         }
 
@@ -616,8 +640,7 @@ bool CS2Agent::GetChecksum(CHAR srcPath[], CHAR tgtPath[], std::string &tag, boo
     bool status = true;
     if (!waitForTag)
     {
-        boost::uuids::uuid uuid = boost::uuids::random_generator()();
-        tag = boost::lexical_cast<std::string>(uuid);
+        tag = GenerateUuid();
     }
 
     m_s2Logger->LogInfo("%s: Getting source and target check sum for tag : %s",
@@ -699,7 +722,7 @@ bool CS2Agent::WaitForDataMode()
     m_s2Logger->LogInfo("ENTERED %s", __FUNCTION__);
     bool status = true;
     int sleepTime = 20;
-    int WaitTime = 1200;
+    int WaitTime = 1800;
     boost::chrono::system_clock::time_point endTime =
         boost::chrono::system_clock::now() + boost::chrono::seconds(WaitTime);
     do
@@ -791,7 +814,7 @@ void CS2Agent::ResetTSO()
     m_s2Logger->LogInfo("EXITED %s", __FUNCTION__);
 }
 
-bool CS2Agent::BarrierHonour(std::vector<PairDetails *> pairDetails)
+bool CS2Agent::BarrierHonour(std::vector<PairDetails *> pairDetails, bool verifyTag)
 {
     m_s2Logger->LogInfo("ENTERED %s", __FUNCTION__);
 
@@ -847,29 +870,71 @@ bool CS2Agent::BarrierHonour(std::vector<PairDetails *> pairDetails)
             std::list<std::string> taglist;
             taglist.push_back(tag);
 
-            m_s2Logger->LogInfo("%s : Creating drain barrier for Tag %s",
-                __FUNCTION__, tag.c_str());
-            if (!CreateDrainBarrierOnTag(tag))
+            if (verifyTag)
             {
-                return false;
+                m_s2Logger->LogInfo("%s : Creating drain barrier for Tag %s",
+                    __FUNCTION__, tag.c_str());
+                if (!CreateDrainBarrierOnTag(tag))
+                {
+                    return false;
+                }
             }
+
             m_s2Logger->LogInfo("%s : Creating io barrier for Tag %s", __FUNCTION__, tag.c_str());
             m_ioctlController->HoldWrites(tag, TAG_ALL_PROTECTED_VOLUME_IOBARRIER, 600*1000);
 
             m_s2Logger->LogInfo("%s : Resuming writes on disk", __FUNCTION__);
             ResumeDataThread(pairDetails);
-            boost::this_thread::sleep(boost::posix_time::seconds(15));
 
-            m_s2Logger->LogInfo("%s : Insert tag to the disk %s", __FUNCTION__, tag.c_str());
-            m_ioctlController->InsertDistTag(tag, TAG_ALL_PROTECTED_VOLUME_IOBARRIER,
-                taglist);
+            if (verifyTag)
+            {
+                boost::this_thread::sleep(boost::posix_time::seconds(15));
 
-            m_s2Logger->LogInfo("%s : Stopping writes on disk", __FUNCTION__);
-            PauseDataThread(pairDetails);
+                m_s2Logger->LogInfo("%s : Stopping writes on disk", __FUNCTION__);
+                PauseDataThread(pairDetails, 10);
+
+                m_s2Logger->LogInfo("%s : Insert tag to the disk %s", __FUNCTION__, tag.c_str());
+                try
+                {
+                    m_ioctlController->InsertDistTag(tag, TAG_ALL_PROTECTED_VOLUME_IOBARRIER,
+                        taglist);
+                }
+                catch (exception& ex)
+                {
+                    m_s2Logger->LogError("%s InsertDistTag failed with exception : %s",
+                        __FUNCTION__, ex.what());
+                    status = false;
+                }
+            }
+            else
+            {
+                boost::this_thread::sleep(boost::posix_time::seconds(45));
+
+                m_s2Logger->LogInfo("%s : Stopping writes on disk", __FUNCTION__);
+                PauseDataThread(pairDetails, 30);
+
+                m_s2Logger->LogInfo("%s : Pause Draining", __FUNCTION__);
+                PauseDraining();
+            }
 
             m_s2Logger->LogInfo("%s : Releasing barrier for Tag %s", __FUNCTION__, tag.c_str());
             m_ioctlController->ReleaseWrites(tag, TAG_ALL_PROTECTED_VOLUME_IOBARRIER);
-            m_ioctlController->CommitTag(tag, TAG_ALL_PROTECTED_VOLUME_IOBARRIER);
+
+            if (!GetVolumeStats(volStats))
+            {
+                goto cleanup;
+            }
+
+            if (!status)
+            {
+                goto cleanup;
+            }
+
+            if (verifyTag)
+            {
+                m_s2Logger->LogInfo("%s : Commiting Tag %s", __FUNCTION__, tag.c_str());
+                m_ioctlController->CommitTag(tag, TAG_ALL_PROTECTED_VOLUME_IOBARRIER);
+            }
 
             ResetTSO();
 
@@ -879,7 +944,7 @@ bool CS2Agent::BarrierHonour(std::vector<PairDetails *> pairDetails)
                 goto cleanup;
             }
 
-            status = GetChecksum(srcPathCurr, tgtPathCurr, tag);
+            status = GetChecksum(srcPathCurr, tgtPathCurr, tag, verifyTag);
             if (!status)
             {
                 goto cleanup;
@@ -910,8 +975,16 @@ bool CS2Agent::BarrierHonour(std::vector<PairDetails *> pairDetails)
                 goto cleanup;
             }
 
-            m_s2Logger->LogInfo("%s : Releasing Drain barrier", __FUNCTION__);
-            ReleaseDrainBarrier();
+            if (verifyTag)
+            {
+                m_s2Logger->LogInfo("%s : Releasing Drain barrier", __FUNCTION__);
+                ReleaseDrainBarrier();
+            }
+            else
+            {
+                m_s2Logger->LogInfo("%s : Allow Draining.", __FUNCTION__);
+                AllowDraining();
+            }
 
             m_s2Logger->LogInfo("%s : Waiting for TSO file.", __FUNCTION__);
             WaitForTSO();
@@ -958,7 +1031,14 @@ bool CS2Agent::BarrierHonour(std::vector<PairDetails *> pairDetails)
 cleanup:
 
     ResetTSO();
-    ReleaseDrainBarrier();
+    if (verifyTag)
+    {
+        ReleaseDrainBarrier();
+    }
+    else
+    {
+        AllowDraining();
+    }
     ResumeDataThread(pairDetails);
 
     m_s2Logger->LogInfo("EXITED %s", __FUNCTION__);
@@ -1005,14 +1085,18 @@ void CS2Agent::ReleaseDrainBarrier()
 
 bool CS2Agent::Validate()
 {
+    m_s2Logger->LogInfo("ENTERED %s", __FUNCTION__);
+
     bool status = true;
+
+#ifdef SV_WINDOWS
     boost::uuids::uuid uuid = boost::uuids::random_generator()();
     std::string tag = boost::lexical_cast<std::string>(uuid);
-#ifdef SV_WINDOWS
     uuid = boost::uuids::random_generator()();
     std::string tagContext = boost::lexical_cast<std::string>(uuid);
     int sleepTime = 1; //in seconds
 #else
+    std::string tag = GenerateUuid();
     std::string tagContext = tag;
     int sleepTime = 30; //in seconds
 #endif
@@ -1107,8 +1191,9 @@ bool CS2Agent::Validate()
 cleanup:
     ReleaseDrainBarrier();
 
-    return status;
+    m_s2Logger->LogInfo("EXITED %s", __FUNCTION__);
 
+    return status;
 }
 
 bool CS2Agent::WaitForTAG(int uiSrcDisk, string tag, int timeout)
@@ -1171,13 +1256,49 @@ void CS2Agent::StartFiltering()
     }
 }
 
+std::string CS2Agent::GenerateUuid()
+{
+    m_s2Logger->LogInfo("Entering %s\n", __FUNCTION__);
 
+    std::stringstream suuid;
+
+    try
+    {
+        boost::uuids::random_generator uuid_gen;
+
+        boost::uuids::uuid new_uuid = uuid_gen();
+
+        suuid << new_uuid;
+    }
+    catch (const std::exception& e)
+    {
+        m_s2Logger->LogError("Could not generate UUID. Exception: %s\n", e.what());
+    }
+    catch (...)
+    {
+        m_s2Logger->LogError("Could not generate UUID. Unkown exception\n");
+    }
+
+    string uuid = suuid.str();
+
+#ifdef SV_UNIX
+    if (uuid.size() == 0)
+    {
+        m_s2Logger->LogInfo("%s : Using uuidgen command to generate uuid\n", __FUNCTION__);
+        GetProcessOutput("uuidgen", uuid);
+    }
+#endif
+
+    m_s2Logger->LogInfo("Exiting %s\n", __FUNCTION__);
+
+    return uuid;
+}
 
 bool CS2Agent::WaitForConsistentState(bool dontApply)
 {
-    boost::uuids::uuid uuid = boost::uuids::random_generator()();
-    std::string tag = boost::lexical_cast<std::string>(uuid);
-
+    m_s2Logger->LogInfo("ENTERED %s", __FUNCTION__);
+    std::string tag = GenerateUuid();
+    m_s2Logger->LogInfo("%s : Tag %s", __FUNCTION__, tag.c_str());
     list<string> taglist;
     bool done = false;
 
@@ -1228,8 +1349,11 @@ bool CS2Agent::WaitForConsistentState(bool dontApply)
     {
         m_s2Logger->LogError("%s Error: %s", __FUNCTION__, ex.what());
     }
+
+    m_s2Logger->LogInfo("EXITED %s", __FUNCTION__);
     return true;
 }
+
 #ifdef SV_WINDOWS
 void CS2Agent::StartSVAgents(unsigned long ulFlags)
 {
@@ -1247,11 +1371,8 @@ void CS2Agent::SetDriverFlags(etBitOperation flag)
 bool CS2Agent::SyncData()
 {
     bool status = true;
-    boost::uuids::uuid uuid = boost::uuids::random_generator()();
-    std::string tag = boost::lexical_cast<std::string>(uuid);
-
-    uuid = boost::uuids::random_generator()();
-    std::string tagContext = boost::lexical_cast<std::string>(uuid);
+    std::string tag = GenerateUuid();
+    std::string tagContext = GenerateUuid();
 
     std::list<std::string> taglist;
     taglist.push_back(tag);
@@ -1327,4 +1448,5 @@ cleanup:
 
     return status;
 }
+
 #endif

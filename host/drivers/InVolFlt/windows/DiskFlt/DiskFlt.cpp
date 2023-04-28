@@ -846,8 +846,14 @@ InMageFltDispatchWrite(
     // Blindly pass the irp along
     //
 
-    if ((NULL == pDevContext) || (pDevContext->ulFlags & DCF_FILTERING_STOPPED)){
+    if ((NULL == pDevContext) || TEST_FLAG(pDevContext->ulFlags, DCF_FILTERING_STOPPED)){
         goto Cleanup;
+    }
+
+    if (ecCaptureModeUninitialized == pDevContext->eCaptureMode) {
+        InDskFltWriteEventWithDevCtxt(INDSKFLT_ERROR_INVALID_CAPTURE_STATE, pDevContext);
+        StartFilteringDevice(pDevContext, false);
+        SetDevOutOfSync(pDevContext, MSG_INDSKFLT_ERROR_INVALID_CAPTURE_STATE_Message, STATUS_INVALID_DEVICE_STATE, false);;
     }
 
     // validate the write parameters, prevents other areas from having problems
@@ -1212,17 +1218,6 @@ StopFiltering(PDEV_CONTEXT  pDevContext, bool bDeleteBitmapFile, bool bSetRegist
     if (bSetRegistry)
     {
         SetDWORDInRegVolumeCfg(pDevContext, DEVICE_FILTERING_DISABLED, DEVICE_FILTERING_DISABLED_SET, 1);
-        pDevContext->ulClusterFlags = 0;
-
-        // Reset Cluster Attributes in registry
-        NTSTATUS Status1 = SetDWORDInRegVolumeCfg(pDevContext, CLUSTER_ATTRIBUTES, 0);
-        if (!NT_SUCCESS(Status1)) {
-            // Failed to update Cluster Attributes
-            // This call can fail if device id is not obtained or device id has been reset.
-            InDskFltWriteEventWithDevCtxt(INDSKFLT_WARN_CLUSTER_KEY_WRITE_FAILED, pDevContext, Status1);
-        }
-
-        InDskFltDeleteClusterNotificationThread(pDevContext);
     }
 
     KeReleaseMutex(&pDevContext->BitmapOpenCloseMutex, FALSE);
@@ -1252,6 +1247,8 @@ DeviceIoControlStopFiltering(
     PDEV_CONTEXT            pDevContext = NULL;
     PIO_STACK_LOCATION      IoStackLocation = IoGetCurrentIrpStackLocation(Irp);
     bool                    bDeleteBitmapFile = false;
+    bool                    bResetClusterState = true;
+
     PSTOP_FILTERING_INPUT   Input = (PSTOP_FILTERING_INPUT)Irp->AssociatedIrp.SystemBuffer;
     LIST_ENTRY              VolumeNodeList;
 
@@ -1270,6 +1267,8 @@ DeviceIoControlStopFiltering(
         FinalStatus = STATUS_INVALID_PARAMETER;
         goto Cleanup;
     }
+
+    bResetClusterState = !TEST_FLAG(Input->ulFlags, STOP_FILTERING_FLAGS_DONT_CLEAN_CLUSTER_STATE);
 
     if (TEST_FLAG(Input->ulFlags, STOP_ALL_FILTERING_FLAGS))
     {
@@ -1307,6 +1306,25 @@ DeviceIoControlStopFiltering(
         }
 
         InDskFltWriteEventWithDevCtxt(INDSKFLT_INFO_FILTERING_STOPPED_BY_USER, pDevContext, pDevContext->ulFlags);
+
+        if (IS_DISK_CLUSTERED(pDevContext)) {
+            CLEAR_FLAG(pDevContext->ulClusterFlags, DCF_CLUSTER_FLAGS_DISK_PROTECTED);
+
+            if (bResetClusterState) {
+                pDevContext->ulClusterFlags = 0;
+
+
+                // Reset Cluster Attributes in registry
+                NTSTATUS Status1 = SetDWORDInRegVolumeCfg(pDevContext, CLUSTER_ATTRIBUTES, 0);
+                if (!NT_SUCCESS(Status1)) {
+                    // Failed to update Cluster Attributes
+                    // This call can fail if device id is not obtained or device id has been reset.
+                    InDskFltWriteEventWithDevCtxt(INDSKFLT_WARN_CLUSTER_KEY_WRITE_FAILED, pDevContext, Status1);
+                }
+
+                InDskFltDeleteClusterNotificationThread(pDevContext);
+            }
+        }
 
         Status = StopFiltering(pDevContext, bDeleteBitmapFile);
         if (NT_SUCCESS(Status))
@@ -1518,6 +1536,8 @@ DeviceIoControlStartFiltering(
         goto Cleanup;
     }
 
+    // For cluster disks
+    // Cluster workflow will take care of start and stop filtering.
     if (IS_DISK_CLUSTERED(pDevContext)) {
         SET_FLAG(pDevContext->ulClusterFlags, DCF_CLUSTER_FLAGS_DISK_PROTECTED);
         SetDWORDInRegVolumeCfg(pDevContext, DEVICE_FILTERING_DISABLED, DEVICE_FILTERING_DISABLED_UNSET, 1);

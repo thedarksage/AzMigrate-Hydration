@@ -419,9 +419,6 @@ Return Value:
     KeAcquireSpinLock(&pDevContext->Lock, &oldIrql);
     ulClusterFlags = pDevContext->ulClusterFlags;
     SET_FLAG(ulClusterFlags, DCF_CLUSTER_FLAGS_DISK_CLUSTERED);
-    if (!TEST_FLAG(pDevContext->ulFlags, DCF_FILTERING_STOPPED)) {
-        SET_FLAG(ulClusterFlags, DCF_CLUSTER_FLAGS_DISK_PROTECTED);
-    }
 
     KeReleaseSpinLock(&pDevContext->Lock, oldIrql);
 
@@ -433,7 +430,15 @@ Return Value:
         goto Cleanup;
     }
 
+    // Cluster Disk protection state is derived from current filtering state.
+    // This value will always be tied with current filtering state of disk.
+    // This value will be reset on reboot.
+    // Post reboot if disk is filtered, cluster disk protection state will be protected.
     KeAcquireSpinLock(&pDevContext->Lock, &oldIrql);
+    if (!TEST_FLAG(pDevContext->ulFlags, DCF_FILTERING_STOPPED)) {
+        SET_FLAG(ulClusterFlags, DCF_CLUSTER_FLAGS_DISK_PROTECTED);
+    }
+
     pDevContext->ulClusterFlags = ulClusterFlags;
     KeReleaseSpinLock(&pDevContext->Lock, oldIrql);
 

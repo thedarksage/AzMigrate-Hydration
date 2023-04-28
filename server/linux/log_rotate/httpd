@@ -1,0 +1,8 @@
+/var/log/httpd/*log {
+    missingok
+    notifempty
+    sharedscripts
+    postrotate
+	/usr/sbin/apachectl graceful 2> /dev/null 
+    endscript
+}

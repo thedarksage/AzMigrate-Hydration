@@ -1,0 +1,120 @@
+#!/bin/bash
+
+#
+# systemjob    This shell script takes care of starting and stopping
+#    the System Job Manager
+#
+# chkconfig: - 78 12
+# description:    System Job Manager
+# processname:  systemjobd
+# config:       None
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+# Source networking configuration.
+. /etc/sysconfig/network
+
+prog="systemjob"
+
+base_dir="/home/svsystems"
+mkdir -p /var/cx
+shut_dir="/var/cx"
+
+bin_file="systemjobs.pl"	
+
+start(){
+	
+	rm -f $"$shut_dir"/.systemjobd
+		
+	# Start job manager threads
+	/usr/bin/killall -9 $bin_file 2>/dev/null 
+	$"$base_dir"/bin/$bin_file >> $"$base_dir"/var/system_job.log 2>&1 &
+	ret=$?
+	if [ $ret -eq 0 ]; then
+		action $"Starting System Job Manager" /bin/true
+	else
+		action $"Starting System Job Manager" /bin/false
+	fi
+	return $ret
+}
+
+stop(){
+
+    # Stopping system job manager events
+	job_count=`ps -ef | grep -v 'grep' | grep -c $bin_file`
+    if [ $job_count -ne 0 ]; then
+		/usr/bin/killall -9 $bin_file  2>/dev/null
+		ret=$?
+		
+		if [ $ret -eq 0 ]; then
+	    	action $"Stopping System Job Manager" /bin/true
+		else
+		   action $"Stopping System Job Manager" /bin/false
+		fi
+		
+		[ $ret -eq 0 ] && rm -f $"$base_dir"/var/system_job.pid
+	else
+		action $"System Job Manager already stopped" /bin/true
+	fi
+
+    echo System Job Manager Stopped Completely
+	return $ret
+}
+ 
+restart(){
+    stop
+    start
+}
+
+condrestart(){
+    [ -e /var/lock/subsys/systemjobd ] && restart || :
+}
+
+shutdown(){
+
+	count=`ps -ef | grep -v 'grep' | grep -c $bin_file`
+    if [ $count -ne 0 ]; then
+		/usr/bin/killall -9 $bin_file 2>/dev/null
+		ret=$?
+		if [ $ret -eq 0 ]; then
+			action $"Shutting down System Job Manager" /bin/true
+		else
+			action $"Shutting down System Job Manager" /bin/false
+		fi    	
+	else
+		action $"System Job Manager already stopped" /bin/true
+	fi
+	rm -f $"$base_dir"/var/system_job.pid
+
+	echo System Job Manager shut down complete
+    return $ret
+}
+
+# See how we were called.
+case "$1" in
+  start)
+    start  
+    ;;
+  stop)
+    stop
+    ;;
+  status)
+    status $bin_file
+    ;;
+  restart)
+    restart
+    ;;
+  condrestart)
+    condrestart
+    ;;
+  shutdown)
+	shutdown
+  	;;	
+  *)
+    echo $"Usage: $0 {start|stop|status|condrestart|restart|shutdown}"
+    exit 1
+esac
+
+exit $?
+

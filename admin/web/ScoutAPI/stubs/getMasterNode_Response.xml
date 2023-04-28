@@ -1,0 +1,6 @@
+<Function Name="getMasterNode" Id="" Returncode="0" Message="Success">
+<FunctionResponse>
+    <Parameter Name="IpAddress" Value="192.168.20.32"/>
+    <Parameter Name="HostName" Value="MAXREP-CENTOS72"/>
+</FunctionResponse>
+</Function>

@@ -441,7 +441,9 @@ Function RebootAzureVM
     {
         $rgName = $global:RecResourceGroup
     }
-    
+    $startTime = Get-Date -Format "MM/dd/yyyy HH:mm:ss"
+    LogMessage -Message ("Rebooting the VM : {0}" -f $global:VMName) -LogType ([LogType]::Info1)
+
     Restart-AzVM -ResourceGroupName $rgName -Name $global:VMName
     if ( !$? )
     {
@@ -454,6 +456,16 @@ Function RebootAzureVM
     WaitForAzureVMReadyState -vmName $global:VMName -resourceGroupName $rgName
     
     LogMessage -Message ("Successfully rebooted VM : {0}" -f $global:VMName) -LogType ([LogType]::Info1)
+
+    # Waiting for atleast one tag to be generated with a max timeout of 1.30 hour, as reboot might incur a resync
+    LogMessage -Message ("Waiting for atleast 1 recovery point to be generated on the Azure VM {0}" -f $global:VMName) -LogType ([LogType]::Info1)
+    $protectedItemObject = GetProtectedItemObject -fabricName $global:PrimaryFabricName -containerName $global:PrimaryContainerName
+    WaitForRecoveryPoints -ProtectedItemObject $protectedItemObject -MaxWaitTimeInSeconds 5400
+
+    # FileSystem health check after reboot
+    LogMessage -Message ("Running filesystem health check on the VM {0} after reboot on the Source VM, startTime : {1}" -f $global:VMName, $startTime) -LogType ([LogType]::Info1)
+    VerifyFileSystemHealth -ResourceGroup $rgName -VMName $global:VMName -StartTime $startTime -protectedItemObject $protectedItemObject -ApplyChurn $true
+    LogMessage -Message ("Successfully ran filesystem health check on the Azure VM {0} after the reboot" -f $global:VMName) -LogType ([LogType]::Info1)
 }
 
 #

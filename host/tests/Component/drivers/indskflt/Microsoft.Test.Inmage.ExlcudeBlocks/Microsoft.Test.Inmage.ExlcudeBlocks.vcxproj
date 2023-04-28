@@ -30,7 +30,7 @@
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <SpectreMitigation>false</SpectreMitigation>
+    <SpectreMitigation>Spectre</SpectreMitigation>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -75,6 +75,7 @@
       <SDLCheck>false</SDLCheck>
       <AdditionalIncludeDirectories>$(BOOST_INCLUDES);..\..\..\..\..\drivers\Include\win32;..\..\..\..\..\drivers\InVolFlt\windows\Interface;..\..\..\..\..\common\win32;..\..\..\..\common\Logger\win;..\..\..\..\common\Logger;..\..\..\..\common\InmageTestException\win;..\..\..\..\common\InmageTestException;..\..\..\..\common\PlatformAPIs\win;..\..\..\..\common\PlatformAPIs;..\..\..\..\common\BlockDevice\win;..\..\..\..\common\BlockDevice;..\..\..\..\..\inmsafecapis\win;..\..\..\..\..\inmsafecapis;..\..\..\..\..\common;..\..\..\..\common;..\Microsoft.Test.Inmage.MD5ChecksumProvider;..\Microsoft.Test.Inmage.IoctlController;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
+      <ControlFlowGuard>Guard</ControlFlowGuard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

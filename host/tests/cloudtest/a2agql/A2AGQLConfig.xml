@@ -11,6 +11,7 @@
   <AzureFabric>
     <VMName></VMName>
     <OSType></OSType>
+    <RunFSHealthCheck></RunFSHealthCheck>
     <IsManagedDisk></IsManagedDisk>
     <TFOVMName></TFOVMName>
     <ReplicationPolicy></ReplicationPolicy>

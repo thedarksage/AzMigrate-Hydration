@@ -231,7 +231,7 @@ static void GetPSAdminLogsQuery(std::string &queryName, std::wstring &query)
 
 static void A2ALogCallback(unsigned int logLevel, const char *msg)
 {
-    DebugPrintf((SV_LOG_LEVEL)logLevel, msg);
+    DebugPrintf((SV_LOG_LEVEL)logLevel, "%s", msg);
 }
 
 static boost::shared_ptr<boost::thread> StartFileXferLog(const EvtCollForw::CmdLineSettings &settings)

@@ -56,6 +56,7 @@ Return Value : STATUS_INSUFFICIENT_RESOURCES - on memory Allocation failure
     BOOTDISK_INFORMATION    bootDiskInformation = { 0 };
 
     ULONG32         ul32Value;
+    ULONG           ulResyncRequiredOnReboot = 0;
 
     RtlZeroMemory(&DriverContext, sizeof(DRIVER_CONTEXT));
 
@@ -346,6 +347,11 @@ Return Value : STATUS_INSUFFICIENT_RESOURCES - on memory Allocation failure
                                 (ULONG32 *)&DriverContext.ulMaxResDiskDetectionTimeInMS,
                                 DEFAULT_RESDISK_DETECTION_TIME_IN_MS, TRUE);
 
+        ParametersKey.ReadULONG(RESYNC_ON_REBOOT,
+                               (ULONG32*)&ulResyncRequiredOnReboot);
+
+        DriverContext.bResyncOnReboot = (0 != ulResyncRequiredOnReboot);
+
         if (MAX_NUM_FS_FLUSH_THREADS < DriverContext.ulNumFlushVolumeThreads) {
             DriverContext.ulNumFlushVolumeThreads = MAX_NUM_FS_FLUSH_THREADS;
         }
@@ -535,7 +541,8 @@ Return Value : STATUS_INSUFFICIENT_RESOURCES - on memory Allocation failure
         ParametersKey.FlushKey();
         ParametersKey.CloseKey();
         KernelTagsKey.CloseKey();
-    } else {
+    }
+    else {
         InDskFltWriteEvent(INDSKFLT_ERROR_REGISTRY_OPERATION_FAILED, Status);
         DriverContext.DBHighWaterMarks[ecServiceNotStarted] = DEFAULT_DB_HIGH_WATERMARK_SERVICE_NOT_STARTED;
         DriverContext.DBLowWaterMarkWhileServiceRunning = DEFAULT_DB_LOW_WATERMARK_SERVICE_RUNNING;

@@ -3005,7 +3005,7 @@ process_iobarrier_tag_volume_ioctl(inm_devhandle_t *idhp, void __INM_USER *arg)
     INM_DOWN(&driver_ctx->dc_cp_mutex);
 
     if (driver_ctx->dc_cp != INM_CP_NONE) {
-        err("Consistency Point already active");
+        dbg("Consistency Point already active");
         ret = -EAGAIN;
         msg = ecMsgCompareExchangeTagStateFailure;
         goto unlock_cp_mutex;

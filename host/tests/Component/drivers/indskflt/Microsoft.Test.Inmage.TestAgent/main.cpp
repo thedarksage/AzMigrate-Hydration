@@ -252,8 +252,10 @@ bool ParseCmdLineArgs(int argc, char* argv[])
     while (index < (argc - 1))//start reading from the first argument
     {
         strArg = vArgs[index++];
-        if ((0 == strArg.compare("--tc=ditest")) || (0 == strArg.compare("--tc=barrierhonour"))
-            || g_vPairDetails.size() > 0)
+        if ((0 == strArg.compare("--tc=ditest")) ||
+            (0 == strArg.compare("--tc=barrierhonour")) ||
+            (0 == strArg.compare("--tc=barrierhonourwithouttag")) ||
+            g_vPairDetails.size() > 0)
         {
             if (0 == strArg.compare("--tc=ditest"))
             {
@@ -262,6 +264,10 @@ bool ParseCmdLineArgs(int argc, char* argv[])
             else if (0 == strArg.compare("--tc=barrierhonour"))
             {
                 testCase = TC_BARRIER_HONOUR;
+            }
+            else if (0 == strArg.compare("--tc=barrierhonourwithouttag"))
+            {
+                testCase = TC_BARRIER_HONOUR_WITHOUT_TAG;
             }
             if (g_vPairDetails.size() == 0)
             {
@@ -800,6 +806,10 @@ bool DItest_Validate(CS2Agent &s2Agent, TC testCase)
     {
         ret = s2Agent.BarrierHonour(g_vPairDetails);
     }
+    else if (testCase == TC_BARRIER_HONOUR_WITHOUT_TAG)
+    {
+        ret = s2Agent.BarrierHonour(g_vPairDetails, false);
+    }
 
     if (ret)
     {
@@ -900,14 +910,13 @@ int DItest_with_directIO()
                 pd->doneForceBitmapMode = false;
                 pd->forceBitmapMode = true;
                 // Wait till driver switch to bitmap mode
-                while(!pd->doneForceBitmapMode)
+                while(!s2Agent.VerifyBitmapMode())
                 {
                     boost::this_thread::sleep(boost::posix_time::seconds(30));
-                    if (s2Agent.VerifyBitmapMode())
-                    {
-                        break;
-                    }
                 }
+
+                printf("\nVerified bitmap mode using volume stats.\n");
+                pd->doneForceBitmapMode = true;
                 pd->forceBitmapMode = false;
             }
             printf("\nAllow Draining to recover from bitmap mode\n");

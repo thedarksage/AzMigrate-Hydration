@@ -2,7 +2,6 @@
 #define _DATA_PROCESSOR_H_
 #include "Logger.h"
 #include "IPlatformAPIs.h"
-
 #include <stdio.h>
 #include <fstream>
 #include <vector>
@@ -11,6 +10,8 @@
 
 #ifdef SV_WINDOWS
 #include "InmFltInterface.h"
+#else
+#include "event.h"
 #endif
 #include "svdparse.h"
 #include "svtypes.h"

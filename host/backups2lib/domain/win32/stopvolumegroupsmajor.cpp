@@ -25,6 +25,7 @@ bool stopFiltering(DeviceStream *pDeviceStream, PauseTrackingStatus_t& puaseTrac
 		std::wstring device(volume.begin(), volume.end());
 		inm_wmemcpy_s(stopFilteringInput.VolumeGUID, NELEMS(stopFilteringInput.VolumeGUID), device.c_str(), device.length());
 		stopFilteringInput.ulFlags |= STOP_FILTERING_FLAGS_DELETE_BITMAP;
+        stopFilteringInput.ulFlags |= STOP_FILTERING_FLAGS_DONT_CLEAN_CLUSTER_STATE;
 		if (pDeviceStream->IoControl(IOCTL_INMAGE_STOP_FILTERING_DEVICE, &stopFilteringInput, sizeof(stopFilteringInput), NULL, 0) != SV_SUCCESS)
 		{
 			DebugPrintf(SV_LOG_ERROR, "FAILED : Stop filtering failed for volume %s. Err:: %s\n ", volume.c_str(), Error::Msg().c_str());

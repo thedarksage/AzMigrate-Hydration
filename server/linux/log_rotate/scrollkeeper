@@ -1,0 +1,4 @@
+/var/log/scrollkeeper.log {
+    notifempty
+    missingok
+}

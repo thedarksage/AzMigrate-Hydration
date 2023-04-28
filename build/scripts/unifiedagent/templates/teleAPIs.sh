@@ -23,11 +23,8 @@ is_azure_stack_platform()
 {
     local return_value=0
 
-    if [ -n "$VM_PLATFORM" ]; then
-        vmplatform=$($INSTALLATION_DIR/bin/AzureRcmCli --getimdsmetadata | $INSTALLATION_DIR/bin/jq -r .compute.azEnvironment)
-        if [ "$vmplatform" == "AzureStack" ] ; then
-            return 1
-        fi
+    if [ -n "$IsAzureStackHub" ]; then
+            return $IsAzureStackHub
     fi
     return 0
 }

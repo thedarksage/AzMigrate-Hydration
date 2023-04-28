@@ -1,0 +1,14 @@
+<Request Id="0008" Version="1.0">
+<Header>
+  <Authentication>
+    <AccessKeyID>39F830AD9C46DE48B87EBE56F4C919D7C7E96CD9</AccessKeyID>
+    <AccessSignature>ZjY0ZWNmMzZmZDk4ZGQ3ZjJhOTZjYWI0Y2Q4NzhiN2M0Nzc0ZWFlZg==</AccessSignature>
+  </Authentication>
+</Header>
+<Body>
+  <FunctionRequest Name="UploadSystemMetadata" Include="Y"> 
+    <Parameter Name="SystemGUID" Value="87BC3384-071D-744D-9A61A7BD3588CCE6_INTEL" /> 
+    <Parameter Name="Metadata" Value="META_DATA_TEST" /> 
+  </FunctionRequest>
+</Body>
+</Request>

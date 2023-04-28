@@ -1,0 +1,103 @@
+#!/bin/bash
+#
+# nodentwd      This shell script takes care of spawning the 
+#               network failure detection daemon for HA cluster
+
+# Processname:    nodentwd 
+# Config:         None
+# Author:         bknathan
+# Date:           09 May 2008
+#
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+base_dir="/home/svsystems"
+
+start(){
+   
+    #
+    # Start the node_ntw_fail daemon
+    #
+    /usr/bin/killall -15 node_ntw_fail 2> /dev/null
+    
+    $base_dir/bin/node_fail_event_track > /dev/null &
+    $base_dir/bin/node_ntw_fail > /dev/null &
+    
+    ret=$?
+    if [ $ret -eq 0 ];then
+        action $"Starting HA node detection daemon " /bin/true
+    else
+        action $"Starting HA node detection daemon " /bin/false
+    fi
+
+    #
+    # Start the cxfailoverd daemon
+    #
+    /etc/rc.d/init.d/cxfailoverd stop > /dev/null 
+
+    /etc/rc.d/init.d/cxfailoverd start > /dev/null &
+    ret=$?
+    if [ $ret -eq 0 ];then
+        action $"Starting HA Failover daemon " /bin/true
+    else
+        action $"Starting HA Failover daemon " /bin/false
+    fi
+
+    return $ret
+}
+
+
+stop(){
+
+    #
+    # Stop the HA network node failure daemon
+    #
+    /usr/bin/killall -15 node_ntw_fail 2>&1 /dev/null &
+    $base_dir/bin/node_fail_event_track > /dev/null &
+    ret=$?
+    if [ $ret -eq 0 ]; then
+       action $"Stopping HA node detection daemon" /bin/true
+    else
+       action $"Stopping HA node detection daemon" /bin/false
+    fi
+
+    #
+    # Stop the cxfailoverd daemon
+    #
+    /etc/rc.d/init.d/cxfailoverd stop 
+    ret=$?
+    if [ $ret -eq 0 ]; then
+       action $"Stopping HA Failover daemon" /bin/true
+    else
+       action $"Stopping HA Failover daemon" /bin/false
+    fi
+}
+
+restart(){
+       stop
+       start
+}
+
+# See how we were called.
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart)
+    restart
+    ;;
+  status)
+   status node_ntw_fail
+   ;;
+  *)
+    echo $"Usage: $0 {start|stop|restart|status}"
+    exit 1
+esac
+
+exit $?
+
+

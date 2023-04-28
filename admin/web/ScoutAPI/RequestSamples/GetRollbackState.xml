@@ -1,0 +1,18 @@
+<Request Id="1" Version="1.0">
+<Header>
+  <Authentication>
+	<AccessKeyID>11F3242118FF2ADD5D117CBF216F29AC578F6BA6</AccessKeyID>
+	<AuthMethod>CXAuth</AuthMethod>
+	<CXUserName>admin</CXUserName>
+  </Authentication>
+</Header>
+<Body> 
+  <FunctionRequest Name="GetRollbackState">
+	<Parameter Name="RollbackPlanId" Value="2" />
+	<ParameterGroup Id="Servers"> 
+		<Parameter Name="Server1" Value="F5684022-71CB-5E43-B69AF768614FF3DC" /> 
+		<Parameter Name="Server2" Value="FAD84022-71CB-5E43-B69AF768614FF3DC" />
+	</ParameterGroup>
+  </FunctionRequest>
+</Body> 
+</Request>

@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<srs:SRSErrors
+  xmlns="http://schemas.microsoft.com/2012/DisasterRecovery/SRSErrors.xsd"
+  xmlns:srs="http://schemas.microsoft.com/2012/DisasterRecovery/SRSErrors.xsd">
+
+  <!--Find instructions to add new errors at the end of this file-->
+
+  <!--Copy starting from here till end to update any sevice-side error XMLs-->
+
+  <!--Process Server Jobs error code range : 520700 - 520999-->
+
+  <Error>
+    <ErrorCode>520700</ErrorCode>
+    <EnumName>UnknownJob</EnumName>
+    <Message>Unknown job type %JobType; seen by Process Server of version %Version;.</Message>
+    <PossibleCauses>Process Server version might be old.</PossibleCauses>
+    <RecommendedAction>Retry the operation, after upgrading the Process Server to latest version.</RecommendedAction>
+    <Severity>Error</Severity>
+  </Error>
+
+  <Error>
+    <ErrorCode>520701</ErrorCode>
+    <EnumName>JobInputParseFailure</EnumName>
+    <Message>Fail to parse the input for the %JobType; job seen by Process Server of version %Version;.</Message>
+    <PossibleCauses>Process Server version might be old.</PossibleCauses>
+    <RecommendedAction>Retry the operation, after upgrading the Process Server to latest version.</RecommendedAction>
+    <Severity>Error</Severity>
+  </Error>
+
+  <Error>
+    <ErrorCode>520702</ErrorCode>
+    <EnumName>JobFolderNotUnderReplicationLogFolderPath</EnumName>
+    <Message>Folder path %FolderPath; in the %JobType; job isn't under the configured Replication log folder path - %ReplicationLogFolderPath;.</Message>
+    <PossibleCauses>Process Server might have been configured with a different CacheFolderLocation after unconfigure or uninstallation.</PossibleCauses>
+    <RecommendedAction>
+      1. Unconfigure the Process Server followed by configure with the previously used Cache location and then retry the operation.
+      2. Unregister the Process Server after removing/purging all the replications followed by register to force using the new Cache location and then retry the operation.
+    </RecommendedAction>
+    <Severity>Error</Severity>
+  </Error>
+
+  <Error>
+    <ErrorCode>520703</ErrorCode>
+    <EnumName>JobFolderCreationFailed</EnumName>
+    <Message>Failed to create folder %FolderPath; in the %JobType; job.</Message>
+    <PossibleCauses>ProcessServer.exe running as SYSTEM doesn't contain necessary permissions to create this folder.</PossibleCauses>
+    <RecommendedAction>Ensure that the folder %FolderPath; could be created as SYSTEM and then retry the operation. If the folder is manually created (beware of allowing access only to Administrators and SYSTEM) and retried, the job will succeed too.</RecommendedAction>
+    <Severity>Error</Severity>
+  </Error>
+
+  <Error>
+    <ErrorCode>520704</ErrorCode>
+    <EnumName>JobFolderDeletionFailed</EnumName>
+    <Message>Failed to delete folder %FolderPath; in the %JobType; job.</Message>
+    <PossibleCauses>
+      1. %FolderPath; or any of its contents could be in use by any other process.
+      2. ProcessServer.exe running as SYSTEM doesn't contain necessary permissions to delete this folder.
+    </PossibleCauses>
+    <RecommendedAction>
+      1. Use Resource Monitor to check the other processes using the folder. Launch Resmon.exe, use Associated Handles under CPU tab and search for folder name. If the other process is anti-virus software, please exclude ASR folders from anti-virus. Otherwise try restarting the service/process using the folder.
+      2. Ensure that the folder %FolderPath; could be deleted as SYSTEM and then retry the operation. If the folder is manually deleted and retried, the job will succeed too.
+    </RecommendedAction>
+    <Severity>Warning</Severity>
+  </Error>
+
+  <Error>
+    <ErrorCode>520705</ErrorCode>
+    <EnumName>UnimplementedJob</EnumName>
+    <Message>Unimplemented job type %JobType; seen by Process Server of version %Version;.</Message>
+    <PossibleCauses>Process Server version might be old.</PossibleCauses>
+    <RecommendedAction>Retry the operation, after upgrading the Process Server to latest version.</RecommendedAction>
+    <Severity>Error</Severity>
+  </Error>
+
+  <Error>
+    <ErrorCode>520706</ErrorCode>
+    <EnumName>JobUnexpectedError</EnumName>
+    <Message>The %JobType; job failed due to an unexpected error.</Message>
+    <PossibleCauses>The operation failed due to an internal error.</PossibleCauses>
+    <RecommendedAction>Retry the operation. If the issue persists, contact support.</RecommendedAction>
+    <Severity>Error</Severity>
+  </Error>
+
+  <Error>
+    <ErrorCode>520707</ErrorCode>
+    <EnumName>JobProcessServerPrepareForSwitchApplianceFailed</EnumName>
+    <Message>The %JobType; job failed as replicating VM settings change is not reflected at appliance.</Message>
+    <PossibleCauses>The operation failed as %PSSettings; file still receiving settings for replicating VM for which a switch appliance operation is triggered.</PossibleCauses>
+    <RecommendedAction>Retry the operation. If the issue persists, contact support.</RecommendedAction>
+    <Severity>Error</Severity>
+  </Error>
+
+  <!--
+  1. Only append errors to the end of the Xml with consecutive error codes.
+  2. Even if an error is deprecated or no longer used, don't remove from the file
+     but indicate that the error is no longer used.
+  3. After any edits to this file, generate the latest RcmJobErrors.cs by
+     a) Either go to Build > Transform All T4 templates
+     b) (or) Right click on RcmJobErrors.tt in the solution explorer and select "Run Custom Tool"
+  4. After generating the RcmJobErrors.cs file, ensure to commit it along with
+     this RcmJobErrors.xml file.
+     **CAUTION: The file is design-time generated and so if not checked in, it won't
+     be updated in build machines or other dev machines**
+  5. Ensure to update the error codes XML in SRS repo with the latest changes.
+     Must only copy-paste the entire XML. That way we can always ensure that
+     the changes are made in the InMage Source repo.
+  -->
+
+</srs:SRSErrors>

@@ -11,10 +11,10 @@ m_platformApis(platform),
 m_pLogger(logger),
 m_bInitialSyncCompleted(false),
 #ifdef SV_UNIX
-m_allowDraining(true, false, std::string("")),
+m_allowDraining(true, false, std::string("AllowDraining")),
 #endif
-m_tagProcessed(true, false, std::string("")),
-m_waitTSO(false, true, std::string(""))
+m_tagProcessed(true, false, std::string("TagProcessed")),
+m_waitTSO(false, true, std::string("WaitForTSO"))
 {
     m_pSrcDisk = new CDiskDevice(srcDisk, m_platformApis);
     m_targetDisk = new CDiskDevice(targetDisk, m_platformApis);
@@ -29,10 +29,10 @@ CDataApplier::CDataApplier(IBlockDevice *srcDevice, IBlockDevice *tgtDevice, IPl
 m_platformApis(platform),
 m_pLogger(logger),
 m_bInitialSyncCompleted(false),
-m_tagProcessed(true, false, std::string("")),
-m_waitTSO(false, true, std::string("")),
+m_tagProcessed(true, false, std::string("TagProcessed")),
+m_waitTSO(false, true, std::string("WaitForTSO")),
 #ifdef SV_UNIX
-m_allowDraining(true, false, std::string("")),
+m_allowDraining(true, false, std::string("AllowDraining")),
 #endif
 m_DontApply(false),
 m_DropTag(false)
@@ -68,7 +68,7 @@ void CDataApplier::ProcessChanges(PSOURCESTREAM pSourceStream,
         return;
     }
 
-    // Either input will be disk or stream. If disk then stream will be null    
+    // Either input will be disk or stream. If disk then stream will be null
     bSourceDisk = (NULL == pSourceStream);
 
     // Length can be -1 if want to do sync step1. But it cannot be when source is not disk
@@ -152,7 +152,7 @@ bool CDataApplier::WaitForTag(string tagName, SV_ULONG timeout, bool dontApply)
     }
     else
     {
-        hEvent = new Event(false, true, std::string(""));
+        hEvent = new Event(false, true, std::string("TagWait") + tagName);
         m_tagWaitQueue[tagName] = hEvent;
         m_pLogger->LogInfo(
             "\nCreated a new Event for associating it with a tag %s this is waiting for.\n",
@@ -210,7 +210,7 @@ bool CDataApplier::CreateDrainBarrierOnTag(std::string tag)
         return false;
     }
 
-    Event* hEvent = new Event(false, true, std::string());
+    Event* hEvent = new Event(false, true, std::string("CreateDrainBarrier") + tag);
     m_tagWaitQueue[tag] = hEvent;
     m_pLogger->LogInfo(
         "\nCreating a new event based on the request to create a Drain Barrier with the tag %s\n",
@@ -295,7 +295,7 @@ void CDataApplier::InitialSync(SV_ULONGLONG currentOffset, SV_ULONGLONG endOffse
 
         currentOffset += dwBytesToCopy;
     }
-    
+
     m_pLogger->LogInfo("%s: Time Spent for reading from source: %f secs Write to target: %f secs",
         __FUNCTION__,
         srcReadTime,
@@ -310,32 +310,40 @@ void CDataApplier::InitialSync(SV_ULONGLONG currentOffset, SV_ULONGLONG endOffse
 #endif
 }
 
-void CDataApplier::ReleaseDrainBarrier() 
+void CDataApplier::ReleaseDrainBarrier()
 {
-    m_pLogger->LogInfo("%s", __FUNCTION__);
+    m_pLogger->LogInfo("Enter %s", __FUNCTION__);
     m_tagProcessed.Signal(true);
+    m_pLogger->LogInfo("Exit %s", __FUNCTION__);
 }
 
 #ifdef SV_UNIX
 void CDataApplier::WaitForAllowDraining()
 {
+    m_pLogger->LogInfo("Enter %s", __FUNCTION__);
     m_allowDraining.Wait(0, TIMEOUT_INFINITE);
+    m_pLogger->LogInfo("Exit %s", __FUNCTION__);
 }
 
 void CDataApplier::PauseDraining()
 {
+    m_pLogger->LogInfo("Enter %s", __FUNCTION__);
     m_allowDraining.Signal(false);
+    m_pLogger->LogInfo("Exit %s", __FUNCTION__);
 }
 
 void CDataApplier::AllowDraining()
 {
+    m_pLogger->LogInfo("Enter %s", __FUNCTION__);
     m_allowDraining.Signal(true);
+    m_pLogger->LogInfo("Exit %s", __FUNCTION__);
 }
 
 void CDataApplier::ResetTSO()
 {
-    m_pLogger->LogInfo("%s : TSO", __FUNCTION__);
+    m_pLogger->LogInfo("Enter %s", __FUNCTION__);
     m_waitTSO.ResetEvent();
+    m_pLogger->LogInfo("Exit %s", __FUNCTION__);
 }
 #endif
 

@@ -1,0 +1,5 @@
+# To learn more about .editorconfig see https://aka.ms/editorconfigdocs
+
+# Auto generated files
+[*.codegen.cs]
+dotnet_diagnostic.CS1591.severity = none

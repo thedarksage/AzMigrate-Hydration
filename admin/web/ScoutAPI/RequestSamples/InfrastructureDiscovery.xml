@@ -1,0 +1,34 @@
+<Request Id="1" Version="1.0">
+<Header>
+  <Authentication>
+	<AccessKeyID>11F3242118FF2ADD5D117CBF216F29AC578F6BA6</AccessKeyID>
+	<AuthMethod>CXAuth</AuthMethod>
+	<CXUserName>admin</CXUserName>
+  </Authentication>
+</Header>
+<Body>
+  <FunctionRequest Name="InfrastructureDiscovery">       
+	<ParameterGroup Id="Infrastructures">
+		<!-- for vCenter -->
+		<ParameterGroup Id="Infrastructure1"> 
+			<Parameter Name="SiteName" Value="VDC 1" /> <!-- Optional -->
+			<Parameter Name="InfrastructureType" Value="Primary" /> <!-- Optional, Default is Primary  - Primary / Secondary -->
+			<Parameter Name="DiscoveryType" Value="vCenter" />
+			<Parameter Name="ServerIP" Value="10.0.1.111" />
+            <Parameter Name="AccountId" Value="1"/>
+			<Parameter Name="LoginId" Value="administrator"/>
+			<Parameter Name="DiscoveryAgent" Value="580a8d30-2fd6-420a-8b81-18f4dad8809b" />  <!-- Process Server GUID -->
+		</ParameterGroup>            
+		<!-- for Physical Server -->
+		<ParameterGroup Id="Infrastructure2"> 
+			<Parameter Name="SiteName" Value="VDC 1" /> <!-- Optional -->
+			<Parameter Name="InfrastructureType" Value="Primary" /> <!-- Optional, Default is Primary  - Primary / Secondary -->
+			<Parameter Name="DiscoveryType" Value="Physical" />
+			<Parameter Name="ServerIP" Value="10.0.40.111" />
+			<Parameter Name="HostName" Value="IMID-HostA" /> <!-- Optional -->
+			<Parameter Name="OS" Value="Windows" /> <!-- Windows, Linux -->
+		</ParameterGroup> 
+	</ParameterGroup>
+  </FunctionRequest>
+</Body>
+</Request>

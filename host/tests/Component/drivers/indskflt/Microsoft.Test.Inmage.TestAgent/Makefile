@@ -4,8 +4,8 @@ ARCH = $(shell uname)
 
 SRCS = \
 	main.cpp
-	
-	
+
+
 X_CFLAGS = \
 	-Icommon \
 	-Icommon/$(X_MAJOR_ARCH) \
@@ -33,22 +33,24 @@ X_CFLAGS = \
 	-Itests/Component/drivers/indskflt/Microsoft.Test.Inmage.ExcludeBlocks \
 	-Idrivers/InVolFlt/common \
 	-Idrivers/InVolFlt/$(X_MINOR_ARCH) \
+	-Is2libs/thread \
 	$(BOOST_INCLUDE)  \
 	$(ACE_INCLUDE) \
 	$(INM_MD5_INCLUDE) \
-	
+
 X_LIBS = \
+	common \
 	tests_common \
 	tests_component_drivers
 
 X_THIRDPARTY_LIBS = \
 	$(ACE_LIBS) \
 	$(BOOST_LIBS) \
-    $(INM_MD5_LIBS)  
+	$(INM_MD5_LIBS)
 
-X_SYSTEM_LOBS = 
+X_SYSTEM_LOBS =
 
-X_LDFLAGS = 
+X_LDFLAGS =
 
 BINARY=indskflt_ct
 BINARY_EXT=$(X_EXEEXT)

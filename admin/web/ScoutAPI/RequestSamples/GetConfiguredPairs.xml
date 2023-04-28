@@ -1,0 +1,22 @@
+<Request Id="0001" Version="1.0">
+ 	<Header>
+  		<Authentication>
+    		<AccessKeyID>DDC9525FF275C104EFA1DFFD528BD0145F903CB1</AccessKeyID>
+    		<AccessSignature></AccessSignature>
+  		</Authentication>
+ 	</Header>
+ 	<Body>
+  		<FunctionRequest Name="GetConfiguredPairs" Include="No">
+		<ParameterGroup Id="HostLists">
+		<ParameterGroup Id="HostList_1">
+			<Parameter Name="SourceHostGUID" Value="082F3A9A-24D2-AE41-9C1BCBC99D8FBCD6" />
+			<Parameter Name="TargetHostGUID" Value="5D99E358-B2A3-224F-A98887B9E36758AC" />
+		</ParameterGroup>
+		<ParameterGroup Id="HostList_2">
+			<Parameter Name="SourceHostGUID" Value="DB7B9657-A9C6-C54D-882F90E519D769B8" />
+			<Parameter Name="TargetHostGUID" Value="5D99E358-B2A3-224F-A98887B9E36758AC" />
+		</ParameterGroup>
+		</ParameterGroup>
+ 		 </FunctionRequest>
+ 	</Body>
+</Request>

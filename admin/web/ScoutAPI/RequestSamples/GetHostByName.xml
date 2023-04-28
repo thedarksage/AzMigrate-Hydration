@@ -1,0 +1,13 @@
+<Request Id="0003" Version="1.0">
+<Header>
+  <Authentication>
+    <AccessKeyID>39F830AD9C46DE48B87EBE56F4C919D7C7E96CD9</AccessKeyID>
+    <AccessSignature>M2ZlOTI2NGU3ZWJmMWJmMzIyMmI1MjVmNWQ1OWY1ZDk5ZmE1YTY4Nw==</AccessSignature>
+  </Authentication>
+</Header>
+<Body>
+  <FunctionRequest Name="GetHostByName" Include="Yes">
+    <Parameter Name="HostName" Value ="GRVM1" />    
+  </FunctionRequest> 
+</Body>
+</Request>

@@ -1,0 +1,21 @@
+<Request Id="1" Version="1.0">
+<Header>
+  <Authentication>
+	<AccessKeyID>11F3242118FF2ADD5D117CBF216F29AC578F6BA6</AccessKeyID>
+	<AuthMethod>CXAuth</AuthMethod>
+	<CXUserName>admin</CXUserName>
+  </Authentication>
+</Header>
+<Body>
+  <FunctionRequest Name="UnInstallMobilityService">
+	<ParameterGroup Id="Servers">
+	  <ParameterGroup Id="Server1">
+		<Parameter Name="HostId" Value="F6284022-71CB-5E43-B69AF768614FF3DC" />
+        <Parameter Name="AccountId" Value="1"/>
+		<Parameter Name="UserName" Value="root"/> <!-- Optional if not changed from Install -->
+		<Parameter Name="PushServerId" Value="EF91F507-E8AD-7543-96881ACC71DADCF9"/> <!-- Optional if not changed from Install -->
+	  </ParameterGroup>
+	</ParameterGroup>
+  </FunctionRequest>
+</Body>
+</Request>

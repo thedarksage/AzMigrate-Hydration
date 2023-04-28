@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SOFTPKG NAME="DBI" VERSION="1,48,0,0">
+  <IMPLEMENTATION>
+    <CODEBASE HREF="MSWin32-x86-multi-thread-5.8/DBI-1.48.tar.gz" />
+    <ARCHITECTURE NAME="MSWin32-x86-multi-thread-5.8" />
+    <OS NAME="MSWin32" />
+  </IMPLEMENTATION>
+  <ABSTRACT>Database independent interface for Perl</ABSTRACT>
+  <AUTHOR>Tim Bunce (dbi-users@perl.org)</AUTHOR>
+  <TITLE>DBI</TITLE>
+</SOFTPKG>

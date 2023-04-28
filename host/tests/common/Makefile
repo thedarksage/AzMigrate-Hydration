@@ -6,7 +6,6 @@ SRCS = \
 	BlockDevice/$(X_MINOR_ARCH)/DiskDeviceMinor.cpp \
 	BlockDevice/$(X_MAJOR_ARCH)/FileDevice.cpp \
 	PlatformAPIs/$(X_MAJOR_ARCH)/UnixAPIs.cpp \
-	PlatformAPIs/$(X_MAJOR_ARCH)/event.cpp \
 	InmageTestException/InmageTestException.cpp \
 	Logger/Logger.cpp \
 	Logger/$(X_MAJOR_ARCH)/LoggerMajor.cpp
@@ -32,9 +31,9 @@ X_CFLAGS = \
 	$(BOOST_INCLUDE) \
 	$(ACE_INCLUDE)
 
-X_LIBS = 
+X_LIBS =
 
-X_THIRDPARTY_LIBS = 
+X_THIRDPARTY_LIBS =
 
 X_SYSTEM_LIBS =
 

@@ -1,0 +1,13 @@
+<Request Id="0509" Version="1.0">
+<Header>
+  <Authentication>
+    <AccessKeyID>8A1681E612A2025087B703FDF1F8F617E506B053</AccessKeyID>
+    <AccessSignature>OGNjYTY0Yjk0NDU4MWRhYTljN2NjZTNiNDdkNDE5YmY2NjY1NzM1Zg==</AccessSignature>
+  </Authentication>
+</Header>
+<Body>
+  <FunctionRequest Name="getArray">
+    <Parameter Name="ArraySerial" Value="A002806BBF" />
+  </FunctionRequest>  
+</Body>
+</Request>

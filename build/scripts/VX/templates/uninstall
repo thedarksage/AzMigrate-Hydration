@@ -295,8 +295,8 @@ Delete_Symbolic_Links()
         update-rc.d -f vxagent remove >> $UNINST_LOG 2>&1
         update-rc.d -f vConService_linux remove >> $UNINST_LOG 2>&1
         update-rc.d -f involflt remove >> $UNINST_LOG 2>&1
-        update-rc.d -f involflt_start remove >> $UNINST_LOG 2>&1
-	elif [ "$OS" = "SLES15-64" -o "$OS" = "OL8-64" -o "$OS" = "UBUNTU-20.04-64" -o "$OS" = "DEBIAN9-64" -o "$OS" = "DEBIAN10-64" ]; then
+	update-rc.d -f involflt_start remove >> $UNINST_LOG 2>&1
+	elif [ "$OS" = "SLES15-64" -o "$OS" = "OL8-64" -o "$OS" = "OL9-64" -o "$OS" = "UBUNTU-20.04-64" -o "$OS" = "UBUNTU-22.04-64" -o "$OS" = "DEBIAN9-64" -o "$OS" = "DEBIAN10-64" -o "$OS" = "DEBIAN11-64" ]; then
         trace_log_message "Disabling and removing service scripts."
         systemctl disable vxagent >> $UNINST_LOG 2>&1
         systemctl disable vConService_linux >> $UNINST_LOG 2>&1
@@ -356,12 +356,18 @@ Delete_Symbolic_Links()
     find /etc/rc*.d -name "*cxpsctl" -exec rm -f {} \; >> $UNINST_LOG 2>&1
     find /etc/rc*.d -name "*vConService_linux" -exec rm -f {} \; >> $UNINST_LOG 2>&1
 
-    # Disable involflt_start and involflt_stop services
-    if [ "$OS" = "RHEL7-64" -o "$OS" = "RHEL8-64" -o "$OS" = "UBUNTU-16.04-64" -o "$OS" = "DEBIAN8-64" -o "$OS" = "SLES12-64" -o "$OS" = "SLES15-64" -o "$OS" = "OL7-64" -o "$OS" = "OL8-64" -o "$OS" =  "UBUNTU-20.04-64" -o "$OS" = "DEBIAN9-64" -o "$OS" = "DEBIAN10-64" ]; then
-        trace_log_message -q "Disabling involflt_start and involflt_stop services."
-        systemctl disable involflt_start  >> $UNINST_LOG 2>&1
-        systemctl disable involflt_stop >> $UNINST_LOG 2>&1
-        rm -f /etc/systemd/system/{involflt_start.service,involflt_stop.service} >> $UNINST_LOG 2>&1
+     # Disable involflt_start and involflt_stop services
+    if [ "$OS" = "RHEL7-64" -o "$OS" = "RHEL8-64" -o "$OS" = "RHEL9-64" -o "$OS" = "UBUNTU-16.04-64" -o "$OS" = "DEBIAN8-64" -o "$OS" = "SLES12-64" -o "$OS" = "SLES15-64" -o "$OS" = "OL7-64" -o "$OS" = "OL8-64" -o "$OS" = "OL9-64" -o "$OS" =  "UBUNTU-20.04-64" -o "$OS" = "UBUNTU-22.04-64" -o "$OS" = "DEBIAN9-64" -o "$OS" = "DEBIAN10-64" -o "$OS" = "DEBIAN11-64" ]; then
+	    if [ "$OS" != "RHEL7-64" ]; then    
+            trace_log_message -q "Disabling involflt_start and involflt_stop services."
+            systemctl disable involflt_start  >> $UNINST_LOG 2>&1
+            systemctl disable involflt_stop >> $UNINST_LOG 2>&1
+            rm -f /etc/systemd/system/{involflt_start.service,involflt_stop.service} >> $UNINST_LOG 2>&1
+        else
+            trace_log_message -q "Disabling involflt_stop services."
+            systemctl disable involflt_stop >> $UNINST_LOG 2>&1
+            rm -f /etc/systemd/system/involflt_stop.service >> $UNINST_LOG 2>&1
+        fi    
     fi
 
     # Inovke systemctl daemon-reload command if systemctl exists on the system.
@@ -611,7 +617,7 @@ stop_services() {
     do
         # Abort the un-installation if UA Respawn daemon could not be stopped
         trace_log_message "Stopping the UA Respawn daemon..."
-        if [ "$OS" = "SLES15-64" -o "$OS" = "OL8-64" -o "$OS" = "UBUNTU-20.04-64" -o "$OS" = "DEBIAN9-64" -o "$OS" = "DEBIAN10-64" ]; then
+        if [ "$OS" = "SLES15-64" -o "$OS" = "OL8-64" -o "$OS" = "OL9-64" -o "$OS" = "UBUNTU-20.04-64" -o "$OS" = "UBUNTU-22.04-64" -o "$OS" = "DEBIAN9-64" -o "$OS" = "DEBIAN10-64" -o "$OS" = "DEBIAN11-64" ]; then
             systemctl stop uarespawnd >> $UNINST_LOG 2>&1
             uarespawnd_exit_value=$?
             if [ $uarespawnd_exit_value -ne 0 ]; then

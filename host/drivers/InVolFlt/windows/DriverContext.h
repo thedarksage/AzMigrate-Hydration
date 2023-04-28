@@ -99,6 +99,8 @@
 #define MODE_CHANGE_TAG_DESC_FOR_METADATA_TO_BITMAP     L"ModeChangeTagDescForMetaDataToBitmap"
 #define MODE_CHANGE_TAG_DESC_FOR_DATA_TO_BITMAP         L"ModeChangeTagDescForDataToBitmap"
 
+#define RESYNC_ON_REBOOT                                L"ResyncOnReboot"
+
 // These are ANSI Strings.
 #define MODE_CHANGE_TAG_DESC_FOR_BITMAP_TO_DATA_DEFAULT_VALUE         "Filtering mode change from bitmap to data"
 #define MODE_CHANGE_TAG_DESC_FOR_METADATA_TO_DATA_DEFAULT_VALUE       "Filtering mode change from meta-data to data"
@@ -521,6 +523,7 @@ typedef struct _DRIVER_CONTEXT
     ULONG           MaxCoalescedMetaDataChangeSize;
     ULONG           ulValidationLevel;
 
+    BOOLEAN           bResyncOnReboot;
     PIRP            ProcessStartIrp;
     // UserProcess is the process that has sent ProcessStartIrp.
     // Driver maps memory into UserProcess when in data mode.

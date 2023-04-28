@@ -26,7 +26,7 @@
 
 #include "boost/uuid/uuid.hpp"
 #include "boost/uuid/uuid_generators.hpp"
-
+#include "event.h"
 
 #include <ace/Process_Manager.h>
 #include "PlatformAPIs.h"

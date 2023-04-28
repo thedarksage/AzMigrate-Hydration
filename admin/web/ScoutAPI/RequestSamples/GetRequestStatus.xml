@@ -1,0 +1,15 @@
+<Request Id="0001" Version="1.0">
+<Header>
+	<Authentication> 
+	    <AccessKeyID>DDC9525FF275C104EFA1DFFD528BD0145F903CB1</AccessKeyID>
+	    <AccessSignature></AccessSignature>
+        </Authentication> 
+</Header>
+<Body> 
+	<FunctionRequest Name="GetRequestStatus" Include="No">
+		<ParameterGroup Id="RequestIdList">
+			<Parameter Name="RequestId" Value="263" />
+	   </ParameterGroup>
+	</FunctionRequest>
+</Body> 
+</Request>

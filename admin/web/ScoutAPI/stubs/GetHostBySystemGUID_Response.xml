@@ -1,0 +1,8 @@
+<Function Name="GetHostBySystemGUID" Id="" ReturnCode="0" Message="">
+	<FunctionResponse>	
+		<Parameter Name="HostIP" Value="192.168.15.25" />
+		<Parameter Name="HostAgentGUID" Value="95bf8328-449b-455a-b38a-ece68e262131" />
+		<Parameter Name="HostName" Value="GRVM1" />
+	</FunctionResponse>
+</Function> 
+

@@ -1,0 +1,15 @@
+ListInfrastructure
+ListScoutComponents
+ProtectionReadinessCheck
+GetProtectionState
+GetProtectionDetails
+ListConsistencyPoints
+RollbackReadinessCheck
+GetRollbackState
+ListEvents
+GetCSPSHealth
+ListPlans
+GetRequestStatus
+GetErrorLogs
+NotifyError
+MigrateAcsToAad

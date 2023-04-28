@@ -1,0 +1,16 @@
+ <Function Name="DownloadAlertsForSystemGUID" ReturnCode="0" Message="">
+	<FunctionResponse>	
+		<ParameterGroup Id="1">
+			<Parameter Name="Timestamp" Value="21-21-2010 10-20" />
+			<Parameter Name="Level" Value="Critical" />
+			<Parameter Name="Message" Value="Message" />
+			<Parameter Name="OccuranceCount" Value="4" />
+		</ParameterGroup>
+		<ParameterGroup Id="2">
+			<Parameter Name="Timestamp" Value="21-21-2010 10-20" />
+			<Parameter Name="Level" Value="Simple" />
+			<Parameter Name="Message" Value="Message" />
+			<Parameter Name="OccuranceCount" Value="6" />
+		</ParameterGroup>
+   	</FunctionResponse> 
+ </Function>

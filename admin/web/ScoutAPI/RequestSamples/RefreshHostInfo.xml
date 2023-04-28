@@ -1,0 +1,21 @@
+<Request Id="0009" Version="1.0"> 
+<Header> 
+	<Authentication>   
+		<AccessKeyID>DDC9525FF275C104EFA1DFFD528BD0145F903CB1</AccessKeyID>
+	    <AccessSignature></AccessSignature>
+	</Authentication> 
+</Header> 
+<Body> 
+	<FunctionRequest Name="RefreshHostInfo" Include="No"> 
+		<ParameterGroup Id="Host1">
+			<Parameter Name="HostGUID" Value="DFD6BDAA-6259-EC47-AA3A2125F58D71A8" />
+			<Parameter Name="Option" Value="sss" />
+		</ParameterGroup>
+		<ParameterGroup Id="Host2">
+			<Parameter Name="HostGUID" Value="DFD6BDAA-6259-EC47-AA3A2125F58D71A8" />
+			<Parameter Name="Option" Value="sss" />
+		</ParameterGroup>
+	</FunctionRequest> 
+</Body> 
+</Request>
+

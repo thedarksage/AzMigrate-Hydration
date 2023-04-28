@@ -39,13 +39,6 @@
 
 #define TEST_FLAG(_a, _f)   ((_f) == ((_a) & (_f)))
 
-enum WAIT_STATE
-{
-    WAIT_SUCCESS = 0,
-    WAIT_TIMED_OUT = 1,
-    WAIT_FAILURE = 2
-};
-
 class ExtentInfo{
 public:
     SV_LONGLONG     m_liStartOffset;
@@ -102,11 +95,21 @@ public:
 #endif
 };
 
+#ifdef SV_WINDOWS
+
+enum WAIT_STATE
+{
+    WAIT_SUCCESS = 0,
+    WAIT_TIMED_OUT = 1,
+    WAIT_FAILURE = 2
+};
+
+
 class PLATFORMAPIS_API Event
 {
 public:
     Event(bool bInitialState, bool bAutoReset, const std::string& sName = "");
-    Event(bool bInitialState, bool bAutoReset, const char *name, int iEventType);
+    Event(bool bInitialState, bool bAutoReset, const char* name, int iEventType);
     ~Event();
     bool operator()(int secs);
     void Signal(bool);
@@ -116,9 +119,6 @@ public:
     void SetEventName(const std::string&);
     WAIT_STATE Wait(long int, long int liMilliSeconds = 0);
 
-#ifdef SV_UNIX
-    void ResetEvent();
-#endif
 private:
     Event();
     void Close();
@@ -128,11 +128,8 @@ private:
     bool m_bAutoReset;
     bool m_bInitialState;
     std::string m_sEventName;
-#ifdef SV_UNIX
-    boost::mutex m_mutex;
-    boost::condition m_condition;
-#endif
 };
+#endif
 
 #endif /* IPLATFORMAPIS_H */
 

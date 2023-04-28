@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TestJobGroup>
+  <!-- Resource spec points to a Windows platform image that is defined in asrsrc-prod-sea cloudtestpool -->
+  <ResourceSpec>
+    <Resource SKU="Standard_DS2_V2" Image="ASRSRC-WIN-CVT-19DC"/>
+  </ResourceSpec>
+  
+  <Setup TimeoutMins="60">
+    <BuildFiles>
+      <!-- Copy Test Scripts from build drop -->
+      <Copy Src="[BuildRoot]\[BuildType]-[BuildArch]\cloudtest\AgentUpload\*" Dest="[WorkingDirectory]" Writable="true"/>
+    </BuildFiles>
+  </Setup>
+
+  <!-- Trigger Agent Uploads to DLC -->
+  <TestJob Name="AgentUpload" Type="SingleBox" Tags="Tests=AgentUpload" OwnerAliases="sisunkar" TimeoutMins="600" >
+    <Execution Type="Exe" Path="C:\WINDOWS\system32\cmd.exe " Args="/c powershell.exe [WorkingDirectory]\UploadAgent.ps1"/>	
+  </TestJob>
+
+  <Cleanup TimeoutMins="1" />
+</TestJobGroup>

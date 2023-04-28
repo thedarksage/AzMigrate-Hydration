@@ -738,14 +738,7 @@ int GetBearerToken(RcmClientSettings& settings)
 
 static void LogCallback(unsigned int logLevel, const char *msg)
 {
-    string format;
-    if (logLevel == SV_LOG_ERROR)
-        format = "FAILED ";
-    else if (logLevel == SV_LOG_WARNING)
-        format = "WARNING ";
-
-    format += "%s";
-    DebugPrintf(format.c_str(), msg);
+    DebugPrintf((SV_LOG_LEVEL)logLevel, "%s", msg);
     return;
 }
 

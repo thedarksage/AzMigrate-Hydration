@@ -1,0 +1,13 @@
+<Request Id="0015" Version="1.0">
+<Header>
+  <Authentication>
+    <AccessKeyID>39F830AD9C46DE48B87EBE56F4C919D7C7E96CD9</AccessKeyID>
+    <AccessSignature>NWFiODgwMzQwNTU3ZTM1MjYxMDgxMWYyOGVjYWEwODlmODUyMjhiYg==</AccessSignature>
+  </Authentication>
+</Header>
+<Body>
+  <FunctionRequest Name="IssueConsistencyBySystemGUID" Include="No">
+    <Parameter Name="SystemGUID"  Value="System GUID" />
+   </FunctionRequest>   
+</Body> 
+</Request>
