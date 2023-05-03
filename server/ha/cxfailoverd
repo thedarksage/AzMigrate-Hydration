@@ -1,0 +1,69 @@
+#!/bin/bash
+
+# This will be forked once HA failover is complete
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+base_dir="/home/svsystems"
+
+start(){
+
+    #
+    # Start the failover service
+    #
+    /usr/bin/killall -15 cxfailover.pl 2> /dev/null
+    $"$base_dir"/bin/cxfailover.pl > /dev/null 2>&1 &
+    ret=$?
+    if [ $ret -eq 0 ];then
+        action $"Failover service started successfully " /bin/true
+    else
+        action $"Failover service could not be started  " /bin/false
+    fi
+    return $ret
+}
+
+
+stop(){
+
+    #
+    # Stop the failover service
+    #
+    cxfailover_pid_count=`ps -ef | grep -v 'grep' | grep -c cxfailover.pl`
+    if [ $cxfailover_pid_count -ne 0 ]; then
+        /usr/bin/killall -15 cxfailover.pl 2> /dev/null
+        ret=$?
+        if [ $ret -eq 0 ]; then
+           action $"Failover service Stopped successfully" /bin/true
+        else
+           action $"Failover service could not be Stopped" /bin/false
+        fi
+    else
+        action $"Failover service is already stopped" /bin/true
+    fi
+}
+
+restart(){
+       stop
+       start
+}
+
+
+# See how we were called.
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart)
+    restart
+    ;;
+  *)
+    echo $"Usage: $0 {start|stop|restart}"
+    exit 1
+esac
+
+exit $?
+

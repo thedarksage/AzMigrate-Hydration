@@ -1078,6 +1078,41 @@ namespace AzureRecovery
         TRACE_FUNC_END;
     }
 
+    /// <summary>
+    /// Enables optional Bitlocker features for the VMs.
+    /// </summary>
+    /// <param name="srcOsVol">OS Volume for the Windows VM.</param>
+    /// <returns>ERROR_SUCCESS if successful, error code otherwise.</returns>
+    /// <remarks> https://learn.microsoft.com/en-us/powershell/module/dism/enable-windowsoptionalfeature?view=windowsserver2022-ps </remarks>
+    DWORD EnableBitlocker(const std::string& srcOsVol)
+    {
+        TRACE_FUNC_BEGIN;
+        DWORD dwRet = ERROR_SUCCESS;
+
+        std::stringstream enable_bitlocker_ps_cmd;
+        enable_bitlocker_ps_cmd
+            << SysConstants::POWERSHELL_EXE_NAME
+            << " Enable-WindowsOptionalFeature -Path "
+            << boost::trim_right_copy_if(srcOsVol, boost::is_any_of(DIRECOTRY_SEPERATOR))
+            << std::string(DIRECOTRY_SEPERATOR)
+            << " -FeatureName Bitlocker -All";
+
+        std::stringstream cmd_output;
+        dwRet = RunCommand(enable_bitlocker_ps_cmd.str(), "", cmd_output);
+
+        TRACE_INFO("Output:\n%s\n", cmd_output.str().c_str());
+
+        if (ERROR_SUCCESS != dwRet)
+        {
+            TRACE_ERROR("Command %s exited with exit code: %d\n",
+                enable_bitlocker_ps_cmd.str().c_str(),
+                dwRet);
+        }
+
+        TRACE_FUNC_END;
+        return dwRet;
+    }
+
     /*
     Method      : EnableSerialConsole
 
@@ -1201,7 +1236,6 @@ namespace AzureRecovery
         * bcdedit.exe /set "{bootmgr}" displaybootmenu yes
         * bcdedit.exe /set "{bootmgr}" timeout 5
         * bcdedit.exe /set "{bootmgr}" bootems yes
-        * bcdedit.exe /ems "{current}" ON
         * bcdedit.exe /emssettings EMSPORT:1 EMSBAUDRATE:115200
         */
 
@@ -1212,16 +1246,15 @@ namespace AzureRecovery
             << BCD_TOOLS::BCDEDIT_EXE
             << " /store " << bcd_file;
 
-        std::string serial_console_cmd_arr[5] =
+        std::string serial_console_cmd_arr[4] =
         {
             serialconsole_cmd_prefix.str() + " /set \"{bootmgr}\" displaybootmenu yes",
             serialconsole_cmd_prefix.str() + " /set \"{bootmgr}\" timeout 5",
             serialconsole_cmd_prefix.str() + " /set \"{bootmgr}\" bootems yes",
-            serialconsole_cmd_prefix.str() + " /ems \"{current}\" ON",
             serialconsole_cmd_prefix.str() + " /emssettings EMSPORT:1 EMSBAUDRATE:115200"
         };
 
-        for (int sc_cmd_itr = 0; sc_cmd_itr < 5; sc_cmd_itr++)
+        for (int sc_cmd_itr = 0; sc_cmd_itr < 4; sc_cmd_itr++)
         {
             std::stringstream cmd_output;
             dwRet = RunCommand(serial_console_cmd_arr[sc_cmd_itr], "", cmd_output);

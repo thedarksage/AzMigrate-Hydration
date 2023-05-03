@@ -1,0 +1,62 @@
+<Request Id="0015" Version="1.0">
+<Header>
+  <Authentication>
+    <AccessKeyID>DDC9525FF275C104EFA1DFFD528BD0145F903CB1</AccessKeyID>
+    <AccessSignature></AccessSignature>
+  </Authentication>
+</Header>
+<Body>
+  <FunctionRequest Name="SetupBackupProtectionByAgentGUID" Include="No">
+    <Parameter Name="AgentGUID" Value="525b0508-d77e-41c6-ae58-30782d2bccd3"/>
+    <Parameter Name="RepositoryName" Value="rep1" />
+    <Parameter Name="RPOPolicy" Value="24" />
+	<ParameterGroup Id="ReplicationOptions">
+		<Parameter Name="BatchResync" Value="2" />
+        <ParameterGroup Id="AutoResynPolicy">
+			<Parameter Name="Between" Value="18:00-06:00" />
+            <Parameter Name="WaitTime" Value="10" />
+        </ParameterGroup>
+    </ParameterGroup>
+    <ParameterGroup Id="ConsistencyPolicy">
+      <Parameter Name="ConsistencyLevel" Value="FileSystem/Application" />
+      <Parameter Name="ConsistencySchedule" Value="6 minutes/hrs/days" />
+      <Parameter Name="Exception" Value="16:00-17:00" />
+    </ParameterGroup>
+    <ParameterGroup Id="RetentionPolicy" >
+      <Parameter Name="RetentionType" Value="Time/Space/Composite" />
+      <Parameter Name="Duration" Value="7 hrs(hr)/days(day)/months(month)" />
+      <Parameter Name="Size" Value="2048" />
+      <Parameter Name="Consistency" Value="Filesystem" />
+      <ParameterGroup Id="RetentionWindow" >
+        <ParameterGroup Id="Daily" >
+          <Parameter Name="Duration" Value="7" />
+          <Parameter Name="Granualarity" Value="1"/>
+          <Parameter Name="Count" Value="1" />
+        </ParameterGroup>
+        <ParameterGroup Id="Weekly" >
+          <Parameter Name="Duration" Value="1" />
+          <Parameter Name="Granualarity" Value="1"/>
+          <Parameter Name="Count" Value="1" />
+
+        </ParameterGroup>
+        <ParameterGroup Id="Monthly" >
+          <Parameter Name="Duration" Value="2" />
+          <Parameter Name="Granualarity" Value="1"/>
+          <Parameter Name="Count" Value="1" />
+
+          </ParameterGroup>
+        <ParameterGroup Id="Yearly" >
+          <Parameter Name="Duration" Value="1" />
+          <Parameter Name="Granualarity" Value="1"/>
+          <Parameter Name="Count" Value="1" />
+
+        </ParameterGroup>
+      </ParameterGroup>
+    </ParameterGroup>
+    <Parameter Name="RecoveryFeaturePolicy" Value="System, File" />
+    <ParameterGroup Id="ExclusionList" >    
+      <Parameter Name="VolumeName1" Value="Volume Name" />      
+    </ParameterGroup>      
+  </FunctionRequest>   
+</Body> 
+</Request>

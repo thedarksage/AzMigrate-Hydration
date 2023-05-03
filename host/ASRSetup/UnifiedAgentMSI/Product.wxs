@@ -1,0 +1,1200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+	 xmlns:util="http://schemas.microsoft.com/wix/UtilExtension" >
+
+  <?include $(sys.SOURCEFILEDIR)\Version.wxi ?>
+
+  <?if $(var.Configuration) = "Release" ?>
+  <?define ConfigurationMin = "ReleaseMinDependency" ?>
+  <?else ?>
+  <?define ConfigurationMin = "Debug" ?>
+  <?endif?>
+
+  <?if $(var.Configuration) = "Release" ?>
+  <?define DebugLogLevel = "3" ?>
+  <?else ?>
+  <?define DebugLogLevel = "7" ?>
+  <?endif?>
+ 
+  <?define productName="Microsoft Azure Site Recovery Mobility Service/Master Target Server" ?>
+  <?define programFilesDir="ProgramFilesFolder" ?>
+  <?define upgradeCode="c744f56e-282f-48f9-ba64-60e2cb684b7a" ?>
+  <?define LanguageID="1033" ?>
+  <?define CustomActionDll=$(var.SolutionDir)?>
+  <?define SourceDirectory=$(var.SolutionDir)..\?>
+  <?define SourceRootDirectory=$(var.SolutionDir)..\..\?>
+  <?define SoftwareRegHive="Software"?>
+
+  <Product 
+    Id="275197FC-14FD-4560-A5EB-38217F80CBD1" 
+    Name="$(var.productName)" 
+    Language="$(var.LanguageID)"
+    Version="$(var.BuildVersion)" 
+    Manufacturer="Microsoft Corporation" 
+    UpgradeCode="$(var.upgradeCode)">
+
+    <Package 
+      Keywords="Installer; MSI" 
+      Id="*" 
+      Description="$(var.productName) Setup v$(var.BuildVersion)" 
+      Comments="This installer contains the logic and data required to install $(var.productName)." 
+      Manufacturer="Microsoft Corporation" 
+      InstallerVersion="301" 
+      Platform="$(var.Platform)" 
+      Languages="$(var.LanguageID)" 
+      Compressed="yes" 
+      SummaryCodepage="1252" />
+
+    <Upgrade Id="$(var.upgradeCode)">
+      <UpgradeVersion Minimum="$(var.BuildVersion)"
+                      IncludeMinimum="no"
+                      OnlyDetect="yes"
+                      Language="1033"
+                      Property="NEWPRODUCTFOUND" />
+      <UpgradeVersion Minimum="9.0.0.0"
+                      IncludeMinimum="yes"
+                      Maximum="$(var.BuildVersion)"
+                      IncludeMaximum="no"
+                      OnlyDetect="no"
+                      IgnoreRemoveFailure="yes"
+                      MigrateFeatures="yes"
+                      Language="1033"
+                      Property="UPGRADEFOUND" />
+    </Upgrade>
+
+    <Media Id="1" Cabinet="media1.cab" EmbedCab="yes" CompressionLevel="high"/>
+    <Property Id="ALLUSERS"><![CDATA[1]]></Property>
+    <Property Id="INSTALLDIR" Secure="yes" />
+    <Property Id="CSIP" Secure="yes" />
+    <Property Id="CSPORT" Secure="yes" />
+    <Property Id="GUID" Secure="yes" />
+    <Property Id="ROLE" Secure="yes" />
+    <Property Id="CXINSTALLED" Secure="yes" />
+    <Property Id="PROCESSUPPERFILTER" Secure="yes" />
+    <Property Id="PLATFORM" Secure="yes" />
+
+    <Binary Id="UnifiedAgentCustomActions.dll" SourceFile="$(var.CustomActionDll)UnifiedAgentCustomActions\bin\Release\UnifiedAgentCustomActions.CA.dll" />
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="WindowsFolder" Name="WindowsFolder">
+        <Directory Id="SYSTEMDIR" Name="System32">
+          <Directory Id="DRIVERDIR" Name="drivers"/>
+        </Directory>
+      </Directory>
+      <Directory Id="DesktopFolder" Name="Desktop" />
+      <Directory Id="$(var.programFilesDir)" Name="PFiles">
+        <Directory Id="INSTALLDIR" Name="Microsoft Azure Site Recovery Provider">
+          <Component Id="cm__Delete_InstallDir" Guid="9746FD22-A91A-4E14-84D6-2FF08D66774F">
+            <CreateFolder />
+            <RemoveFile Id="Delete_insdir" Name="*.*" Directory="INSTALLDIR" On="uninstall" />
+            <RemoveFile Id="Delete_filerep" Name="*.*" Directory="FILEREP" On="uninstall" />
+            <RemoveFile Id="Delete_transport" Name="*.*" Directory="TRANSPORT" On="uninstall" />
+            <RemoveFile Id="Delete_etc" Name="*.*" Directory="ETC" On="uninstall" />
+            <util:RemoveFolderEx On="uninstall" Property="INSTALLDIR" />
+          </Component>
+          <Directory Id="FILEREP" Name="filerep"/>
+          <Directory Id="TRANSPORT" Name="transport">
+            <Directory Id="TRANSPORTPEM" Name="pem"/>
+          </Directory>
+          <Directory Id="CONSISTENCY" Name="consistency"/>
+          <Directory Id="DATAPOOLSIZE" Name="GetDataPoolSize"/>
+          <Directory Id="APPDATA" Name="Application Data">
+            <Directory Id="ETC" Name="etc"/>
+            <Directory Id="REPLSHARES" Name="replshares"/>
+          </Directory>
+          <Directory Id="FAILOVER" Name="Failover">
+            <Directory Id="FAILOVERDATA" Name="data"/>
+          </Directory>
+          <Directory Id="ICAT" Name="ICAT"/>
+        </Directory>
+      </Directory>
+
+      <Directory Id="CommonAppDataFolder" Name="CommonAppDataFolder">
+        <Directory Id="MASR" Name="Microsoft Azure Site Recovery">
+          <Directory Id="CERTS" Name="certs"/>
+          <Directory Id="FINGERPRINTS" Name="fingerprints"/>
+          <Directory Id="PRIVATE" Name="private"/>
+          <Directory Id="INDSKFLT" Name="InDskFlt"/>
+        </Directory>
+      </Directory>
+    </Directory>
+
+    <DirectoryRef Id="INSTALLDIR">
+      <Component Id="cm__DeleteBitmapFiles" Guid="89B731BF-95C8-4E32-A07E-0AC2A257AE92">
+        <File Id="DeleteBitmapFiles.bat" Name="DeleteBitmapFiles.bat" DiskId="1" Source="$(var.SourceDirectory)setup\DeleteBitmapFiles.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__drscout_upgrade" Guid="E338C910-A974-4E5A-AF0B-9EF4353A20C1">
+        <File Id="drscout_upgrade.bat" Name="drscout_upgrade.bat" DiskId="1" Source="$(var.SourceDirectory)setup\drscout_upgrade.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__rem_files" Guid="0B5E7B17-8755-46D6-A7D4-EF9E6FB2E288">
+        <File Id="rem_files.bat" Name="rem_files.bat" DiskId="1" Source="$(var.SourceDirectory)setup\rem_files.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__configureadmin" Guid="2B5299F3-E2F8-4A58-8BC9-8F0093A7AD2E">
+        <File Id="configureadmin.bat" Name="configureadmin.bat" DiskId="1" Source="$(var.SourceDirectory)setup\configureadmin.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__AutomatedFailover" Guid="4F9B0A7A-52BB-47CE-82AE-4A251C5987EA">
+        <CreateFolder />
+      </Component>
+      <Component Id="cm__InMageVSSProvider_Install" Guid="C3FD6A82-8186-43F3-A51C-75BC519BBBBE">
+        <Condition>(NOT VersionNT = 600)</Condition>
+        <File Id="InMageVSSProvider_Install.cmd" Name="InMageVSSProvider_Install.cmd" DiskId="1" Source="$(var.SourceDirectory)InMageVssProvider\InstallScripts\InMageVSSProvider_Install.cmd" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__InMageVssProvider_Register" Guid="F0667C52-2D38-4A70-B6F9-24F7B8FF44A3">
+        <Condition>(NOT VersionNT = 600)</Condition>
+        <File Id="InMageVssProvider_Register.vbs" Name="InMageVssProvider_Register.vbs" DiskId="1" Source="$(var.SourceDirectory)InMageVssProvider\InstallScripts\InMageVssProvider_Register.vbs" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__InMageVSSProvider_Uninstall" Guid="40FA0ADE-9BE8-4F30-9ABB-0F29E475B96C">
+        <Condition>(NOT VersionNT = 600)</Condition>
+        <File Id="InMageVSSProvider_Uninstall.cmd" Name="InMageVSSProvider_Uninstall.cmd" DiskId="1" Source="$(var.SourceDirectory)InMageVssProvider\InstallScripts\InMageVSSProvider_Uninstall.cmd" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__wintogo" Guid="1C87BBAE-C302-4ED1-B9B6-57257508A50A">
+        <File Id="wintogo.ps1" Name="wintogo.ps1" DiskId="1" Source="$(var.SourceDirectory)setup\wintogo.ps1" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__EnableDisableFiltering" Guid="7AF46B55-91EF-4AF8-8234-41C902100B71">
+        <CreateFolder />
+      </Component>
+      <Component Id="cm__VerifyBootDiskFiltering" Guid="7E886721-1997-4E85-91E5-AB18D470DA6C">
+        <CreateFolder />
+      </Component>
+      <Component Id="cm__InmSrcLogCollector" Guid="D3C90848-7EC3-4BEE-97F1-96D064AD36FF">
+        <File Id="InmSrcLogCollector.ps1" Name="InmSrcLogCollector.ps1" DiskId="1" Source="$(var.SourceDirectory)setup\InmSrcLogCollector.ps1" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__FindDiskID" Guid="D0FD80F0-1FDD-4F8A-9C9D-32548B657D67">
+        <CreateFolder />
+      </Component>
+      <Component Id="cm__Oracle_bat" Guid="9E439B9C-5293-44D9-BB7A-14BC3799DBB1">
+        <File Id="Oracle.bat" Name="Oracle.bat" DiskId="1" Source="$(var.SourceRootDirectory)Solutions\Oracle\windows_vx\Oracle.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__ThirdParty_Notices" Guid="A33737A2-E32E-4E96-8818-8907771CBB36">
+        <File Id="ThirdPartyNotices.rtf" Name="Third-Party_Notices.rtf" DiskId="1" Source="$(var.SourceRootDirectory)thirdparty\Notices\Third-Party_Notices.rtf" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__AppConfiguratorAPITestBed" Guid="EEF9475D-97D3-4657-BC9C-884D34964D49">
+        <File Id="AppConfiguratorAPITestBed.exe" Name="AppConfiguratorAPITestBed.exe" DiskId="1" Source="$(var.SourceDirectory)AppConfiguratorAPITestBed\$(var.Configuration)\AppConfiguratorAPITestBed.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__appservice" Guid="A6BE5555-9198-4AD6-8DE7-6B5162F0F43F">
+        <File Id="appservice.exe" Name="appservice.exe" DiskId="1" Source="$(var.SourceDirectory)applicationagent\$(var.Configuration)\appservice.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__Application" Guid="C737F8D5-84CA-48F5-B990-5832C707863E">
+	    <CreateFolder />  
+      </Component>
+      <Component Id="cm__AppWizard" Guid="80E6E734-05DE-4153-980D-B43792A9A72F">
+        <File Id="AppWizard.exe" Name="ApplicationReadinesswizard.exe" DiskId="1" Source="$(var.SourceDirectory)AppWizard\$(var.Configuration)\AppWizard.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__cachemgr" Guid="596AABC1-867D-46CE-8583-48B0B968A049">
+        <File Id="cachemgr.exe" Name="cachemgr.exe" DiskId="1" Source="$(var.SourceDirectory)cachemgr\$(var.Configuration)\cachemgr.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__cdpcli" Guid="8FD5D3E0-428A-4BF3-8671-C89244D58B2D">
+        <File Id="cdpcli.exe" Name="cdpcli.exe" DiskId="1" Source="$(var.SourceDirectory)cdpcli\$(var.Configuration)\cdpcli.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__cdpmgr" Guid="4727CA84-E80C-48F2-B561-39F5148D114C">
+        <File Id="cdpmgr.exe" Name="cdpmgr.exe" DiskId="1" Source="$(var.SourceDirectory)cdpmgr\$(var.Configuration)\cdpmgr.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__ConfiguratorAPITestBed" Guid="3F4F0158-47DA-421F-9720-A33955D50AB8">
+        <File Id="ConfiguratorAPITestBed.exe" Name="ConfiguratorAPITestBed.exe" DiskId="1" Source="$(var.SourceDirectory)config\ConfiguratorAPITestBed\$(var.Configuration)\ConfiguratorAPITestBed.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__configmergetool" Guid="FC8CB922-FE85-4353-8221-D3AB30BD07A9">
+        <File Id="configmergetool.exe" Name="configmergetool.exe" DiskId="1" Source="$(var.SourceDirectory)configmergetool\$(var.Configuration)\configmergetool.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__csgetfingerprint" Guid="6AC26924-5C86-49B6-AAE9-87B79F7A84E3">
+        <File Id="csgetfingerprint.exe" Name="csgetfingerprint.exe" DiskId="1" Source="$(var.SourceDirectory)csgetfingerprint\$(var.Configuration)\csgetfingerprint.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__httpclient" Guid="2B528B5E-3300-4B4B-B4B8-48BCE96AE3BA">
+        <File Id="httpclient.dll" Name="httpclient.dll" DiskId="1" Source="$(var.SourceDirectory)csharphttpclient\bin\$(var.Configuration)\httpclient.dll" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__cxcli" Guid="D21B135A-8298-4B68-AE99-C09994B1BBE9">
+        <File Id="cxcli.exe" Name="cxcli.exe" DiskId="1" Source="$(var.SourceDirectory)cxcli\$(var.Configuration)\cxcli.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__cxpsclient" Guid="2FE84710-A7EA-472F-88D2-D810446E9EC0">
+        <File Id="cxpsclient.exe" Name="cxpsclient.exe" DiskId="1" Source="$(var.SourceDirectory)cxpsclient\$(var.Configuration)\cxpsclient.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__dataprotection" Guid="9D273FA1-FFC0-4A43-BE3F-12A09D8FAE35">
+        <File Id="dataprotection.exe" Name="dataprotection.exe" DiskId="1" Source="$(var.SourceDirectory)dataprotection\$(var.Configuration)\dataprotection.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__dataprotectionRCM" Guid ="c8d6b36f-c233-402e-b930-f717b8edca89">
+        <File Id="DataProtectionSyncRcm.exe" Name="DataProtectionSyncRcm.exe" DiskId="1" Source="$(var.SourceDirectory)DataProtectionSyncRcm\$(var.Configuration)\DataProtectionSyncRcm.exe" Vital="yes" KeyPath="yes"/>
+        </Component>
+      <Component Id="cm__diskgeneric" Guid="B275BEAA-B36D-4A45-8469-39527C94DF4B">
+        <File Id="diskgeneric.dll" Name="diskgeneric.dll" DiskId="1" Source="$(var.SourceDirectory)drivers\Tests\win32\diskgenericdll\$(var.Configuration)\diskgeneric.dll" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__hostconfigwxcommon" Guid="0610E7FB-22A3-462B-88FA-AD45327D10B3">
+        <File Id="hostconfigwxcommon.exe" Name="hostconfigwxcommon.exe" DiskId="1" Source="$(var.SourceDirectory)hostconfigwxcommon\$(var.Configuration)\hostconfigwxcommon.exe" Vital="yes"/>
+      </Component>
+      <Component Id="sc__hostconfigwxcommon" Guid="59B2A2CC-642F-4FEF-B56F-EA2FC0D93C76">
+        <Condition> (PLATFORM="VmWare") </Condition>
+        <RegistryValue Root="HKCU" Key="Software\Microsoft\hostconfigwxcommon\DesktopShortcut" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+        <Shortcut Id="sc__hostconfigwxcommon" Directory="DesktopFolder" Name="hostconfigwxcommon" Target="[INSTALLDIR]hostconfigwxcommon.exe" WorkingDirectory="INSTALLDIR"/>
+      </Component>
+      <Component Id="cm__drvutil" Guid="7BBD459E-2E69-43C4-88A1-1DC0D585B00C">
+        <File Id="drvutil.exe" Name="drvutil.exe" DiskId="1" Source="$(var.SourceDirectory)drivers\Tests\win32\drvutil\$(var.Configuration)\drvutil.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__dns" Guid="DA4211F3-56B3-4CF5-90CF-EBFD59E83E30">
+	    <CreateFolder />  
+      </Component>
+      <Component Id="cm__EsxUtil" Guid="6EF1759B-6B82-4804-B8EF-2DCAFC96D33A">
+        <File Id="EsxUtil.exe" Name="EsxUtil.exe" DiskId="1" Source="$(var.SourceDirectory)EsxUtil\$(var.Configuration)\EsxUtil.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__EsxUtilWin" Guid="5E26F277-A6EB-4F8E-80D2-B40843C1CAF2">
+        <File Id="EsxUtilWin.exe" Name="EsxUtilWin.exe" DiskId="1" Source="$(var.SourceDirectory)EsxUtilWin\$(var.Configuration)\EsxUtilWin.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__FailoverCommandUtil" Guid="9D22FB18-683E-44EE-9C6C-365EFB0AB3E6">
+	    <CreateFolder />
+      </Component>
+      <Component Id="cm__gencert" Guid="FF277434-011D-4F0C-B007-9C4DD21ECE29">
+        <File Id="gencert.exe" Name="gencert.exe" DiskId="1" Source="$(var.SourceDirectory)gencert\$(var.Configuration)\gencert.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__genpassphrase" Guid="1DD6D064-22FB-4CB0-B3E8-5691F65E541A">
+        <File Id="genpassphrase.exe" Name="genpassphrase.exe" DiskId="1" Source="$(var.SourceDirectory)genpassphrase\$(var.Configuration)\genpassphrase.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__InMageVssProvider" Guid="59664EB0-5D22-4C58-8BDE-E313D12375ED">
+        <CreateFolder />
+      </Component>
+      <Component Id="cm__InMageVssProvider_X64" Guid="8866F0A6-0EEB-4F5F-BFE0-50DEAF075E86">
+        <Condition>(NOT VersionNT = 600)</Condition>
+        <File Id="InMageVssProvider_X64.dll" Name="InMageVssProvider.dll" DiskId="1" Source="$(var.SourceDirectory)InMageVssProvider\x64\$(var.Configuration)\InMageVssProvider_X64.dll" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__inmexec" Guid="AD77654C-18BB-4886-B47A-43CC87F7D83F">
+        <File Id="inmexec.exe" Name="inmexec.exe" DiskId="1" Source="$(var.SourceDirectory)inmexec\$(var.Configuration)\inmexec.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__inmmessage" Guid="E2353D3E-E1C1-491D-84B0-3B902EDC4445">
+        <File Id="inmmessage.dll" Name="inmmessage.dll" DiskId="1" Source="$(var.SourceDirectory)inmmessage\$(var.Configuration)\inmmessage.dll" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__s2" Guid="4EF888AA-2414-4B43-9328-A9B15A9150E7">
+        <CreateFolder />
+      </Component>
+      <Component Id="cm__s2CS" Guid="C963EB33-D1D1-42BE-A397-67906E43B55C">
+        <CreateFolder />
+      </Component>
+      <Component Id="cm__s2RCM" Guid="5BC82D4A-629D-47E7-B5A6-288074404718">
+        <CreateFolder />        
+      </Component>
+      <Component Id="cm__s2V2A" Guid="8922825e-1cf3-41d1-b916-5ffaec60d3c1">              
+        <File Id="s2CS.exe" Name="s2CS.exe" DiskId="1" Source="$(var.SourceDirectory)s2-cs\$(var.Configuration)\s2.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__s2A2A" Guid="ea5b9b1e-b554-4ddd-ac6e-918a3e24c715">
+        <File Id="s2RCM.exe" Name="s2RCM.exe" DiskId="1" Source="$(var.SourceDirectory)s2\$(var.Configuration)\s2.exe" Vital="yes" KeyPath="yes"/>
+      </Component>      
+      <Component Id="cm__ScoutTuning" Guid="831FB4D9-48C1-4513-B07C-B812F0EC942D">
+        <File Id="ScoutTuning.exe" Name="ScoutTuning.exe" DiskId="1" Source="$(var.SourceDirectory)ScoutTuning\$(var.Configuration)\ScoutTuning.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__ServiceCtrl" Guid="D70EE9B2-56B3-4918-BC92-F5CA1D393131">
+        <File Id="ServiceCtrl.exe" Name="ServiceCtrl.exe" DiskId="1" Source="$(var.SourceDirectory)ServiceCtrl\$(var.Configuration)\ServiceCtrl.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__svdcheck" Guid="0CADFAE3-DC99-47C8-82F6-9C0021A057CD">
+        <File Id="svdcheck.exe" Name="svdcheck.exe" DiskId="1" Source="$(var.SourceDirectory)svdcheck\$(var.Configuration)\svdcheck.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__UnLockDrives" Guid="657664A8-E45A-4C4F-AFE9-D02073DAF0F7">
+        <File Id="UnLockDrives.exe" Name="UnLockDrives.exe" DiskId="1" Source="$(var.SourceDirectory)UnLockDrives\$(var.Configuration)\UnLockDrives.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__unregagent" Guid="02B5A348-7D6E-484C-B8AB-DF9B4A586C0B">
+        <File Id="unregagent.exe" Name="unregagent.exe" DiskId="1" Source="$(var.SourceDirectory)unregagent\$(var.Configuration)\unregagent.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__ClusUtil" Guid="36B959F2-CF08-4612-B873-BB211A39A414">
+        <File Id="ClusUtil.exe" Name="ClusUtil.exe" DiskId="1" Source="$(var.SourceDirectory)Utilities\Windows\ClusUtil\$(var.Configuration)\ClusUtil.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__MoveSQLDB" Guid="F56ED4DD-B277-4FDF-A48A-40A0E23AAD3E">
+        <File Id="MoveSQLDB.exe" Name="MoveSQLDB.exe" DiskId="1" Source="$(var.SourceDirectory)Utilities\Windows\MovingSQLDBs\$(var.Configuration)\MoveSQLDB.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__scsicmdutil" Guid="FE5EFEB0-B80A-49E5-B05F-5EBA2CC42349">
+        <CreateFolder />
+      </Component>
+      <Component Id="cm__WinOp" Guid="88962CD9-6D85-4045-8FEB-48982B5B9ECA">
+	    <CreateFolder />  
+      </Component>
+      <Component Id="cm__vacp" Guid="47C3665B-5C7B-47D3-BB71-495B7474ED0C">
+        <CreateFolder />
+      </Component>
+      <Component Id="cm__vacp_X86" Guid="10d0541d-582c-44e7-a3c4-5498d0f75c98">        
+        <Condition> (NOT VersionNT64) </Condition>
+        <File Id="vacp.exe" Name="vacp.exe" DiskId="1" Source="$(var.SourceDirectory)vacp\$(var.Configuration)\vacp.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__vacp_X64" Guid="543AFCF4-3047-43F0-8798-759E94706AE3">
+        <Condition> VersionNT64 </Condition>
+        <File Id="vacp_X64.exe" Name="vacp.exe" DiskId="1" Source="$(var.SourceDirectory)vacp\x64\$(var.Configuration)\vacp_X64.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__verifycert" Guid="0053B446-7A44-4F76-BB53-10DC112D27A4">
+        <File Id="verifycert.exe" Name="verifycert.exe" DiskId="1" Source="$(var.SourceDirectory)verifycert\$(var.Configuration)\verifycert.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__volopt" Guid="8650EF85-000E-4DE2-A03A-AD877595F8F6">
+        <File Id="volopt.exe" Name="volopt.exe" DiskId="1" Source="$(var.SourceDirectory)volopt\$(var.Configuration)\volopt.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__MTConfigUpdate" Guid="E2DA1F81-C77F-4B6F-A590-6C5B512F25E6">
+		<CreateFolder />
+      </Component>
+      <Component Id="cm__hostconfig" Guid="264243FC-FFD7-44D1-8F5C-9D0CF272F084">
+        <CreateFolder />
+      </Component>
+      <Component Id="cm__spapp" Guid="1A5904D7-FE2F-4AB5-B71E-610C54D91FEC">
+        <File Id="spapp.exe" Name="spapp.exe" DiskId="1" Source="$(var.SourceRootDirectory)Solutions\Sharepoint\spapp\$(var.Configuration)\spapp.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__spappconfig" Guid="E301A182-4083-4120-A246-24062FF7D6DB">
+        <File Id="spapp.exe.config" Name="spapp.exe.config" DiskId="1" Source="$(var.SourceRootDirectory)Solutions\Sharepoint\spapp\$(var.Configuration)\spapp.exe.config" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__spapploader" Guid="BC31269C-F266-4B7A-B019-6BBCA64B9BB8">
+        <File Id="spapploader.bat" Name="spapploader.bat" DiskId="1" Source="$(var.SourceRootDirectory)Solutions\Sharepoint\scripts\spapploader.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__db2_consistency" Guid="41046A49-AAE4-45DD-A056-11A81B63268A">
+        <File Id="db2_consistency.bat" Name="db2_consistency.bat" DiskId="1" Source="$(var.SourceRootDirectory)Solutions\DB2\db2_consistency.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__vxfiles" Guid="96848531-3D42-4BA5-8FDF-E74A906524ED">
+        <File Id="vxfiles.txt" Name="vxfiles.txt" DiskId="1" Source="$(var.SourceDirectory)setup\vxfiles.txt" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__fxfiles" Guid="59006489-0090-4EC3-A20B-248EE584751B">
+        <CreateFolder />
+      </Component>
+      <Component Id="cm__vxfirewall" Guid="A05221DC-ED7C-4A07-84F6-E7F948ADBE9D">
+        <File Id="vxfirewall.bat" Name="vxfirewall.bat" DiskId="1" Source="$(var.SourceDirectory)setup\vxfirewall.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__fxfirewall" Guid="191AD19D-BDE3-443F-A5DB-39929FC246A9">
+        <CreateFolder />
+      </Component>
+      <Component Id="cm__firewall_remove" Guid="96A4D996-1B73-4D44-907D-34ED42464604">
+        <File Id="firewall_remove.bat" Name="firewall_remove.bat" DiskId="1" Source="$(var.SourceDirectory)setup\firewall_remove.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__EvtCollForw" Guid="9A7AF17A-99B0-487D-94B6-3B9FEE8D0728">
+        <File Id="evtcollforw.exe" Name="evtcollforw.exe" DiskId="1" Source="$(var.SourceDirectory)EvtCollForw\$(var.Configuration)\evtcollforw.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__DiskFltEvents" Guid="4C63A8C3-C442-46FC-9A91-5967B19BC86C"> 
+        <Condition> (ROLE="MS") </Condition>
+        <File Id="DiskFltEvents.man" Name="DiskFltEvents.man" DiskId="1" Source="$(var.SourceDirectory)drivers\InVolFlt\windows\DiskFlt\DiskFltEvents.man" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__newtonsoftjson" Guid="7DA0B217-BC2C-4543-A8A1-5BBC6E9D702C">
+        <File Id="Newtonsoft.Json.dll" Name="Newtonsoft.Json.dll" DiskId="1" Source="$(var.SourceDirectory)ASRSetup\UnifiedAgentConfigurator\bin\$(var.Configuration)\Newtonsoft.Json.dll" Vital="yes" KeyPath="yes"/>
+	    </Component>
+      <Component Id="cm__unifiedAgentConfigurator" Guid="64B1783F-6690-4516-8C8E-0C34C4F5A18A">
+        <File Id="UnifiedAgentConfigurator.exe" Name="UnifiedAgentConfigurator.exe" DiskId="1" Source="$(var.SourceDirectory)ASRSetup\UnifiedAgentConfigurator\bin\$(var.Configuration)\UnifiedAgentConfigurator.exe" Vital="yes" KeyPath="yes"/>
+        <File Id="UnifiedAgentConfigurator.exe.config" Name="UnifiedAgentConfigurator.exe.config" DiskId="1" Source="$(var.SourceDirectory)ASRSetup\UnifiedAgentConfigurator\bin\$(var.Configuration)\UnifiedAgentConfigurator.exe.config" Vital="yes"/>
+      </Component>
+      <Component Id="cm__asrSetupFramework" Guid="FE101DD0-941A-4C60-B3F3-53D6CAB686A7">
+        <File Id="ASRSetupFramework.dll" Name="ASRSetupFramework.dll" DiskId="1" Source="$(var.SourceDirectory)ASRSetup\SetupFramework\bin\$(var.Configuration)\ASRSetupFramework.dll" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__asrSetupResources" Guid="55D5BB8C-994A-49F0-B8F6-0660B8D57892">
+        <File Id="ASRResources.dll" Name="ASRResources.dll" DiskId="1" Source="$(var.SourceDirectory)ASRSetup\ASRResources\bin\$(var.Configuration)\ASRResources.dll" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__EvtCollForwRCM" Guid="D5861931-38F5-4748-B601-B513518334D5">
+        <CreateFolder />        
+      </Component>
+      <Component Id="cm__AzureRcmCli" Guid="6558006A-1D0B-4E80-BF09-3C4A0026F290">
+        <CreateFolder />
+      </Component>      
+      <Component Id="cm__InmCheckAzureServices" Guid="4ba340f5-0939-4aa9-8058-f44b7fbb47ff">
+        <CreateFolder />          
+      </Component>
+      <Component Id="cm__InmCheckAzureServicesConf" Guid="eaff50e3-05b1-45eb-88cd-9ed0966fea1f">
+        <CreateFolder />        
+      </Component>     
+      <Component Id="cm__AzureRcmCliNew" Guid="c082f06a-c3ed-4166-9957-05aedeefd5e3">
+        <File Id="AzureRcmCli.exe" Name="AzureRcmCli.exe" DiskId="1" Source="$(var.SourceDirectory)AzureRcmCli\$(var.Configuration)\AzureRcmCli.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__InmCheckAzureServicesNew" Guid="84469c39-a2ae-448c-96a9-23b6560eb562">
+        <File Id="InmCheckAzureServices.exe" Name="InmCheckAzureServices.exe" DiskId="1" Source="$(var.SourceDirectory)InmCheckAzureServices\bin\$(var.Configuration)\InmCheckAzureServices.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__InmCheckAzureServicesConfNew" Guid="95d698cf-618e-497b-9ed8-0d878919b40e">
+        <File Id="InmCheckAzureServices.exe.config" Name="InmCheckAzureServices.exe.config" DiskId="1" Source="$(var.SourceDirectory)InmCheckAzureServices\bin\$(var.Configuration)\InmCheckAzureServices.exe.config" Vital="yes" KeyPath="yes"/>
+      </Component>      
+      <Directory Id="enRes" Name="en">
+        <Component Id="cm__asrSetupResourcesEN" Guid="B917E015-21A1-452B-824F-65B0586BD7F3">
+          <File Id="ASRResources.resources.dll" Name="ASRResources.resources.dll" DiskId="1" Source="$(var.SourceDirectory)ASRSetup\ASRResources\bin\$(var.Configuration)\en\ASRResources.resources.dll" Vital="yes" KeyPath="yes"/>
+        </Component>
+      </Directory>
+      
+    </DirectoryRef>
+
+    <DirectoryRef Id="DRIVERDIR">
+      <?if $(var.Platform) = x86 ?>
+		<Component Id="cm__InDskFlt_Vista32" Guid="07da19fd-5543-4087-8ead-b95de33e9e27" Win64="no">
+          <Condition> VersionNT = 600 AND (NOT VersionNT64) AND (ROLE="MS")  </Condition>
+          <File Id="InDskFlt_Vista32" Name="InDskFlt.sys" DiskId="1" Source="$(var.SourceDirectory)drivers\InVolFlt\windows\DiskFlt\x86\Vista$(var.Configuration)\InDskFlt.sys" Vital="yes" KeyPath="yes"/>
+        </Component>
+      <?else ?>
+		<Component Id="cm__InDskFlt_Vista64" Guid="9c8d17fc-7bfe-4e7c-9cb7-f585de11228b" Win64="yes">
+          <Condition> VersionNT = 600 AND VersionNT64 AND (ROLE="MS")  </Condition>
+          <File Id="InDskFlt_Vista64" Name="InDskFlt.sys" DiskId="1" Source="$(var.SourceDirectory)drivers\InVolFlt\windows\DiskFlt\x64\Vista$(var.Configuration)\InDskFlt.sys" Vital="yes" KeyPath="yes"/>
+        </Component>
+        <Component Id="cm__InDskFlt764" Guid="B2E12515-D803-455A-8B0C-E01DBAB2BDD8" Win64="yes">
+          <Condition> VersionNT = 601 AND VersionNT64 AND (ROLE="MS")  </Condition>
+          <File Id="InDskFlt764" Name="InDskFlt.sys" DiskId="1" Source="$(var.SourceDirectory)drivers\InVolFlt\windows\DiskFlt\x64\Win7$(var.Configuration)\InDskFlt.sys" Vital="yes" KeyPath="yes"/>
+        </Component>
+        <Component Id="cm__InDskFlt864" Guid="AA253F80-B82A-4899-B7F6-06A5DD192FC7" Win64="yes">
+          <Condition> VersionNT = 602 AND VersionNT64 AND (ROLE="MS")  </Condition>
+          <File Id="InDskFlt864" Name="InDskFlt.sys" DiskId="1" Source="$(var.SourceDirectory)drivers\InVolFlt\windows\DiskFlt\x64\Win8$(var.Configuration)\InDskFlt.sys" Vital="yes" KeyPath="yes"/>
+        </Component>
+        <Component Id="cm__InDskFlt8164" Guid="F428DDB8-2DB9-42CC-B197-175D9A50EB6C" Win64="yes">
+          <Condition> VersionNT = 603 AND VersionNT64 AND (ROLE="MS")  </Condition>
+          <File Id="InDskFlt8164" Name="InDskFlt.sys" DiskId="1" Source="$(var.SourceDirectory)drivers\InVolFlt\windows\DiskFlt\x64\Win8.1$(var.Configuration)\InDskFlt.sys" Vital="yes" KeyPath="yes"/>
+        </Component>
+        <Component Id="cm__InDskFlt1064" Guid="E33B15EF-9E24-4BCD-AF93-9BF1FB6E4C72" Win64="yes">
+          <Condition> VersionNT = 1000 AND VersionNT64 AND (ROLE="MS")  </Condition>
+          <File Id="InDskFlt1064" Name="InDskFlt.sys" DiskId="1" Source="$(var.SourceDirectory)drivers\InVolFlt\windows\DiskFlt\x64\Win8.1$(var.Configuration)\InDskFlt.sys" Vital="yes" KeyPath="yes"/>
+        </Component>
+      <?endif ?>
+    </DirectoryRef>
+
+    <DirectoryRef Id="FILEREP">
+      <Component Id="cm__cx_backup_withfx" Guid="AA341623-9174-401A-9AB1-5BD368516683">
+        <File Id="cx_backup_withfx.bat" Name="cx_backup_withfx.bat" DiskId="1" Source="$(var.SourceRootDirectory)server\windows\cx_backup_withfx.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__frsvc" Guid="238C25E2-1906-48C5-8772-4218DA6D7BE3">
+        <File Id="frsvc.exe" Name="frsvc.exe" DiskId="1" Source="$(var.SourceDirectory)frsvc\$(var.ConfigurationMin)\frsvc.exe" Vital="yes" KeyPath="yes"/>
+        <ServiceInstall Id="frsvc_service" Type="ownProcess" Name="frsvc" DisplayName="InMage Scout FX Agent" Description="File Replication Service" Start="auto" Account="LocalSystem" ErrorControl="normal" Vital="yes"/>
+        <util:ServiceConfig ServiceName="frsvc" FirstFailureActionType="none" SecondFailureActionType="none" ThirdFailureActionType="none" ResetPeriodInDays="0" RestartServiceDelayInSeconds="0" />
+        <ServiceControl Id="frsvc_service" Stop="both" Remove="uninstall" Name="frsvc" Wait="yes" />
+      </Component>
+      <Component Id="cm__frsvc_hostconfigwxcommon" Guid="05D32F41-DF65-425B-BC9C-01FCE181C7E5">
+        <File Id="frsvc_hostconfigwxcommon.exe" Name="hostconfigwxcommon.exe" DiskId="1" Source="$(var.SourceDirectory)hostconfigwxcommon\$(var.Configuration)\hostconfigwxcommon.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__hostconfig_chm" Guid="5132C987-7937-420E-849C-0DF524CAF795">
+        <CreateFolder />
+      </Component>
+      <Component Id="cm__frsvc_unregagent" Guid="36E1F971-9EFF-4382-8153-7C35718E846C">
+        <File Id="frsvc_unregagent.exe" Name="unregagent.exe" DiskId="1" Source="$(var.SourceDirectory)unregagent\$(var.Configuration)\unregagent.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__frsvc_inmmessage" Guid="74ECCED2-15AA-4386-8F04-F7814F60D750">
+        <File Id="frsvc_inmmessage.dll" Name="inmmessage.dll" DiskId="1" Source="$(var.SourceDirectory)inmmessage\$(var.Configuration)\inmmessage.dll" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__inmsync" Guid="4D4E3883-54BF-43D0-B279-D2DEA14CC4C1">
+	    <CreateFolder />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="TRANSPORT">
+      <Component Id="cm__newreq" Guid="2AAA9547-4AD5-4E71-AB5D-A83975CB4AF5">
+        <CreateFolder />
+      </Component>
+      <Component Id="cm__newcert" Guid="69709537-93AB-4986-A2A6-C5D16D5BB88F">
+        <File Id="newcert.pem" Name="newcert.pem" DiskId="1" Source="$(var.SourceDirectory)tal\newcert.pem" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__client_pem" Guid="F91F2446-9C72-4E1E-A383-BE863F759F35">
+        <File Id="client.pem" Name="client.pem" DiskId="1" Source="$(var.SourceDirectory)cxpslib\pem\client.pem" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__cxps" Guid="BA6BB2B9-D5E8-4B4D-91FE-916084D1B5C1">
+        <File Id="cxps.exe" Name="cxps.exe" DiskId="1" Source="$(var.SourceDirectory)cxps\$(var.Configuration)\cxps.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__cxpscli" Guid="589B02F6-88C8-4C48-A90C-2C64EF70CF79">
+        <File Id="cxpscli.exe" Name="cxpscli.exe" DiskId="1" Source="$(var.SourceDirectory)cxpscli\$(var.Configuration)\cxpscli.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__cxps_conffile" Guid="F2CE0275-F2CF-4F3C-BAB6-7FEFDC516D31" NeverOverwrite="yes">
+        <File Id="cxps.conf" Name="cxps.conf" DiskId="1" Source="$(var.SourceDirectory)cxpslib\cxps.conf" Vital="yes" KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+    
+    <DirectoryRef Id="TRANSPORTPEM">
+      <Component Id="cm__dh_pem" Guid="F355F614-52C3-4DD9-88EF-94038229BD04">
+        <File Id="dh.pem" Name="dh.pem" DiskId="1" Source="$(var.SourceDirectory)cxpslib\pem\dh.pem" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__servercert_pem" Guid="96A3879D-99D6-41AE-BBDE-810A3B606D7B">
+        <File Id="servercert.pem" Name="servercert.pem" DiskId="1" Source="$(var.SourceDirectory)cxpslib\pem\servercert.pem" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__serverkey_pem" Guid="F7627E84-8422-418E-9721-D0E7ECBBC497">
+        <CreateFolder />
+      </Component>
+    </DirectoryRef>
+    
+    <DirectoryRef Id="CONSISTENCY">
+      <Component Id="cm__ExchangeValidation" Guid="7084631E-F66E-4BC6-91B0-72C0C365591F">
+        <File Id="ExchangeValidation.exe" Name="ExchangeValidation.exe" DiskId="1" Source="$(var.SourceDirectory)Utilities\Windows\ExchangeValidation\ExchangeValidation\bin\$(var.Configuration)\ExchangeValidation.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__Oracle_sql" Guid="2B4B7FB5-FE89-4618-AFD7-53414F0DE265">
+        <File Id="Oracle.sql" Name="Oracle.sql" DiskId="1" Source="$(var.SourceRootDirectory)Solutions\Oracle\windows_vx\Oracle.sql" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__oraclefailover" Guid="1DDE46F2-CC08-4777-834D-F5289DFEE30E">
+        <File Id="oraclefailover.vbs" Name="oraclefailover.vbs" DiskId="1" Source="$(var.SourceRootDirectory)Solutions\Oracle\windows_vx\oraclefailover.vbs" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__winshare_post" Guid="3F676199-60FD-40D0-9A92-C3B77C078837">
+        <File Id="winshare_post.bat" Name="winshare_post.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\win\winshare_post.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__winshare_pre" Guid="334011F8-F287-4935-9490-4BA3FA1378AB">
+        <File Id="winshare_pre.bat" Name="winshare_pre.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\win\winshare_pre.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__WMI_consistency" Guid="0E1C4DC3-4EFA-4587-93BB-2CEBC2C13495">
+        <File Id="WMI_consistency.bat" Name="WMI_consistency.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\WMI_consistency.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__WINS_consistency" Guid="D5F48803-AC8D-479F-9106-BCD6D8B4F174">
+        <File Id="WINS_consistency.bat" Name="WINS_consistency.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\WINS_consistency.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__VM_consistency" Guid="5F4FD0D6-4997-42AF-876E-53ABCB0198B0">
+        <File Id="VM_consistency.bat" Name="VM_consistency.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\VM_consistency.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__VCon_Physical_Snapshot" Guid="0C41BB8C-0E6F-4B14-82CC-C47C318A9D54">
+        <File Id="VCon_Physical_Snapshot.bat" Name="VCon_Physical_Snapshot.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\VCon_Physical_Snapshot.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__TermServLicense_consistency" Guid="0D5C1ABB-E554-4C24-8897-6831D5D50D69">
+        <File Id="TermServLicense_consistency.bat" Name="TermServLicense_consistency.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\TermServLicense_consistency.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__SystemFiles_consistency" Guid="575A9C4E-6F7C-4170-AC56-98EB09D855F2">
+        <File Id="SystemFiles_consistency.bat" Name="SystemFiles_consistency.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\SystemFiles_consistency.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__svagents_restart" Guid="591CEA90-4692-4A0A-B8A6-A4D89D077FB0">
+        <File Id="svagents_restart.bat" Name="svagents_restart.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\svagents_restart.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__Sql2012_consistency_fstag" Guid="771878D4-8D89-4AD0-B999-342AF6634CC9">
+        <File Id="Sql2012_consistency_fstag.bat" Name="Sql2012_consistency_fstag.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\Sql2012_consistency_fstag.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__Sql2012_consistency" Guid="3F9A897E-1271-4C7C-84C2-0CA6F5E65D97">
+        <File Id="Sql2012_consistency.bat" Name="Sql2012_consistency.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\Sql2012_consistency.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__Sql2008_consistency_fstag" Guid="B18DE6EE-6EFC-4854-8808-B19E18D04136">
+        <File Id="Sql2008_consistency_fstag.bat" Name="Sql2008_consistency_fstag.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\Sql2008_consistency_fstag.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__Sql2008_consistency" Guid="0AD49B4C-9708-44C5-A4D5-AFCDBC0905E6">
+        <File Id="Sql2008_consistency.bat" Name="Sql2008_consistency.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\Sql2008_consistency.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__Sql2005_consistency_fstag" Guid="3D669C81-47C6-4686-90E5-9CEAE5D94475">
+        <File Id="Sql2005_consistency_fstag.bat" Name="Sql2005_consistency_fstag.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\Sql2005_consistency_fstag.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__Sql2005_consistency" Guid="3CA7C517-0A2F-415D-8AC6-35E4D123051B">
+        <File Id="Sql2005_consistency.bat" Name="Sql2005_consistency.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\Sql2005_consistency.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__sql_discovery" Guid="47AC6316-4672-4FDE-8B96-BD77C56DF542">
+        <File Id="sql_discovery.bat" Name="sql_discovery.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\sql_discovery.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__Sql_consistency_fstag" Guid="9D0D7C7E-3052-4B52-94D4-0E403F54A3EF">
+        <File Id="Sql_consistency_fstag.bat" Name="Sql_consistency_fstag.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\Sql_consistency_fstag.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__Sql_consistency" Guid="EA2B69F0-097A-4993-9124-1A7E97E6D489">
+        <File Id="Sql_consistency.bat" Name="Sql_consistency.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\Sql_consistency.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__ServiceState_consistency" Guid="043CDD57-ABE5-4547-9CA7-27DCE07AF728">
+        <File Id="ServiceState_consistency.bat" Name="ServiceState_consistency.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\ServiceState_consistency.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__RSM_consistency" Guid="1ADB5A07-D82A-4758-8C34-4864B0631C18">
+        <File Id="RSM_consistency.bat" Name="RSM_consistency.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\RSM_consistency.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__Registry_consistency" Guid="1C0C1E4A-85C9-41F5-847E-B21734FAC157">
+        <File Id="Registry_consistency.bat" Name="Registry_consistency.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\Registry_consistency.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__Pervasive_consistency" Guid="9E175C71-8032-4035-8B85-D878F376E4C7">
+        <File Id="Pervasive_consistency.bat" Name="Pervasive_consistency.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\Pervasive_consistency.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__MySql51_consistency_fstag" Guid="B0D88A01-8AA4-48FB-8E5B-1DD2F848271E">
+        <File Id="MySql51_consistency_fstag.bat" Name="MySql51_consistency_fstag.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\MySql51_consistency_fstag.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__MySql_Windows" Guid="649B1F97-6CE2-4C52-8C97-458224134F84">
+        <File Id="MySql_Windows.bat" Name="MySql_Windows.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\MySql_Windows.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__InMage_DRS_Ex2K7" Guid="5141DD24-1532-414B-A46B-8C5A442A2848">
+        <File Id="InMage_DRS_Ex2K7.bat" Name="InMage_DRS_Ex2K7.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\InMage_DRS_Ex2K7.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__InMage_DRS_Ex2K3" Guid="724A0B82-7023-40D0-8DE4-C3FCAC01C7E7">
+        <File Id="InMage_DRS_Ex2K3.bat" Name="InMage_DRS_Ex2K3.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\InMage_DRS_Ex2K3.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__IISMETABASE_consistency" Guid="8F063F73-9ED4-4381-B50B-52D6093E5D89">
+        <File Id="IISMETABASE_consistency.bat" Name="IISMETABASE_consistency.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\IISMETABASE_consistency.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__Full_consistency" Guid="236FCD60-742E-47CB-9317-22A9B5A643D7">
+        <File Id="Full_consistency.bat" Name="Full_consistency.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\Full_consistency.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__FRS_consistency" Guid="78ABF177-8A89-4A7E-A3EE-BE5271AAE115">
+        <File Id="FRS_consistency.bat" Name="FRS_consistency.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\FRS_consistency.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__FileSystem_consistency" Guid="E44BCF47-1357-4289-9C4E-AB026DB590CE">
+        <File Id="FileSystem_consistency.bat" Name="FileSystem_consistency.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\FileSystem_consistency.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__FileServer_SecondaryServer" Guid="F1DD8691-C734-4F13-9AA9-FEC3BE2FBF5F">
+        <File Id="FileServerSecondaryServer.bat" Name="FileServer-SecondaryServer.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\FileServer-SecondaryServer.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__FileServerPrimaryServer" Guid="C9A5F3A2-A6C1-4D7B-A5BA-F1BEF5F0866F">
+        <File Id="FileServerPrimaryServer.bat" Name="FileServer-PrimaryServer.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\FileServer-PrimaryServer.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__FileServerconsistency_fstag" Guid="8793CFAE-1D7C-4897-83D5-6895FDE76710">
+        <File Id="FileServer_consistency_fstag.bat" Name="FileServer_consistency_fstag.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\FileServer_consistency_fstag.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__ExchangeLogFlush" Guid="F9FBB666-417B-43A8-B8FF-443AFAD0C586">
+        <File Id="ExchangeLogFlush.bat" Name="ExchangeLogFlush.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\ExchangeLogFlush.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__exchange2010_log_flush" Guid="B6277CAD-10FB-4616-BE4A-09E33539D229">
+        <File Id="exchange2010_log_flush.bat" Name="exchange2010_log_flush.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\exchange2010_log_flush.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__exchange2010_consistency_fstag" Guid="95938645-30C4-4118-A48B-FDAB3D0D4D9B">
+        <File Id="exchange2010_consistency_fstag.bat" Name="exchange2010_consistency_fstag.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\exchange2010_consistency_fstag.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__exchange2010_consistency" Guid="9218821E-7DF7-4DEC-BA93-1A48C59BBEAF">
+        <File Id="exchange2010_consistency.bat" Name="exchange2010_consistency.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\exchange2010_consistency.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__exchange2007_log_flush" Guid="BAAFB121-3392-487D-97BB-CBD9BD412B70">
+        <File Id="exchange2007_log_flush.bat" Name="exchange2007_log_flush.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\exchange2007_log_flush.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__exchange2007_consistency_fstag" Guid="8FF30A0A-9449-4916-99B5-91E30A023220">
+        <File Id="exchange2007_consistency_fstag.bat" Name="exchange2007_consistency_fstag.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\exchange2007_consistency_fstag.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__exchange2007_consistency" Guid="D8E41950-F1F0-456B-BF10-C3A1E6D826C5">
+        <File Id="exchange2007_consistency.bat" Name="exchange2007_consistency.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\exchange2007_consistency.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__exchange_log_flush" Guid="F7FD8847-6DD0-40DB-A59C-6D8438DD2151">
+        <File Id="exchange_log_flush.bat" Name="exchange_log_flush.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\exchange_log_flush.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__exchange_consistency_validation" Guid="DAD47E9C-416C-4672-97F7-41695E80DD89">
+        <File Id="exchange_consistency_validation.bat" Name="exchange_consistency_validation.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\exchange_consistency_validation.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__exchange_consistency_fstag" Guid="C1780DCF-67AF-4AD4-82E0-CD84CC13A03D">
+        <File Id="exchange_consistency_fstag.bat" Name="exchange_consistency_fstag.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\exchange_consistency_fstag.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__exchange_consistency" Guid="8F1CAA6C-BFFA-4E83-A571-D5B18D5DFFA7">
+        <File Id="exchange_consistency.bat" Name="exchange_consistency.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\exchange_consistency.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__exch_restart" Guid="E35EF95D-CB31-4941-84B9-E38D7A8B149C">
+        <File Id="exch_restart.bat" Name="exch_restart.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\exch_restart.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__exch_discovery" Guid="A2FB5A1D-CFE8-43AE-A263-0584A839B5D0">
+        <File Id="exch_discovery.bat" Name="exch_discovery.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\exch_discovery.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__EventLog_consistency" Guid="C45245AE-97B5-4A86-A727-FB5C7F0F7BE4">
+        <File Id="EventLog_consistency.bat" Name="EventLog_consistency.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\EventLog_consistency.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__Dhcp_consistency" Guid="F7EB710F-FC30-42BD-8953-A07DFA8439F3">
+        <File Id="Dhcp_consistency.bat" Name="Dhcp_consistency.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\Dhcp_consistency.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__COM_REGDB_consistency" Guid="DCDB4B8B-6CD4-4284-8DE7-A05DA87F7EDE">
+        <File Id="COMREGDB_consistency.bat" Name="COM+REGDB_consistency.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\COM+REGDB_consistency.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__ClusterService_consistency" Guid="A61A2D29-BE33-48E4-992E-8B5E0A331CE9">
+        <File Id="ClusterService_consistency.bat" Name="ClusterService_consistency.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\ClusterService_consistency.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__CA_consistency" Guid="86C110DE-A89F-4E94-BEE6-20F06BB93B1E">
+        <File Id="CA_consistency.bat" Name="CA_consistency.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\CA_consistency.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__BootableState_consistency" Guid="7946EF7B-C4CB-457C-ADB8-FCCC35D65110">
+        <File Id="BootableState_consistency.bat" Name="BootableState_consistency.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\BootableState_consistency.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__BITS_consistency" Guid="679FB74C-E497-4D78-B84E-0CB0072B7690">
+        <File Id="BITS_consistency.bat" Name="BITS_consistency.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\BITS_consistency.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__ActiveDirectory_consistency" Guid="32E5FFB5-2ACB-4F8E-8BBA-BDCF1AAAC630">
+        <File Id="ActiveDirectory_consistency.bat" Name="ActiveDirectory_consistency.bat" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\ActiveDirectory_consistency.bat" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__ExchangeVerify" Guid="80950A94-939A-40E3-A5D4-FC24B54AC686">
+        <File Id="ExchangeVerify.vbs" Name="ExchangeVerify.vbs" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\ExchangeVerify.vbs" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__unlock_SQL" Guid="116A1136-EFF9-455F-AFF1-0417FD2E2528">
+        <File Id="unlock.sql" Name="unlock.sql" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\unlock.sql" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__lock_sql" Guid="42B45DE0-7905-4172-A020-401C2BC57FFF">
+        <File Id="lock.sql" Name="lock.sql" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\lock.sql" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__FailoverServices" Guid="C76E55BA-E3E1-471B-8F25-CB3BD6D163FA">
+        <File Id="FailoverServices.conf" Name="FailoverServices.conf" DiskId="1" Source="$(var.SourceDirectory)vacp\ACM_SCRIPTS\FailoverServices.conf" Vital="yes" KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="DATAPOOLSIZE">
+      <Component Id="cm__GetDataPoolSize" Guid="5B054ACF-BAE5-4BEF-B935-02D60E881268">
+        <CreateFolder />
+      </Component>
+      <Component Id="cm__DataPoolSize_bat" Guid="4BCDD364-4464-4017-8EF7-BFF1D0F39E00">
+        <CreateFolder />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="ETC">
+      <Component Id="cm__inmexec_jobspec" Guid="1AFA6B64-1243-4B0C-96C6-3B2966C84F56">
+        <File Id="inmexec_jobspec.txt" Name="inmexec_jobspec.txt" DiskId="1" Source="$(var.SourceDirectory)inmexec\inmexec_jobspec.txt" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__drscout_temp" Guid="A278B00C-47A7-40E0-BFC8-1FEC8C5839F7">
+        <File Id="drscout_temp.conf" Name="drscout_temp.conf" DiskId="1" Source="$(var.SourceDirectory)setup\drscout_temp.conf" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__drscout" Guid="17957080-ED87-46CF-8912-C046C220B6DF" NeverOverwrite="yes">
+        <File Id="drscout.conf" Name="drscout.conf" DiskId="1" Source="$(var.SourceDirectory)setup\drscout.conf" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__drscout_new" Guid="4A082802-7698-4463-8B16-7423A51786B4">
+        <File Id="drscout.conf.new" Name="drscout.conf.new" DiskId="1" Source="$(var.SourceDirectory)setup\drscout.conf" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__hydration" Guid="6C44A369-4108-4FAD-8A42-C0418EB14E6D">
+        <CreateFolder />
+      </Component>
+      <Component Id="cm__hydration_json" Guid="a3eb5116-f91c-4265-9ca0-a0d9f81f79fc">
+        <Condition> (ROLE="MS") </Condition>
+        <File Id="hydration.json" Name="hydration.json" DiskId="1" Source="$(var.SourceDirectory)setup\hydration.json" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__spv_json" Guid="F61F207B-1292-4EA8-8F39-A8EEC3094674">
+        <Condition> (ROLE="MS") </Condition>
+        <File Id="spv.json" Name="spv.json" DiskId="1" Source="$(var.SourceDirectory)setup\spv.json" Vital="yes" KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="FAILOVERDATA">
+      <Component Id="cm__failoverdata" Guid="C98C9511-DA6F-429E-962F-AFD9D51CD3C2">
+        <CreateFolder />
+      </Component>
+    </DirectoryRef>
+    <DirectoryRef Id="REPLSHARES">
+      <Component Id="cm__replshares" Guid="65D2DEC3-58D1-4A3B-814C-2D08D55DF5DF">
+        <CreateFolder />
+      </Component>
+    </DirectoryRef>
+    <DirectoryRef Id="ICAT">
+      <Component Id="cm__ICAT" Guid="A564A545-AFE3-4B90-87C1-C76AC2DFC712">
+        <CreateFolder />
+      </Component>
+    </DirectoryRef>
+    <DirectoryRef Id="PRIVATE">
+      <Component Id="cm__private" Guid="941FED2F-A8F4-4945-8BED-4B1D1FF02F18">
+        <CreateFolder />
+      </Component>
+    </DirectoryRef>
+    <DirectoryRef Id="INDSKFLT">
+      <Component Id="cm__indskflt" Guid="6B5E93EC-8BF9-43DF-9941-9370C66E3369">
+        <Condition> (ROLE="MS") </Condition>
+        <CreateFolder />
+      </Component>
+    </DirectoryRef>
+
+    <!-- INI Keys -->
+    <DirectoryRef Id="ETC">
+      <Component Id="cm__drscout_conf" Guid="A1824980-4E2A-4917-9E3D-EC9597A0BC85">
+        <CreateFolder />
+      </Component>
+      <Component Id="cm__conf_fresh" Guid="B5E51C17-AE54-49BF-A73D-2A99D6EC898C">
+        <CreateFolder />
+      </Component>
+      <Component Id="cm__drscout_conf_role" Guid="760D0EE1-5DDC-428A-865B-514DAE84A60A">
+        <CreateFolder />
+      </Component>
+      <Component Id="cm__conf_upgrade" Guid="3892FD99-4186-4D8B-B239-3C9AB4B327C3">
+        <CreateFolder />
+      </Component>
+    </DirectoryRef>
+    
+    <DirectoryRef Id="TRANSPORT">
+      <Component Id="cm__cxps_conf" Guid="AF5A7FDF-BEA4-42EE-A40F-DCF41AE529C7">
+        <CreateFolder />
+      </Component>
+      <Component Id="cm__cxps_conf_role" Guid="22BD05BD-4779-4F67-802C-467697A4F0CB">
+        <CreateFolder />
+      </Component>
+      <Component Id="cm__cxps_conf_cfs_mode" Guid="EA7AE990-CC34-4394-920A-3B48F4D6AD92">
+        <CreateFolder />
+      </Component>
+      <Component Id="cm__cxps_conf_Install_dir" Guid="C0AD4D1B-5F57-42D4-8EB7-8509B8FDD2DB">
+        <CreateFolder />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="INSTALLDIR">
+      <Component Id="cm__Start_cxps" Guid="66027BEB-C333-49F0-B530-EC9D2F165766">
+        <CreateFolder />
+      </Component>
+      <Component Id="cm__Start_VSSProvider" Guid="77D11263-189E-4F7B-83F7-553639ED288A">
+        <CreateFolder />
+      </Component>
+      <Component Id="cm__svagents" Guid="D237BADE-D241-4155-B707-B4B58FB21958">
+        <CreateFolder />
+      </Component>     
+      <Component Id="cm__svagentsCS" Guid="28A146F4-614B-4944-8449-294109C890E2">
+        <CreateFolder />
+      </Component>
+      <Component Id="cm__svagentsRCM" Guid="761A430C-226E-4CFB-A28B-6D4EE06BF5C9">
+        <CreateFolder />
+      </Component>
+      <Component Id="cm__svagentsServiceSettings" Guid="8B4E1827-DFB4-4ABD-BB30-E57E1D6655E7">
+        <CreateFolder />
+      </Component>
+
+      <Component Id="cm__svagentsV2A" Guid="6e283463-3fd2-4e59-86cd-1e9d056dea43">
+        <File Id="svagentsCS.exe" Name="svagentsCS.exe" DiskId="1" Source="$(var.SourceDirectory)service-cs\$(var.ConfigurationMin)\svagents.exe" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="cm__svagentsA2A" Guid="14702842-714a-4bce-8379-4825e80d1f3c">
+        <File Id="svagentsRCM.exe" Name="svagentsRCM.exe" DiskId="1" Source="$(var.SourceDirectory)service\$(var.ConfigurationMin)\svagents.exe" Vital="yes" KeyPath="yes"/>
+      </Component>    
+    </DirectoryRef>
+
+    <!-- Registry Keys -->
+    <DirectoryRef Id="INSTALLDIR">
+      <Component Id="cm__RegistryEntries" Guid="DFC07629-4C1F-4307-B842-9BFD67AEB1D5" Win64="no">
+          <RegistryKey Root="HKLM" Key="$(var.SoftwareRegHive)\SV Systems" ForceCreateOnInstall="yes">
+          <RegistryValue Type="string" Name="ThrottleBootStrap" Value="/throttle_bootstrap.php"/>
+          <RegistryValue Type="string" Name="ThrottleOutpost" Value="/throttle_outpost.php"/>
+          <RegistryValue Type="string" Name="ThrottleSentinel" Value="/throttle_sentinel.php"/>
+          <RegistryValue Type="string" Name="ThrottleAgent" Value="/throttle_agent.php"/>
+          <RegistryValue Type="integer" Name="Https" Value="1"/>
+        </RegistryKey>
+        <RegistryKey Root="HKLM" Key="$(var.SoftwareRegHive)\SV Systems\VxAgent" ForceCreateOnInstall="yes" ForceDeleteOnUninstall="yes">
+          <RegistryValue Type="string" Name="InstallDirectory" Value="[INSTALLPATH]"/>
+          <RegistryValue Type="string" Name="ConfigPathname" Value="[INSTALLDIR]Application Data\etc\drscout.conf"/>
+          <RegistryValue Type="string" Name="VxAgent" Value="VxAgent"/>
+          <RegistryValue Type="string" Name="PROD_VERSION" Value="$(var.ProductVersion)"/>
+        </RegistryKey>
+        <RegistryKey Root="HKLM" Key="$(var.SoftwareRegHive)\SV Systems\FileReplicationAgent" ForceCreateOnInstall="yes" ForceDeleteOnUninstall="yes">
+          <RegistryValue Type="integer" Name="EnableDeleteOptions" Value="3255"/>
+          <RegistryValue Type="integer" Name="EnableFrLogFileDeletion" Value="0"/>
+          <RegistryValue Type="integer" Name="EnableEncryption" Value="0"/>
+          <RegistryValue Type="string" Name="FxAgent" Value="FxAgent"/>
+          <RegistryValue Type="integer" Name="AvailableDrives" Value="0"/>
+          <RegistryValue Type="string" Name="CacheDirectory" Value="[INSTALLDIR]Application Data"/>
+          <RegistryValue Type="string" Name="ClearReturnHomeURL" Value="/clear_return_home.php"/>
+          <RegistryValue Type="string" Name="ClearSnapshotURL" Value="/clear_snapshot_drive.php"/>
+          <RegistryValue Type="string" Name="ConfiguredHostname" Value=""/>
+          <RegistryValue Type="string" Name="ConfiguredIP" Value=""/>
+          <RegistryValue Type="string" Name="PROD_VERSION" Value="$(var.ProductVersion)"/>
+          <RegistryValue Type="string" Name="FilenamePrefix" Value="completed_*"/>
+          <RegistryValue Type="string" Name="GetFileReplicationConfigurationURL" Value="/get_file_replication_config.php"/>
+          <RegistryValue Type="string" Name="GetProtectedDrivesURL" Value="/get_outpost_agent_protected_drives.php"/>
+          <RegistryValue Type="string" Name="GetResyncDrivesURL" Value="/get_resync_drives.php"/>
+          <RegistryValue Type="string" Name="GetReturnHomeDrivesURL" Value="/get_return_home_drives.php"/>
+          <RegistryValue Type="integer" Name="InitialSyncComplete" Value="0"/>
+          <RegistryValue Type="integer" Name="MaxFrLogPayload" Value="0"/>
+          <RegistryValue Type="integer" Name="ProtectedDrives" Value="0"/>
+          <RegistryValue Type="integer" Name="RegisterHostIntervel" Value="600"/>
+          <RegistryValue Type="string" Name="RegisterURL" Value="/register_fr_agent.php"/>
+          <RegistryValue Type="string" Name="ResyncFilenamePrefix" Value="resync_*"/>
+          <RegistryValue Type="string" Name="ResyncSourceDirectoryPath" Value="/home/svsystems"/>
+          <RegistryValue Type="string" Name="ShellCommand" Value="cmd /c "/>
+          <RegistryValue Type="string" Name="SnapshotURL" Value="/get_snapshot_drive.php"/>
+          <RegistryValue Type="string" Name="SourceDirectoryPrefix" Value="/home/svsystems"/>
+          <RegistryValue Type="integer" Name="SplitMirrorDrives" Value="0"/>
+          <RegistryValue Type="string" Name="UnregisterURL" Value="/unregister_fr_agent.php"/>
+          <RegistryValue Type="string" Name="UpdateFileReplicationStatusURL" Value="/update_file_replication_status.php"/>
+          <RegistryValue Type="string" Name="UpdateStatusURL" Value="/update_status.php"/>
+          <RegistryValue Type="integer" Name="UseConfiguredHostname" Value="0"/>
+          <RegistryValue Type="integer" Name="UseConfiguredIP" Value="0"/>
+          <RegistryValue Type="integer" Name="VolPak" Value="0"/>
+          <RegistryValue Type="integer" Name="MaxResyncThreads" Value="8"/>
+          <RegistryValue Type="integer" Name="MaxOutpostThreads" Value="4"/>
+          <RegistryValue Type="string" Name="UpdatePermissionStateUrl" Value="/update_permission_state.php"/>
+          <RegistryValue Type="string" Name="InstallDirectory" Value="[INSTALLPATH]"/>
+          <RegistryValue Type="string" Name="FxVersion" Value="$(var.ProductVersion)_$(var.BuildPhase)"/>
+        </RegistryKey>
+        <RegistryKey Root="HKLM" Key="$(var.SoftwareRegHive)\SV Systems\Transport" ForceCreateOnInstall="yes" ForceDeleteOnUninstall="yes">
+          <RegistryValue Type="string" Name="FTPHost" Value="10.1.1.134"/>
+          <RegistryValue Type="string" Name="FTPUser" Value="svs"/>
+          <RegistryValue Type="string" Name="FTPKey" Value="svs"/>
+          <RegistryValue Type="integer" Name="FTPPort" Value="21"/>
+          <RegistryValue Type="string" Name="FTPInfoURL" Value="/get_ftp_config.php"/>
+        </RegistryKey>
+        <RegistryKey Root="HKLM" Key="$(var.SoftwareRegHive)\InMage Systems\Installed Products\4" ForceCreateOnInstall="yes" ForceDeleteOnUninstall="yes">
+          <RegistryValue Type="string" Name="Product_Name" Value="FX"/>
+          <RegistryValue Type="string" Name="Version" Value="$(var.ProductVersion)"/>
+          <RegistryValue Type="string" Name="Product_Version" Value="$(var.ProductVersion)"/>
+          <RegistryValue Type="string" Name="Partner_Code" Value="1"/>
+          <RegistryValue Type="string" Name="Build_Tag" Value="$(var.BuildTag)_InMage"/>
+          <RegistryValue Type="string" Name="Build_Phase" Value="$(var.BuildPhase)"/>
+          <RegistryValue Type="string" Name="Build_Number" Value="$(var.BuildNumber)"/>
+          <RegistryValue Type="string" Name="InstallDirectory" Value="[INSTALLPATH]"/>
+        </RegistryKey>
+        <RegistryKey Root="HKLM" Key="$(var.SoftwareRegHive)\InMage Systems\Installed Products\5" ForceCreateOnInstall="yes" ForceDeleteOnUninstall="yes">
+          <RegistryValue Type="string" Name="Product_Name" Value="VX"/>
+          <RegistryValue Type="string" Name="Version" Value="$(var.ProductVersion)"/>
+          <RegistryValue Type="string" Name="Product_Version" Value="$(var.ProductVersion)"/>
+          <RegistryValue Type="string" Name="Partner_Code" Value="1"/>
+          <RegistryValue Type="string" Name="Build_Tag" Value="$(var.BuildTag)_InMage"/>
+          <RegistryValue Type="string" Name="Build_Phase" Value="$(var.BuildPhase)"/>
+          <RegistryValue Type="string" Name="Build_Number" Value="$(var.BuildNumber)"/>
+          <RegistryValue Type="string" Name="InstallDirectory" Value="[INSTALLPATH]"/>
+        </RegistryKey>
+        <RegistryKey Root="HKLM" Key="System\CurrentControlSet\Services\Eventlog\Application\frsvc" ForceDeleteOnUninstall="yes">
+          <RegistryValue Type="string" Name="EventMessageFile" Value="[INSTALLDIR]FileRep\inmmessage.dll"/>
+          <RegistryValue Type="integer" Name="TypesSupported" Value="7"/>
+        </RegistryKey>
+      </Component>
+      <Component Id="cm__RegistryEntries_Upperfilter" Guid="C9B7B918-C972-44AF-987B-487C33921A68" >
+        <Condition> (ROLE="MS") </Condition>
+        <RegistryKey Id="UpperFilters" Root="HKLM" Key="System\CurrentControlSet\Control\Class\{4d36e967-e325-11ce-bfc1-08002be10318}" ForceCreateOnInstall="yes">
+          <RegistryValue Name="UpperFilters" Type="multiString" Action="prepend" Value="InDskFlt"/>
+        </RegistryKey>
+      </Component>
+      <Component Id="cm__RegistryEntries_Role" Guid="F907F5B3-8264-44C9-B95F-BCA80BDEC608" Win64="no">
+        <Condition> (ROLE="MS") </Condition>
+        <RegistryKey Root="HKLM" Key="$(var.SoftwareRegHive)\InMage Systems\Installed Products" ForceCreateOnInstall="yes" ForceDeleteOnUninstall="yes">
+          <RegistryValue Type="string" Name="Platform" Value="[PLATFORM]"/>
+        </RegistryKey>
+        <RegistryKey Root="HKLM" Key="System\CurrentControlSet\Services\InDskFlt" ForceDeleteOnUninstall="yes">
+          <RegistryValue Type="string" Name="DisplayName" Value="Disk Upper Class Filter Driver"/>
+          <RegistryValue Type="integer" Name="ErrorControl" Value="1"/>
+          <RegistryValue Type="string" Name="Group" Value="PnP Filter"/>
+          <RegistryValue Type="integer" Name="Start" Value="0"/>
+          <RegistryValue Type="integer" Name="Type" Value="1"/>
+          <RegistryValue Type="expandable" Name="ImagePath" Value="system32\DRIVERS\indskflt.sys"/>
+        </RegistryKey>
+        <RegistryKey Root="HKLM" Key="System\CurrentControlSet\Services\InDskFlt\Parameters" ForceDeleteOnUninstall="yes">
+          <RegistryValue Type="string" Name="DefaultLogDirectory" Value="[INDSKFLT]"/>
+        </RegistryKey>
+        <RegistryKey Root="HKLM" Key="System\CurrentControlSet\Services\Eventlog\Application\svagents" ForceDeleteOnUninstall="yes">
+          <RegistryValue Type="string" Name="EventMessageFile" Value="[INSTALLDIR]inmmessage.dll"/>
+          <RegistryValue Type="integer" Name="TypesSupported" Value="7"/>
+        </RegistryKey>
+      </Component>
+    </DirectoryRef>
+
+    <MajorUpgrade
+      AllowDowngrades="no"
+      AllowSameVersionUpgrades="yes"
+      MigrateFeatures="yes"
+      IgnoreRemoveFailure="yes"
+      Schedule="afterInstallFinalize"
+      DowngradeErrorMessage="A later version of Azure Site Recovery is already installed. Setup will now exit."/>
+    	
+    <!-- Custom Actions :(Use these only for install/upgrade) -->
+    <CustomAction Id="IsCXInstalled" BinaryKey="UnifiedAgentCustomActions.dll" DllEntry="CXInstalled" Execute="immediate" />	
+	
+	<!-- Custom Actions :(Use these only for uninstall) -->
+    <CustomAction Id="Stop_Services" BinaryKey="UnifiedAgentCustomActions.dll" DllEntry="StopServices" Execute="immediate" />
+    <CustomAction Id="Uninstall_cxps_service_cmd" Property="Uninstall_cxps_service" Value="&quot;[INSTALLDIR]transport\cxps.exe&quot; uninstall" Execute="immediate" />
+    <CustomAction Id="Uninstall_cxps_service" BinaryKey="WixCA" DllEntry="CAQuietExec" Execute="deferred" Return="ignore" Impersonate="no"/>
+    <CustomAction Id="Uninstall_firewall_remove_cmd" Property="Uninstall_firewall_remove" Value="&quot;[SystemFolder]cmd.exe&quot; /c &quot;[INSTALLDIR]firewall_remove.bat&quot;" Execute="immediate" />
+    <CustomAction Id="Uninstall_firewall_remove" BinaryKey="WixCA" DllEntry="CAQuietExec" Execute="deferred" Return="ignore" Impersonate="no"/>
+    <CustomAction Id="Uninstall_VSSProvider_cmd" Property="Uninstall_VSSProvider" Value="&quot;[SystemFolder]cmd.exe&quot; /c &quot;[INSTALLDIR]InMageVSSProvider_Uninstall.cmd&quot;" Execute="immediate"/>
+    <CustomAction Id="Uninstall_VSSProvider" BinaryKey="WixCA" DllEntry="CAQuietExec" Execute="deferred" Return="ignore" Impersonate="no"/>
+    <CustomAction Id="Uninstall_Azure_VM_Agent" Directory='WindowsFolder' ExeCommand="msiexec /qn /x {5CF4D04A-F16C-4892-9196-6025EA61F964} /log [CommonAppDataFolder]ASRSetupLogs\AzureVMUninstall.log" Execute="commit" Impersonate="yes" Return="asyncNoWait" />
+    <CustomAction Id="AzureVMAgentInstalled" BinaryKey="UnifiedAgentCustomActions.dll" DllEntry="AzureVMAgentInstalled" Execute="immediate" />
+    <CustomAction Id="Delete_Bitmap_Files_cmd" Property="Delete_Bitmap_Files" Value="&quot;[SystemFolder]cmd.exe&quot; /c &quot;[INSTALLDIR]DeleteBitmapFiles.bat&quot;" Execute="immediate" />
+    <CustomAction Id="Delete_Bitmap_Files" BinaryKey="WixCA" DllEntry="CAQuietExec" Execute="deferred" Return="ignore" Impersonate="no"/>
+    <CustomAction Id="Uninstall_MARS_Agent" Directory='WindowsFolder' ExeCommand="msiexec /qn /x {FFE6D16C-3F87-4192-AF94-DDBEFF165106} /log [CommonAppDataFolder]ASRSetupLogs\MARSUninstall.log" Execute="commit" Impersonate="yes" Return="asyncNoWait" />
+    <CustomAction Id="Delete_Directory" BinaryKey="UnifiedAgentCustomActions.dll" DllEntry="DeleteDirectory" Execute="immediate" />
+    <CustomAction Id="UninstallActions" BinaryKey="UnifiedAgentCustomActions.dll" DllEntry="UninstallActions" Execute="immediate" />
+    <CustomAction Id="UninstallServices" BinaryKey="UnifiedAgentCustomActions.dll" DllEntry="UninstallServices" Execute="immediate" />
+    <CustomAction Id="UninstallServiceCtrl" BinaryKey="UnifiedAgentCustomActions.dll" DllEntry="UninstallServiceCtrl" Execute="immediate" />
+    <CustomAction Id="UnregisterAgent" BinaryKey="UnifiedAgentCustomActions.dll" DllEntry="UnregisterAgent" Execute="immediate" />
+    <CustomAction Id="UnregisterAgentFromRCM" BinaryKey="UnifiedAgentCustomActions.dll" DllEntry="UnregisterSourceAgent" Execute="immediate" />
+    <CustomAction Id="UnregisterMachineFromRCM" BinaryKey="UnifiedAgentCustomActions.dll" DllEntry="UnregisterMachine" Execute="immediate" />
+    <CustomAction Id="RemoveAADCert" BinaryKey="UnifiedAgentCustomActions.dll" DllEntry="RemoveAADAuthCertificate" Execute="immediate" />
+	  <CustomAction Id="InvokeIndskfltManifestUninstall" BinaryKey="UnifiedAgentCustomActions.dll" DllEntry="InvokeIndskfltManifestUninstall" Execute="immediate"/>
+	  <CustomAction Id="RemoveInDskFltEventlogRegistry" BinaryKey="UnifiedAgentCustomActions.dll" DllEntry="RemoveInDskFltEventlogRegistry" Execute="immediate" />
+    <CustomAction Id="RemoveRegistries" BinaryKey="UnifiedAgentCustomActions.dll" DllEntry="RemoveRegistries" Execute="immediate" />
+    
+    <InstallExecuteSequence>
+      <!-- Specific to install/upgrade functionality -->    
+	    <Custom Action="IsCXInstalled" Before="CostFinalize" ></Custom>
+	  
+      <!-- Specific to Uninstall functionality -->
+      <Custom Action="Stop_Services" Before="CostFinalize">(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL")</Custom>
+      <Custom Action="Uninstall_cxps_service_cmd" Before="Uninstall_cxps_service" >(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL") AND (CXINSTALLED="no")</Custom>
+      <Custom Action="Uninstall_cxps_service" After="InstallInitialize">(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL") AND (CXINSTALLED="no")</Custom>
+      <Custom Action="Uninstall_firewall_remove_cmd" Before="Uninstall_firewall_remove" >(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL")</Custom>
+      <Custom Action="Uninstall_firewall_remove" After="InstallInitialize">(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL")</Custom>
+      <Custom Action="Uninstall_VSSProvider_cmd" Before="Uninstall_VSSProvider">(NOT VersionNT = 600) AND (NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL")</Custom>
+      <Custom Action="Uninstall_VSSProvider" After="InstallInitialize">(NOT VersionNT = 600) AND (NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL")</Custom>
+      <Custom Action="Delete_Bitmap_Files_cmd" Before="Delete_Bitmap_Files" >(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL")</Custom>
+      <Custom Action="Delete_Bitmap_Files" After="InstallInitialize">(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL")</Custom>
+      <Custom Action="Uninstall_MARS_Agent" Before="InstallFinalize" >(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL") AND (CXINSTALLED="yes")</Custom>
+      <Custom Action="AzureVMAgentInstalled" Before="InstallFinalize" >(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL")</Custom>
+      <Custom Action="Uninstall_Azure_VM_Agent" Before="InstallFinalize" >(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL") AND (isAzureVMAgentInstalled="yes")</Custom>
+      <Custom Action="Delete_Directory" After="InstallFinalize" >(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL")</Custom>
+      <Custom Action="UninstallActions" Before="CostFinalize" >(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL")</Custom>
+      <Custom Action="UninstallServices" Before="InstallInitialize" >(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL")</Custom>
+      <Custom Action="UninstallServiceCtrl" Before="CostFinalize" >(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL")</Custom>
+      <Custom Action="UnregisterAgent" Before="RemoveFiles" >(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL")</Custom>
+      <Custom Action="UnregisterAgentFromRCM" Before="RemoveFiles" >(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL")</Custom>
+      <Custom Action="UnregisterMachineFromRCM" After="UnregisterAgentFromRCM" >(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL")</Custom>
+      <Custom Action="RemoveAADCert" After="UnregisterMachineFromRCM" >(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL")</Custom>
+	    <Custom Action="InvokeIndskfltManifestUninstall" Before="RemoveFiles">(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL")</Custom>
+	    <Custom Action="RemoveInDskFltEventlogRegistry" Before="CostFinalize" >(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL")</Custom>
+      <Custom Action="RemoveRegistries" After="InstallFinalize" >(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL") AND (CXINSTALLED="no")</Custom>
+    </InstallExecuteSequence>
+
+    <Feature Id="ProductFeature" Title="Agent" Level="1">
+      
+      <!-- To avoid reinstallation issues, never remove old features which were deleted.-->      
+      <!-- Deleted features -->
+      <ComponentRef Id="cm__Application"/>
+      <ComponentRef Id="cm__dns"/>
+      <ComponentRef Id="cm__FailoverCommandUtil"/>
+      <ComponentRef Id="cm__InMageVssProvider"/>
+      <ComponentRef Id="cm__s2"/>
+      <ComponentRef Id="cm__WinOp"/>
+      <ComponentRef Id="cm__vacp"/>
+      <ComponentRef Id="cm__inmsync"/>
+      <ComponentRef Id="cm__newreq"/>
+      <ComponentRef Id="cm__serverkey_pem"/>
+      <ComponentRef Id="cm__GetDataPoolSize"/>
+      <ComponentRef Id="cm__DataPoolSize_bat"/>      
+      <ComponentRef Id="cm__fxfiles"/>
+      <ComponentRef Id="cm__fxfirewall"/>
+      <ComponentRef Id="cm__AzureRcmCli"/>
+      <ComponentRef Id="cm__svagentsRCM"/>
+      <ComponentRef Id="cm__svagentsServiceSettings"/>
+      <ComponentRef Id="cm__s2RCM"/>
+      <ComponentRef Id="cm__EvtCollForwRCM"/>
+      <ComponentRef Id="cm__svagentsCS"/>
+      <ComponentRef Id="cm__s2CS"/>
+      <ComponentRef Id="cm__InmCheckAzureServices"/>
+      <ComponentRef Id="cm__InmCheckAzureServicesConf"/>
+      <ComponentRef Id="cm__MTConfigUpdate"/>
+      <ComponentRef Id="cm__hydration"/>
+      <ComponentRef Id="cm__AutomatedFailover"/>
+      <ComponentRef Id="cm__hostconfig"/>
+      <ComponentRef Id="cm__hostconfig_chm"/>
+            
+      <!-- Existing features -->
+      <ComponentRef Id="cm__DeleteBitmapFiles"/>
+      <ComponentRef Id="cm__drscout_upgrade"/>
+      <ComponentRef Id="cm__rem_files"/>
+      <ComponentRef Id="cm__configureadmin"/>
+      <ComponentRef Id="cm__InMageVSSProvider_Install"/>
+      <ComponentRef Id="cm__InMageVssProvider_Register"/>
+      <ComponentRef Id="cm__InMageVSSProvider_Uninstall"/>
+      <ComponentRef Id="cm__wintogo"/>
+      <ComponentRef Id="cm__EnableDisableFiltering"/>
+      <ComponentRef Id="cm__VerifyBootDiskFiltering"/>
+      <ComponentRef Id="cm__InmSrcLogCollector"/>
+      <ComponentRef Id="cm__FindDiskID"/>
+      <ComponentRef Id="cm__Oracle_bat"/>
+      <ComponentRef Id="cm__ThirdParty_Notices"/>
+      <ComponentRef Id="cm__AppConfiguratorAPITestBed"/>
+      <ComponentRef Id="cm__AppWizard"/>
+      <ComponentRef Id="cm__cachemgr"/>
+      <ComponentRef Id="cm__cdpcli"/>
+      <ComponentRef Id="cm__cdpmgr"/>
+      <ComponentRef Id="cm__ConfiguratorAPITestBed"/>
+      <ComponentRef Id="cm__configmergetool"/>
+      <ComponentRef Id="cm__csgetfingerprint"/>
+      <ComponentRef Id="cm__httpclient"/>
+      <ComponentRef Id="cm__cxcli"/>
+      <ComponentRef Id="cm__cxpsclient"/>
+      <ComponentRef Id="cm__dataprotection"/>
+      <ComponentRef Id="cm__diskgeneric"/>
+      <ComponentRef Id="cm__drvutil"/>
+      <ComponentRef Id="cm__EsxUtil"/>
+      <ComponentRef Id="cm__EsxUtilWin"/>
+      <ComponentRef Id="cm__gencert"/>
+      <ComponentRef Id="cm__genpassphrase"/>
+      <ComponentRef Id="cm__InMageVssProvider_X64"/>
+      <ComponentRef Id="cm__inmexec"/>
+      <ComponentRef Id="cm__inmmessage"/>
+      <ComponentRef Id="cm__ScoutTuning"/>
+      <ComponentRef Id="cm__ServiceCtrl"/>
+      <ComponentRef Id="cm__svdcheck"/>
+      <ComponentRef Id="cm__UnLockDrives"/>
+      <ComponentRef Id="cm__unregagent"/>
+      <ComponentRef Id="cm__ClusUtil"/>
+      <ComponentRef Id="cm__MoveSQLDB"/>
+      <ComponentRef Id="cm__scsicmdutil"/>
+      <ComponentRef Id="cm__vacp_X86"/>
+      <ComponentRef Id="cm__vacp_X64"/>
+      <ComponentRef Id="cm__verifycert"/>
+      <ComponentRef Id="cm__volopt"/>
+      <?if $(var.Platform) = x86 ?>
+		<ComponentRef Id="cm__InDskFlt_Vista32"/>
+      <?else ?>
+		<ComponentRef Id="cm__InDskFlt_Vista64"/>
+        <ComponentRef Id="cm__InDskFlt764"/>
+        <ComponentRef Id="cm__InDskFlt864"/>
+        <ComponentRef Id="cm__InDskFlt8164"/>
+        <ComponentRef Id="cm__InDskFlt1064"/>
+      <?endif ?>
+      <ComponentRef Id="cm__spapp"/>
+      <ComponentRef Id="cm__spappconfig"/>
+      <ComponentRef Id="cm__spapploader"/>
+      <ComponentRef Id="cm__db2_consistency"/>
+      <ComponentRef Id="cm__cx_backup_withfx"/>
+      <ComponentRef Id="cm__frsvc_hostconfigwxcommon"/>      
+      <ComponentRef Id="cm__frsvc_unregagent"/>
+      <ComponentRef Id="cm__frsvc_inmmessage"/>
+      <ComponentRef Id="cm__newcert"/>
+      <ComponentRef Id="cm__client_pem"/>
+      <ComponentRef Id="cm__cxpscli"/>
+      <ComponentRef Id="cm__cxps_conffile"/>
+      <ComponentRef Id="cm__dh_pem"/>
+      <ComponentRef Id="cm__servercert_pem"/>
+      <ComponentRef Id="cm__ExchangeValidation"/>
+      <ComponentRef Id="cm__Oracle_sql"/>
+      <ComponentRef Id="cm__oraclefailover"/>
+      <ComponentRef Id="cm__winshare_post"/>
+      <ComponentRef Id="cm__winshare_pre"/>
+      <ComponentRef Id="cm__WMI_consistency"/>
+      <ComponentRef Id="cm__WINS_consistency"/>
+      <ComponentRef Id="cm__VM_consistency"/>
+      <ComponentRef Id="cm__VCon_Physical_Snapshot"/>
+      <ComponentRef Id="cm__TermServLicense_consistency"/>
+      <ComponentRef Id="cm__SystemFiles_consistency"/>
+      <ComponentRef Id="cm__svagents_restart"/>
+      <ComponentRef Id="cm__Sql2012_consistency_fstag"/>
+      <ComponentRef Id="cm__Sql2012_consistency"/>
+      <ComponentRef Id="cm__Sql2008_consistency_fstag"/>
+      <ComponentRef Id="cm__Sql2008_consistency"/>
+      <ComponentRef Id="cm__Sql2005_consistency_fstag"/>
+      <ComponentRef Id="cm__Sql2005_consistency"/>
+      <ComponentRef Id="cm__sql_discovery"/>
+      <ComponentRef Id="cm__Sql_consistency_fstag"/>
+      <ComponentRef Id="cm__Sql_consistency"/>
+      <ComponentRef Id="cm__ServiceState_consistency"/>
+      <ComponentRef Id="cm__RSM_consistency"/>
+      <ComponentRef Id="cm__Registry_consistency"/>
+      <ComponentRef Id="cm__Pervasive_consistency"/>
+      <ComponentRef Id="cm__MySql51_consistency_fstag"/>
+      <ComponentRef Id="cm__MySql_Windows"/>
+      <ComponentRef Id="cm__InMage_DRS_Ex2K7"/>
+      <ComponentRef Id="cm__InMage_DRS_Ex2K3"/>
+      <ComponentRef Id="cm__IISMETABASE_consistency"/>
+      <ComponentRef Id="cm__Full_consistency"/>
+      <ComponentRef Id="cm__FRS_consistency"/>
+      <ComponentRef Id="cm__FileSystem_consistency"/>
+      <ComponentRef Id="cm__FileServer_SecondaryServer"/>
+      <ComponentRef Id="cm__ExchangeLogFlush"/>
+      <ComponentRef Id="cm__exchange2010_log_flush"/>
+      <ComponentRef Id="cm__exchange2010_consistency_fstag"/>
+      <ComponentRef Id="cm__exchange2010_consistency"/>
+      <ComponentRef Id="cm__exchange2007_log_flush"/>
+      <ComponentRef Id="cm__exchange2007_consistency_fstag"/>
+      <ComponentRef Id="cm__exchange2007_consistency"/>
+      <ComponentRef Id="cm__exchange_log_flush"/>
+      <ComponentRef Id="cm__exchange_consistency_validation"/>
+      <ComponentRef Id="cm__exchange_consistency_fstag"/>
+      <ComponentRef Id="cm__exchange_consistency"/>
+      <ComponentRef Id="cm__exch_restart"/>
+      <ComponentRef Id="cm__exch_discovery"/>
+      <ComponentRef Id="cm__EventLog_consistency"/>
+      <ComponentRef Id="cm__Dhcp_consistency"/>
+      <ComponentRef Id="cm__COM_REGDB_consistency"/>
+      <ComponentRef Id="cm__ClusterService_consistency"/>
+      <ComponentRef Id="cm__CA_consistency"/>
+      <ComponentRef Id="cm__BootableState_consistency"/>
+      <ComponentRef Id="cm__BITS_consistency"/>
+      <ComponentRef Id="cm__ActiveDirectory_consistency"/>
+      <ComponentRef Id="cm__ExchangeVerify"/>
+      <ComponentRef Id="cm__unlock_SQL"/>
+      <ComponentRef Id="cm__lock_sql"/>
+      <ComponentRef Id="cm__FailoverServices"/>
+      <ComponentRef Id="cm__inmexec_jobspec"/>
+      <ComponentRef Id="cm__drscout_temp"/>
+      <ComponentRef Id="cm__drscout"/>
+      <ComponentRef Id="cm__drscout_new"/>
+      <ComponentRef Id="cm__FileServerconsistency_fstag"/>
+      <ComponentRef Id="cm__FileServerPrimaryServer"/>
+      <ComponentRef Id="cm__failoverdata"/>
+      <ComponentRef Id="cm__replshares"/>
+      <ComponentRef Id="cm__ICAT"/>
+      <ComponentRef Id="cm__private"/>
+      <ComponentRef Id="cm__indskflt"/>
+      <ComponentRef Id="cm__drscout_conf"/>
+      <ComponentRef Id="cm__drscout_conf_role"/>
+      <ComponentRef Id="cm__conf_fresh"/>
+      <ComponentRef Id="cm__conf_upgrade"/>
+      <ComponentRef Id="cm__cxps_conf"/>
+      <ComponentRef Id="cm__cxps_conf_role"/>
+      <ComponentRef Id="cm__cxps_conf_cfs_mode"/>
+      <ComponentRef Id="cm__cxps_conf_Install_dir"/>
+      <ComponentRef Id="cm__RegistryEntries"/>
+      <ComponentRef Id="cm__RegistryEntries_Role"/>
+      <ComponentRef Id="cm__RegistryEntries_Upperfilter"/>
+      <ComponentRef Id="cm__hostconfigwxcommon"/>
+      <ComponentRef Id="cm__svagents"/>
+      <ComponentRef Id="cm__appservice"/>
+      <ComponentRef Id="cm__frsvc"/>
+      <ComponentRef Id="cm__cxps"/>
+      <ComponentRef Id="cm__vxfiles"/>
+      <ComponentRef Id="cm__vxfirewall"/>
+      <ComponentRef Id="cm__firewall_remove"/> 
+      <ComponentRef Id="cm__DiskFltEvents"/>
+      <ComponentRef Id="cm__Delete_InstallDir"/>
+      <ComponentRef Id="cm__Start_VSSProvider"/>
+      <ComponentRef Id="cm__Start_cxps"/>
+      <ComponentRef Id="cm__EvtCollForw"/>
+      
+      <!-- New features to be added here -->
+      <ComponentRef Id="cm__newtonsoftjson"/>
+      <ComponentRef Id="cm__unifiedAgentConfigurator"/>
+      <ComponentRef Id="cm__asrSetupFramework"/>
+      <ComponentRef Id="cm__asrSetupResources"/>
+      <ComponentRef Id="cm__asrSetupResourcesEN"/>
+      <ComponentRef Id="sc__hostconfigwxcommon"/>
+      <ComponentRef Id="cm__s2V2A"/>
+      <ComponentRef Id="cm__s2A2A"/>
+      <ComponentRef Id="cm__AzureRcmCliNew"/>
+      <ComponentRef Id="cm__InmCheckAzureServicesNew"/>
+      <ComponentRef Id="cm__InmCheckAzureServicesConfNew"/>
+      <ComponentRef Id="cm__svagentsV2A"/>
+      <ComponentRef Id="cm__svagentsA2A"/>
+      <ComponentRef Id="cm__hydration_json"/>
+      <ComponentRef Id="cm__dataprotectionRCM"/>
+      <ComponentRef Id="cm__spv_json"/>
+    </Feature>  
+  </Product>
+</Wix>

@@ -1,0 +1,289 @@
+# Yaml configuration file for generating Linux containers.
+trigger: none
+
+variables:
+  CDP_DEFINITION_BUILD_COUNT: $[counter('', 0)] # needed for onebranch.pipeline.version task https://aka.ms/obpipelines/versioning
+  ONEBRANCH_AME_ACR_LOGIN: inmageazuresiterecovery.azurecr.io
+  LinuxContainerImage: 'onebranch.azurecr.io/linux/ubuntu-2004:latest'
+  WindowsContainerImage: 'onebranch.azurecr.io/windows/ltsc2019/vse2019:latest'
+  DOCKER_BUILDKIT: 1
+
+resources:
+  repositories: 
+    - repository: templates
+      type: git
+      name: OneBranch.Pipelines/GovernedTemplates
+      ref: refs/heads/main
+
+extends:
+  template: v2/OneBranch.Official.CrossPlat.yml@templates # https://aka.ms/obpipelines/templates
+  parameters:
+    globalSdl:
+      tsa:
+        enabled: false
+    cloudvault:
+      enabled: true
+      runmode: stage
+      dependsOn:
+      - docker
+      artifacts:
+      - drop_docker_BuildLinuxContainers
+    featureFlags:
+      skipPoliciesValidation: true
+      
+    stages:
+    - stage: docker
+      jobs:
+      - job: BuildLinuxContainers
+        variables:
+          ob_git_checkout: true
+          ComponentDetection.Timeout: 1500
+        pool:
+          type: docker
+          os: linux
+        steps:
+          #The base images are in a isolated ACR that needs to be signed-in
+          - task: onebranch.pipeline.containercontrol@1
+            displayName: "Login to inmageazuresiterecovery ACR"
+            inputs:
+              command: login
+              acr_name: inmageazuresiterecovery.azurecr.io
+              tenant: MSFT
+              
+          - task: onebranch.pipeline.imagebuildinfo@1
+            displayName: 'Build debian-7 Docker Image'
+            inputs:
+              repositoryName: inmage-azure-siterecovery
+              dockerFileRelPath: build/docker/debian-7/Dockerfile
+              dockerFileContextPath: build/docker/debian-7/
+              build_tag: debian7_$(Build.BuildNumber)
+              enable_network: true
+              enable_isolated_acr_push: true
+              enable_service_tree_acr_path: false
+              saveImageToPath: inmage-azure-siterecovery-build-image-debian7.tar
+              
+          - task: onebranch.pipeline.imagebuildinfo@1
+            displayName: 'Build debian-8 Docker Image'
+            inputs:
+              repositoryName: inmage-azure-siterecovery
+              dockerFileRelPath: build/docker/debian-8/Dockerfile
+              dockerFileContextPath: build/docker/debian-8/
+              build_tag: debian8_$(Build.BuildNumber)
+              enable_network: true
+              enable_isolated_acr_push: true
+              enable_service_tree_acr_path: false
+              saveImageToPath: inmage-azure-siterecovery-build-image-debian8.tar
+              
+          - task: onebranch.pipeline.imagebuildinfo@1
+            displayName: 'Build debian-9 Docker Image'
+            inputs:
+              repositoryName: inmage-azure-siterecovery
+              dockerFileRelPath: build/docker/debian-9/Dockerfile
+              dockerFileContextPath: build/docker/debian-9/
+              build_tag: debian9_$(Build.BuildNumber)
+              enable_network: true
+              enable_isolated_acr_push: true
+              enable_service_tree_acr_path: false
+              saveImageToPath: inmage-azure-siterecovery-build-image-debian9.tar
+              
+          - task: onebranch.pipeline.imagebuildinfo@1
+            displayName: 'Build debian-10 Docker Image'
+            inputs:
+              repositoryName: inmage-azure-siterecovery
+              dockerFileRelPath: build/docker/debian-10/Dockerfile
+              dockerFileContextPath: build/docker/debian-10/
+              build_tag: debian10_$(Build.BuildNumber)
+              enable_network: true
+              enable_isolated_acr_push: true
+              enable_service_tree_acr_path: false
+              saveImageToPath: inmage-azure-siterecovery-build-image-debian10.tar
+              
+          - task: onebranch.pipeline.imagebuildinfo@1
+            displayName: 'Build debian-11 Docker Image'
+            inputs:
+              repositoryName: inmage-azure-siterecovery
+              dockerFileRelPath: build/docker/debian-11/Dockerfile
+              dockerFileContextPath: build/docker/debian-11/
+              build_tag: debian11_$(Build.BuildNumber)
+              enable_network: true
+              enable_isolated_acr_push: true
+              enable_service_tree_acr_path: false
+              saveImageToPath: inmage-azure-siterecovery-build-image-debian11.tar
+              
+          # - task: onebranch.pipeline.imagebuildinfo@1
+            # displayName: 'Build ol-6 Docker Image'
+            # inputs:
+              # repositoryName: inmage-azure-siterecovery
+              # dockerFileRelPath: build/docker/ol-6/Dockerfile
+              # dockerFileContextPath: build/docker/ol-6/
+              # build_tag: ol6_$(Build.BuildNumber)
+              # enable_network: true
+              # enable_isolated_acr_push: true
+              # enable_service_tree_acr_path: false
+              # saveImageToPath: inmage-azure-siterecovery-build-image-ol6.tar
+              
+          # - task: onebranch.pipeline.imagebuildinfo@1
+            # displayName: 'Build ol-7 Docker Image'
+            # inputs:
+              # repositoryName: inmage-azure-siterecovery
+              # dockerFileRelPath: build/docker/ol-7/Dockerfile
+              # dockerFileContextPath: build/docker/ol-7/
+              # build_tag: ol7_$(Build.BuildNumber)
+              # enable_network: true
+              # enable_isolated_acr_push: true
+              # enable_service_tree_acr_path: false
+              # saveImageToPath: inmage-azure-siterecovery-build-image-ol7.tar
+              
+          # - task: onebranch.pipeline.imagebuildinfo@1
+            # displayName: 'Build ol-8 Docker Image'
+            # inputs:
+              # repositoryName: inmage-azure-siterecovery
+              # dockerFileRelPath: build/docker/ol-8/Dockerfile
+              # dockerFileContextPath: build/docker/ol-8/
+              # build_tag: ol8_$(Build.BuildNumber)
+              # enable_network: true
+              # enable_isolated_acr_push: true
+              # enable_service_tree_acr_path: false
+              # saveImageToPath: inmage-azure-siterecovery-build-image-ol8.tar
+
+          # - task: onebranch.pipeline.imagebuildinfo@1
+            # displayName: 'Build ol-9 Docker Image'
+            # inputs:
+              # repositoryName: inmage-azure-siterecovery
+              # dockerFileRelPath: build/docker/ol-9/Dockerfile
+              # dockerFileContextPath: build/docker/ol-9/
+              # build_tag: ol9_$(Build.BuildNumber)
+              # enable_network: true
+              # enable_isolated_acr_push: true
+              # enable_service_tree_acr_path: false
+              # saveImageToPath: inmage-azure-siterecovery-build-image-ol9.tar
+              
+          # - task: onebranch.pipeline.imagebuildinfo@1
+            # displayName: 'Build RHEL6 Docker Image'
+            # inputs:
+              # repositoryName: inmage-azure-siterecovery
+              # dockerFileRelPath: build/docker/rhel-6/Dockerfile
+              # dockerFileContextPath: build/docker/rhel-6/
+              # build_tag: rhel6_$(Build.BuildNumber)
+              # enable_network: true
+              # enable_isolated_acr_push: true
+              # enable_service_tree_acr_path: false
+              # saveImageToPath: inmage-azure-siterecovery-build-image-rhel6.tar
+              
+          # - task: onebranch.pipeline.imagebuildinfo@1
+            # displayName: 'Build RHEL7 Docker Image'
+            # inputs:
+              # repositoryName: inmage-azure-siterecovery
+              # dockerFileRelPath: build/docker/rhel-7/Dockerfile
+              # dockerFileContextPath: build/docker/rhel-7/
+              # build_tag: rhel7_$(Build.BuildNumber)
+              # enable_network: true
+              # enable_isolated_acr_push: true
+              # enable_service_tree_acr_path: false
+              # saveImageToPath: inmage-azure-siterecovery-build-image-rhel7.tar
+              
+          # - task: onebranch.pipeline.imagebuildinfo@1
+            # displayName: 'Build RHEL8 Docker Image'
+            # inputs:
+              # repositoryName: inmage-azure-siterecovery
+              # dockerFileRelPath: build/docker/rhel-8/Dockerfile
+              # dockerFileContextPath: build/docker/rhel-8/
+              # build_tag: rhel8_$(Build.BuildNumber)
+              # enable_network: true
+              # enable_isolated_acr_push: true
+              # enable_service_tree_acr_path: false
+              # saveImageToPath: inmage-azure-siterecovery-build-image-rhel8.tar
+
+          # - task: onebranch.pipeline.imagebuildinfo@1
+            # displayName: 'Build RHEL9 Docker Image'
+            # inputs:
+              # repositoryName: inmage-azure-siterecovery
+              # dockerFileRelPath: build/docker/rhel-9/Dockerfile
+              # dockerFileContextPath: build/docker/rhel-9/
+              # build_tag: rhel9_$(Build.BuildNumber)
+              # enable_network: true
+              # enable_isolated_acr_push: true
+              # enable_service_tree_acr_path: false
+              # saveImageToPath: inmage-azure-siterecovery-build-image-rhel9.tar
+              
+          # - task: onebranch.pipeline.imagebuildinfo@1
+            # displayName: 'Build SLES12 Docker Image'
+            # inputs:
+              # repositoryName: inmage-azure-siterecovery
+              # dockerFileRelPath: build/docker/sles-12/Dockerfile
+              # dockerFileContextPath: build/docker/sles-12/
+              # build_tag: sles12_$(Build.BuildNumber)
+              # enable_network: true
+              # enable_isolated_acr_push: true
+              # enable_service_tree_acr_path: false
+          
+          # - task: onebranch.pipeline.imagebuildinfo@1
+            # displayName: 'Build SLES15 Docker Image'
+            # inputs:
+              # repositoryName: inmage-azure-siterecovery
+              # dockerFileRelPath: build/docker/sles-15/Dockerfile
+              # dockerFileContextPath: build/docker/sles-15/
+              # build_tag: sles15_$(Build.BuildNumber)
+              # enable_network: true
+              # enable_isolated_acr_push: true
+              # enable_service_tree_acr_path: false
+              
+          # - task: onebranch.pipeline.imagebuildinfo@1
+            # displayName: 'Build Ubuntu14.04 Docker Image'
+            # inputs:
+              # repositoryName: inmage-azure-siterecovery
+              # dockerFileRelPath: build/docker/ubuntu-14.04/Dockerfile
+              # dockerFileContextPath: build/docker/ubuntu-14.04/
+              # build_tag: ubuntu14_$(Build.BuildNumber)
+              # enable_network: true
+              # enable_isolated_acr_push: true
+              # enable_service_tree_acr_path: false
+              # saveImageToPath: inmage-azure-siterecovery-build-image-ubuntu1404.tar
+              
+          - task: onebranch.pipeline.imagebuildinfo@1
+            displayName: 'Build Ubuntu16.04 Docker Image'
+            inputs:
+              repositoryName: inmage-azure-siterecovery
+              dockerFileRelPath: build/docker/ubuntu-16.04/Dockerfile
+              dockerFileContextPath: build/docker/ubuntu-16.04/
+              build_tag: ubuntu16_$(Build.BuildNumber)
+              enable_network: true
+              enable_isolated_acr_push: true
+              enable_service_tree_acr_path: false
+              saveImageToPath: inmage-azure-siterecovery-build-image-ubuntu1604.tar
+              
+          # - task: onebranch.pipeline.imagebuildinfo@1
+            # displayName: 'Build Ubuntu18.04 Docker Image'
+            # inputs:
+              # repositoryName: inmage-azure-siterecovery
+              # dockerFileRelPath: build/docker/ubuntu-18.04/Dockerfile
+              # dockerFileContextPath: build/docker/ubuntu-18.04/
+              # build_tag: ubuntu18_$(Build.BuildNumber)
+              # enable_network: true
+              # enable_isolated_acr_push: true
+              # enable_service_tree_acr_path: false
+              # saveImageToPath: inmage-azure-siterecovery-build-image-ubuntu1804.tar
+              
+          # - task: onebranch.pipeline.imagebuildinfo@1
+            # displayName: 'Build Ubuntu20.04 Docker Image'
+            # inputs:
+              # repositoryName: inmage-azure-siterecovery
+              # dockerFileRelPath: build/docker/ubuntu-20.04/Dockerfile
+              # dockerFileContextPath: build/docker/ubuntu-20.04/
+              # build_tag: ubuntu20_$(Build.BuildNumber)
+              # enable_network: true
+              # enable_isolated_acr_push: true
+              # enable_service_tree_acr_path: false
+              # saveImageToPath: inmage-azure-siterecovery-build-image-ubuntu2004.tar
+
+          # - task: onebranch.pipeline.imagebuildinfo@1
+            # displayName: 'Build Ubuntu22.04 Docker Image'
+            # inputs:
+              # repositoryName: inmage-azure-siterecovery
+              # dockerFileRelPath: build/docker/ubuntu-22.04/Dockerfile
+              # dockerFileContextPath: build/docker/ubuntu-22.04/
+              # build_tag: ubuntu22_$(Build.BuildNumber)
+              # enable_network: true
+              # enable_isolated_acr_push: true
+              # enable_service_tree_acr_path: false
+              # saveImageToPath: inmage-azure-siterecovery-build-image-ubuntu2204.tar

@@ -1,0 +1,11 @@
+C:\__w\1\s\host\setup\wintogo.ps1
+C:\__w\1\s\host\setup\VerifyBootDiskFiltering.ps1
+C:\__w\1\s\host\AzureRecoveryUtil\Scripts\win32\StartupScript.ps1
+C:\__w\1\s\host\setup\InmSrcLogCollector.ps1
+C:\__w\1\s\host\vacp\ACM_SCRIPTS\ExchangeVerify.vbs
+C:\__w\1\s\host\InMageVssProvider\InstallScripts\InMageVssProvider_Register.vbs
+C:\__w\1\s\Solutions\Oracle\windows_vx\oraclefailover.vbs
+C:\__w\1\s\build\AgentUpload\UploadAgent.ps1
+C:\__w\1\s\build\AgentUpload\GenSpec1.ps1
+C:\__w\1\s\build\AgentUpload\GenSpec2.ps1
+C:\__w\1\s\build\AgentUpload\Utils.ps1

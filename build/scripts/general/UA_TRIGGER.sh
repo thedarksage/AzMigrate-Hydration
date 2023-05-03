@@ -9,7 +9,7 @@ GIT_TAG=${4:-develop}
 BUILD_QUALITY=${5:-RELEASE}
 BUILD_PHASE=${6:-GA}
 MAJOR_VERSION=${7:-9}
-MINOR_VERSION=${8:-50}
+MINOR_VERSION=${8:-55}
 PATCH_SET_VERSION=${9:-0}
 shift
 PATCH_VERSION=${9:-0}
@@ -301,6 +301,7 @@ Scp_Release()
     MakeDir_Remote "${FTP_PATH}/HOST/${DATE_FOLDER}/PushInstallClients/symbol_tars"
     MakeDir_Remote "${FTP_PATH}/HOST/${DATE_FOLDER}/PushInstallClientsRcm"
     MakeDir_Remote "${FTP_PATH}/HOST/${DATE_FOLDER}/release/AzureRecoveryTools/Symbols"
+    MakeDir_Remote "${FTP_PATH}/HOST/${DATE_FOLDER}/LinuxCVT"
 
     Copy_To_Remote ${TOP_BLD_DIR}/${GIT_BRANCH}/BINARIES/UNIFIED/*UA*release.tar.gz ${FTP_PATH}/HOST/${DATE_FOLDER}/UnifiedAgent_Builds/release/
     Copy_To_Remote ${TOP_BLD_DIR}/${GIT_BRANCH}/BINARIES/UNIFIED/*UA*release_symbols.tar.gz ${FTP_PATH}/HOST/${DATE_FOLDER}/UnifiedAgent_Builds/release/symbol_tars/
@@ -316,6 +317,7 @@ Scp_Release()
     Copy_To_Remote ${TOP_BLD_DIR}/${GIT_BRANCH}/BINARIES/PUSH/*pushinstallclient.tar.gz ${FTP_PATH}/HOST/${DATE_FOLDER}/PushInstallClients/
     Copy_To_Remote ${TOP_BLD_DIR}/${GIT_BRANCH}/BINARIES/PUSH/SYMBOLS/*.tar.gz ${FTP_PATH}/HOST/${DATE_FOLDER}/PushInstallClients/symbol_tars/
     Copy_To_Remote ${TOP_BLD_DIR}/${GIT_BRANCH}/BINARIES/PUSH/*pushinstallclient_${MAJOR_VERSION}.${MINOR_VERSION}.tar.gz ${FTP_PATH}/HOST/${DATE_FOLDER}/PushInstallClientsRcm/
+    Copy_To_Remote ${TOP_BLD_DIR}/${GIT_BRANCH}/daily_unified_build/source/InMage-Azure-SiteRecovery/host/Linux_x86_64/tests_test_agent/release/indskflt_ct  ${FTP_PATH}/HOST/${DATE_FOLDER}/LinuxCVT/indskflt_ct_${OS}
 
     if [ "$OS" = "UBUNTU-16.04-64" ]; then
         Copy_To_Remote "${TOP_BLD_DIR}/${GIT_BRANCH}/BINARIES/AzureRecoveryTools/*.sh" ${FTP_PATH}/HOST/${DATE_FOLDER}/release/AzureRecoveryTools/

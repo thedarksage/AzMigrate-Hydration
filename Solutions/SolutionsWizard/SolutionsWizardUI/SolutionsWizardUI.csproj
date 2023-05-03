@@ -1,0 +1,595 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{C90F0D6C-06C2-4437-B311-B1ACCC0266DE}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Com.Inmage.Wizard</RootNamespace>
+    <AssemblyName>vContinuum</AssemblyName>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <ManifestCertificateThumbprint>6032D7E6F4A09B7810FBA4FB96D9A2606FD61119</ManifestCertificateThumbprint>
+    <ManifestKeyFile>SolutionsWizardUI_TemporaryKey.pfx</ManifestKeyFile>
+    <GenerateManifests>false</GenerateManifests>
+    <TargetZone>LocalIntranet</TargetZone>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <SignManifests>false</SignManifests>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <TargetCulture>en</TargetCulture>
+    <ProductName>InMage Scout</ProductName>
+    <PublisherName>InMage Systems</PublisherName>
+    <ApplicationRevision>2</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <PublishWizardCompleted>true</PublishWizardCompleted>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Accessibility" />
+    <Reference Include="httpclient, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Design" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="vContinuumBackend, Version=8.3.0.0, Culture=neutral, processorArchitecture=x86" />
+  </ItemGroup>
+  <ItemGroup>
+  <Compile Include="..\..\..\host\common\version.cs" >
+  <Link>version.cs</Link>
+  </Compile>
+    <Compile Include="Esx\AddCredentialsPopUpForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Esx\AddCredentialsPopUpForm.Designer.cs">
+      <DependentUpon>AddCredentialsPopUpForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Esx\AddDiskPanelHandler.cs" />
+    <Compile Include="Esx\AdditionOfDiskSelectMachinePanelHandler.cs" />
+    <Compile Include="Esx\Advanced Settings for Push.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Esx\Advanced Settings for Push.Designer.cs">
+      <DependentUpon>Advanced Settings for Push.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Esx\BufferedPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Esx\CommonTools.cs" />
+    <Compile Include="Esx\ConfigurationPanel.cs" />
+    <Compile Include="Esx\CreateDataStorePanelHandler.cs" />
+    <Compile Include="Esx\Disk Details.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Esx\Disk Details.Designer.cs">
+      <DependentUpon>Disk Details.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Esx\DisplayLUNSPanelHandler.cs" />
+    <Compile Include="Esx\DrDrillPanelHandler.cs" />
+    <Compile Include="Esx\EditingMasterXmlFile.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Esx\EditingMasterXmlFile.designer.cs">
+      <DependentUpon>EditingMasterXmlFile.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Esx\Help.cs" />
+    <Compile Include="Esx\LaunchPreReqsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Esx\LaunchPreReqsForm.Designer.cs">
+      <DependentUpon>LaunchPreReqsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Esx\ManageExistingProtectionForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Esx\ManageExistingProtectionForm.Designer.cs">
+      <DependentUpon>ManageExistingProtectionForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Esx\MapDiskPanelHandler.cs" />
+    <Compile Include="Esx\MessageBox.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Esx\MessageBox.Designer.cs">
+      <DependentUpon>MessageBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Esx\MessageBox_ForAll.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Esx\MessageBox_ForAll.Designer.cs">
+      <DependentUpon>MessageBox_ForAll.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Esx\Monitor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Esx\Monitor.Designer.cs">
+      <DependentUpon>Monitor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Esx\NatConFiguration.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Esx\NatConFiguration.Designer.cs">
+      <DependentUpon>NatConFiguration.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Esx\NATIPForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Esx\NATIPForm.Designer.cs">
+      <DependentUpon>NATIPForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Esx\Nic Properties.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Esx\Nic Properties.Designer.cs">
+      <DependentUpon>Nic Properties.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Esx\RecoverConfiurationPanelHandler.cs" />
+    <Compile Include="Esx\Sparce Retention.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Esx\Sparce Retention.Designer.cs">
+      <DependentUpon>Sparce Retention.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Esx\StatusForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Esx\StatusForm.Designer.cs">
+      <DependentUpon>StatusForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Esx\Upgrade.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Esx\Upgrade.Designer.cs">
+      <DependentUpon>Upgrade.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Esx\WmiErrorMessageForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Esx\WmiErrorMessageForm.Designer.cs">
+      <DependentUpon>WmiErrorMessageForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Esx\EsxLoginControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Esx\EsxLoginControl.designer.cs">
+      <DependentUpon>EsxLoginControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Esx\ESX_RdmSelectionForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Esx\ESX_RdmSelectionForm.Designer.cs">
+      <DependentUpon>ESX_RdmSelectionForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Esx\ESX_RecoverPanelHandler.cs" />
+    <Compile Include="Esx\ImportOfflineSyncForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Esx\ImportOfflineSyncForm.Designer.cs">
+      <DependentUpon>ImportOfflineSyncForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Esx\OfflineSync_PanelHandler.cs" />
+    <Compile Include="Esx\ESX_SourceToMasterPanelHandler.cs" />
+    <Compile Include="Esx\PanelHandler.cs" />
+    <Compile Include="Esx\Esx_AddSourcePanelHandler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Esx\AppWizard.cs" />
+    <Compile Include="Esx\AllServersForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Esx\AllServersForm.Designer.cs">
+      <DependentUpon>AllServersForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Esx\P2V_PrimaryServerPanelHandler.cs" />
+    <Compile Include="Esx\ESX_ProtectionPanelHandler.cs" />
+    <Compile Include="Esx\PushAgentPanelHandler.cs" />
+    <Compile Include="Esx\ESX_SelectSecondaryPanelHandler.cs" />
+    <Compile Include="Esx\ESX_RecoveryReviewPanelHandler.cs" />
+    <Compile Include="Esx\SourceEsxDetailsPopUpForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Esx\SourceEsxDetailsPopUpForm.designer.cs">
+      <DependentUpon>SourceEsxDetailsPopUpForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Esx\OflineSync_TargetDetailsPanelHandler.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Esx\AddCredentialsPopUpForm.resx">
+      <DependentUpon>AddCredentialsPopUpForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Esx\Advanced Settings for Push.resx">
+      <DependentUpon>Advanced Settings for Push.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Esx\Disk Details.resx">
+      <DependentUpon>Disk Details.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Esx\EditingMasterXmlFile.resx">
+      <DependentUpon>EditingMasterXmlFile.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Esx\LaunchPreReqsForm.resx">
+      <DependentUpon>LaunchPreReqsForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Esx\ManageExistingProtectionForm.resx">
+      <DependentUpon>ManageExistingProtectionForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Esx\MessageBox.resx">
+      <DependentUpon>MessageBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Esx\MessageBox_ForAll.resx">
+      <DependentUpon>MessageBox_ForAll.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Esx\Monitor.resx">
+      <DependentUpon>Monitor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Esx\NatConFiguration.resx">
+      <DependentUpon>NatConFiguration.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Esx\NATIPForm.resx">
+      <DependentUpon>NATIPForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Esx\Nic Properties.resx">
+      <DependentUpon>Nic Properties.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Esx\Sparce Retention.resx">
+      <DependentUpon>Sparce Retention.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Esx\StatusForm.resx">
+      <DependentUpon>StatusForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Esx\Upgrade.resx">
+      <DependentUpon>Upgrade.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Esx\WmiErrorMessageForm.resx">
+      <DependentUpon>WmiErrorMessageForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Esx\EsxLoginControl.resx">
+      <DependentUpon>EsxLoginControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Esx\AllServersForm.resx">
+      <DependentUpon>AllServersForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Esx\ESX_RdmSelectionForm.resx">
+      <DependentUpon>ESX_RdmSelectionForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Esx\ImportOfflineSyncForm.resx">
+      <DependentUpon>ImportOfflineSyncForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Esx\SourceEsxDetailsPopUpForm.resx">
+      <DependentUpon>SourceEsxDetailsPopUpForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Esx\RemoveDuplicateEntries.resx">
+      <DependentUpon>RemoveDuplicateEntries.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Esx\RemoveDuplicateEntries.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Esx\RemoveDuplicateEntries.Designer.cs">
+      <DependentUpon>RemoveDuplicateEntries.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\logo.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\header.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\logoRight.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\arrow_right.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\host\csharphttpclient\httpclient.csproj">
+      <Project>{afa371e1-579b-4347-b4a8-ec6dfb94442a}</Project>
+      <Name>httpclient</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\delete.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\submenubg.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\sourcetarget.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\selectedmenubg.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\menubg.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\mainmenubg.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\arrow_right1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\mainmenubg1.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\selectedmenubg1.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\mainmenubg2.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Properties\app.manifest" />
+    <None Include="Resources\selectedmenubg2.gif" />
+    <None Include="SolutionsWizardUI_TemporaryKey.pfx" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\mainBg.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\workarea.JPG" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\options.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\options.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\slide.JPG" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\arrow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\doneIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\shadow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\arrow1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\navBar.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\close.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\open.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\subMenuBg.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\shadow1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\slide1.JPG" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\slide2.JPG" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\slide2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\options1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\slide.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\slide1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\credentials.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\noteBg.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\popupheader.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\noteBg1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\helpOpen.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\helpClose.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\cross.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\tick.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\helpBg.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\close.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\help.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\helpOpen1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\leftBg.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\closeBtn.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\helpClose.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\helpOpen.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\linkBg.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\helpOpen2.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\closeBtn1.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\helpClose1.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\helpOpen1.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\popupheader.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\warning.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\heading.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\loading1.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\errorIcon.png" />
+    <Content Include="Esx\SampleMasterConfigFile.xml" />
+    <Content Include="Resources\host.PNG" />
+    <None Include="Resources\Information.png" />
+    <Content Include="Resources\Launching.png" />
+    <None Include="app.config" />
+    <None Include="ClassDiagram1.cd" />
+    <None Include="Resources\pending.gif" />
+    <None Include="Resources\options5.png" />
+    <None Include="Resources\pending1.png" />
+    <Content Include="Resources\poweroff.PNG" />
+    <Content Include="Resources\poweron.PNG" />
+    <None Include="Resources\PROCESS_PROCESSING.gif" />
+    <Content Include="Resources\progress.gif" />
+    <None Include="Resources\question.jpg" />
+    <None Include="Resources\view_refresh.png" />
+    <None Include="Resources\scoutheading.jpg" />
+    <None Include="Resources\scoutLaunching.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

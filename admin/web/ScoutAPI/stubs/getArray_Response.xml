@@ -1,0 +1,10 @@
+<Function Name="getArray" Id="" Returncode="0" Message="Success">
+<FunctionResponse>
+<ParameterGroup Id="coaxm070">
+    <Parameter Name="IpAddress" Value="10.34.10.153"/>
+    <Parameter Name="ArrayName" Value="coaxm070"/>
+    <Parameter Name="SerialNo" Value="A002806BBF"/>
+    <Parameter Name="Model" Value="AX600"/>
+</ParameterGroup>
+</FunctionResponse>
+</Function>

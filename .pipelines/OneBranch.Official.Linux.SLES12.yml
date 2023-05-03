@@ -1,0 +1,141 @@
+# Yaml configuration file for generating SLES12 official builds.
+trigger: none
+schedules:
+- cron: "30 18 * * *"
+  displayName: Daily Build 12:00 AM IST
+  branches:
+    include:
+    - develop
+  always: true
+
+variables:
+  REPOROOT: $(Build.SourcesDirectory)
+  OUTPUTROOT: $(REPOROOT)/out
+  TESTOUTPUTROOT: $(OUTPUTROOT)/TEST
+  OS: 'SLES12-64'
+  ONEBRANCH_AME_ACR_LOGIN: cdpx5d0f2841795b49c69ab1c2195fc9a4ea00.azurecr.io
+  LinuxContainerImage: 'cdpx5d0f2841795b49c69ab1c2195fc9a4ea00.azurecr.io/official/inmage-azure-siterecovery:sles12_20230227.1'
+  CDP_BUILD_TAG: sles12
+
+resources:
+  repositories:
+    - repository: templates
+      type: git
+      name: OneBranch.Pipelines/GovernedTemplates
+      ref: refs/heads/main
+
+extends:
+  template: v2/OneBranch.Official.CrossPlat.yml@templates
+  parameters:
+    cloudvault:
+      enabled: true
+      runmode: stage
+      artifacts:
+        - drop_build_main
+    globalSdl:
+      tsa:
+        enabled: false
+      binskim:
+        break: false
+      policheck:
+        break: false
+
+    stages:
+    - stage: build
+      jobs:
+      - job: main
+        pool:
+          type: linux
+
+        variables:
+          ob_outputDirectory: '$(Build.SourcesDirectory)/out'
+          ob_linuxSymbolsPublishing_enabled: true
+          ob_linuxSymbolsPublishing_symbolsFolder: '$(REPOROOT)/Symbols'
+
+        steps:
+          - task: NuGetAuthenticate@1
+            displayName: 'Install Nuget Credential Provider'
+            
+          # Download delta kernel headers
+          - task: NuGetCommand@2
+            displayName: 'Downlaod kernel headers from NuGet'
+            inputs:
+              command: 'custom'
+              arguments: 'install ASR_KernelHeaders_SLES12 -OutputDirectory $(REPOROOT)/.pipelines/ -ConfigFile $(REPOROOT)/.config/NuGet.Config'
+              
+          # Install kernel headers
+          - task: Bash@3
+            displayName: 'Install kernel headers'
+            inputs:
+              targetType: 'inline'
+              script: |
+                unzip $(REPOROOT)/.pipelines/ASR_KernelHeaders_SLES12*/*.zip -d $(REPOROOT)/.pipelines/KernelHeaders
+                mkdir -p $(REPOROOT)/.pipelines/KernelHeadersInstall
+                find $(REPOROOT)/.pipelines/KernelHeaders -name "*.rpm" | xargs cp -t $(REPOROOT)/.pipelines/KernelHeadersInstall
+                find $(REPOROOT)/.pipelines/KernelHeaders -name "supported_kernels" | xargs cp -t $(REPOROOT)/.pipelines/KernelHeadersInstall
+                cd $(REPOROOT)/.pipelines/KernelHeadersInstall
+                rpm -ivh *.rpm
+                cat $(REPOROOT)/.pipelines/supported_kernels_sles12 $(REPOROOT)/.pipelines/KernelHeadersInstall/supported_kernels > /root/supported_kernels
+                cat /root/supported_kernels
+              failOnStandardError: true
+              
+          # Copy kernel headers file.
+          - task: Bash@3
+            displayName: 'Copy kernel headers file'
+            inputs:
+              targetType: 'inline'
+              script: |
+                cp -f $(REPOROOT)/.pipelines/supported_kernels_sles* /root
+                mv -f $(REPOROOT)/host/drivers/InVolFlt/linux/user_space/build/sles_cloudbuild.sh $(REPOROOT)/host/drivers/InVolFlt/linux/user_space/build/sles.sh
+              failOnStandardError: true
+          
+          # Generate agent build.
+          - task: Bash@3
+            displayName: 'Generate Agent Build'
+            inputs:
+              filePath: '$(REPOROOT)/.pipelines/BuildLinuxAgent.sh'
+              failOnStandardError: true
+
+          # Generate pushinstallclient tar.
+          - task: Bash@3
+            displayName: 'Generate Pushinstallclient Tar'
+            inputs:
+              targetType: 'inline'
+              script: |
+                cd $(REPOROOT)/host/Linux_x86_64/pushInstallerCli/release
+                tar cvzf $(OS)_pushinstallclient.tar.gz pushinstallclient
+              failOnStandardError: true
+
+          # Capature symbols for publishing.
+          - task: Bash@3
+            displayName: 'Capature Symbols For Publishing'
+            inputs:
+              targetType: 'inline'
+              script: |
+                mkdir -p $(REPOROOT)/Symbols
+                find $(REPOROOT)/host -name *.dbg -exec cp -f {} $(REPOROOT)/Symbols \;
+              failOnStandardError: true
+
+          # Copy build artifacts.
+          - task: Bash@3
+            displayName: 'Copy Build Artifacts'
+            inputs:
+              targetType: 'inline'
+              script: |
+                mkdir -p $(OUTPUTROOT) $(TESTOUTPUTROOT)
+                cp -f $(REPOROOT)/host/Linux_x86_64/setup_ua/release/*.tar.gz $(OUTPUTROOT)
+                cp -f $(REPOROOT)/host/Linux_x86_64/pushInstallerCli/release/$(OS)_pushinstallclient.tar.gz $(OUTPUTROOT)
+                cp -f $(REPOROOT)/host/*.tar.gz $(OUTPUTROOT)
+                cp -f $(REPOROOT)/host/Linux_x86_64/setup_ua/release/supported_kernels $(OUTPUTROOT)/$(OS)_supported_kernels.txt
+                cp -f $(REPOROOT)/host/AgentBuild.log $(OUTPUTROOT)/$(OS)_AgentBuild.log
+                AGENT_VERSION=`grep -w INMAGE_PRODUCT_VERSION $(REPOROOT)/host/common/version.h | tr ',' '.' | cut -d" " -f3 | tr -d "\n"`
+                echo -n ${AGENT_VERSION} > $(REPOROOT)/host/AgentVersion_${AGENT_VERSION}_$(OS).txt
+                cp -f $(REPOROOT)/host/AgentVersion*.txt $(OUTPUTROOT)
+                cp -f $(REPOROOT)/build/scripts/general/OS_details.sh $(OUTPUTROOT)
+                if [ -f $(REPOROOT)/host/Linux_x86_64/tests_test_agent/release/indskflt_ct ]; then
+                    cp -f $(REPOROOT)/host/Linux_x86_64/tests_test_agent/release/indskflt_ct $(TESTOUTPUTROOT)
+                fi
+                cat $(OUTPUTROOT)/AgentVersion*.txt > $(OUTPUTROOT)/Build_details.txt
+                echo "" >> $(OUTPUTROOT)/Build_details.txt
+                ls $(OUTPUTROOT) | grep -v Build_details.txt >> $(OUTPUTROOT)/Build_details.txt
+              failOnStandardError: true

@@ -1,0 +1,17 @@
+<Request Id="0507" Version="1.0">
+<Header>
+  <Authentication>
+    <AccessKeyID>8A1681E612A2025087B703FDF1F8F617E506B053</AccessKeyID>
+    <AccessSignature>YjQ5ZDM2NzU4MDBkNzIxYWMxZTllMzlmNWJlNzJkMGEzOTM1YjkwNA==</AccessSignature>
+  </Authentication>
+</Header>
+<Body>
+  <FunctionRequest Name="failover">
+    <ParameterGroup Id="LunList">
+      <Parameter Name="LunId1" Value="2000b080000002807"/>
+      <Parameter Name="LunId2" Value="2000b080000002806"/>
+      <Parameter Name="LunId3" Value="2000b080000002808"/>
+    </ParameterGroup>
+  </FunctionRequest>
+</Body>
+</Request>

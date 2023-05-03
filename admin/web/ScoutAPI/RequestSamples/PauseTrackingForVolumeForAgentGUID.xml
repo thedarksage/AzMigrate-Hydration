@@ -1,0 +1,20 @@
+<Request Id="0043" Version="1.0">
+<Header>
+  <Authentication>
+    <AccessKeyID>DDC9525FF275C104EFA1DFFD528BD0145F903CB1</AccessKeyID>
+    <AccessSignature></AccessSignature>
+  </Authentication>
+</Header>
+<Body>
+  <FunctionRequest Name="PauseTrackingForVolumeForAgentGUID" Include="No">
+    <Parameter Name="AgentGUID" Value = "B0E5D87A-F642-0546-A6F75EFF42BBD039" />
+<Parameter Name="Mode " Value = "RESCUE" />
+<ParameterGroup Id="VolumeList">
+<Parameter Name="VolumeName1" Value="E" />
+<Parameter Name="VolumeName2" Value="F" />
+
+</ParameterGroup>
+
+  </FunctionRequest>
+</Body>
+</Request>

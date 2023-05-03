@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TestJobGroup>
+  <!-- Resource spec points to a Windows platform image that is defined in asrsrc-prod-sea cloudtestpool -->
+  <ResourceSpec>
+    <Resource SKU="Standard_DS2_V2" Image="2022-DataCenter"/>
+  </ResourceSpec>
+  
+  <Setup TimeoutMins="60">
+    <BuildFiles>
+      <!-- Copy Test Scripts from build drop -->
+      <Copy Src="[BuildRoot]\[BuildType]-[BuildArch]\cloudtest\Extension\*" Dest="[WorkingDirectory]" Writable="true"/>
+    </BuildFiles>
+    <Scripts>
+      <!-- Install Azure Powershell and other prereq's -->
+	    <Script Path="[WorkingDirectory]\InstallPrereq.ps1" />
+	  </Scripts>
+  </Setup>
+
+  <!-- Trigger Deployment Cleanup -->
+  <TestJob Name="Cleanup-ASR-A2A-TEST-EXT-2" Type="SingleBox" Tags="Tests=Cleanup-ASR-A2A-Test-EXT-2" OwnerAliases="sisunkar" TimeoutMins="6000" >
+    <Execution Type="Exe" Path="C:\WINDOWS\system32\cmd.exe " Args="/c powershell.exe [WorkingDirectory]\CleanupDeployment.ps1 -SubscriptionId 'c4488a3f-a7f7-4ad4-aa72-0e1f4d9c0756' -SubscriptionName 'ASR A2A Test Extension Publication-1' -ResourceGroupName 'ASR-A2A-TEST-EXT-2'"/>
+  </TestJob>
+
+  <TestJob Name="Cleanup-ASR-A2A-Test-EXT-1" Type="SingleBox" Tags="Tests=Cleanup-ASR-A2A-Test-EXT-1" OwnerAliases="sisunkar" TimeoutMins="6000" >
+    <Execution Type="Exe" Path="C:\WINDOWS\system32\cmd.exe " Args="/c powershell.exe [WorkingDirectory]\CleanupDeployment.ps1 -SubscriptionId 'bc403605-c2b0-43dd-abe9-0162124b1ee1' -SubscriptionName 'ASR A2A Test Extension Publication-2' -ResourceGroupName 'ASR-A2A-Test-EXT-1'"/>
+  </TestJob>
+ 
+  <Cleanup TimeoutMins="10" />
+</TestJobGroup>

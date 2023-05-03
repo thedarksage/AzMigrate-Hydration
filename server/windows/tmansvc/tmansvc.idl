@@ -1,0 +1,18 @@
+// tmansvc.idl : IDL source for tmansvc
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (tmansvc.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+[
+	uuid(6E14F19E-92B0-4D34-95FA-B3F8E020116D),
+	version(1.0),
+	helpstring("tmansvc 1.0 Type Library")
+]
+library tmansvcLib
+{
+	importlib("stdole2.tlb");
+};

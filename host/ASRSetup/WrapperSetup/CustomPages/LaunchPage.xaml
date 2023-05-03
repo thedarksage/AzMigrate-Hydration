@@ -1,0 +1,15 @@
+﻿<ns0:BasePageForWpfControls
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+    xmlns:ns0="clr-namespace:ASRSetupFramework;assembly=ASRSetupFramework"
+    xmlns:resx="clr-namespace:ASRResources;assembly=ASRResources"
+    x:Class="UnifiedSetup.LaunchPage"
+    x:Uid="ns0:BasePageForWpfControls_1"
+    Height="415"
+    Width="685">
+    <Grid
+        x:Uid="Grid_1"
+        Margin="10">
+        <!--Just for launching to correct page-->
+    </Grid>
+</ns0:BasePageForWpfControls>

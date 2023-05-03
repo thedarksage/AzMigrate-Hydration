@@ -1,0 +1,5 @@
+<Function Name="failover" Id="" Returncode="0" Message="Success">
+<FunctionResponse>
+    <Parameter Name="RequestId" Value="41"/>
+</FunctionResponse>
+</Function>

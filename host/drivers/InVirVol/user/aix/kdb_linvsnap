@@ -1,0 +1,52 @@
+#!/bin/bash
+
+#export PATH=$PATH:`pwd`
+initfile=`pwd`/kdbinit
+
+export core=$1
+> log.txt
+
+function kdb_exec_cmd
+{
+kdb $core << __ABC__
+$@
+q
+__ABC__
+}
+
+
+function kdb_exec
+{
+kdb_exec_cmd $@ |  sed '$d' | tail -1
+}
+
+> $initfile
+
+echo "new cmds: log - last log, errlog - last error message (tries)"
+
+last=`kdb_exec dd @vdev_log 1 | cut -f 2 -d " "` 
+slast=`kdb_exec dd @vdev_log+8 1 | cut -f 2 -d " "`
+err=`kdb_exec dd @vdev_log+16 1 | cut -f 2 -d " "`
+
+numbytes=`kdb_exec dw @vdev_log+10 1 | cut -f 2 -d " " | sed 's/^0*//g'`
+numbytes=`echo "ibase=16; $numbytes" | bc`
+numbytes=`expr $numbytes % 4096`
+numbytes=`echo "obase=16; $numbytes" | bc`
+
+if [[ "$err" != "0000000000000000" ]]
+then
+	echo "dumpbin $err 1000 errlog.txt"  >> $initfile
+fi
+
+if [[ "$slast" != "0000000000000000" ]]
+then
+	echo "dumpbin $slast 1000 log.txt"  >> $initfile
+fi
+
+echo "dumpbin -a $last $numbytes log.txt" >> $initfile
+
+echo "alias log !cat `pwd`/log.txt" >> $initfile
+
+echo "Commands run:"
+cat $initfile
+kdb -c $initfile $@

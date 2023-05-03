@@ -1,0 +1,40 @@
+<Configuration>
+  <AzureEnvironment>
+    <Subscription>InMage-Deployment-DevGallery-Testing</Subscription>
+    <ResourceGroup>PSGalleryImages</ResourceGroup>
+    <StorageAccount>asrprodimagevhd</StorageAccount>
+    <StorageType>Standard_LRS</StorageType>
+    <VnetName>PSGalleryImage-vnet</VnetName>
+    <ContainerName>scripts</ContainerName>
+    <VhdContainerName>vhds</VhdContainerName>
+    <SasExpiryDuration>3600</SasExpiryDuration>
+    <ApplicationId></ApplicationId>
+    <TenantId></TenantId>
+  </AzureEnvironment>
+  <ImageConfig>
+    <ImageName>Microsoft-Azure-Site-Recovery-Process-Server-V2-202209.16</ImageName>
+    <ImageVersion>202209.16.00</ImageVersion>
+    <ReplicationGeos>'SouthEast Asia', 'East Asia'</ReplicationGeos>
+    <Username></Username>
+    <Password></Password>
+    <!-- 
+		<ReplicationGeos>"East US", "North Europe", "West Europe", "East Asia", "Japan East","Japan West", "Australia East", "Australia Southeast", "Southeast Asia", "West US", "Brazil South","Central India", "South India", "East US 2", "Central US", "North Central US", "South Central US", "West Central US", "West US 2", "UK West", "UK South", "Canada Central", "Canada East", "UK South 2", "UK North", "East US 2 EUAP", "Central US EUAP"</ReplicationGeos> 
+		-->
+    <PfxIssuer>CN=AgentSpnCert</PfxIssuer>
+    <PublisherName>MicrosoftWindowsServer</PublisherName>
+    <OfferName>WindowsServer</OfferName>
+    <SkuName>2012-R2-Datacenter</SkuName>
+    <VMSize>Standard_D4s_v3</VMSize>
+    <DiskSizeGb>601</DiskSizeGb>
+    <DataDiskName>HOME</DataDiskName>
+    <LunNumber>1</LunNumber>
+  </ImageConfig>
+  <PSConfig>
+    <VMName>ProcessServer</VMName>
+    <Location>East US</Location>
+    <LogDirectory>PSLogs</LogDirectory>
+    <PSVersion>9.51</PSVersion>
+    <PSFullVersion>9.24.1.0</PSFullVersion>
+    <BuildDate>16_Sep_2022</BuildDate>
+  </PSConfig>
+</Configuration>

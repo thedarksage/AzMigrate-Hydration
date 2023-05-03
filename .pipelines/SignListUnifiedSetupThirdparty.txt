@@ -1,0 +1,5 @@
+C:\__w\1\s\host\setup\DRA\AutoMapper.dll
+C:\__w\1\s\host\setup\DRA\Polly.dll
+C:\__w\1\s\host\setup\DRA\VMware.Interfaces.dll
+C:\__w\1\s\host\setup\DRA\VMware.Interfaces.resources.dll
+C:\__w\1\s\host\setup\DRA\VMware.VSphere.Management.dll

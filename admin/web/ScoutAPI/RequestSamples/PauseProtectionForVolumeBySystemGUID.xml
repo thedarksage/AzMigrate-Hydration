@@ -1,0 +1,17 @@
+<Request Id="0066" Version="1.0">
+		 <Header>
+			<Authentication>
+			<AccessKeyID>39F830AD9C46DE48B87EBE56F4C919D7C7E96CD9</AccessKeyID>
+						<AccessSignature>NDYwNGVlZDY5YzVlMmIzMDcxZTljNTIwM2M0Y2ZkYjYwMjU0MmQ4ZQ==</AccessSignature>
+				</Authentication>
+		 </Header>
+		 <Body>
+		<FunctionRequest Name="PauseProtectionForVolumeBySystemGUID" Include="No">
+			<Parameter Name="SystemGUID" Value=" 1233 " />
+				<ParameterGroup Id="VolumeList">
+					<Parameter Name="VolumeName1" Value="Vol1 " />
+					<Parameter Name="VolumeName2" Value="Vol2" />
+				</ParameterGroup>
+			</FunctionRequest>
+		 </Body>
+</Request>

@@ -1,0 +1,15 @@
+<Request Id="0066" Version="1.0">
+     <Header>
+      	<Authentication>
+		<AccessKeyID>39F830AD9C46DE48B87EBE56F4C919D7C7E96CD9</AccessKeyID>
+             		<AccessSignature>Y2U1ODMxYWZkYjhiYWNkYzY3M2JhYzFjMWNiOTczZDMxOWExNmE1Zg==</AccessSignature>
+        	</Authentication>
+     </Header>
+     <Body>
+	<FunctionRequest Name="PauseProtectionBySystemGUID" Include="No">
+		<Parameter Name="SystemGUID" Value="1233 " />
+		
+     	</FunctionRequest>
+     </Body>
+</Request>
+

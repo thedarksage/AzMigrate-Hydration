@@ -1,0 +1,1 @@
+This folder is used to place the auto-generated files that are created via the error code generator tool.

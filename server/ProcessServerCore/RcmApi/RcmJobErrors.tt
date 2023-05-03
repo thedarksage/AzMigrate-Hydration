@@ -1,0 +1,48 @@
+﻿<#@ template debug="true" hostspecific="true" language="C#" #>
+<#@ output extension=".cs" #>
+<#@ assembly name="EnvDTE" #>
+<#@ assembly name="System.Xml"#>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="EnvDTE" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Xml" #>
+<#@ import namespace="Microsoft.VisualStudio.TextTemplating" #>
+<#
+// Get the Visual Studio API as a service:
+DTE dte = ((IServiceProvider)this.Host).GetCOMService(typeof(DTE)) as DTE;
+#>
+<# 
+// Open the prototype document.
+XmlDocument doc = new XmlDocument();
+doc.Load(this.Host.ResolvePath("RcmJobErrors.xml"));
+// Generate the code
+#>
+// DO NOT EDIT! Auto-generated file.
+// Find instructions in RcmJobErrors.xml to make modifications to this file.
+// Ensure to check-in the changes to this file without ignoring.
+
+namespace Microsoft.Azure.SiteRecovery.ProcessServer.Core.RcmApi
+{
+    public enum PSRcmJobErrorEnum
+    {
+<#
+XmlNamespaceManager nsManager = new XmlNamespaceManager(doc.NameTable);
+nsManager.AddNamespace("srs", "http://schemas.microsoft.com/2012/DisasterRecovery/SRSErrors.xsd");
+foreach (XmlNode node in doc.SelectNodes("/srs:SRSErrors/srs:Error", nsManager))
+{
+#>
+        /// <Summary>
+        /// <#= node["Message"].InnerText #>
+        /// </Summary>
+        <#= node["EnumName"].InnerText #> = <#= node["ErrorCode"].InnerText #>,
+
+<#
+}
+#>
+    }
+}
+
+// DO NOT EDIT! Auto-generated file.
+// Find instructions in RcmJobErrors.xml to make modifications to this file.
+// Ensure to check-in the changes to this file without ignoring.

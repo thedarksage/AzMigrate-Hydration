@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\domain">
+      <UniqueIdentifier>{6f1e4da8-14cb-4f32-ab71-d14fd77a84e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\domain\unix">
+      <UniqueIdentifier>{5003aaf6-cb78-4473-a2b8-6c12cc918fd5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\domain\win32">
+      <UniqueIdentifier>{edc00c61-c57a-4601-a3e0-ed31a1f01ccb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\domain">
+      <UniqueIdentifier>{c32196bf-7387-4f0f-8e05-64750126bd2d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\win32">
+      <UniqueIdentifier>{2b48cf3b-0d16-4f96-b7d2-cea8ff8ab757}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\unix">
+      <UniqueIdentifier>{82d0560b-3a88-465c-8303-e33a29cff0ce}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="sentinel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="domain\prismvolume.cpp">
+      <Filter>Source Files\domain</Filter>
+    </ClCompile>
+    <ClCompile Include="domain\unix\prismvolumemajor.cpp">
+      <Filter>Source Files\domain\unix</Filter>
+    </ClCompile>
+    <ClCompile Include="domain\win32\prismvolumemajor.cpp">
+      <Filter>Source Files\domain\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="unix\sentinelmajor.cpp">
+      <Filter>Source Files\unix</Filter>
+    </ClCompile>
+    <ClCompile Include="win32\sentinelmajor.cpp">
+      <Filter>Source Files\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="ChurnAndUploadStatsCollector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sentinel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="domain\prismvolume.h">
+      <Filter>Header Files\domain</Filter>
+    </ClInclude>
+    <ClInclude Include="ChurnAndUploadStatsCollector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="s2.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

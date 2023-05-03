@@ -1,0 +1,10 @@
+/var/log/mysqld.log {
+    missingok
+    create 0640 mysql mysql
+    prerotate
+	[ -e /var/lock/subsys/mysqld ] && /bin/kill -HUP `cat /var/run/mysqld/mysqld.pid  2> /dev/null ` || /bin/true
+    endscript
+    postrotate
+	[ -e /var/lock/subsys/mysqld ] && /bin/kill -HUP `cat /var/run/mysqld/mysqld.pid  2> /dev/null ` || /bin/true
+    endscript
+}

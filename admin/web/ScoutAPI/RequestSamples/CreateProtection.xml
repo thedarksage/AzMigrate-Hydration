@@ -1,0 +1,77 @@
+<Request Id="1" Version="1.0">
+<Header>
+  <Authentication>
+	<AccessKeyID>11F3242118FF2ADD5D117CBF216F29AC578F6BA6</AccessKeyID>
+	<AuthMethod>CXAuth</AuthMethod>
+	<CXUserName>admin</CXUserName>
+  </Authentication>
+</Header>
+<Body>
+  <FunctionRequest Name="CreateProtection">
+	<Parameter Name="PlanId" Value="1"/> <!-- Optional, Mandatory in case of retry protection -->
+	<Parameter Name="PlanName" Value="ProtectionPlan1"/> <!-- Optional -->
+	<ParameterGroup Id="ProtectionProperties">     
+		<Parameter Name="BatchResync" Value="3"/> <!-- Number of pairs that can be in initial sync at any point of time -->
+		<Parameter Name="MultiVmSync" Value="On"/>
+		<Parameter Name="RPOThreshold" Value="30"/> <!-- In Minutes -->
+		<Parameter Name="HourlyConsistencyPoints" Value="24"/> <!-- Retain recovery points for #n# hours -->
+		<Parameter Name="ConsistencyInterval" Value="30"/> <!-- Frequency of application consistency (minutes) -->
+		<Parameter Name="Compression" Value="Enabled"/> <!-- PS Based Compression. Enabled/Disabled, Default is Enabled -->
+		<!-- Encryption is always to be Enabled. -->
+		<ParameterGroup Id="AutoResyncOptions">
+			<Parameter Name="StartTime" Value="12:00"/> <!-- Date:Time in 24 hour format, Default 12:00 -->
+			<Parameter Name="EndTime" Value="18:00"/> <!-- Date:Time in 24 hour format, Default 18:00 -->
+			<Parameter Name="Interval" Value="30"/> <!--In Minutes. Default 30 -->
+		</ParameterGroup>
+	</ParameterGroup>
+	<ParameterGroup Id="GlobalOptions">
+		<Parameter Name="ProcessServer" Value="E864323B-17AB-6D48-B23076FF9E5C9CE6"/>
+		<Parameter Name="UseNatIPFor" Value="Target"/> <!-- Source/Target/Both/None. Default is None -->
+		<Parameter Name="MasterTarget" Value="E864323B-17AB-6D48-B23076FF9E5C9CE6"/>
+		<Parameter Name="RetentionDrive" Value="R"/> <!-- Optional,  R is default -->
+		<Parameter Name="ProtectionDirection" Value="E2A"/> <!-- Optional (E2A/A2E)-->
+	</ParameterGroup>        
+	<ParameterGroup Id="SourceServers">
+		<ParameterGroup Id="SourceServer1">
+			<Parameter Name="HostId" Value="F6284022-71CB-5E43-B69AF768614FF3DC"/>
+			<Parameter Name="ProcessServer" Value="E864323B-17AB-6D48-B23076FF9E5C9CE6"/><!-- Optional -->
+			<Parameter Name="UseNatIPFor" Value="Target"/>
+			<Parameter Name="MasterTarget" Value="E864323B-17AB-6D48-B23076FF9E5C9CE6"/>
+			<Parameter Name="RetentionDrive" Value="R"/> <!-- Optional,  R is default -->
+			<Parameter Name="ProtectionDirection" Value="E2A"/> <!-- Optional (E2A/A2E)-->
+			<ParameterGroup Id="DiskMapping">
+				<ParameterGroup Id="Disk1">
+					<Parameter Name="SourceDiskName" Value="//PhysicalDrive0"/>
+					<Parameter Name="TargetLUNId" Value="1"/>
+				</ParameterGroup>
+				<ParameterGroup Id="Disk2">
+					<Parameter Name="SourceDiskName" Value="//PhysicalDrive1"/>
+					<Parameter Name="TargetLUNId" Value="2"/>
+				</ParameterGroup>
+				<ParameterGroup Id="Disk3">
+					<Parameter Name="SourceDiskName" Value="//PhysicalDrive2"/>
+					<Parameter Name="TargetLUNId" Value="3"/>
+				</ParameterGroup>
+			</ParameterGroup>
+		</ParameterGroup>
+		<ParameterGroup Id="SourceServer2">
+			<Parameter Name="HostId" Value="E6284022-71CB-5E43-B69AF768614FF3CC"/>
+			<ParameterGroup Id="DiskMapping">
+				<ParameterGroup Id="Disk1">
+					<Parameter Name="SourceDiskName" Value="//PhysicalDrive0"/>
+					<Parameter Name="TargetLUNId" Value="4"/>
+				</ParameterGroup>
+				<ParameterGroup Id="Disk2">
+					<Parameter Name="SourceDiskName" Value="//PhysicalDrive1"/>
+					<Parameter Name="TargetLUNId" Value="5"/>
+				</ParameterGroup>
+				<ParameterGroup Id="Disk3">
+					<Parameter Name="SourceDiskName" Value="//PhysicalDrive2"/>
+					<Parameter Name="TargetLUNId" Value="6"/>
+				</ParameterGroup>
+			</ParameterGroup>
+		</ParameterGroup>            
+	</ParameterGroup> 
+  </FunctionRequest>
+</Body>
+</Request>

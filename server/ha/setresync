@@ -1,0 +1,59 @@
+#!/bin/bash
+#
+# setresync     This shell script takes care of setting the 
+#               resync required timestamp to yes in the event 
+#               of a failover
+#
+# Description:    Set Resync Required service for HA failover 
+# Processname:    setresync
+# Config:         None
+# Author:         bknathan
+# Date:           08 Apr 2008
+#
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+# Source networking configuration.
+. /etc/sysconfig/network
+
+base_dir="/home/svsystems"
+web_dir="$base_dir/admin/web"
+start(){
+        pushd .
+        cd $web_dir
+        php report_global_resync.php
+        popd
+}
+
+stop(){
+        pushd .
+        cd $web_dir
+        php report_global_resync.php
+        popd
+}
+
+restart(){
+       stop
+       start
+}
+
+# See how we were called.
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    #stop
+    ;;
+  restart)
+    restart
+    ;;
+  *)
+    echo $"Usage: $0 {start|stop|restart}"
+    exit 1
+esac
+
+exit $?
+
+

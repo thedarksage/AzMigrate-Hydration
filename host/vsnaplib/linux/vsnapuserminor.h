@@ -1,0 +1,10 @@
+#ifndef VSNAPUSER__MINOR_H__
+#define VSNAPUSER__MINOR_H__
+
+#define MOUNT_COMMAND "/bin/mount"
+#define OPTION_TO_SPECIFY_FILESYSTEM "-t"
+#define AGENT_SERVICE "svagents"
+#define TOTALSECS_TO_WAITFOR_VSNAP 30
+#define CHECK_FREQUENCY_INSECS 1
+
+#endif /* VSNAPUSER__MINOR_H__ */

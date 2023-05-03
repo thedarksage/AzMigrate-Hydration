@@ -1,0 +1,21 @@
+<Request Id="0071" Version="1.0">
+     <Header>
+      	<Authentication>
+		<AccessKeyID>DDC9525FF275C104EFA1DFFD528BD0145F903CB1</AccessKeyID>
+             		<AccessSignature></AccessSignature>
+        	</Authentication>
+     </Header>
+     <Body>
+	<FunctionRequest Name="ExportRepositoryOnCIFS" Include="No">
+		<ParameterGroup Id="Rep1">
+			<Parameter Name="RepositoryName" Value="Repository Name" />   
+			<Parameter Name="AgentGUID" Value="Agent GUID" />
+			<Parameter Name="ShareName" Value="Share Name" />
+			<Parameter Name="UserName" Value="" /> 
+			<Parameter Name="Password" Value="" />
+			<Parameter Name="Domain" Value="" />
+			<Parameter Name="IPsAllowed" Value="" />
+		</ParameterGroup>
+    </FunctionRequest>
+        </Body>
+</Request>

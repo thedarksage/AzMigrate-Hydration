@@ -1,0 +1,96 @@
+#################################################################################
+#                        OneBranch Pipelines - Buddy                            #
+# This pipeline was created by EasyStart from a sample located at:              #
+#   https://aka.ms/obpipelines/easystart/samples                                #
+# Documentation:  https://aka.ms/obpipelines                                    #
+# Yaml Schema:    https://aka.ms/obpipelines/yaml/schema                        #
+# Retail Tasks:   https://aka.ms/obpipelines/tasks                              #
+# Support:        https://aka.ms/onebranchsup                                   #
+#################################################################################
+
+trigger: none # https://aka.ms/obpipelines/triggers
+
+variables:
+  REPOROOT: $(Build.SourcesDirectory)
+  OUTPUTROOT: $(REPOROOT)/out
+  TESTOUTPUTROOT: $(OUTPUTROOT)/TEST
+  OS: 'RHEL8-64'
+  ONEBRANCH_AME_ACR_LOGIN: cdpx5d0f2841795b49c69ab1c2195fc9a4ea00.azurecr.io
+  LinuxContainerImage: 'cdpx5d0f2841795b49c69ab1c2195fc9a4ea00.azurecr.io/official/inmage-azure-siterecovery:rhel8_20230130.1'
+  CDP_BUILD_TAG: rhel8
+
+resources:
+  repositories:
+    - repository: templates
+      type: git
+      name: OneBranch.Pipelines/GovernedTemplates
+      ref: refs/heads/main
+
+extends:
+  template: v2/OneBranch.NonOfficial.CrossPlat.yml@templates # https://aka.ms/obpipelines/templates
+  parameters:
+    cloudvault:
+      enabled: true
+      runmode: stage
+      artifacts:
+        - drop_build_main
+    globalSdl: # https://aka.ms/obpipelines/sdl
+      tsa:
+        enabled: false # onebranch publish all sdl results to TSA. If TSA is disabled all SDL tools will forced into 'break' build mode.
+      # credscan:
+      #   suppressionsFile: $(Build.SourcesDirectory)\.config\CredScanSuppressions.json
+      binskim:
+        break: false # always break the build on binskim issues. You can disable it by setting to 'false'
+      policheck:
+        break: false # always break the build on policheck issues. You can disable it by setting to 'false'
+      # suppression:
+      #   suppressionFile: $(Build.SourcesDirectory)\.gdn\global.gdnsuppress
+
+    stages:
+    - stage: build
+      jobs:
+      - job: main
+        pool:
+          type: linux
+
+        variables:
+          ob_outputDirectory: '$(Build.SourcesDirectory)/out'
+
+        steps:
+          # Generate agent build.
+          - task: Bash@3
+            displayName: 'Generate Agent Build'
+            inputs:
+              filePath: '$(REPOROOT)/.pipelines/BuildLinuxAgent.sh'
+              failOnStandardError: true
+
+          # Generate pushinstallclient tar.
+          - task: Bash@3
+            displayName: 'Generate Pushinstallclient Tar'
+            inputs:
+              targetType: 'inline'
+              script: |
+                cd $(REPOROOT)/host/Linux_x86_64/pushInstallerCli/release
+                tar cvzf $(OS)_pushinstallclient.tar.gz pushinstallclient
+              failOnStandardError: true
+
+          # Copy build artifacts.
+          - task: Bash@3
+            displayName: 'Copy Build Artifacts'
+            inputs:
+              targetType: 'inline'
+              script: |
+                mkdir -p $(OUTPUTROOT) $(TESTOUTPUTROOT)
+                cp -f $(REPOROOT)/host/Linux_x86_64/setup_ua/release/*.tar.gz $(OUTPUTROOT)
+                cp -f $(REPOROOT)/host/Linux_x86_64/pushInstallerCli/release/$(OS)_pushinstallclient.tar.gz $(OUTPUTROOT)
+                cp -f $(REPOROOT)/host/*.tar.gz $(OUTPUTROOT)
+                cp -f $(REPOROOT)/host/Linux_x86_64/setup_ua/release/supported_kernels $(OUTPUTROOT)/$(OS)_supported_kernels.txt
+                cp -f $(REPOROOT)/host/AgentBuild.log $(OUTPUTROOT)/$(OS)_AgentBuild.log
+                AGENT_VERSION=`grep -w INMAGE_PRODUCT_VERSION $(REPOROOT)/host/common/version.h | tr ',' '.' | cut -d" " -f3 | tr -d "\n"`
+                echo -n ${AGENT_VERSION} > $(REPOROOT)/host/AgentVersion_${AGENT_VERSION}_$(OS).txt
+                cp -f $(REPOROOT)/host/AgentVersion*.txt $(OUTPUTROOT)
+                cp -f $(REPOROOT)/build/scripts/general/OS_details.sh $(OUTPUTROOT)
+                if [ -f $(REPOROOT)/host/Linux_x86_64/tests_test_agent/release/indskflt_ct ]; then
+                    cp -f $(REPOROOT)/host/Linux_x86_64/tests_test_agent/release/indskflt_ct $(TESTOUTPUTROOT)
+                fi
+              failOnStandardError: true

@@ -89,7 +89,7 @@ case "$1" in
 
 			VX_VERSION_FILE='/usr/local/.vx_version'
 			OS=`cat ${VX_VERSION_FILE} | grep OS_BUILT_FOR | awk -F"=" '{print $2}'`
-			echo $OS | egrep -q 'RHEL7|RHEL8|UBUNTU-20.04|UBUNTU-18.04|UBUNTU-16.04|DEBIAN8|DEBIAN9|DEBIAN10|SLES12|SLES15|OL7|OL8' && {
+			echo $OS | egrep -q 'RHEL7|RHEL8|RHEL9|UBUNTU-22.04|UBUNTU-20.04|UBUNTU-18.04|UBUNTU-16.04|DEBIAN8|DEBIAN9|DEBIAN10|DEBIAN11|SLES12|SLES15|OL7|OL8|OL9' && {
 				lsofnotfound=0
 				killallnotfound=0
 				unclean=0

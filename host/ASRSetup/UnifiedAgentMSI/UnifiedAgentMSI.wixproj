@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>3.9</ProductVersion>
+    <ProjectGuid>7e688815-77aa-42b6-85f9-9839991a25e8</ProjectGuid>
+    <SchemaVersion>2.0</SchemaVersion>
+    <OutputName>UnifiedAgentMSI</OutputName>
+    <OutputType>Package</OutputType>
+    <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' AND '$(MSBuildExtensionsPath32)' != '' ">$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
+    <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <OutputPath>x86\bin\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>x86\obj\$(Configuration)\</IntermediateOutputPath>
+    <DefineConstants>Debug</DefineConstants>
+    <SuppressIces>ICE30;ICE18;</SuppressIces>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <OutputPath>x64\bin\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>x64\obj\$(Configuration)\</IntermediateOutputPath>
+    <DefineConstants>Debug</DefineConstants>
+    <SuppressIces>ICE30;ICE18;ICE80;</SuppressIces>
+  </PropertyGroup>  
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <OutputPath>x86\bin\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>x86\obj\$(Configuration)\</IntermediateOutputPath>
+    <SuppressIces>ICE30;ICE18;</SuppressIces>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <OutputPath>x64\bin\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>x64\obj\$(Configuration)\</IntermediateOutputPath>
+    <SuppressIces>ICE30;ICE18;ICE80;</SuppressIces>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Product.wxs" />
+  </ItemGroup>
+  <ItemGroup>
+    <WixExtension Include="WixUtilExtension">
+      <HintPath>$(WixExtDir)\WixUtilExtension.dll</HintPath>
+      <Name>WixUtilExtension</Name>
+    </WixExtension>
+  </ItemGroup>
+  <Import Project="$(WixTargetsPath)" />
+  <Target Name="BeforeBuild">
+	<Message Text="Generating windows spv file" />
+	<Exec Command="powershell.exe -NonInteractive -command &quot;$(SolutionDir)..\setup\generate_windows_spv.ps1&quot;" LogStandardErrorAsError="True" ContinueOnError="False" />
+  </Target>
+</Project>

@@ -9,7 +9,7 @@ BEGIN
 	buildphase=GA
 	buildquality=RELEASE
 	majorversion=9
-	minorversion=50
+	minorversion=55
 	patchsetversion=0
 	patchversion=0
 	config=CONFIG_VALUE

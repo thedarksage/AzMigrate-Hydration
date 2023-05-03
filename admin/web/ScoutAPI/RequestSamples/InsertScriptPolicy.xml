@@ -1,0 +1,14 @@
+<Request Id="0001" Version="1.0">
+<Header>
+	<Authentication> 
+	    <AccessKeyID>DDC9525FF275C104EFA1DFFD528BD0145F903CB1</AccessKeyID>
+	    <AccessSignature></AccessSignature>
+    </Authentication> 
+</Header>
+<Body> 
+	<FunctionRequest Name="InsertScriptPolicy" Include="N">
+      	<Parameter Name="HostID" Value="b68a4304-8dde-4e08-af25-867395c9b057" />
+		<Parameter Name="ScriptPath " Value="/tmp/sample/check.sh" />
+	</FunctionRequest>
+</Body> 
+</Request>

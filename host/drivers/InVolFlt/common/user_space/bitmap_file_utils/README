@@ -1,0 +1,4 @@
+Things to TODO before invoking total_changes.sh
+1. Copy binary of bitmap_read.c into the same dir where total_changes.sh is present.
+2. Copy binary of bitmap_read.c with the name of bitmap_read.
+3. invoke total_changes.sh <name of the protected volume> 

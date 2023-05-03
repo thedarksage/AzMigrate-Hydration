@@ -1,0 +1,13 @@
+<Request Id="1" Version="1.0">
+<Header>
+<Authentication>
+<AccessKeyID>11F3242118FF2ADD5D117CBF216F29AC578F6BA6</AccessKeyID>
+<AuthMethod>CXAuth</AuthMethod>
+<CXUserName>admin</CXUserName>
+  </Authentication>
+</Header>
+<Body> 
+	<FunctionRequest Name="ListAccounts" Include="No">
+	</FunctionRequest>
+</Body> 
+</Request>

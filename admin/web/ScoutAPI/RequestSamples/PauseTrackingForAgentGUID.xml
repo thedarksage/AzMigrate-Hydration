@@ -1,0 +1,14 @@
+<Request Id="0041" Version="1.0">
+<Header>
+  <Authentication>
+    <AccessKeyID>DDC9525FF275C104EFA1DFFD528BD0145F903CB1</AccessKeyID>
+    <AccessSignature></AccessSignature>
+  </Authentication>
+</Header>
+<Body>
+  <FunctionRequest Name="PauseTrackingForAgentGUID" Include="No">
+    <Parameter Name="AgentGUID" Value = "B0E5D87A-F642-0546-A6F75EFF42BBD039" />
+<Parameter Name="Mode " Value = "RESCUE" />
+  </FunctionRequest>
+</Body>
+</Request>

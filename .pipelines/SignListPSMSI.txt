@@ -1,0 +1,7 @@
+C:\__w\1\s\host\EvtCollForw\Release\evtcollforw.exe
+C:\__w\1\s\host\cxps\x64\Release\cxps.exe
+C:\__w\1\s\host\cxpscli\x64\Release\cxpscli.exe
+C:\__w\1\s\host\gencert\x64\Release\gencert.exe
+C:\__w\1\s\server\ProcessServerCore\bin\Release\Microsoft.Azure.SiteRecovery.ProcessServer.Core.dll
+C:\__w\1\s\server\windows\ProcessServer\bin\Release\ProcessServer.exe
+C:\__w\1\s\server\windows\ProcessServerMonitor\bin\Release\ProcessServerMonitor.exe

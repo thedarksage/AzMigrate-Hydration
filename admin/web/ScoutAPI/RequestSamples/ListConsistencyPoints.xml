@@ -1,0 +1,26 @@
+<Request Id="1" Version="1.0">
+<Header>
+  <Authentication>
+	<AccessKeyID>11F3242118FF2ADD5D117CBF216F29AC578F6BA6</AccessKeyID>
+	<AuthMethod>CXAuth</AuthMethod>
+	<CXUserName>admin</CXUserName>
+  </Authentication>
+</Header>
+<Body> 
+  <FunctionRequest Name="ListConsistencyPoints">
+	<Parameter Name="ProtectionPlanId" Value="1"/>
+	<Parameter Name="TagStartDate" Value="2014/06/07 10:09:11"/> <!-- optional -->
+	<Parameter Name="TagEndDate" Value="2014/06/08 10:09:11"/> <!-- optional -->
+	<Parameter Name="ApplicationName" Value="File System"/> <!-- optional -->
+	<Parameter Name="UserDefinedEvent" Value="Yes"/> <!-- Yes/No -->
+	<Parameter Name="TagName" Value="tag"/>
+	<Parameter Name="Accuracy" Value="Exact"/> <!-- Exact/Approximate/Not guaranteed -->
+	<Parameter Name="GetRecentConsistencyPoint" Value="Yes"/> <!-- Yes/No -->
+	<Parameter Name="MultiVMSyncPoint" Value="Yes"/> <!-- Yes/No. Default is the selected option during protection -->
+	<ParameterGroup Id="Servers">
+		<Parameter Name="HostId1" Value="F6284022-71CB-5E43-B69AF768614FF3DC"/>
+		<Parameter Name="HostId2" Value="2A65CF56-7A09-9645-90BCB8D6CF19CE65"/>
+	</ParameterGroup>
+  </FunctionRequest>
+</Body> 
+</Request>

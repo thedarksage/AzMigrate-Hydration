@@ -1,0 +1,25 @@
+HKCR
+{
+	InMageVssProvider.VacpProvider.1 = s 'VacpProvider Class'
+	{
+		CLSID = s '{A9156A8F-5B37-4C25-A05E-29EE18AE2608}'
+	}
+	InMageVssProvider.VacpProvider = s 'VacpProvider Class'
+	{
+		CLSID = s '{A9156A8F-5B37-4C25-A05E-29EE18AE2608}'
+		CurVer = s 'InMageVssProvider.VacpProvider.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {A9156A8F-5B37-4C25-A05E-29EE18AE2608} = s 'VacpProvider Class'
+		{
+			ProgID = s 'InMageVssProvider.VacpProvider.1'
+			VersionIndependentProgID = s 'InMageVssProvider.VacpProvider'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+			}
+			'TypeLib' = s '{D3EF2FD2-99E7-4A5B-AE20-4ABDA039BD53}'
+		}
+	}
+}

@@ -1,0 +1,294 @@
+#!/bin/bash
+
+# This is for RHEL systems
+# processname: Scout_vCon_service
+# chkconfig: 2345 90 90
+# description: Scout script to install tools for vCon workflow
+
+### BEGIN INIT INFO
+# Provides: Scout_vCon_service
+# Required-Start: $local_fs
+# Required-Stop: $local_fs
+# X-Start-Before: $network
+# X-Stop-After: $network
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# Description:  Scout_vCon_service
+### END INIT INFO
+
+# Adding bin dirs to PATH for 'sleep' command
+PATH=/bin:/sbin:/usr/sbin:/usr/bin:$PATH
+RETVAL=0
+VmPlatform="vmware"
+export PATH
+
+get_runlevel()
+{
+    # Check for systemd
+    which systemctl > /dev/null 2>&1
+    if [ $? -eq 0 ]
+    then
+        # The 'runlevel' command in systemd works different than
+        # sysvinit runlevels. On systemd, the a specific runlevel
+        # is only returned when it is reached, while sysvinit would
+        # return it as soon as the switch was requested. IOW, runlevel
+        # is changed at start in sysv init and at the end by systemd
+        # so we cant rely on runlevel command for systemd
+        #
+        # We check if shutdown.target (common for reboot and poweroff)
+        # is currently active to set appropriate runlevel. Current logic
+        # does not distinguish between poweroff and reboot and always
+        # marks runlevel=0 == poweroff. Similarly, it always returns
+        # runlevel=3 == multiuser+nw even for graphical env or single
+        # user mode. This needs to be changed if finer distinction is 
+        # required.
+        #
+        systemctl list-units --type=target | grep start | grep -q "shutdown\.target" && RUNLEVEL=0 || RUNLEVEL=3
+    else
+        # RUNLEVEL variable is set only when this control script is invoked by init
+        # Other times, we have to fetch the runlevel ourselves
+        RUNLEVEL=${RUNLEVEL:-`/sbin/runlevel | cut -d' ' -f2`}
+    fi
+}
+
+detect_platform()
+{
+	tag=$(cat /sys/devices/virtual/dmi/id/chassis_asset_tag 2>/dev/null)
+        echo "dmi chassis asset tag = $tag" >> /etc/vxagent/logs/vCon_service.log
+        if [ "$tag" == "7783-7084-3265-9085-8269-3286-77" ]; then
+		VmPlatform="azure"
+	fi
+
+	echo "VmPlatform = $VmPlatform" >> /etc/vxagent/logs/vCon_service.log
+}
+
+#SUSE11 DRIVER LD OPTION
+if [ -f /etc/SuSE-release ] &&  grep -q 'VERSION = 11' /etc/SuSE-release ; then
+        OSN=SLES11
+fi
+
+case "$1" in
+    start)
+
+        get_runlevel
+        echo "Starting vCon service..."
+        [ ! -d  /etc/vxagent/logs ] && mkdir -p  /etc/vxagent/logs >/dev/null 2>&1
+        echo "Starting vCon service runlevel:$RUNLEVEL"  >> /etc/vxagent/logs/vCon_service.log 2>&1
+        service vxagent status  >> /etc/vxagent/logs/vCon_service.log 2>&1
+        #check whether vcon directory exists under /etc/vxagent.
+        if  [ ! -d "/etc/vxagent/vcon" ]; then
+            mkdir -p "/etc/vxagent/vcon"
+        fi
+
+        if  [ ! -d "/etc/vxagent/logs" ]; then
+            mkdir -p "/etc/vxagent/logs"
+        fi
+
+        date >> /etc/vxagent/logs/vCon_service.log 2>&1
+        if [ -f /etc/vxagent/bin/vconservice.sh ] ; then
+            if [ -f /etc/vxagent/vcon/p2v_actions ]; then
+            echo "Root filesystem is read-write" >> /etc/vxagent/logs/vCon_service.log
+                #if [ ! -f /usr/bin/vmware-config-tools.pl ]; then
+                    touch /etc/vxagent/vcon/test_readonly > /dev/null 2>&1
+                    if [ $? -eq 0 ]; then
+                        echo "Executing the script now" >> /etc/vxagent/logs/vCon_service.log
+                        /etc/vxagent/bin/vconservice.sh >> /etc/vxagent/logs/vCon_service.log 2>&1
+                        rm /etc/vxagent/vcon/test_readonly
+                        echo "Executed script /etc/vxagent/bin/vconservice.sh" >> /etc/vxagent/logs/vCon_service.log
+                    else
+                        echo "Root filesystem is read-only"
+                    fi
+                #else
+                #    echo "VMWare Tools are already installed. Skipping" >> /etc/vxagent/logs/vCon_service.log
+                #fi
+            else
+                echo "Error: No file /etc/vxagent/vcon/p2v_actions" >> /etc/vxagent/logs/vCon_service.log
+            fi
+        fi
+
+	detect_platform
+        if [ ! -f /etc/vxagent/setazureip ]; then
+	    if [ $VmPlatform != "azure" ]; then
+		if [ -f /etc/vxagent/setvmwareip ]; then
+		    echo "Touch the file /etc/vxagent/setazureip" >> /etc/vxagent/logs/vCon_service.log
+		    touch /etc/vxagent/setazureip
+		    echo "Remove file /etc/vxagent/setvmwareip" >> /etc/vxagent/logs/vCon_service.log
+		    rm -f /etc/vxagent/setvmwareip
+		fi
+	    fi
+        fi
+
+      	if [ -f /etc/vxagent/setazureip ]
+		then
+			if [ $VmPlatform == "azure" ]; then
+				echo "Touch the file /etc/vxagent/setvmwareip" >> /etc/vxagent/logs/vCon_service.log
+				touch /etc/vxagent/setvmwareip
+			fi
+
+			if [ -f /usr/local/.vx_version ]
+			then
+				installdir=`grep "INSTALLATION_DIR=" /usr/local/.vx_version| awk -F "=" '{ print $2 }'`
+				echo "-------------" >> /etc/vxagent/logs/vCon_service.log
+				echo "Running ${installdir}/scripts/azure/setazureip.sh" >>/etc/vxagent/logs/vCon_service.log
+				/bin/sh ${installdir}/scripts/azure/setazureip.sh  >> /etc/vxagent/logs/vCon_service.log
+				echo "Completed execution ${installdir}/scripts/azure/setazureip.sh" >>/etc/vxagent/logs/vCon_service.log
+				echo "-------------" >> /etc/vxagent/logs/vCon_service.log
+				echo "Removing setazureip..."  >> /etc/vxagent/logs/vCon_service.log
+				rm -f /etc/vxagent/setazureip
+				echo "Removed setazureip..."  >> /etc/vxagent/logs/vCon_service.log
+				if [ $VmPlatform != "azure" ]; then
+					if [ -f /etc/vxagent/setvmwareip ]; then
+						echo "Remove file /etc/vxagent/setvmwareip" >> /etc/vxagent/logs/vCon_service.log
+						rm -f /etc/vxagent/setvmwareip
+					fi
+				fi
+		   fi
+        fi
+		
+		if [ -f /etc/vxagent/prepareforazure ]
+		then
+		    if [ -f /usr/local/.vx_version ]
+			then
+			    installdir=`grep "INSTALLATION_DIR=" /usr/local/.vx_version| awk -F "=" '{ print $2 }'`
+				
+				echo "-------------" >> /etc/vxagent/logs/vCon_service.log
+				echo "Running ${installdir}/scripts/azure/prepareforazure.sh" >>/etc/vxagent/logs/vCon_service.log
+				/bin/sh ${installdir}/scripts/azure/prepareforazure.sh  >> /etc/vxagent/logs/vCon_service.log
+				echo "Completed execution ${installdir}/scripts/azure/prepareforazure.sh" >>/etc/vxagent/logs/vCon_service.log
+				echo "-------------" >> /etc/vxagent/logs/vCon_service.log
+
+				if [ -f /etc/SuSE-release ] && grep -q 'VERSION = 12' /etc/SuSE-release; then
+					echo "Checking the file /etc/resolv.conf.netconfig exists for SLES12" >> /etc/vxagent/logs/vCon_service.log
+					if [ -f "/etc/resolv.conf.netconfig" ]; then
+						echo "The file /etc/resolv.conf.netconfig exists" >> /etc/vxagent/logs/vCon_service.log
+						grep -q ^search /etc/resolv.conf.netconfig || echo "search is misisng in /etc/resolv.conf.netconfig" >> /etc/vxagent/logs/vCon_service.log
+						grep -q ^nameserver /etc/resolv.conf.netconfig || echo "nameserver is misisng in /etc/resolv.conf.netconfig" >> /etc/vxagent/logs/vCon_service.log
+						echo "Moving the resolv.conf to resolv.conf.INMAGE_ORIG" >> /etc/vxagent/logs/vCon_service.log
+						mv -f /etc/resolv.conf /etc/resolv.conf.INMAGE_ORIG
+						echo "Moving resolv.conf.netconfig resolv.conf" >> /etc/vxagent/logs/vCon_service.log
+						mv -f /etc/resolv.conf.netconfig /etc/resolv.conf
+						echo "Restarting network service" >> /etc/vxagent/logs/vCon_service.log
+						systemctl status network >> /etc/vxagent/logs/vCon_service.log
+						systemctl restart network >> /etc/vxagent/logs/vCon_service.log
+						systemctl status network >> /etc/vxagent/logs/vCon_service.log
+					fi
+				fi
+				
+				echo "Removing prepareforazure ..."  >> /etc/vxagent/logs/vCon_service.log
+				rm -f /etc/vxagent/prepareforazure
+			fi
+		fi
+		
+		service vxagent status  >> /etc/vxagent/logs/vCon_service.log 2>&1
+	# For V2P, we can potentially try to uninstall vmware tools in
+        # /etc/vxagent/bin/vconservice.sh depending actions. For now no action in
+        # V2P
+        RETVAL=0
+
+        # Touch /var/lock/subsys/vconsservice only if the OS is non-debian
+        if [ ! -e /etc/debian_version ] ; then
+           [ ! -f /var/lock/subsys/vConService_linux ] && touch /var/lock/subsys/vConService_linux
+        fi
+        sleep 3
+		
+		#Network restart for Rhel6.2 with nm_controlled enable
+        if [ -f "/etc/vxagent/vcon/restartnetworkrhel" ]
+        then
+                echo "Restarting network services...." >> /etc/vxagent/logs/vCon_service.log
+                service network restart
+                #rm -f "/etc/vxagent/vcon/restartnetworkrhel"
+        fi
+		
+		#Copying the /etc/.resolv.conf file to /etc/resolv.conf 
+		# found issue in rhel 6 machines as the file is empty after reboot its not persisted also
+		if [ -f "/etc/.resolv.conf" ]
+        then
+				echo "Copying the resolv.conf file..." >> /etc/vxagent/logs/vCon_service.log
+                cp -f -p /etc/.resolv.conf /etc/resolv.conf
+        fi
+
+		#Network configuration file change with network restart for OEL platforms
+		if [ -f "/etc/vxagent/vcon/restartnetworkoel" ]
+		then
+			export atLeastOnce
+			#Get list of files from /etc/sysconfig/network-scripts/ifcfg*.bac	
+			ls /etc/sysconfig/network-scripts/ifcfg*.bak >/tmp/listoffiles 2>>/dev/null
+			cat /tmp/listoffiles|while read x
+			do
+				originalfile=`echo $x|cut -d"." -f 1` 
+				if grep "InMage Modified" $x >>/dev/null
+				then
+					mv $x $originalfile
+
+				fi
+
+			done
+			if [ -s /tmp/listoffiles ]
+			then
+						echo "Restarting network services.....This is OLES platform" |tee -a /etc/vxagent/logs/vCon_service.log
+						service network restart|tee -a /etc/vxagent/logs/vCon_service.log
+			fi
+			#Removing the file as network is restared
+			rm -f /etc/vxagent/vcon/restartnetworkoel
+		fi
+
+		if [ -e /etc/debian_version ] ; then
+			tag=$(cat /sys/devices/virtual/dmi/id/chassis_asset_tag 2>/dev/null)
+			echo "dmi chassis asset tag = $tag" >> /etc/vxagent/logs/vCon_service.log
+			if [ "$tag" != "7783-7084-3265-9085-8269-3286-77" ]; then
+				grep -q '^10.*' /etc/debian_version
+				if [ $? -eq 0 ]; then
+					if [ -e /etc/network/interfaces-INMAGE-ORG ]; then
+						echo "Netwrok changes for Debian 10" >> /etc/vxagent/logs/vCon_service.log
+						cp -f /etc/network/interfaces /etc/network/interfaces-INMAGE-MOD
+						mv -f /etc/network/interfaces-INMAGE-ORG /etc/network/interfaces
+
+						for interface in `ip addr | grep '^[1-9]:' | awk -F':' '{print $2}'`
+						do
+							if [ $interface == 'lo' ]; then
+								continue
+							fi
+
+							ifquery -l | grep -q "^${interface}$"
+							if [ $? -eq 0 ]; then
+								continue
+							fi
+
+							(echo; echo "auto ${interface}") >> /etc/network/interfaces.d/setup
+							ifquery -l | grep -q "^${interface}$"
+							if [ $? -eq 0 ]; then
+								continue
+							fi
+
+							(echo;echo "auto ${interface}";echo "iface ${interface} inet dhcp") >> /etc/network/interfaces
+						done
+						rm -f /etc/network/interfaces-INMAGE-ORG
+						ifup -a >> /etc/vxagent/logs/vCon_service.log
+					fi
+				fi
+			fi
+		fi
+        ;;
+
+    stop)
+        echo "Stopping vCon service"
+        RETVAL=0
+        ;;
+
+    restart)
+        echo "Restarting vCon service"
+        RETVAL=0
+        ;;
+
+    status)
+        echo "Checking status for vCon service"
+        RETVAL=0
+        ;;
+
+    *)
+        echo "Usage: $0 {start|stop|restart|status}"
+        exit 1
+        ;;
+esac
+
+exit $RETVAL

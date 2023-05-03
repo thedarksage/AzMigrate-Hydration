@@ -138,6 +138,26 @@ namespace AgentHealthIssueCodes
 
 }; // AgentHealthIssueCodes
 
+namespace SharedDiskClusterHealthIssueCodes
+{
+    namespace ClusterLevelHealthIssues
+    {
+        namespace SharedDiskClusterDown
+        {
+            const std::string HealthCode = "SourceAgentSharedDiskClusterIsUnavailable";
+            const std::string ClusterName = "ClusterName";
+        };
+
+        namespace SharedDiskClusterUnProtectedMachinesInCluster
+        {
+            const std::string Healthcode = "SourceAgentSharedDiskClusterUnProtectedMachinesInCluster";
+            const std::string UnProtectedMachines = "UnProtectedMachinesNames";
+        };
+
+    }; // ClusterLevelHealthIssues
+
+}; // SharedDiskClusterHealthIssueCodes
+
 const std::string g_IRissueCodes[] = {
     AgentHealthIssueCodes::DiskLevelHealthIssues::IRThrottle::HealthCode,
     AgentHealthIssueCodes::DiskLevelHealthIssues::SlowResyncProgressOnPremToAzure::HealthCode,

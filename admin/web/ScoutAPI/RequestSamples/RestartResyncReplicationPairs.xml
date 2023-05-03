@@ -1,0 +1,15 @@
+<Request Id="0001" Version="1.0">
+ 	<Header>
+  		<Authentication>
+    		<AccessKeyID>DDC9525FF275C104EFA1DFFD528BD0145F903CB1</AccessKeyID>
+    		<AccessSignature></AccessSignature>
+  		</Authentication>
+ 	</Header>
+ 	<Body>
+  		<FunctionRequest Name="RestartResyncReplicationPairs" Include="No">
+     		<Parameter Name="ResyncRequired" Value="Yes/No"/>
+			<Parameter Name="SourceHostGUID" Value="cf9b6bc7-fad6-4ffe-94f5-b9a578b85457" />
+			<Parameter Name="TargetHostGUID" Value=" 19D8FB11-6943-1243-90E8EBD9BC39DFDA" />
+ 		 </FunctionRequest>
+ 	</Body>
+</Request>

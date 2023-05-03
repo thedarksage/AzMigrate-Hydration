@@ -1,0 +1,38 @@
+<Request Id="0013" Version="1.0">
+<Header>
+  <Authentication>
+    <AccessKeyID>DDC9525FF275C104EFA1DFFD528BD0145F903CB1</AccessKeyID>
+    <AccessSignature></AccessSignature>
+  </Authentication>
+</Header>
+  <Body>
+	<FunctionRequest Name="RemoveProtection" Include="N">
+    <ParameterGroup Id="Plan1">
+	  <Parameter Name="PlanName" Value="PlanName" />
+	  <Parameter Name="PlanId" Value="PlanID" />
+	  <ParameterGroup Id="vx">
+		<ParameterGroup Id="host1">
+		  <Parameter Name="SourceHostId" Value="b74dcd50-179f-4b95-a303-47b0f7469717" />
+		  <Parameter Name="TargetHostId" Value="68C62E43-D798-9E45-BDD13A4DE79A7D89" />
+		  <Parameter Name="DeleteRetention" Value="True" />
+		</ParameterGroup>
+		<ParameterGroup Id="host2">
+		  <Parameter Name="SourceHostId" Value="b74dcd50-179f-4b95-a303-47b0f7469717" />
+		  <Parameter Name="TargetHostId" Value="68C62E43-D798-9E45-BDD13A4DE79A7D89" />
+		  <Parameter Name="DeleteRetention" Value="False" />
+		</ParameterGroup>
+	  </ParameterGroup>
+	  <ParameterGroup Id="fx">
+		<ParameterGroup Id="host1">
+		  <Parameter Name="SourceHostId" Value="b74dcd50-179f-4b95-a303-47b0f7469717" />
+		  <Parameter Name="TargetHostId" Value="68C62E43-D798-9E45-BDD13A4DE79A7D89" />
+		</ParameterGroup>
+		<ParameterGroup Id="host2">
+		  <Parameter Name="SourceHostId" Value="b74dcd50-179f-4b95-a303-47b0f7469717" />
+		  <Parameter Name="TargetHostId" Value="68C62E43-D798-9E45-BDD13A4DE79A7D89" />
+		</ParameterGroup>
+	  </ParameterGroup>
+	</ParameterGroup>
+    </FunctionRequest>
+  </Body> 
+</Request>

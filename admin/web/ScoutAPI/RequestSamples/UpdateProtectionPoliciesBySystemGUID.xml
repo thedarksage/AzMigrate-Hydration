@@ -1,0 +1,47 @@
+<Request Id="0044" Version="1.0">
+     <Header>
+      	<Authentication>
+		<AccessKeyID>39F830AD9C46DE48B87EBE56F4C919D7C7E96CD9</AccessKeyID>
+             		<AccessSignature>YTI0N2IwOGE3NjQ4M2Y5N2I1ZjE0NzlkOTE2NTQ5Mzg3MmY1YjgyMw==</AccessSignature>
+        	</Authentication>
+     </Header>
+    <Body>
+	 <FunctionRequest Name="UpdateProtectionPoliciesBySystemGUID" Include="No">
+		<Parameter Name="SystemGUID" Value="87BC3384-071D-744D-9A61A7BD3588CCE66" />
+		<Parameter Name="RPOPolicy" Value="24" />
+		<ParameterGroup Id="ConsistencyPolicy">
+			<Parameter Name="ConsistencyLevel" Value="FileSystem" />
+			<Parameter Name="ConsistencySchedule" Value="6 hrs" />
+			<Parameter Name="Exception" Value="16:00-17:00" />
+		</ParameterGroup>
+		<ParameterGroup Id="RetentionPolicy" >
+			<Parameter Name="RetentionType" Value="Composite" />
+			<Parameter Name="Duration" Value="7	hr" />
+			<Parameter Name="Size" Value="2048" />
+			<ParameterGroup Id="RetentionWindow" >
+				<ParameterGroup Id="Daily" >
+					<Parameter Name="Duration" Value="7" />
+					<Parameter Name="Granualarity" Value="8"/>
+					<Parameter Name="Count" Value="2" />
+				</ParameterGroup>
+				<ParameterGroup Id="Weekly" >
+					<Parameter Name="Duration" Value="1" />
+					<Parameter Name="Granualarity" Value="1"/>
+					<Parameter Name="Count" Value="3" />
+				</ParameterGroup>
+				<ParameterGroup Id="Monthly" >
+					<Parameter Name="Duration" Value="2" />
+					<Parameter Name="Granualarity" Value="1"/>
+					<Parameter Name="Count" Value="4" />
+				</ParameterGroup>
+				<ParameterGroup Id="Yearly">
+					<Parameter Name="Duration" Value="1" />
+					<Parameter Name="Granualarity" Value="1"/>
+					<Parameter Name="Count" Value="5" />
+				</ParameterGroup>
+			</ParameterGroup>
+		</ParameterGroup>
+		<Parameter Name="RecoveryFeaturePolicy" Value="System, File" />		
+     	</FunctionRequest>
+     </Body>
+</Request>

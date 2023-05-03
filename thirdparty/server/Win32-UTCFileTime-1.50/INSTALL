@@ -1,0 +1,63 @@
+________________________________________________________________________________
+
+                        Win32::UTCFileTime, Version 1.50
+________________________________________________________________________________
+
+PREREQUISITES
+
+    Windows
+
+        This module is only applicable on "native" (i.e. non-Cygwin) Microsoft
+        Windows platforms since only those platforms have C run-time libraries
+        suffering the behaviour to which this module provides corrections.
+
+    Compiler
+
+        You need a C compiler to build this module.
+
+        Note that you should try to use the same compiler as was used to build
+        your Perl itself.
+
+        In particular, this module may not work correctly if it loads a
+        different C run-time DLL to that loaded by perl itself.  Note that
+        Visual Studio 98 (VC++ 6) and earlier produce binaries that require the
+        system's msvcrt.dll, while Visual Studio .NET/2003 (VC++ 7), Visual
+        Studio 2005 (VC++ 8) and later (including the free Visual C++ Toolkit
+        2003 and the free Visual C++ 2005 Express Edition) produce binaries that
+        require compiler-specific DLLs named msvcr70.dll, msvcr71.dll,
+        msvcr80.dll etc.  Therefore, building this module with anything later
+        than Visual Studio 98 for use with any ActivePerl, which are known
+        currently to be built with Visual Studio 98, may not work.
+
+        The Makefile.PL script will try to detect if a different compiler is
+        being used and will give a warning if necessary.  Note, however, that it
+        is not always possible for it to detect which particular compiler
+        version was used to build Perl, especially for Perl version 5.8.6 or
+        older, which did not have this information stored in the standard
+        library module Config.
+
+    Perl
+
+        Perl version 5.6.0 or later.
+        The latest version of Perl is available from http://www.perl.com/.
+
+    Perl Modules
+
+        There are no non-standard Perl modules required by this module.
+
+INSTALLATION
+
+    To install this module, cd to the directory that contains this INSTALL file
+    and type the following:
+
+        perl Makefile.PL
+        nmake
+        nmake test
+        nmake install
+
+    Use "dmake" rather than "nmake" in the commands above if that is what your
+    Perl was built with.  To determine which make program was used to build your
+    Perl type the following:
+
+        perl -V:make
+________________________________________________________________________________

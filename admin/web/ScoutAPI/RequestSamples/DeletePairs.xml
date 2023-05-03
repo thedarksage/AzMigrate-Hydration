@@ -1,0 +1,22 @@
+<Request Id="0001" Version="1.0">
+ 	<Header>
+  		<Authentication>
+    		<AccessKeyID>DDC9525FF275C104EFA1DFFD528BD0145F903CB1</AccessKeyID>
+    		<AccessSignature></AccessSignature>
+  		</Authentication>
+ 	</Header>
+ 	<Body>
+  		<FunctionRequest Name="DeletePairs" Include="No">	
+		<ParameterGroup Id="DeleteList_1">
+			<Parameter Name="TargetHostGUID" Value="5D99E358-B2A3-224F-A98887B9E36758AC" />
+			<Parameter Name="Device1" Value="C:\ESX\082F3A9A-24D2-AE41-9C1BCBC99D8FBCD6_C" />
+			<Parameter Name="Device2" Value="C:\ESX\082F3A9A-24D2-AE41-9C1BCBC99D8FBCD6_D" />
+		</ParameterGroup>
+		<ParameterGroup Id="DeleteList_2">
+			<Parameter Name="TargetHostGUID" Value="5D99E358-B2A3-224F-A98887B9E36758AC" />
+			<Parameter Name="Device1" Value="E" />
+			<Parameter Name="Device2" Value="F" />
+		</ParameterGroup>
+ 		 </FunctionRequest>
+ 	</Body>
+</Request>

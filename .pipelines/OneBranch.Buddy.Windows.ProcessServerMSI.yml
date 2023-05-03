@@ -1,0 +1,292 @@
+#################################################################################
+#                        OneBranch Pipelines - Buddy                            #
+# This pipeline was created by EasyStart from a sample located at:              #
+#   https://aka.ms/obpipelines/easystart/samples                                #
+# Documentation:  https://aka.ms/obpipelines                                    #
+# Yaml Schema:    https://aka.ms/obpipelines/yaml/schema                        #
+# Retail Tasks:   https://aka.ms/obpipelines/tasks                              #
+# Support:        https://aka.ms/onebranchsup                                   #
+#################################################################################
+
+trigger: none # https://aka.ms/obpipelines/triggers
+
+variables:
+  REPOROOT: $(Build.SourcesDirectory)
+  OUTPUTROOT: $(REPOROOT)\out
+  WindowsContainerImage: 'onebranch.azurecr.io/windows/ltsc2019/vse2019:latest'
+  PSINSTALLERNAME: 'ProcessServer.msi'
+  CDP_BUILD_TAG: psmsi
+
+resources:
+  repositories: 
+    - repository: templates
+      type: git
+      name: OneBranch.Pipelines/GovernedTemplates
+      ref: refs/heads/main
+
+extends:
+  template: v2/OneBranch.NonOfficial.CrossPlat.yml@templates # https://aka.ms/obpipelines/templates
+  parameters:
+    cloudvault:
+      enabled: true
+      runmode: stage
+      artifacts:
+        - drop_build_main
+    globalSdl: # https://aka.ms/obpipelines/sdl
+      tsa:
+        enabled: false # onebranch publish all sdl results to TSA. If TSA is disabled all SDL tools will forced into 'break' build mode.
+      # credscan:
+      #   suppressionsFile: $(Build.SourcesDirectory)\.config\CredScanSuppressions.json
+      binskim:
+        break: false # always break the build on binskim issues. You can disable it by setting to 'false'
+      policheck:
+        break: false # always break the build on policheck issues. You can disable it by setting to 'false'
+      # suppression:
+      #   suppressionFile: $(Build.SourcesDirectory)\.gdn\global.gdnsuppress
+
+    stages:
+    - stage: build
+      jobs:
+      - job: main
+        pool:
+          type: windows
+
+        variables:
+          ob_outputDirectory: '$(Build.SourcesDirectory)\Out'
+
+        steps:
+          # Restore host NuGet packages.
+          - task: NuGetCommand@2
+            displayName: 'Restore Host NuGet Packages'
+            inputs:
+              command: 'restore'
+              restoreSolution: '$(REPOROOT)\host\host.sln'
+              feedsToUse: 'config'
+              nugetConfigPath: '$(REPOROOT)\.config\NuGet.config'
+
+          # Restore server NuGet packages.
+          - task: NuGetCommand@2
+            displayName: 'Restore Server NuGet Packages'
+            inputs:
+              command: 'restore'
+              restoreSolution: '$(REPOROOT)\server\server.sln'
+              feedsToUse: 'config'
+              nugetConfigPath: '$(REPOROOT)\.config\NuGet.config'
+
+          # Generate version files.
+          - task: PowerShell@2
+            displayName: 'Generate Version Files'
+            inputs:
+              targetType: 'filePath'
+              filePath: $(REPOROOT)\.pipelines\GenerateVersionFiles.ps1
+              arguments: '-SourcesRootDirectory $(REPOROOT)'
+
+          # Get version details from VersionData.txt
+          - task: PowerShell@2
+            displayName: "Get Version Data"
+            inputs:
+              targetType: 'inline'
+              script: |
+                $VersionDataContents = Get-Content -Path "$(Build.SourcesDirectory)\VersionData.txt" -Raw | ConvertFrom-StringData
+                $BuildVersion = $VersionDataContents.BuildVersion
+                Write-Host "##vso[task.setvariable variable=BUILDVERSION;]$BuildVersion"
+                
+          # Build 32-bit sqlite3x.
+          - task: MSBuild@1
+            displayName: 'Build 32-bit sqlite3x'
+            inputs:
+              solution: '$(REPOROOT)\thirdparty\sqlite3x\sqlite3x.sln'
+              msbuildLocationMethod: 'location'
+              msbuildLocation: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe'
+              platform: 'win32'
+              configuration: 'release'
+              msbuildArguments: '/t:sqlite3x /v:n /nr:false /flp1:Verbosity=n;LogFile=$(OUTPUTROOT)\logs\sqlite3x_32bit.log;Encoding=UTF-8 /flp2:logfile=$(OUTPUTROOT)\logs\sqlite3x_32bit.err;errorsonly'
+              clean: true
+              maximumCpuCount: true
+              logProjectEvents: true
+              
+          # Build 64-bit sqlite3x.
+          - task: MSBuild@1
+            displayName: 'Build 64-bit sqlite3x'
+            inputs:
+              solution: '$(REPOROOT)\thirdparty\sqlite3x\sqlite3x.sln'
+              msbuildLocationMethod: 'location'
+              msbuildLocation: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe'
+              platform: 'x64'
+              configuration: 'release'
+              msbuildArguments: '/t:sqlite3x /v:n /nr:false /flp1:Verbosity=n;LogFile=$(OUTPUTROOT)\logs\sqlite3x_64bit.log;Encoding=UTF-8 /flp2:logfile=$(OUTPUTROOT)\logs\sqlite3x_64bit.err;errorsonly'
+              clean: true
+              maximumCpuCount: true
+              logProjectEvents: true
+              
+          # Copy sqlite3x binaries.
+          - task: PowerShell@2
+            displayName: 'Copy sqlite3x binaries'
+            inputs:
+              targetType: 'inline'
+              script: |
+                if(!(Test-Path -path $(REPOROOT)\host\packages\sqlite3x))
+                {
+                  New-Item -ItemType directory -Path $(REPOROOT)\host\packages\sqlite3x\lib\win32\release
+                  New-Item -ItemType directory -Path $(REPOROOT)\host\packages\sqlite3x\lib\x64\release
+                }
+                
+                Copy-Item -Path $(REPOROOT)\thirdparty\sqlite3x\sqlite3x\lib\win32\Release\sqlite3x.lib -Destination $(REPOROOT)\host\packages\sqlite3x\lib\win32\release\sqlite3x.lib
+                Copy-Item -Path $(REPOROOT)\thirdparty\sqlite3x\sqlite3x\lib\win32\Release\sqlite3x.pdb -Destination $(REPOROOT)\host\packages\sqlite3x\lib\win32\release\sqlite3x.pdb   
+                Copy-Item -Path $(REPOROOT)\thirdparty\sqlite3x\sqlite3x\lib\x64\Release\sqlite3x.lib -Destination $(REPOROOT)\host\packages\sqlite3x\lib\x64\release\sqlite3x.lib
+                Copy-Item -Path $(REPOROOT)\thirdparty\sqlite3x\sqlite3x\lib\x64\Release\sqlite3x.pdb -Destination $(REPOROOT)\host\packages\sqlite3x\lib\x64\release\sqlite3x.pdb
+              workingDirectory: '$(REPOROOT)'
+              
+          # Build 32-bit host binaries.
+          - task: MSBuild@1
+            displayName: 'Build 32-bit Host Binaries'
+            inputs:
+              solution: '$(REPOROOT)\host\host.sln'
+              msbuildLocationMethod: 'location'
+              msbuildLocation: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe'
+              platform: 'win32'
+              configuration: 'release'
+              msbuildArguments: '/t:EvtCollForw;diffdatasort /v:n /nr:false /flp1:Verbosity=n;LogFile=$(OUTPUTROOT)\logs\HostExes_32-bit.log;Encoding=UTF-8 /flp2:logfile=$(OUTPUTROOT)\logs\HostExes_32-bit.err;errorsonly'
+              clean: true
+              maximumCpuCount: true
+              logProjectEvents: true
+
+          # Build 64-bit host binaries.
+          - task: MSBuild@1
+            displayName: 'Build 64-bit Host Binaries'
+            inputs:
+              solution: '$(REPOROOT)\host\host.sln'
+              msbuildLocationMethod: 'location'
+              msbuildLocation: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe'
+              platform: 'x64'
+              configuration: 'release'
+              msbuildArguments: '/t:cxps;cxpscli;gencert /v:n /nr:false /flp1:Verbosity=n;LogFile=$(OUTPUTROOT)\logs\HostExes_64-bit.log;Encoding=UTF-8 /flp2:logfile=$(OUTPUTROOT)\logs\HostExes_64-bit.err;errorsonly'
+              clean: false
+              maximumCpuCount: true
+              logProjectEvents: true
+
+          # Build 64-bit server binaries.
+          - task: MSBuild@1
+            displayName: 'Build 64-bit Server Binaries'
+            inputs:
+              solution: '$(REPOROOT)\server\server.sln'
+              msbuildLocationMethod: 'location'
+              msbuildLocation: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe'
+              platform: 'x64'
+              configuration: 'release'
+              msbuildArguments: '/t:ProcessServer;ProcessServerMonitor;ProcessServerUnitTests /v:n /nr:false /flp1:Verbosity=n;LogFile=$(OUTPUTROOT)\logs\ServerExes_64-bit.log;Encoding=UTF-8 /flp2:logfile=$(OUTPUTROOT)\logs\ServerExes_64-bit.err;errorsonly'
+              clean: false
+              maximumCpuCount: true
+              logProjectEvents: true
+
+          # Sign exes/dlls/PS1 scripts.
+          - task: onebranch.pipeline.signing@1
+            displayName: 'Code Signing Phase-1'
+            inputs:
+              command: 'sign'
+              signing_environment: 'azure-ado'
+              signing_profile: ''
+              cp_code: '280'
+              disable_strong_name_signing: true
+              file_list_path: $(REPOROOT)/.pipelines/SignListPSMSI.txt
+
+          # Install WiX toolset.
+          - task: PowerShell@2
+            displayName: 'Install WiX Toolset'
+            inputs:
+              targetType: 'filePath'
+              filePath: $(REPOROOT)\.pipelines\InstallWiXToolset.ps1
+
+          # Copy WiX target files.
+          - task: PowerShell@2
+            displayName: 'Copy WiX Targets Files'
+            inputs:
+              targetType: 'inline'
+              script: |
+                  New-Item -Path 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Microsoft\WiX\v3.x\' -ItemType Directory -Force
+                  Copy-Item '$(REPOROOT)\.pipelines\wix.targets' -Destination 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Microsoft\WiX\v3.x\' -Force
+                  Copy-Item '$(REPOROOT)\.pipelines\wix.ca.targets' -Destination 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Microsoft\WiX\v3.x\' -Force
+                  Copy-Item '$(REPOROOT)\.pipelines\wix.nativeca.targets' -Destination 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Microsoft\WiX\v3.x\' -Force
+
+          # Build ProcessServerCustomActions.dll.
+          - task: PowerShell@2
+            displayName: 'Build ProcessServerCustomActions.dll'
+            inputs:
+              targetType: 'filePath'
+              filePath: $(REPOROOT)\.pipelines\BuildCustomActions.ps1
+              arguments: '-MsBuildExePath "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe" -Project "$(REPOROOT)\server\windows\ProcessServerCustomActions\ProcessServerCustomActions.csproj" -Platform x64 -LogsFolder $(OUTPUTROOT)\logs\'
+
+          # Sign ProcessServerCustomActions.dll.
+          - task: onebranch.pipeline.signing@1
+            displayName: 'Code Signing Phase-2'
+            inputs:
+              command: 'sign'
+              signing_environment: 'azure-ado'
+              signing_profile: ''
+              cp_code: '280'
+              disable_strong_name_signing: true
+              files_to_sign: 'server/windows/ProcessServerCustomActions/obj/x64/release/ProcessServerCustomActions.dll'
+              search_root: '$(REPOROOT)/'
+
+          # Build ProcessServerCustomActions.CA.dll.
+          - task: MSBuild@1
+            displayName: 'Build ProcessServerCustomActions.CA.dll'
+            inputs:
+              solution: '$(REPOROOT)\server\windows\ProcessServerCustomActions\ProcessServerCustomActions.csproj'
+              msbuildLocationMethod: 'location'
+              msbuildLocation: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe'
+              platform: 'x64'
+              configuration: 'release'
+              msbuildArguments: '-t:build /v:n /nr:false /flp1:Verbosity=n;LogFile=$(OUTPUTROOT)\logs\CustomActionsFinal.log;Encoding=UTF-8 /flp2:logfile=$(OUTPUTROOT)\logs\CustomActionsFinal.err;errorsonly'
+              clean: false
+              maximumCpuCount: true
+              logProjectEvents: true
+
+          # Sign ProcessServerCustomActions.CA.dll.
+          - task: onebranch.pipeline.signing@1
+            displayName: 'Code Signing Phase-3'
+            inputs:
+              command: 'sign'
+              signing_environment: 'azure-ado'
+              signing_profile: ''
+              cp_code: '280'
+              disable_strong_name_signing: true
+              files_to_sign: 'server/windows/ProcessServerCustomActions/bin/Release/ProcessServerCustomActions.CA.dll'
+              search_root: '$(REPOROOT)/'
+
+          # Build ProcessServer MSI.
+          - task: MSBuild@1
+            displayName: 'Build ProcessServer MSI'
+            inputs:
+              solution: '$(REPOROOT)\server\server.sln'
+              msbuildLocationMethod: 'location'
+              msbuildLocation: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe'
+              platform: 'x64'
+              configuration: 'release'
+              msbuildArguments: '/t:ProcessServerMSI /v:n /nr:false /flp1:Verbosity=n;LogFile=$(OUTPUTROOT)\logs\ProcessServer.log;Encoding=UTF-8 /flp2:logfile=$(OUTPUTROOT)\logs\ProcessServer.err;errorsonly'
+              clean: false
+              maximumCpuCount: true
+              logProjectEvents: true  
+
+          # Sign ProcessServer MSI.
+          - task: onebranch.pipeline.signing@1
+            displayName: 'Code Signing Phase-4'
+            inputs:
+              command: 'sign'
+              signing_environment: 'azure-ado'
+              signing_profile: ''
+              cp_code: '280'
+              disable_strong_name_signing: true
+              files_to_sign: 'server/windows/ProcessServerMSI/x64/bin/Release/ProcessServer.msi'
+              search_root: '$(REPOROOT)/'
+
+          # Copy build artifacts.
+          - task: PowerShell@2
+            displayName: 'Copy Build Artifacts'
+            inputs:
+              targetType: 'inline'
+              script: |
+                Copy-Item -Path $(REPOROOT)\server\windows\ProcessServerMSI\x64\bin\Release\ProcessServer.msi -Destination $(OUTPUTROOT)\
+                Write-Output $(BUILDVERSION) | Out-File $(OUTPUTROOT)\Build_details.txt
+                Write-Output $(PSINSTALLERNAME) | Out-File -Append $(OUTPUTROOT)\Build_details.txt
+              workingDirectory: '$(REPOROOT)'

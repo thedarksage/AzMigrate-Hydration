@@ -1,0 +1,18 @@
+#  systemd config for ASR
+
+[Unit]
+Description=Configuration file for vCon service
+After=local-fs.target
+Before=vxagent.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStart=/bin/bash /etc/vxagent/bin/vConService_linux start
+ExecStop=/bin/bash /etc/vxagent/bin/vConService_linux stop
+StandardOutput=syslog+console
+StandardError=syslog+console
+
+[Install]
+WantedBy=default.target
+

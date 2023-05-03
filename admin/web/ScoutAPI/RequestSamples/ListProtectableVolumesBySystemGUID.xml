@@ -1,0 +1,13 @@
+<Request Id="0051" Version="1.0">
+<Header>
+  <Authentication>
+    <AccessKeyID>39F830AD9C46DE48B87EBE56F4C919D7C7E96CD9</AccessKeyID>
+    <AccessSignature> ODQ5NTMwMmUzMGNiZjcxMTY4MzQ5ODM0ODQ4NGZmNjAwYTk5YWU4OQ== </AccessSignature>
+  </Authentication>
+</Header>
+<Body>
+  <FunctionRequest Name="ListProtectableVolumesBySystemGUID" Include="No"> 
+    <Parameter Name="SystemGUID " Value="525b0508-d77e-41c6-ae58-30782d2bccd3 "/>
+  </FunctionRequest>
+</Body>
+</Request>

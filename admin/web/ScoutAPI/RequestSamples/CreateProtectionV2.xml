@@ -1,0 +1,38 @@
+<Request Id="1" Version="1.0">
+<Header>
+  <Authentication>
+	<AccessKeyID>11F3242118FF2ADD5D117CBF216F29AC578F6BA6</AccessKeyID>
+	<AuthMethod>CXAuth</AuthMethod>
+	<CXUserName>admin</CXUserName>
+  </Authentication>
+</Header>
+<Body>
+<FunctionRequest Name="CreateProtectionV2" Id="ce8728d3-ad22-4d32-b80a-bc2d40cad305" include="No">
+<Parameter Name="PlanName" Value="096cbaa1-d88b-4e66-86a9-97da81232533"/>
+<ParameterGroup Id="ProtectionProperties">
+<Parameter Name="BatchResync" Value="3"/>
+<Parameter Name="MultiVmSync" Value="On"/>
+<Parameter Name="RPOThreshold" Value="15"/>
+<Parameter Name="CrashConsistencyInterval" Value="300"/>
+<Parameter Name="ConsistencyInterval" Value="60"/>
+<Parameter Name="Compression" Value="Disabled"/>
+</ParameterGroup>
+<ParameterGroup Id="SourceServers">
+<ParameterGroup Id="SourceServer1">
+<Parameter Name="HostId" Value="404ceabc-1c02-40c9-a71d-070afb0e3d66"/>
+<Parameter Name="ProcessServer" Value="463B2415-C69B-8546-BDE9D440FC52268C"/>
+<Parameter Name="MasterTarget" Value="463B2415-C69B-8546-BDE9D440FC52268C"/>
+<Parameter Name="UseNatIPFor" Value="None"/>
+<Parameter Name="ProtectionDirection" Value="E2A"/>
+<ParameterGroup Id="DiskDetails">
+<ParameterGroup Id="Disk1">
+<Parameter Name="SourceDiskName" Value="{1514570404}"/>
+</ParameterGroup>
+<ParameterGroup Id="Disk2">
+<Parameter Name="SourceDiskName" Value="{3960842964}"/>
+</ParameterGroup>
+</ParameterGroup>
+</ParameterGroup>
+</ParameterGroup>
+</FunctionRequest>
+</Body></Request>

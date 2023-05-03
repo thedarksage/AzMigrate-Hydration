@@ -1,0 +1,13 @@
+<Function Name="ListVolumesBySystemGUID" Id="" ReturnCode="0" Message="">
+ 	<FunctionRequest Name="ListVolumes" /> 
+  	<FunctionResponse>	
+		<ParameterGroup Id="a5933f4e-846e-4d3b-8a47-4bcc5ba939ae " >
+			<Parameter Name="VolumeName" Value="C" />
+			<Parameter Name="VolumeMountPoint" Value="C:\" />
+			<Parameter Name="VolumeLabel" Value="OS" />
+			<Parameter Name="BootVolume" Value="Yes" />
+			<Parameter Name="VolumeType" Value="Fixed" />
+			<Parameter Name="Capacity" Value="1048576" />
+		</ParameterGroup>
+  	 </FunctionResponse> 
+</Function> 

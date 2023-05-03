@@ -20,6 +20,39 @@ echo >> /var/log/InMage_drivers.log
 echo `date` >> /var/log/InMage_drivers.log
 echo "----------------------------" >> /var/log/InMage_drivers.log
 
+
+copy_rhel9_drivers()
+{
+    local _suffix="$2"
+    local _drv_dir="$3"
+    
+    echo "Kernel path = $1 ; suffix= $2 ; drv_dir =$3" >> /var/log/InMage_drivers.log
+
+    RHEL9_KMV_V0="70"
+    RHEL9_KMV_V1="162"
+
+    KERNEL_COPY_VERSION=`echo "$1" | cut -d"-" -f2 | cut -d"." -f1`
+    ret=1
+    case $KERNEL_MINOR_VERSION in
+        $RHEL9_KMV_V0)
+            KERNEL_COPY_VERSION=$RHEL9_KMV_V0
+        ;;
+        *)
+            KERNEL_COPY_VERSION=$RHEL9_KMV_V1
+        ;;
+    esac
+
+    if [ -z $KERNEL_COPY_VERSION ]; then
+        echo "Not copying involflt driver to kernel $1" >> /var/log/InMage_drivers.log
+    else
+        echo "Copying ${_drv_dir}/involflt.ko.${S_FILE_SUFFIX}-${KERNEL_COPY_VERSION}*${SEP}${_suffix} to ${k_dir}" >> /var/log/InMage_drivers.log
+        cp -f ${_drv_dir}/involflt.ko.${S_FILE_SUFFIX}-${KERNEL_COPY_VERSION}*${SEP}${_suffix} ${k_dir}/involflt.ko
+        ret=$?
+    fi
+
+    return $ret
+}
+
 is_supported_rhel8_kernel()
 {
     CURR_KERNEL=$1
@@ -55,6 +88,10 @@ copy_rhel8_drivers()
     RHEL8_KMV_V3="240"
     RHEL8_KMV_V4="305"
     RHEL8_KMV_V5="348"
+    RHEL8_KMV_V6="372"
+    RHEL8_KMV_V7="425"
+    RHEL8_KMV_V7_1="425.3.1"
+    RHEL8_KMV_V7_2="425.10.1"
 
     VER_DIR=$(dirname $(dirname $(dirname $k_dir)))
     K_VER=${VER_DIR##*/}
@@ -81,8 +118,19 @@ copy_rhel8_drivers()
                 KERNEL_COPY_VERSION=$RHEL8_KMV_V5
             fi
         ;;
-        *)
+        $RHEL8_KMV_V6)
             KERNEL_COPY_VERSION=$RHEL8_KMV_V5
+        ;;
+        $RHEL8_KMV_V7)
+            local KERNEL_MINOR_VERSION_UPDATE=`echo "$1" | cut -d"-" -f2 | cut -d"." -f1,2,3`
+            if [ $KERNEL_MINOR_VERSION_UPDATE = $RHEL8_KMV_V7_1 ]; then
+                KERNEL_COPY_VERSION=$RHEL8_KMV_V7_1
+            else
+                KERNEL_COPY_VERSION=$RHEL8_KMV_V7_2
+            fi
+        ;;
+        *)
+            KERNEL_COPY_VERSION=$RHEL8_KMV_V7_2
         ;;
     esac
     if [ -z $KERNEL_COPY_VERSION ]; then
@@ -153,31 +201,39 @@ is_sles_kernel_supported()
         return 0
     fi
 
-    if [ -f /etc/SuSE-release ] ; then
-        patch_level=`grep "PATCHLEVEL = " /etc/SuSE-release | awk '{print $3}'`
-        echo "Fetched patch level: $patch_level from SuSE-release file." >> /var/log/InMage_drivers.log
+    if [ "${OS}" = "SLES12-64" ] ; then
+	    if [ -f /etc/SuSE-release ]; then 
+            patch_level=`grep "PATCHLEVEL = " /etc/SuSE-release | awk '{print $3}'`
+            echo "Fetched patch level: $patch_level from SuSE-release file." >> /var/log/InMage_drivers.log
+        else
+	        echo "SuSE-release file does not exist." >> /var/log/InMage_drivers.log
+        fi	   
     else
-        patch_level=`grep "VERSION=" /etc/os-release | grep -o SP[0-9] | grep -o [0-9]`
-        echo "Fetched patch level: $patch_level from os-release file." >> /var/log/InMage_drivers.log
-        if [ -z "${patch_level}" ]; then
-            echo "No patch level info obtained, dumping os-release file." >> /var/log/InMage_drivers.log
-            cat /etc/os-release >> /var/log/InMage_drivers.log
-            patch_level=`grep "VERSION=" /etc/os-release | grep -o "SP[0-9]" | grep -o "[0-9]"`
+        if [ -f  /etc/os-release ]; then
+            patch_level=`grep "VERSION=" /etc/os-release | grep -o SP[0-9] | grep -o [0-9]`
             echo "Fetched patch level: $patch_level from os-release file." >> /var/log/InMage_drivers.log
-        fi
-        if [ -z "${patch_level}" ]; then
-            local os_ver=`grep "VERSION=" /etc/os-release`
-            local sp_ver=`echo $os_ver | grep -o "SP[0-9]"`
-            local sp_num_ver=`echo $sp_ver | grep -o "[0-9]"`
-            echo "os version = $os_ver, sp version = $sp_ver, sp_num version=$sp_num_ver" >> /var/log/InMage_drivers.log
-            patch_level=`grep "VERSION=" /etc/os-release | awk -F '[-"]' '{print $3}' | tr -d 'SP'`
-            echo "Fetched patch level: $patch_level from os-release file using awk." >> /var/log/InMage_drivers.log
-        fi
-        if [ -z "${patch_level}" ]; then
-            echo "No patch level info obtained from os-release file, marking it as SP0" >> /var/log/InMage_drivers.log
-            patch_level=0
-        fi
-        echo "Final patch level = $patch_level" >> /var/log/InMage_drivers.log
+            if [ -z "${patch_level}" ]; then
+                echo "No patch level info obtained, dumping os-release file." >> /var/log/InMage_drivers.log
+                cat /etc/os-release >> /var/log/InMage_drivers.log
+                patch_level=`grep "VERSION=" /etc/os-release | grep -o "SP[0-9]" | grep -o "[0-9]"`
+                echo "Fetched patch level: $patch_level from os-release file." >> /var/log/InMage_drivers.log
+            fi
+            if [ -z "${patch_level}" ]; then
+                local os_ver=`grep "VERSION=" /etc/os-release`
+                local sp_ver=`echo $os_ver | grep -o "SP[0-9]"`
+                local sp_num_ver=`echo $sp_ver | grep -o "[0-9]"`
+                echo "os version = $os_ver, sp version = $sp_ver, sp_num version=$sp_num_ver" >> /var/log/InMage_drivers.log
+                patch_level=`grep "VERSION=" /etc/os-release | awk -F '[-"]' '{print $3}' | tr -d 'SP'`
+                echo "Fetched patch level: $patch_level from os-release file using awk." >> /var/log/InMage_drivers.log
+            fi
+            if [ -z "${patch_level}" ]; then
+                echo "No patch level info obtained from os-release file, marking it as SP0" >> /var/log/InMage_drivers.log
+                patch_level=0
+            fi
+            echo "Final patch level = $patch_level" >> /var/log/InMage_drivers.log
+        else
+	        echo "os-release file does not exist." >> /var/log/InMage_drivers.log
+	    fi
     fi
     if [ ! -z "${patch_level}" ]; then
         echo "SP${patch_level}"
@@ -213,6 +269,8 @@ if echo $OS | grep -q 'RHEL\|SLES11' ; then
                             copy_rhel7_drivers "$k_dir" "$suffix" "${DEPLOY_DIR}/bin"
                         elif [ "$OS" = "RHEL8-64" ]; then
                             copy_rhel8_drivers "$k_dir" "$suffix" "${DEPLOY_DIR}/bin"
+                        elif [ "$OS" = "RHEL9-64" ]; then
+                            copy_rhel9_drivers "$k_dir" "$suffix" "${DEPLOY_DIR}/bin"    
                         else
                             cp -f ${DEPLOY_DIR}/bin/${driver}.ko.${S_FILE_SUFFIX}*${SEP}${suffix} ${k_dir}/${driver}.ko
                         fi
@@ -240,7 +298,7 @@ if echo $OS | grep -q 'RHEL\|SLES11' ; then
             done
         done
     done
-elif [ "${OS}" = "OL7-64" -o "${OS}" = "OL8-64" ]; then
+elif [ "${OS}" = "OL7-64" -o "${OS}" = "OL8-64" -o "${OS}" = "OL9-64" ]; then
 	# RH compatible modules
     for TOP_DIR in `echo /lib/modules/${ACTL_KERNEL_VER}*${SEP}${KERNEL_VER_SUFFIX}`
     do
@@ -250,8 +308,10 @@ elif [ "${OS}" = "OL7-64" -o "${OS}" = "OL8-64" ]; then
         test -f $k_dir/involflt.ko && continue
         if [ "$OS" = "OL7-64" ]; then
             copy_rhel7_drivers "$k_dir" "$KERNEL_VER_SUFFIX" "${DEPLOY_DIR}/bin/drivers"
-        else
+        elif [ "$OS" = "OL8-64" ]; then
             copy_rhel8_drivers "$k_dir" "$KERNEL_VER_SUFFIX" "${DEPLOY_DIR}/bin/drivers"
+        else
+            copy_rhel9_drivers "$k_dir" "$KERNEL_VER_SUFFIX" "${DEPLOY_DIR}/bin/drivers"
         fi
         RET_VAL=$?
         if [ "${RET_VAL}" = "0" ]; then

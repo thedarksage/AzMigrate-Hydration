@@ -1,0 +1,952 @@
+# Yaml configuration file for generating Unified Setup official builds.
+trigger: none
+schedules:
+- cron: "30 23 * * *"
+  displayName: Daily Build 05:00 AM IST
+  branches:
+    include:
+    - develop
+  always: true
+
+variables:
+  REPOROOT: $(Build.SourcesDirectory)
+  OUTPUTROOT: $(REPOROOT)\out
+  BRANCHNAME: $(Build.SourceBranchName)
+  WindowsContainerImage: 'onebranch.azurecr.io/windows/ltsc2019/vse2019:latest'
+  UNIFIEDSETUPINSTALLERNAME: 'MicrosoftAzureSiteRecoveryUnifiedSetup.exe'
+  CDP_BUILD_TAG: unifiedsetup
+
+resources:
+  repositories:
+    - repository: templates
+      type: git
+      name: OneBranch.Pipelines/GovernedTemplates
+      ref: refs/heads/main
+
+extends:
+  template: v2/OneBranch.Official.CrossPlat.yml@templates
+  parameters:
+    cloudvault:
+      enabled: true
+      runmode: stage
+      artifacts:
+        - drop_build_main
+    globalSdl:
+      tsa:
+        enabled: true
+      binskim:
+        break: false
+      policheck:
+        break: true
+
+    stages:
+    - stage: build
+      jobs:
+      - job: main
+        pool:
+          type: windows
+
+        variables:
+          ob_outputDirectory: '$(Build.SourcesDirectory)\Out'
+          ob_symbolsPublishing_enabled: true
+          ob_symbolsPublishing_symbolsFolder: '$(OUTPUTROOT)\Symbols'
+
+          #Get Mars Branch name
+          ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}:
+            MARS_BRANCHNAME: 'develop'
+          ${{ elseif eq(variables['Build.SourceBranchName'], 'release') }}:
+            MARS_BRANCHNAME: 'master'
+          ${{ elseif eq(variables['Build.SourceBranchName'], 'master') }}:
+            MARS_BRANCHNAME: 'master'
+          ${{ else }}:
+            MARS_BRANCHNAME: 'develop'
+
+        steps:
+          # Restore host NuGet packages.
+          - task: NuGetCommand@2
+            displayName: 'Restore Host NuGet Packages'
+            inputs:
+              command: 'restore'
+              restoreSolution: '$(REPOROOT)\host\host.sln'
+              feedsToUse: 'config'
+              nugetConfigPath: '$(REPOROOT)\.config\NuGet.config'
+
+          # Restore server NuGet packages.
+          - task: NuGetCommand@2
+            displayName: 'Restore Server NuGet Packages'
+            inputs:
+              command: 'restore'
+              restoreSolution: '$(REPOROOT)\server\server.sln'
+              feedsToUse: 'config'
+              nugetConfigPath: '$(REPOROOT)\.config\NuGet.config'
+
+          # Generate version files.
+          - task: PowerShell@2
+            displayName: 'Generate Version Files'
+            inputs:
+              targetType: 'filePath'
+              filePath: $(REPOROOT)\.pipelines\GenerateVersionFiles.ps1
+              arguments: '-SourcesRootDirectory $(REPOROOT)'
+
+          # Get version details from VersionData.txt
+          - task: PowerShell@2
+            displayName: "Get Version Data"
+            inputs:
+              targetType: 'inline'
+              script: |
+                $VersionDataContents = Get-Content -Path "$(Build.SourcesDirectory)\VersionData.txt" -Raw | ConvertFrom-StringData
+                $BuildVersion = $VersionDataContents.BuildVersion
+                Write-Host "##vso[task.setvariable variable=BUILDVERSION;]$BuildVersion"
+          
+           # Copy Win32-UTCFileTime binaries.
+          - task: PowerShell@2
+            displayName: 'Set modified timestamp to 48 hours back for the required perl modules source code files.'
+            inputs:
+              targetType: 'inline'
+              script: |
+                $dirname = "$(REPOROOT)\thirdparty\server\"
+                $libfolders = @("Win32-0.39", "Win32-OLE-0.1709", "Win32-Process-0.14", "Win32-Service-0.06","Win32-UTCFileTime-1.50")
+                foreach ($subdirname in $libfolders ) 
+                { 
+                    $actualdirname = $dirname + $subdirname
+                    if(Test-Path -path $actualdirname)
+                    {
+                        $targetDateTime = (get-date).AddDays(-2)					
+                        $relevantFiles = Get-ChildItem -File -Recurse -Path $actualdirname 
+                        $relevantFiles |ForEach-Object {
+                          $_.LastWriteTime = $targetDateTime
+                        }
+                    }
+                }
+              workingDirectory: '$(REPOROOT)'
+              
+          # Downlaod MARS agent
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Downlaod MARS agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 241426
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(MARS_BRANCHNAME)
+              allowPartiallySucceededBuilds: true
+              itemPattern: |
+               target/retail/amd64/release/MARSAgentInstaller.exe
+              path: $(REPOROOT)\host\setup\MARS
+              artifact: drop_build_retail_amd64
+
+          # Download Windows agent
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download DRA artifacts'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 215888
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowPartiallySucceededBuilds: true
+              itemPattern: |
+               retail-amd64/AzureSiteRecoveryConfigurationManager.msi
+               retail-amd64/AzureSiteRecoveryProvider.exe
+               retail-amd64/InMageFabricExtension/Microsoft.IdentityModel.dll
+               retail-amd64/ASRAdapterFiles/InmageDiscovery.exe
+               retail-amd64/ASRAdapterFiles/AutoMapper.dll
+               retail-amd64/ASRAdapterFiles/STSService.dll
+               retail-amd64/ASRAdapterFiles/VMware.Interfaces.dll
+               retail-amd64/ASRAdapterFiles/Vim25Service.dll
+               retail-amd64/ASRAdapterFiles/VMware.VSphere.Management.dll
+               retail-amd64/ASRAdapterFiles/SetupFramework.dll
+               retail-amd64/ASRAdapterFiles/DRResources.dll
+               retail-amd64/ASRAdapterFiles/IntegrityCheck.dll
+               retail-amd64/ASRAdapterFiles/Newtonsoft.Json.dll
+               retail-amd64/ASRAdapterFiles/EndpointsConfig.xml
+               retail-amd64/ASRAdapterFiles/AccessControl2.S2S.dll
+               retail-amd64/ASRAdapterFiles/AsyncInterface.dll
+               retail-amd64/ASRAdapterFiles/CatalogCommon.dll
+               retail-amd64/ASRAdapterFiles/CloudCommonInterface.dll
+               retail-amd64/ASRAdapterFiles/CloudSharedInfra.dll
+               retail-amd64/ASRAdapterFiles/ErrorCodeUtils.dll
+               retail-amd64/ASRAdapterFiles/IdMgmtApiClientLib.dll
+               retail-amd64/ASRAdapterFiles/IdMgmtInterface.dll
+               retail-amd64/ASRAdapterFiles/SrsRestApiClientLib.dll
+               retail-amd64/ASRAdapterFiles/TelemetryInterface.dll
+               retail-amd64/ASRAdapterFiles/Microsoft.Identity.Client.dll
+               retail-amd64/ASRAdapterFiles/Microsoft.IdentityModel.Abstractions.dll
+               retail-amd64/ASRAdapterFiles/Microsoft.ApplicationInsights.dll
+               retail-amd64/ASRAdapterFiles/Polly.dll
+               retail-amd64/ASRAdapterFiles/en/VMware.Interfaces.resources.dll
+              path: $(REPOROOT)\host\setup\DRA
+              artifact: drop_build_retail_amd64
+
+          # Fetch CX dependencies.
+          - task: PowerShell@2
+            displayName: 'Fetch CX Dependencies'
+            inputs:
+              targetType: 'filePath'
+              filePath: $(REPOROOT)\.pipelines\FetchCxDependencies.ps1
+              arguments: '-SourcesRootDirectory $(REPOROOT)\'
+
+          # Build 32-bit sqlite3x.
+          - task: MSBuild@1
+            displayName: 'Build 32-bit sqlite3x'
+            inputs:
+              solution: '$(REPOROOT)\thirdparty\sqlite3x\sqlite3x.sln'
+              msbuildLocationMethod: 'location'
+              msbuildLocation: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe'
+              platform: 'win32'
+              configuration: 'release'
+              msbuildArguments: '/t:sqlite3x /v:n /nr:false /flp1:Verbosity=n;LogFile=$(OUTPUTROOT)\logs\sqlite3x_32bit.log;Encoding=UTF-8 /flp2:logfile=$(OUTPUTROOT)\logs\sqlite3x_32bit.err;errorsonly'
+              clean: true
+              maximumCpuCount: true
+              logProjectEvents: true
+
+          # Build 64-bit sqlite3x.
+          - task: MSBuild@1
+            displayName: 'Build 64-bit sqlite3x'
+            inputs:
+              solution: '$(REPOROOT)\thirdparty\sqlite3x\sqlite3x.sln'
+              msbuildLocationMethod: 'location'
+              msbuildLocation: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe'
+              platform: 'x64'
+              configuration: 'release'
+              msbuildArguments: '/t:sqlite3x /v:n /nr:false /flp1:Verbosity=n;LogFile=$(OUTPUTROOT)\logs\sqlite3x_64bit.log;Encoding=UTF-8 /flp2:logfile=$(OUTPUTROOT)\logs\sqlite3x_64bit.err;errorsonly'
+              clean: true
+              maximumCpuCount: true
+              logProjectEvents: true
+
+          # Copy sqlite3x binaries.
+          - task: PowerShell@2
+            displayName: 'Copy sqlite3x binaries'
+            inputs:
+              targetType: 'inline'
+              script: |
+                if(!(Test-Path -path $(REPOROOT)\host\packages\sqlite3x))
+                {
+                  New-Item -ItemType directory -Path $(REPOROOT)\host\packages\sqlite3x\lib\win32\release
+                  New-Item -ItemType directory -Path $(REPOROOT)\host\packages\sqlite3x\lib\x64\release
+                }
+
+                Copy-Item -Path $(REPOROOT)\thirdparty\sqlite3x\sqlite3x\lib\win32\Release\sqlite3x.lib -Destination $(REPOROOT)\host\packages\sqlite3x\lib\win32\release\sqlite3x.lib
+                Copy-Item -Path $(REPOROOT)\thirdparty\sqlite3x\sqlite3x\lib\win32\Release\sqlite3x.pdb -Destination $(REPOROOT)\host\packages\sqlite3x\lib\win32\release\sqlite3x.pdb
+                Copy-Item -Path $(REPOROOT)\thirdparty\sqlite3x\sqlite3x\lib\x64\Release\sqlite3x.lib -Destination $(REPOROOT)\host\packages\sqlite3x\lib\x64\release\sqlite3x.lib
+                Copy-Item -Path $(REPOROOT)\thirdparty\sqlite3x\sqlite3x\lib\x64\Release\sqlite3x.pdb -Destination $(REPOROOT)\host\packages\sqlite3x\lib\x64\release\sqlite3x.pdb
+              workingDirectory: '$(REPOROOT)'
+
+          # Build 32-bit host binaries.
+          - task: MSBuild@1
+            displayName: 'Build 32-bit Host Binaries'
+            inputs:
+              solution: '$(REPOROOT)\host\host.sln'
+              msbuildLocationMethod: 'location'
+              msbuildLocation: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe'
+              platform: 'win32'
+              configuration: 'release'
+              msbuildArguments: '-t:csgetfingerprint;cxpsclient;gencert;genpassphrase;verifycert;viewcert;configtool;cspsconfigtool;build_push /v:n /nr:false /flp1:Verbosity=n;LogFile=$(OUTPUTROOT)\logs\HostExes_32-bit.log;Encoding=UTF-8 /flp2:logfile=$(OUTPUTROOT)\logs\HostExes_32-bit.err;errorsonly'
+              clean: false
+              maximumCpuCount: true
+              logProjectEvents: true
+
+          # Build 64-bit host binaries.
+          - task: MSBuild@1
+            displayName: 'Build 64-bit Host Binaries'
+            inputs:
+              solution: '$(REPOROOT)\host\host.sln'
+              msbuildLocationMethod: 'location'
+              msbuildLocation: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe'
+              platform: 'x64'
+              configuration: 'release'
+              msbuildArguments: '/t:cxps /v:n /nr:false /flp1:Verbosity=n;LogFile=$(OUTPUTROOT)\logs\HostExes_64-bit.log;Encoding=UTF-8 /flp2:logfile=$(OUTPUTROOT)\logs\HostExes_64-bit.err;errorsonly'
+              clean: false
+              maximumCpuCount: true
+              logProjectEvents: true
+
+          # Build 32-bit server binaries.
+          - task: MSBuild@1
+            displayName: 'Build 32-bit Server Binaries'
+            inputs:
+              solution: '$(REPOROOT)\server\server.sln'
+              msbuildLocationMethod: 'location'
+              msbuildLocation: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe'
+              platform: 'win32'
+              configuration: 'release'
+              msbuildArguments: '/t:build_cxserver /v:n /nr:false /flp1:Verbosity=n;LogFile=$(OUTPUTROOT)\logs\ServerExes_32-bit.log;Encoding=UTF-8 /flp2:logfile=$(OUTPUTROOT)\logs\ServerExes_32-bit.err;errorsonly'
+              clean: false
+              maximumCpuCount: true
+              logProjectEvents: true
+
+          # Build 64-bit server binaries.
+          - task: MSBuild@1
+            displayName: 'Build 64-bit Server Binaries'
+            inputs:
+              solution: '$(REPOROOT)\server\server.sln'
+              msbuildLocationMethod: 'location'
+              msbuildLocation: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe'
+              platform: 'x64'
+              configuration: 'release'
+              msbuildArguments: '/t:CSAuthModule /v:n /nr:false /flp1:Verbosity=n;LogFile=$(OUTPUTROOT)\logs\ServerExes_64-bit.log;Encoding=UTF-8 /flp2:logfile=$(OUTPUTROOT)\logs\ServerExes_64-bit.err;errorsonly'
+              clean: false
+              maximumCpuCount: true
+              logProjectEvents:
+              
+          # Build SetMarsProxy.
+          - task: MSBuild@1
+            displayName: 'Build 64-bit SetMarsProxy'
+            inputs:
+              solution: '$(REPOROOT)\server\server.sln'
+              msbuildLocationMethod: 'location'
+              msbuildLocation: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe'
+              platform: 'x64'
+              configuration: 'release'
+              msbuildArguments: '/t:SetMarsProxy /v:n /nr:false /flp1:Verbosity=n;LogFile=$(OUTPUTROOT)\logs\SetMarsProxy_64-bit.log;Encoding=UTF-8 /flp2:logfile=$(OUTPUTROOT)\logs\SetMarsProxy_64-bit.err;errorsonly'
+              clean: false
+              maximumCpuCount: true
+              logProjectEvents:
+          
+          # Install WiX toolset.
+          - task: PowerShell@2
+            displayName: 'Install WiX Toolset'
+            inputs:
+              targetType: 'filePath'
+              filePath: $(REPOROOT)\.pipelines\InstallWiXToolset.ps1
+
+          # Copy WiX target files.
+          - task: PowerShell@2
+            displayName: 'Copy WiX Targets Files'
+            inputs:
+              targetType: 'inline'
+              script: |
+                  New-Item -Path 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Microsoft\WiX\v3.x\' -ItemType Directory -Force
+                  Copy-Item '$(REPOROOT)\.pipelines\wix.targets' -Destination 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Microsoft\WiX\v3.x\' -Force
+                  Copy-Item '$(REPOROOT)\.pipelines\wix.ca.targets' -Destination 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Microsoft\WiX\v3.x\' -Force
+                  Copy-Item '$(REPOROOT)\.pipelines\wix.nativeca.targets' -Destination 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Microsoft\WiX\v3.x\' -Force
+
+          # Build Unified Setup project.
+          - task: MSBuild@1
+            displayName: 'Build Unified Setup Project'
+            inputs:
+              solution: '$(REPOROOT)\host\ASRSetup\ASRSetup.sln'
+              msbuildLocationMethod: 'location'
+              msbuildLocation: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe'
+              platform: 'win32'
+              configuration: 'release'
+              msbuildArguments: '/t:UnifiedSetup /v:n /nr:false /flp1:Verbosity=n;LogFile=$(OUTPUTROOT)\logs\UnifiedSetup.log;Encoding=UTF-8 /flp2:logfile=$(OUTPUTROOT)\logs\UnifiedSetup.err;errorsonly'
+              clean: false
+              maximumCpuCount: true
+              logProjectEvents: true
+
+          # Sign exes/dlls/JS/VB/PS1 scripts.
+          - task: onebranch.pipeline.signing@1
+            displayName: 'Code Signing Phase-1'
+            inputs:
+              command: 'sign'
+              signing_environment: 'azure-ado'
+              signing_profile: ''
+              cp_code: '280'
+              disable_strong_name_signing: true
+              file_list_path: $(REPOROOT)/.pipelines/SignListUnifiedSetup.txt
+
+          # Sign thirdparty DLLs.
+          - task: onebranch.pipeline.signing@1
+            displayName: 'Code Signing Phase-2'
+            inputs:
+              command: 'sign'
+              signing_environment: 'azure-ado'
+              signing_profile: '135020002'
+              disable_strong_name_signing: true
+              file_list_path: $(REPOROOT)/.pipelines/SignListUnifiedSetupThirdparty.txt
+
+          # Install InnoSetup.
+          - task: PowerShell@2
+            displayName: 'Install InnoSetup'
+            inputs:
+              targetType: 'filePath'
+              filePath: $(REPOROOT)\.pipelines\InstallInnoSetup.ps1
+
+          # Download Windows agent
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download Windows Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 217108
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+               cxcli/cxcli.exe
+               AgentInstaller/*.*
+               **/*.exe
+              path: $(REPOROOT)\host\setup\AgentArtifacts
+              artifact: drop_build_main
+
+          # Download DEBIAN7 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download DEBIAN7 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 233071
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+                **/*pushinstallclient.tar.gz
+              path: $(REPOROOT)\host\setup\AgentArtifacts
+              artifact: drop_build_main
+
+          # Download DEBIAN8 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download DEBIAN8 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 233306
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+                **/*pushinstallclient.tar.gz
+              path: $(REPOROOT)\host\setup\AgentArtifacts
+              artifact: drop_build_main
+
+          # Download DEBIAN9 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download DEBIAN9 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 233307
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+                **/*pushinstallclient.tar.gz
+              path: $(REPOROOT)\host\setup\AgentArtifacts
+              artifact: drop_build_main
+
+          # Download DEBIAN10 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download DEBIAN10 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 233069
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+                **/*pushinstallclient.tar.gz
+              path: $(REPOROOT)\host\setup\AgentArtifacts
+              artifact: drop_build_main
+
+          # Download DEBIAN11 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download DEBIAN11 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 301282
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+                **/*pushinstallclient.tar.gz
+              path: $(REPOROOT)\host\setup\AgentArtifacts
+              artifact: drop_build_main
+
+          # Download OL6 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download OL6 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 233308
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+                **/*pushinstallclient.tar.gz
+              path: $(REPOROOT)\host\setup\AgentArtifacts
+              artifact: drop_build_main
+
+          # Download OL7 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download OL7 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 233309
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+                **/*pushinstallclient.tar.gz
+              path: $(REPOROOT)\host\setup\AgentArtifacts
+              artifact: drop_build_main
+
+          # Download OL8 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download OL8 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 233310
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+                **/*pushinstallclient.tar.gz
+              path: $(REPOROOT)\host\setup\AgentArtifacts
+              artifact: drop_build_main
+
+          # Download RHEL6 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download RHEL6 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 233311
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+                **/*pushinstallclient.tar.gz
+              path: $(REPOROOT)\host\setup\AgentArtifacts
+              artifact: drop_build_main
+
+          # Download RHEL7 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download RHEL7 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 233312
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+                **/*pushinstallclient.tar.gz
+              path: $(REPOROOT)\host\setup\AgentArtifacts
+              artifact: drop_build_main
+
+          # Download RHEL8 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download RHEL8 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 233313
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+                **/*pushinstallclient.tar.gz
+              path: $(REPOROOT)\host\setup\AgentArtifacts
+              artifact: drop_build_main
+
+          # Download UBUNTU-14.04 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download UBUNTU-14.04 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 233314
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+                **/*pushinstallclient.tar.gz
+              path: $(REPOROOT)\host\setup\AgentArtifacts
+              artifact: drop_build_main
+
+          # Download UBUNTU-16.04 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download UBUNTU-16.04 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 233315
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+                **/*pushinstallclient.tar.gz
+              path: $(REPOROOT)\host\setup\AgentArtifacts
+              artifact: drop_build_main
+
+          # Download UBUNTU-18.04 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download UBUNTU-18.04 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 233316
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+                **/*pushinstallclient.tar.gz
+              path: $(REPOROOT)\host\setup\AgentArtifacts
+              artifact: drop_build_main
+
+          # Download UBUNTU-20.04 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download UBUNTU-20.04 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 233061
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+                **/*pushinstallclient.tar.gz
+              path: $(REPOROOT)\host\setup\AgentArtifacts
+              artifact: drop_build_main
+
+          # Download UBUNTU-22.04 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download UBUNTU-22.04 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 301283
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+                **/*pushinstallclient.tar.gz
+              path: $(REPOROOT)\host\setup\AgentArtifacts
+              artifact: drop_build_main
+
+
+          # Download SLES-12 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download SLES-12 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 305929
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+                **/*pushinstallclient.tar.gz
+              path: $(REPOROOT)\host\setup\AgentArtifacts
+              artifact: drop_build_main
+
+
+          # Download SLES-15 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download SLES-15 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 305931
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+                **/*pushinstallclient.tar.gz
+              path: $(REPOROOT)\host\setup\AgentArtifacts
+              artifact: drop_build_main
+
+          # Print AgentArtifacts folder contents
+          - task: PowerShell@2
+            displayName: 'Print AgentArtifacts Folder Contents'
+            inputs:
+              targetType: 'inline'
+              script: |
+                Get-ChildItem $(REPOROOT)\host\setup\AgentArtifacts
+
+          # Copy agent installer binaries.
+          - task: PowerShell@2
+            displayName: 'Copy agent installer binaries'
+            inputs:
+              targetType: 'inline'
+              script: |
+                if(!(Test-Path -path $(REPOROOT)\host\cxcli\Release))
+                {
+                  New-Item -ItemType directory -Path $(REPOROOT)\host\cxcli\Release
+                }
+                if(!(Test-Path -path $(REPOROOT)\host\ASRSetup\UnifiedAgentInstaller\bin\Release))
+                {
+                  New-Item -ItemType directory -Path $(REPOROOT)\host\ASRSetup\UnifiedAgentInstaller\bin\Release
+                }
+                if(!(Test-Path -path $(REPOROOT)\host\ASRSetup\WrapperUnifiedAgent\bin\Release))
+                {
+                  New-Item -ItemType directory -Path $(REPOROOT)\host\ASRSetup\WrapperUnifiedAgent\bin\Release
+                }
+                if(!(Test-Path -path $(REPOROOT)\host\ASRSetup\UnifiedAgentMSI\x64\bin\Release))
+                {
+                  New-Item -ItemType directory -Path $(REPOROOT)\host\ASRSetup\UnifiedAgentMSI\x64\bin\Release
+                }
+                Copy-Item -Path $(REPOROOT)\host\setup\AgentArtifacts\cxcli\cxcli.exe -Destination $(REPOROOT)\host\cxcli\Release\
+                Copy-Item -Path $(REPOROOT)\host\setup\AgentArtifacts\AgentInstaller\Interop.COMAdmin.dll -Destination $(REPOROOT)\host\ASRSetup\UnifiedAgentInstaller\bin\Release\
+                Copy-Item -Path $(REPOROOT)\host\setup\AgentArtifacts\AgentInstaller\UnifiedAgentInstaller.exe -Destination $(REPOROOT)\host\ASRSetup\UnifiedAgentInstaller\bin\Release\
+                Copy-Item -Path $(REPOROOT)\host\setup\AgentArtifacts\AgentInstaller\UnifiedAgentInstaller.exe.config -Destination $(REPOROOT)\host\ASRSetup\UnifiedAgentInstaller\bin\Release\
+                Copy-Item -Path $(REPOROOT)\host\setup\AgentArtifacts\AgentInstaller\UnifiedAgent.exe -Destination $(REPOROOT)\host\ASRSetup\WrapperUnifiedAgent\bin\Release\
+                Copy-Item -Path $(REPOROOT)\host\setup\AgentArtifacts\AgentInstaller\UnifiedAgent.exe.config -Destination $(REPOROOT)\host\ASRSetup\WrapperUnifiedAgent\bin\Release\
+                Copy-Item -Path $(REPOROOT)\host\setup\AgentArtifacts\AgentInstaller\UnifiedAgentMSI.msi -Destination $(REPOROOT)\host\ASRSetup\UnifiedAgentMSI\x64\bin\Release\
+              workingDirectory: '$(REPOROOT)'
+
+          # Generate CX installer.
+          - task: MSBuild@1
+            displayName: 'Generate CX Installer'
+            inputs:
+              solution: '$(REPOROOT)\server\windows\setup_ucxserver_cloud.vcxproj'
+              msbuildLocationMethod: 'location'
+              msbuildLocation: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe'
+              platform: 'win32'
+              configuration: 'release'
+              msbuildArguments: '-t:build /v:n /nr:false /flp1:Verbosity=n;LogFile=$(OUTPUTROOT)\logs\CxBuild.log;Encoding=UTF-8 /flp2:logfile=$(OUTPUTROOT)\logs\CxBuild.err;errorsonly'
+              clean: false
+              maximumCpuCount: true
+
+          # Generate CX_TP installer.
+          - task: MSBuild@1
+            displayName: 'Generate CX_TP Installer'
+            inputs:
+              solution: '$(REPOROOT)\server\server.sln'
+              msbuildLocationMethod: 'location'
+              msbuildLocation: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe'
+              platform: 'win32'
+              configuration: 'release'
+              msbuildArguments: '/t:setup_cxthirdparty /v:n /nr:false /flp1:Verbosity=n;LogFile=$(OUTPUTROOT)\logs\CxThirdparty.log;Encoding=UTF-8 /flp2:logfile=$(OUTPUTROOT)\logs\CxThirdparty.err;errorsonly'
+              clean: false
+              maximumCpuCount: true
+              logProjectEvents: true
+
+          # Sign CX_TP and CX installers.
+          - task: onebranch.pipeline.signing@1
+            displayName: 'Code Signing Phase-3'
+            inputs:
+              command: 'sign'
+              signing_environment: 'azure-ado'
+              signing_profile: ''
+              cp_code: '280'
+              disable_strong_name_signing: true
+              files_to_sign: 'server\windows\Release\cx_thirdparty_setup.exe;server\windows\Release\ucx_server_setup.exe'
+              search_root: '$(REPOROOT)/'
+
+          # Generate Unified Setup installer.
+          - task: MSBuild@1
+            displayName: 'Generate Unified Setup Installer'
+            inputs:
+              solution: '$(REPOROOT)\host\ASRSetup\ASRSetup.sln'
+              msbuildLocationMethod: 'location'
+              msbuildLocation: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe'
+              platform: 'win32'
+              configuration: 'release'
+              msbuildArguments: '/t:Packager /v:n /nr:false /flp1:Verbosity=n;LogFile=$(OUTPUTROOT)\logs\UnifiedSetupPackager.log;Encoding=UTF-8 /flp2:logfile=$(OUTPUTROOT)\logs\UnifiedSetupPackager.err;errorsonly'
+              clean: false
+              maximumCpuCount: true
+              logProjectEvents: true
+
+          # Sign Unified Setup installer.
+          - task: onebranch.pipeline.signing@1
+            displayName: 'Code Signing Phase-4'
+            inputs:
+              command: 'sign'
+              signing_environment: 'azure-ado'
+              signing_profile: ''
+              cp_code: '280'
+              disable_strong_name_signing: true
+              files_to_sign: 'host\ASRSetup\Packager\bin\Release\MicrosoftAzureSiteRecoveryUnifiedSetup.exe'
+              search_root: '$(REPOROOT)/'
+
+          # Copy build artifacts.
+          - task: PowerShell@2
+            displayName: 'Copy Build Artifacts'
+            inputs:
+              targetType: 'inline'
+              script: |
+                Copy-Item -Path $(REPOROOT)\host\ASRSetup\Packager\bin\Release\MicrosoftAzureSiteRecoveryUnifiedSetup.exe -Destination $(OUTPUTROOT)\
+                Copy-Item -Path $(REPOROOT)\host\pushInstallerCli\Release\pushClient.exe -Destination $(OUTPUTROOT)\Windows_pushinstallclient.exe
+                Copy-Item -Path $(REPOROOT)\host\setup\CxDependenciesDetails.log -Destination $(OUTPUTROOT)\logs
+                Write-Output $(BUILDVERSION) | Out-File $(OUTPUTROOT)\Build_details.txt
+                Write-Output $(UNIFIEDSETUPINSTALLERNAME) | Out-File -Append $(OUTPUTROOT)\Build_details.txt
+                if(!(Test-Path -path $(OUTPUTROOT)\MarsAgentBinaries))
+                {
+                  New-Item -ItemType directory -Path $(OUTPUTROOT)\MarsAgentBinaries
+                }
+                if(!(Test-Path -path $(OUTPUTROOT)\MarsAgentBinaries\en))
+                {
+                  New-Item -ItemType directory -Path $(OUTPUTROOT)\MarsAgentBinaries\en
+                }
+                Copy-Item -Path $(REPOROOT)\server\MarsAgent\bin\release\*.exe -Destination $(OUTPUTROOT)\MarsAgentBinaries\
+                Copy-Item -Path $(REPOROOT)\server\MarsAgent\bin\release\MarsAgent.exe.config -Destination $(OUTPUTROOT)\MarsAgentBinaries\MarsAgent.exe.config
+                Copy-Item -Path $(REPOROOT)\server\MarsAgent\bin\release\MARSAgent.pdb -Destination $(OUTPUTROOT)\MarsAgentBinaries\MARSAgent.pdb
+                Copy-Item -Path $(REPOROOT)\server\MarsAgent\bin\release\*.dll -Destination $(OUTPUTROOT)\MarsAgentBinaries\
+                Copy-Item -Path $(REPOROOT)\host\ASRSetup\SetMarsProxy\bin\x64\Release\SetMarsProxy.exe -Destination $(OUTPUTROOT)\MarsAgentBinaries\SetMarsProxy.exe
+                Copy-Item -Path $(REPOROOT)\server\MarsAgent\bin\release\en\MarsAgent.resources.dll -Destination $(OUTPUTROOT)\MarsAgentBinaries\en\MarsAgent.resources.dll
+                Copy-Item -Path $(REPOROOT)\server\MarsAgent\bin\release\en\RcmAgentCommonLib.resources.dll -Destination $(OUTPUTROOT)\MarsAgentBinaries\en\RcmAgentCommonLib.resources.dll
+                if(!(Test-Path -path $(OUTPUTROOT)\PushInstallBinaries))
+                {
+                  New-Item -ItemType directory -Path $(OUTPUTROOT)\PushInstallBinaries
+                }
+                if(!(Test-Path -path $(OUTPUTROOT)\PushInstallBinaries\en))
+                {
+                  New-Item -ItemType directory -Path $(OUTPUTROOT)\PushInstallBinaries\en
+                }
+                Copy-Item -Path $(REPOROOT)\host\PushInstall\RcmBasedPushInstall\release\RcmBasedPushInstall.exe -Destination $(OUTPUTROOT)\PushInstallBinaries\RcmBasedPushInstall.exe
+                Copy-Item -Path $(REPOROOT)\host\VMwarePushInstall\bin\release\VMware.Interfaces.dll -Destination $(OUTPUTROOT)\PushInstallBinaries\VMware.Interfaces.dll
+                Copy-Item -Path $(REPOROOT)\host\VMwarePushInstall\bin\release\VMware.VSphere.Management.dll -Destination $(OUTPUTROOT)\PushInstallBinaries\VMware.VSphere.Management.dll
+                Copy-Item -Path $(REPOROOT)\host\VMwarePushInstall\bin\release\VMwarePushInstall.exe -Destination $(OUTPUTROOT)\PushInstallBinaries\VMwarePushInstall.exe
+                Copy-Item -Path $(REPOROOT)\host\VMwarePushInstall\VMwarePushInstall.conf -Destination $(OUTPUTROOT)\PushInstallBinaries\VMwarePushInstall.conf
+                Copy-Item -Path $(REPOROOT)\host\VMwarePushInstall\bin\release\httpclient.dll -Destination $(OUTPUTROOT)\PushInstallBinaries\httpclient.dll
+                Copy-Item -Path $(REPOROOT)\host\VMwarePushInstall\bin\release\InMageAPILibrary.dll -Destination $(OUTPUTROOT)\PushInstallBinaries\InMageAPILibrary.dll
+                Copy-Item -Path $(REPOROOT)\host\VMwarePushInstall\bin\release\Newtonsoft.Json.dll -Destination $(OUTPUTROOT)\PushInstallBinaries\Newtonsoft.Json.dll
+                Copy-Item -Path $(REPOROOT)\host\VMwarePushInstall\bin\release\Vim25Service.dll -Destination $(OUTPUTROOT)\PushInstallBinaries\Vim25Service.dll
+                Copy-Item -Path $(REPOROOT)\host\VMwarePushInstall\bin\release\CredentialStore.dll -Destination $(OUTPUTROOT)\PushInstallBinaries\CredentialStore.dll
+                Copy-Item -Path $(REPOROOT)\host\setup\DRA\AutoMapper.dll -Destination $(OUTPUTROOT)\PushInstallBinaries\AutoMapper.dll
+                Copy-Item -Path $(REPOROOT)\host\VMwarePushInstall\bin\release\en\VMware.Interfaces.resources.dll -Destination $(OUTPUTROOT)\PushInstallBinaries\en\VMware.Interfaces.resources.dll
+                Copy-Item -Path $(REPOROOT)\server\windows\Unix_LE_OS_details.sh -Destination $(OUTPUTROOT)\PushInstallBinaries\OS_details.sh
+                
+              workingDirectory: '$(REPOROOT)'
+
+          # Capture symbol files.
+          - task: PowerShell@2
+            displayName: 'Capture Symbol Files'
+            inputs:
+              targetType: 'filePath'
+              filePath: $(REPOROOT)\.pipelines\CaptureSymbols.ps1
+              arguments: '-SymbolsFilesList $(REPOROOT)\.pipelines\PdbListUnifiedSetup.txt -SourceFolder $(REPOROOT) -TargetFolder $(OUTPUTROOT)\Symbols'
+
+          # Create nuspec file for MarsAgentBinaries.
+          - task: PowerShell@2
+            displayName: 'Create nuspec file for MarsAgentBinaries'
+            inputs:
+              targetType: 'inline'
+              script: |
+                $files = Get-ChildItem $(OUTPUTROOT)\MarsAgentBinaries\* -Include *.*
+                Write-Host $files.FullName
+                $fileCount = $files | Measure-Object | %{$_.Count}
+                $buildVersion = "$(BUILDVERSION)"
+                $version = ($buildVersion.Split(".") | Select -Index 0,1) -join "."
+                $pkgName = "ASR_MARS_BINARIES_" + $version
+                $nugetTemplatespec = "$(REPOROOT)\.pipelines\nuget_template.nuspec"
+                $nuspec = [xml](Get-Content $nugetTemplatespec)
+                $nuspec.package.metadata.id = $pkgName
+                $nuspec.package.metadata.description = $pkgName
+                $nuspec.package.metadata.version = "$(BUILDVERSION)"
+                $filesElement = $nuspec.CreateElement("files", $nuspec.DocumentElement.NamespaceURI)
+                For ($i=0; $i -lt $fileCount; $i++) {
+                    $filePath = $files[$i]
+                    $fileName = [System.IO.Path]::GetFileName($filePath)
+                    $fileElement = $nuspec.CreateElement("file", $nuspec.DocumentElement.NamespaceURI)
+                    $fileElement.SetAttribute("src","$filePath")
+                    $fileElement.SetAttribute("target","$fileName")
+                    $filesElement.AppendChild($fileElement)
+                }
+                $subDir = Get-ChildItem $(OUTPUTROOT)\MarsAgentBinaries\* -Directory | Select-Object -ExpandProperty name 
+                foreach ($dir in $subDir) {
+                    $subDirFiles = Get-ChildItem $(OUTPUTROOT)\MarsAgentBinaries\$dir\* 
+                    foreach ($file in $subDirFiles) {
+                        $subDirFileName = [System.IO.Path]::GetFileName($file)
+                        $fileElement = $nuspec.CreateElement("file", $nuspec.DocumentElement.NamespaceURI)
+                        $fileElement.SetAttribute("src","$file")
+                        $fileElement.SetAttribute("target","$dir\$subDirFileName")
+                        $filesElement.AppendChild($fileElement)
+                    }
+                }     
+                $nuspec.package.AppendChild($filesElement)
+                $nuspecName = -Join ($pkgName,".","nuspec")
+                $nuspecPath = -Join ("$(REPOROOT)","\",$nuspecName)
+                $nuspec.Save($nuspecPath);
+              workingDirectory: '$(REPOROOT)'
+                
+          # Create nuspec file for PushInstallBinaries.
+          - task: PowerShell@2
+            displayName: 'Create nuspec file for PushInstallBinaries'
+            inputs:
+              targetType: 'inline'
+              script: |
+                $files = Get-ChildItem $(OUTPUTROOT)\PushInstallBinaries\* -Include *.*
+                Write-Host $files.FullName
+                $fileCount = $files | Measure-Object | %{$_.Count}
+                $pkgName = "ASR_PI_BINARIES_" + "$(BRANCHNAME)"
+                $nugetTemplatespec = "$(REPOROOT)\.pipelines\nuget_template.nuspec"
+                $nuspec = [xml](Get-Content $nugetTemplatespec)
+                $nuspec.package.metadata.id = $pkgName
+                $nuspec.package.metadata.description = $pkgName
+                $nuspec.package.metadata.version = "$(BUILDVERSION)"
+                $filesElement = $nuspec.CreateElement("files", $nuspec.DocumentElement.NamespaceURI)
+                For ($i=0; $i -lt $fileCount; $i++) {
+                    $filePath = $files[$i]
+                    $fileName = [System.IO.Path]::GetFileName($filePath)
+                    $fileElement = $nuspec.CreateElement("file", $nuspec.DocumentElement.NamespaceURI)
+                    $fileElement.SetAttribute("src","$filePath")
+                    $fileElement.SetAttribute("target","$fileName")
+                    $filesElement.AppendChild($fileElement)
+                }
+                $subDir = Get-ChildItem $(OUTPUTROOT)\PushInstallBinaries\* -Directory | Select-Object -ExpandProperty name 
+                foreach ($dir in $subDir) {
+                    $subDirFiles = Get-ChildItem $(OUTPUTROOT)\PushInstallBinaries\$dir\* 
+                    foreach ($file in $subDirFiles) {
+                        $subDirFileName = [System.IO.Path]::GetFileName($file)
+                        $fileElement = $nuspec.CreateElement("file", $nuspec.DocumentElement.NamespaceURI)
+                        $fileElement.SetAttribute("src","$file")
+                        $fileElement.SetAttribute("target","$dir\$subDirFileName")
+                        $filesElement.AppendChild($fileElement)
+                    }
+                }     
+                $nuspec.package.AppendChild($filesElement)
+                $nuspecName = -Join ($pkgName,".","nuspec")
+                $nuspecPath = -Join ("$(REPOROOT)","\",$nuspecName)
+                $nuspec.Save($nuspecPath);
+              workingDirectory: '$(REPOROOT)'
+              
+          - task: NuGetCommand@2
+            displayName: 'Package nuget'
+            inputs:
+              command: pack
+              packagesToPack: '$(REPOROOT)\*.nuspec'
+              packDestination: '$(Build.SourcesDirectory)\out\packages'
+              allowPackageConflicts: true
+            
+          - task: NuGetCommand@2
+            displayName: 'Nuget Push to One/ASRDPNugetFeed'
+            inputs:
+              command: 'push'
+              packagesToPush: '$(Build.SourcesDirectory)\out\packages\*.nupkg'
+              nuGetFeedType: 'internal'
+              publishVstsFeed: 'One/ASRDPNugetFeed'
+              allowPackageConflicts: true

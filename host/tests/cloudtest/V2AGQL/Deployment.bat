@@ -1,0 +1,1 @@
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy unrestricted -Command "& {C:\V2AGQL\V2AGQLDeployment.ps1 RunDeployment > C:\V2AGQL\deployment.log; [Environment]::Exit(1)}"

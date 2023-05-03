@@ -102,6 +102,15 @@ namespace AzureRecovery
         const unsigned int E_HV_DRIVERS_MISSING = 8;
         const unsigned int E_AZURE_GA_INSTALLATION_FAILED = 9;
         const unsigned int E_ENABLE_DHCP_FAILED = 10;
+        const unsigned int E_AZURE_UNSUPPORTED_FS_FOR_CVM = 11;
+        const unsigned int E_AZURE_ROOTFS_LABEL_FAILED = 12;
+        const unsigned int E_RESOLV_CONF_COPY_FAILURE = 13;
+        const unsigned int E_RESOLV_CONF_RESTORE_FAILURE = 14;
+        const unsigned int E_AZURE_REPOSITORY_UPDATE_FAILED = 15;
+        const unsigned int E_INSTALL_LINUX_AZURE_FDE_FAILED = 16;
+        const unsigned int E_AZURE_UNSUPPORTED_FIRMWARE_FOR_CVM = 17;
+        const unsigned int E_AZURE_BOOTLOADER_CONFIGURATION_FAILED = 18;
+        const unsigned int E_AZURE_UNSUPPORTED_DEVICE = 19;
     }
 
     // TODO: Make it as config setting.

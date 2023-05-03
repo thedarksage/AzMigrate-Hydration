@@ -1,0 +1,3 @@
+#!/bin/sh
+
+/bin/bash /etc/vxagent/bin/involflt.sh start

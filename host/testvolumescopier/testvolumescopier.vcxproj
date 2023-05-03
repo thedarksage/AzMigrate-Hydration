@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{F6B056F3-1135-430A-AF15-AE543BC77824}</ProjectGuid>
+    <RootNamespace>testvolumescopier</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <SpectreMitigation>Spectre</SpectreMitigation>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="..\win-rules.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="..\win-rules.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="..\win-rules.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="..\win-rules.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>12.0.21005.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>Debug\</OutDir>
+    <IntDir>Debug\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+    <GenerateManifest>false</GenerateManifest>
+    <EmbedManifest>false</EmbedManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>Release\</OutDir>
+    <IntDir>Release\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+    <GenerateManifest>false</GenerateManifest>
+    <EmbedManifest>false</EmbedManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\common;..\inmsafeint;..\inmsafeint\win;..\inmsafecapis;..\inmsafecapis\win;..\common\win32;..\log;$(CURL_INCLUDES);$(CURL_PATH)\;$(ZLIB_INCLUDES);..\tal;..\;..\config;..\config\win;..\backups2lib\domain;..\s2libs\common;..\s2libs\foundation;..\s2libs\streams;..\s2libs\thread;..\devicefilter;..\devicefilter\win;..\drivers\InVolFlt\windows\Interface;..\drivers\Include\win32;$(ACE_INCLUDES);$(BOOST_INCLUDES);..\cdplibs;..\cdplibs\v1;..\cdplibs\v3;..\vsnaplib;..\vacplibs;..\validatesvdfile;..\conversionlib;..\cxtransportlib;..\cxpslib;..\fio;..\fio\win;..\npwwn;..\s2libs\foundation\win32;..\volumeinfocollector;..\volumeinfocollector\win32;..\simplelogger;..\simplelogger\win;..\zflate;..\listfile;..\listfile\win;..\errorexception;..\scopeguard;..\backups2lib;..\cdpapplylib;..\dplibs;$(SQLITE3X_INCLUDES);.\;.\domain;..\volumescopier;..\inmpipeline;$(SIGSLOT_INCLUDES);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SV_WINDOWS;_WIN32_WINNT=0x0502;WIN32;STRICT;_DEBUG;_CONSOLE;WIN32_LEAN_AND_MEAN;ACE_AS_STATIC_LIBS;_LARGEFILE_SOURCE=1;_LARGEFILE64_SOURCE=1;_FILE_OFFSET_BITS=64;CURL_STATICLIB;SV_USES_LONGPATHS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader />
+      <BrowseInformation>true</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>imagehlp.lib;Ws2_32.lib;winmm.lib;libssl.lib;libcrypto.lib;version.lib;odbc32.lib;odbccp32.lib;wininet.lib;dbghelp.lib;ACEsd.lib;sqlite3x.lib;sqlite.lib;psapi.lib;zlib.lib;libcurl.lib;Iphlpapi.lib;inm_md5.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)testvolumescopier.exe</OutputFile>
+      <AdditionalLibraryDirectories>..\backups2lib\$(Configuration);..\cdpapplylib\$(Configuration);..\log\$(Configuration);..\s2libs\$(Configuration);$(ZLIB_LIB_DIR);..\config\$(Configuration);..\tal\$(Configuration);..\common\$(Configuration);$(OPENSSL_LIB_DIR_RELEASE);$(CURL_LIB_DIR_RELEASE);$(ACE_LIB_DIR);\$(Configuration);..\cdplibs\$(Configuration);$(SQLITE_LIB_DIR_DEBUG);..\vacplibs\$(Configuration);..\vsnaplib\$(Configuration);$(SQLITE3X_LIB_DIR_RELEASE);$(BOOST_LIB_DIR);$(INM_MD5_LIB_DIR_DEBUG);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)testvolumescopier.pdb</ProgramDatabaseFile>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapExports>true</MapExports>
+      <SubSystem>Console</SubSystem>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention />
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>..\common;..\inmsafeint;..\inmsafeint\win;..\inmsafecapis;..\inmsafecapis\win;..\common\win32;..\log;$(CURL_INCLUDES);$(CURL_PATH)\;$(ZLIB_INCLUDES);..\tal;..\;..\config;..\config\win;.\domain;..\s2libs\common;..\s2libs\foundation;..\s2libs\streams;..\s2libs\thread;..\devicefilter;..\devicefilter\win;..\drivers\InVolFlt\windows\Interface;..\drivers\Include\win32;$(ACE_INCLUDES);$(BOOST_INCLUDES);..\cdplibs;..\cdplibs\v1;..\cdplibs\v3;..\vsnaplib;..\vacplibs;..\validatesvdfile;..\conversionlib;..\cxtransportlib;..\cxpslib;..\fio;..\fio\win;..\npwwn;..\s2libs\foundation\win32;..\volumeinfocollector;..\volumeinfocollector\win32;..\simplelogger;..\simplelogger\win;..\zflate;..\listfile;..\listfile\win;..\errorexception;..\scopeguard;..\backups2lib;..\cdpapplylib;..\backups2lib\domain;..\dplibs;$(SQLITE3X_INCLUDES);.\;..\volumescopier;..\inmpipeline;$(SIGSLOT_INCLUDES);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SV_WINDOWS;WIN32;NDEBUG;_CONSOLE;_WIN32_WINNT=0x0502;WIN32_LEAN_AND_MEAN;ACE_AS_STATIC_LIBS;_LARGEFILE_SOURCE=1;_LARGEFILE64_SOURCE=1;_FILE_OFFSET_BITS=64;CURL_STATICLIB;SV_USES_LONGPATHS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>imagehlp.lib;Ws2_32.lib;winmm.lib;libssl.lib;libcrypto.lib;version.lib;odbc32.lib;odbccp32.lib;wininet.lib;dbghelp.lib;ACEs.lib;sqlite3x.lib;sqlite.lib;psapi.lib;zlib.lib;libcurl.lib;Iphlpapi.lib;inm_md5.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)testvolumescopier.exe</OutputFile>
+      <AdditionalLibraryDirectories>..\log\$(Configuration);..\s2libs\$(Configuration);$(ZLIB_LIB_DIR);..\config\$(Configuration);..\tal\$(Configuration);..\common\$(Configuration);$(OPENSSL_LIB_DIR_RELEASE);$(CURL_LIB_DIR_RELEASE);$(ACE_LIB_DIR);\$(Configuration);..\cdplibs\$(Configuration);$(SQLITE_LIB_DIR_RELEASE);..\vacplibs\$(Configuration);..\vsnaplib\$(Configuration);$(SQLITE3X_LIB_DIR_RELEASE);$(BOOST_LIB_DIR);$(INM_MD5_LIB_DIR_RELEASE);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapExports>true</MapExports>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention />
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\common;..\inmsafeint;..\inmsafeint\win;..\inmsafecapis;..\inmsafecapis\win;..\common\win32;..\log;$(CURL_INCLUDES);$(CURL_PATH)\;$(ZLIB_INCLUDES);..\tal;..\;..\config;..\config\win;..\backups2lib\domain;..\s2libs\common;..\s2libs\foundation;..\s2libs\streams;..\s2libs\thread;..\devicefilter;..\devicefilter\win;..\drivers\InVolFlt\windows\Interface;..\drivers\Include\win32;$(ACE_INCLUDES);$(BOOST_INCLUDES);..\cdplibs;..\cdplibs\v1;..\cdplibs\v3;..\vsnaplib;..\vacplibs;..\validatesvdfile;..\conversionlib;..\cxtransportlib;..\cxpslib;..\fio;..\fio\win;..\npwwn;..\s2libs\foundation\win32;..\volumeinfocollector;..\volumeinfocollector\win32;..\simplelogger;..\simplelogger\win;..\zflate;..\listfile;..\listfile\win;..\errorexception;..\scopeguard;..\backups2lib;..\cdpapplylib;..\dplibs;$(SQLITE3X_INCLUDES);.\;.\domain;..\volumescopier;..\inmpipeline;$(SIGSLOT_INCLUDES);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SV_WINDOWS;_WIN32_WINNT=0x0502;WIN32;STRICT;_DEBUG;_CONSOLE;WIN32_LEAN_AND_MEAN;ACE_AS_STATIC_LIBS;_LARGEFILE_SOURCE=1;_LARGEFILE64_SOURCE=1;_FILE_OFFSET_BITS=64;CURL_STATICLIB;SV_USES_LONGPATHS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader />
+      <BrowseInformation>true</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>imagehlp.lib;Ws2_32.lib;winmm.lib;libssl.lib;libcrypto.lib;version.lib;odbc32.lib;odbccp32.lib;wininet.lib;dbghelp.lib;ACEsd.lib;sqlite3x.lib;sqlite.lib;psapi.lib;zlibd.lib;libcurl.lib;Iphlpapi.lib;inm_md5.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)testvolumescopier.exe</OutputFile>
+      <AdditionalLibraryDirectories>..\backups2lib\$(Configuration);..\cdpapplylib\$(Configuration);..\log\$(Configuration);..\s2libs\$(Configuration);$(ZLIB_LIB_DIR);..\config\$(Configuration);..\tal\$(Configuration);..\common\$(Configuration);$(OPENSSL_LIB_DIR_RELEASE);$(CURL_LIB_DIR_RELEASE);$(ACE_LIB_DIR);\$(Configuration);..\cdplibs\$(Configuration);$(SQLITE_LIB_DIR_RELEASE);..\vacplibs\$(Configuration);..\vsnaplib\$(Configuration);$(SQLITE3X_LIB_DIR_RELEASE);$(BOOST_LIB_DIR);$(INM_MD5_LIB_DIR_DEBUG);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)testvolumescopier.pdb</ProgramDatabaseFile>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapExports>true</MapExports>
+      <SubSystem>Console</SubSystem>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention />
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>..\common;..\inmsafeint;..\inmsafeint\win;..\inmsafecapis;..\inmsafecapis\win;..\common\win32;..\log;$(CURL_INCLUDES);$(CURL_PATH)\;$(ZLIB_INCLUDES);..\tal;..\;..\config;..\config\win;.\domain;..\s2libs\common;..\s2libs\foundation;..\s2libs\streams;..\s2libs\thread;..\devicefilter;..\devicefilter\win;..\drivers\InVolFlt\windows\Interface;..\drivers\Include\win32;$(ACE_INCLUDES);$(BOOST_INCLUDES);..\cdplibs;..\cdplibs\v1;..\cdplibs\v3;..\vsnaplib;..\vacplibs;..\validatesvdfile;..\conversionlib;..\cxtransportlib;..\cxpslib;..\fio;..\fio\win;..\npwwn;..\s2libs\foundation\win32;..\volumeinfocollector;..\volumeinfocollector\win32;..\simplelogger;..\simplelogger\win;..\zflate;..\listfile;..\listfile\win;..\errorexception;..\scopeguard;..\backups2lib;..\cdpapplylib;..\backups2lib\domain;..\dplibs;$(SQLITE3X_INCLUDES);.\;..\volumescopier;..\inmpipeline;$(SIGSLOT_INCLUDES);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SV_WINDOWS;WIN32;NDEBUG;_CONSOLE;_WIN32_WINNT=0x0502;WIN32_LEAN_AND_MEAN;ACE_AS_STATIC_LIBS;_LARGEFILE_SOURCE=1;_LARGEFILE64_SOURCE=1;_FILE_OFFSET_BITS=64;CURL_STATICLIB;SV_USES_LONGPATHS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>imagehlp.lib;Ws2_32.lib;winmm.lib;libssl.lib;libcrypto.lib;version.lib;odbc32.lib;odbccp32.lib;wininet.lib;dbghelp.lib;ACEs.lib;sqlite3x.lib;sqlite.lib;psapi.lib;zlib.lib;libcurl.lib;Iphlpapi.lib;inm_md5.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)testvolumescopier.exe</OutputFile>
+      <AdditionalLibraryDirectories>..\log\$(Configuration);..\s2libs\$(Configuration);$(ZLIB_LIB_DIR);..\config\$(Configuration);..\tal\$(Configuration);..\common\$(Configuration);$(OPENSSL_LIB_DIR_RELEASE);$(CURL_LIB_DIR_RELEASE);$(ACE_LIB_DIR);\$(Configuration);..\cdplibs\$(Configuration);$(SQLITE_LIB_DIR_RELEASE);..\vacplibs\$(Configuration);..\vsnaplib\$(Configuration);$(SQLITE3X_LIB_DIR_RELEASE);$(BOOST_LIB_DIR);$(INM_MD5_LIB_DIR_RELEASE);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapExports>true</MapExports>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention />
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="simplevolumescopierapp.cpp" />
+    <ClCompile Include="testvolumescopier.cpp" />
+    <ClCompile Include="unix\testvolumescopiermajor.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="win\testvolumescopiermajor.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="simplevolumescopierapp.h" />
+    <ClInclude Include="testvolumescopier.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\cdpapplylib\cdpapplylib.vcxproj">
+      <Project>{10ef2614-a9a6-4caf-90ac-5a8d978569c0}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\cdplibs\cdplibs.vcxproj">
+      <Project>{59e6f8b4-4dd0-49fb-a224-36b38f1a570e}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\common\hostagenthelpers.vcxproj">
+      <Project>{1c2786b8-492f-4c58-bec6-a57cfb95adbb}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\config\config.vcxproj">
+      <Project>{48330794-e280-45a0-9f16-69010ef753bb}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\conversionlib\conversionlib.vcxproj">
+      <Project>{6840a3a5-58d9-4327-8b1b-e2e969e886eb}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\curlwrapperlib\curlwrapperlib.vcxproj">
+      <Project>{92ba00c2-ef73-42d0-8e73-41013842520b}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\cxtransportlib\cxtransportlib.vcxproj">
+      <Project>{9e0ca837-3319-4025-b77f-a63401298aa5}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\deviceidinformer\deviceidinformer.vcxproj">
+      <Project>{001ca622-5f73-4817-9e65-4284507d46c8}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\disklayoutmgr\disklayoutmgr.vcxproj">
+      <Project>{3ff792f6-0390-4415-9757-a98bfa3ef0ac}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\diskpartwrapper\diskpartwrapper.vcxproj">
+      <Project>{3710ab83-8a71-4cb5-891a-9aef44a79558}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\inmpipeline\inmpipeline.vcxproj">
+      <Project>{2ee2a0bb-a245-4dc6-a7e7-bd2d0205ce94}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\log\Log.vcxproj">
+      <Project>{da7e75ec-e026-42d5-9315-7e52e8f5b34b}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\npwwn\npwwn.vcxproj">
+      <Project>{fa3d7d03-d8ba-4a16-9a90-e049673a43df}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\s2libs\s2libs.vcxproj">
+      <Project>{aae78f4c-6c2c-4cbc-bbe8-d3df90adcbf9}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\scsicommandissuer\scsicommandissuer.vcxproj">
+      <Project>{23184c97-9448-42fc-adbf-98151c633a08}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\securitylib\securitylib.vcxproj">
+      <Project>{620e652a-08c3-4514-baaa-8b9558d5942e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\tal\tal.vcxproj">
+      <Project>{46fa67f0-05d1-417a-9741-e98527323473}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\vacplibs\vacplibs.vcxproj">
+      <Project>{970c5dee-eaf2-47c0-b10b-a2c77d37d986}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\virtualvolumelib\virtualvolumelib.vcxproj">
+      <Project>{c69d3fbe-9ad2-4732-a70e-6c1d65c1581b}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\volumeinfocollector\volumeinfocollector.vcxproj">
+      <Project>{91b8db14-468e-4f21-8036-db87a6b7d9bf}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\volumescopier\volumescopier.vcxproj">
+      <Project>{826f5e56-c304-48d3-b82e-31df92a1a44a}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\vsnaplib\VsnapLib.vcxproj">
+      <Project>{e390f8a1-5841-44f1-99cf-e139f8b06c50}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

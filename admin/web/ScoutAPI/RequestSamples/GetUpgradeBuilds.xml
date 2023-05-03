@@ -1,0 +1,19 @@
+<Request Id="0007" Version="1.0">
+<Header>
+	<Authentication>  
+		<AccessKeyID>DDC9525FF275C104EFA1DFFD528BD0145F903CB1</AccessKeyID> 
+		<AccessSignature></AccessSignature>
+	</Authentication> 
+</Header> 
+<Body>
+<FunctionRequest Name="GetUpgradeBuilds"> 
+    <ParameterGroup Id="HostIPList"> 
+        <Parameter Name="LatestUpdatesOnly" Value="Yes/No" />   
+		<Parameter Name="HostIP1" Value="10.0.168.10" />
+        <Parameter Name="HostIP2" Value="10.0.168.20" />
+        <Parameter Name="HostIP3" Value="10.0.1.121" />
+     </ParameterGroup>
+
+</FunctionRequest> 
+</Body>
+</Request>

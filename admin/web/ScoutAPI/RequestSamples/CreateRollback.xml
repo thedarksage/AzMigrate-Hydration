@@ -1,0 +1,28 @@
+<Request Id="1" Version="1.0">
+<Header>
+  <Authentication>
+	<AccessKeyID>11F3242118FF2ADD5D117CBF216F29AC578F6BA6</AccessKeyID>
+	<AuthMethod>CXAuth</AuthMethod>
+	<CXUserName>admin</CXUserName>
+  </Authentication>
+</Header>
+<Body>
+  <FunctionRequest Name="CreateRollback">
+	<Parameter Name="RollbackPlanId" Value="5"/> <!-- Optional, Mandatory in case of retry rollback -->
+	<!-- Either ProtectionPlanId or Servers group to be recovered -->
+	<Parameter Name="ProtectionPlanId" Value="4"/> <!-- Optional, Mandatory in case of create rollback -->
+	<Parameter Name="RollbackPlanName" Value="RollbackPlan1"/> <!-- Optional -->
+	<Parameter Name="RecoveryPoint" Value="LatestTag"/> <!-- MultiVMLatestTag / LatestTag / LatestTime / Custom -->
+	<Parameter Name="TagName" Value="FileSystem54218783"/> <!-- Considered in case of Custom -->	
+	<ParameterGroup Id="Servers">
+		<ParameterGroup Id="Server1">
+			<Parameter Name="HostId" Value="F6284022-71CB-5E43-B69AF768614FF3DC" /> 
+			<Parameter Name="TagName" Value="FileSystem54218783" /> <!-- Optional if tag name is same across all the servers -->
+		</ParameterGroup>
+		<ParameterGroup Id="Server2">
+			<Parameter Name="HostId" Value="E6284022-71CB-5E43-B69AF768614FF3DC" />
+		</ParameterGroup>
+	</ParameterGroup>
+  </FunctionRequest>
+</Body>
+</Request>

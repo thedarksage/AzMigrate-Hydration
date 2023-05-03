@@ -1,0 +1,358 @@
+﻿<ns0:BasePageForWpfControls
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+    xmlns:ns0="clr-namespace:ASRSetupFramework;assembly=ASRSetupFramework"
+    xmlns:resx="clr-namespace:ASRResources;assembly=ASRResources"
+    x:Class="UnifiedSetup.ProxyConfigurationPage"
+    x:Uid="ns0:BasePageForWpfControls_1"
+    Height="415"
+    Width="685">
+
+    <Grid
+        x:Uid="Grid_1" Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition x:Uid="RowDefinition_1" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_2" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_3" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_4" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_5" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_6" Height="50" />
+            <RowDefinition x:Uid="RowDefinition_7" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_8" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_8" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_9" Height="30" />
+            <RowDefinition x:Uid="RowDefinition_10" Height="20" />
+            <RowDefinition x:Uid="RowDefinition_11" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_12" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_13" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_14" Height="11" />
+            <RowDefinition x:Uid="RowDefinition_15" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_16" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_17" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_18" Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition x:Uid="ColumnDefinition_1" MaxWidth="27" Width="27" />
+            <ColumnDefinition x:Uid="ColumnDefinition_2" Width="*" />
+            <ColumnDefinition x:Uid="ColumnDefinition_3" Width="32" />
+        </Grid.ColumnDefinitions>
+
+        <TextBlock
+            x:Uid="specifyproxy" 
+            Grid.Column="1"
+            Grid.Row="5"
+            TextWrapping="Wrap"
+            Text="{x:Static resx:StringResources.ProxyConfigurationPageSecondaryHeader}">
+        </TextBlock>
+        <StackPanel
+            Grid.Row="8"
+            Grid.Column="1"
+            Orientation="Horizontal">
+            <Image
+                x:Name="smallSuccessCheckImage"
+                x:Uid="smallSuccessCheckImage"
+                Height="16"
+                Margin="0,2,0,0"
+                VerticalAlignment="Top"
+                HorizontalAlignment="Left"
+                Visibility="Collapsed"
+                Source="pack://application:,,,/Resources/smallGreenCheck.png"
+                Width="16" 
+                AutomationProperties.Name="SuccessImage"/>
+            <Image
+                x:Name="smallErrorImage"
+                x:Uid="smallErrorImage"
+                Height="16"
+                Margin="0,2,0,0"
+                VerticalAlignment="Top"
+                HorizontalAlignment="Left"
+                Visibility="Collapsed"
+                Source="pack://application:,,,/Resources/smallError.png"
+                Width="16"
+                AutomationProperties.Name="ErrorImage"/>
+            <TextBlock
+                x:Name="internetStatus"
+                x:Uid="internetStatus"
+                Width="595"
+                VerticalAlignment="Top"
+                Margin="2,2,0,0"
+                FontWeight="Bold"
+                HorizontalAlignment="Left"
+                Text="{x:Static resx:StringResources.ClickNextToCheckConnectivity}">
+            </TextBlock>
+        </StackPanel>
+        <ProgressBar
+            x:Name="checkingConnectivity"
+            x:Uid="checkingConnectivity"
+            Grid.Row ="9"
+            Grid.Column="1"
+            IsIndeterminate="True"
+            Width="300"
+            HorizontalAlignment="Left"
+            Height="15"
+            Visibility="Hidden"/>
+        <GroupBox x:Name="grpBox" Grid.Row="10" Grid.Column="1" Grid.RowSpan="2" Grid.IsSharedSizeScope="True" BorderThickness="0" Margin="0,0,0,0">
+            <StackPanel x:Name="stcPanelProxy" Background="Transparent">
+                <Grid
+                x:Uid="Grid_radioButton"
+                    Margin="-6,0,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition x:Uid="RowDefinition_19" Height="20" />
+                        <RowDefinition x:Uid="RowDefinition_20" Height="15" />
+                    </Grid.RowDefinitions>
+                    <RadioButton
+                        x:Name="radioButtonBypassProxy"
+                        x:Uid="radioButtonBypassProxy"
+                        Checked="RadioButtonBypassProxyChanged"
+                        Unchecked="RadioButtonBypassProxyChanged"
+                        IsChecked="True"
+                        Grid.Row="0"
+                        Content="{x:Static resx:StringResources.ProxyConfigurationPageBypassProxy}">
+                    </RadioButton>
+                    <RadioButton
+                        x:Name="radioButtonProxyServer"
+                        x:Uid="radioButtonProxyServer"
+                        IsChecked="False"
+                        Checked="RadioButtonProxyServerChanged"
+                        Unchecked="RadioButtonProxyServerChanged"
+                        Grid.Row="1"
+                        Content="{x:Static resx:StringResources.ProxyConfigurationPageUseCustom}">
+                    </RadioButton>
+                </Grid>
+            </StackPanel>
+        </GroupBox>
+        <StackPanel
+            x:Name="customProxyStackPanel"
+            x:Uid="customProxyStackPanel"
+            Grid.Column="1"
+            Grid.Row="13"
+            HorizontalAlignment="Stretch"
+            Orientation="Horizontal"
+            Visibility="Hidden">
+            <Grid
+                x:Uid="Grid_2">
+                <Grid.RowDefinitions>
+                    <RowDefinition x:Uid="RowDefinition_20" Height="5" />
+                    <RowDefinition x:Uid="RowDefinition_21" Height="Auto" />
+                    <RowDefinition x:Uid="RowDefinition_22" Height="Auto" />
+                    <RowDefinition x:Uid="RowDefinition_23" Height="5" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition x:Uid="ColumnDefinition_4" Width="Auto" />
+                        <ColumnDefinition x:Uid="ColumnDefinition_5" Width="Auto" />
+                        <ColumnDefinition x:Uid="ColumnDefinition_6" Width="10" />
+                        <ColumnDefinition x:Uid="ColumnDefinition_7" Width="Auto" />
+                        <ColumnDefinition x:Uid="ColumnDefinition_8" Width="5" />
+                        <ColumnDefinition x:Uid="ColumnDefinition_9" Width="20" />
+                        <ColumnDefinition x:Uid="ColumnDefinition_10" Width="15" />
+                        <ColumnDefinition x:Uid="ColumnDefinition_11" Width="Auto" />
+                        <ColumnDefinition x:Uid="ColumnDefinition_12" Width="10" />
+                        <ColumnDefinition x:Uid="ColumnDefinition_13" Width="Auto" />
+                        <ColumnDefinition x:Uid="ColumnDefinition_14" Width="5" />
+                        <ColumnDefinition x:Uid="ColumnDefinition_15" Width="20" />
+                        <ColumnDefinition x:Uid="ColumnDefinition_16" Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Label
+                        x:Name="Label_1"
+                        x:Uid="Label_1"
+                        Content="{x:Static resx:StringResources.ProxyConfigurationPageCustomAddress}"
+                        Grid.Column="1"
+                        Grid.Row="1"
+                        Width="90"
+                        Target="{Binding ElementName=textBoxAddress}" />
+                    <TextBox
+                        x:Name="textBoxAddress"
+                        x:Uid="textBoxAddress"
+                        Grid.Column="3"
+                        Grid.Row="1"
+                        MaxLength="256"
+                        Width="180" />
+                    <Label
+                        x:Name="Label_2"
+                        x:Uid="Label_2"
+                        Content="{x:Static resx:StringResources.ProxyConfigurationPageCustomPort}"
+                        Grid.Column="7"
+                        Grid.Row="1"
+                        Width="90"
+                        Target="{Binding ElementName=textBoxPort}" />
+                    <TextBox
+                        x:Name="textBoxPort"
+                        x:Uid="textBoxPort"
+                        Grid.Column="9"
+                        Grid.Row="1"
+                        MaxLength="10"
+                        Width="180"
+                        HorizontalAlignment="Left"
+                        PreviewTextInput="TextBoxPort_PreviewTextInput"/>
+                    <Image
+                        x:Name="AddressErrorImage"
+                        x:Uid="AddressErrorImage"
+                        Height="20"
+                        Grid.Row="1"                    
+                        Grid.Column="5" 
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Visible"
+                        Source="pack://application:,,,/Resources/smallError.png"
+                        Width="16"/>
+                </Grid>
+
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition x:Uid="ColumnDefinition_17" Width="5" />
+                        <ColumnDefinition x:Uid="ColumnDefinition_18" Width="Auto" />
+                        <ColumnDefinition x:Uid="ColumnDefinition_19" Width="5" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock
+                        x:Name="AddressErrorTextblock"
+                        x:Uid="AddressErrorTextblock"              
+                        Grid.Column="1"
+                        TextWrapping="Wrap"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center"
+                        Visibility="Visible">
+                    </TextBlock>
+                </Grid>
+
+            </Grid>
+        </StackPanel>
+        <CheckBox
+            x:Name="checkBoxCredentials"
+            x:Uid="checkBoxCredentials"
+            Checked="CheckBoxCredentialsChanged"
+            Grid.Column="1"
+            Grid.Row="15"
+            Margin="5,0,0,0"
+            Visibility="Hidden"
+            HorizontalAlignment="Left"
+            Unchecked="CheckBoxCredentialsChanged"
+            Content="{x:Static resx:StringResources.ProxyConfigurationPageUseAuth}">
+        </CheckBox>
+        <StackPanel
+            x:Name="credentialStackPanel"
+            x:Uid="credentialStackPanel"
+            Grid.Column="1"
+            Grid.Row="17"
+            HorizontalAlignment="Stretch"
+            Orientation="Vertical"
+            Visibility="Collapsed">
+            <Grid
+                x:Uid="Grid_3">
+                <Grid.RowDefinitions>
+                    <RowDefinition x:Uid="RowDefinition_17" Height="5" />
+                    <RowDefinition x:Uid="RowDefinition_18" Height="Auto" />
+                    <RowDefinition x:Uid="RowDefinition_19" Height="10" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition x:Uid="ColumnDefinition_18" Width="Auto" />
+                    <ColumnDefinition x:Uid="ColumnDefinition_19" Width="Auto" />
+                    <ColumnDefinition x:Uid="ColumnDefinition_20" Width="10" />
+                    <ColumnDefinition x:Uid="ColumnDefinition_21" Width="Auto" />
+                    <ColumnDefinition x:Uid="ColumnDefinition_22" Width="5" />
+                    <ColumnDefinition x:Uid="ColumnDefinition_23" Width="20" />
+                    <ColumnDefinition x:Uid="ColumnDefinition_24" Width="15" />
+                    <ColumnDefinition x:Uid="ColumnDefinition_25" Width="Auto" />
+                    <ColumnDefinition x:Uid="ColumnDefinition_26" Width="10" />
+                    <ColumnDefinition x:Uid="ColumnDefinition_27" Width="Auto" />
+                    <ColumnDefinition x:Uid="ColumnDefinition_28" Width="5" />
+                    <ColumnDefinition x:Uid="ColumnDefinition_29" Width="20" />
+                    <ColumnDefinition x:Uid="ColumnDefinition_30" Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Label
+                    x:Name="Label_3"
+                    x:Uid="Label_3"
+                    Content="{x:Static resx:StringResources.ProxyConfigurationPageCustomUserName}"
+                    Grid.Column="1"
+                    Grid.Row="1"
+                    Width="90"
+                    Target="{Binding ElementName=textBoxUserName}" />
+                <TextBox
+                    x:Name="textBoxUserName"
+                    x:Uid="textBoxUserName"
+                    Grid.Column="3"
+                    Grid.Row="1"
+                    MaxLength="256"
+                    TextChanged="TextBox_UserNameChanged"
+                    Width="180"
+                    IsEnabled="False"/>
+                <Label
+                    x:Name="Label_4"
+                    x:Uid="Label_4"
+                    Content="{x:Static resx:StringResources.ProxyConfigurationPageCustomPassword}"
+                    Grid.Column="7"
+                    Grid.Row="1"
+                    Width="90"
+                    Target="{Binding ElementName=passwordBoxPassword}" />
+                <PasswordBox
+                    x:Name="passwordBoxPassword"
+                    x:Uid="passwordBoxPassword"
+                    Grid.Column="9"
+                    Grid.Row="1"
+                    MaxLength="256"
+                    PasswordChanged="PasswordBoxChanged"
+                    Width="180"
+                    IsEnabled="False" />
+            </Grid>
+        </StackPanel>
+        <StackPanel
+            x:Name="bypassProxyStackPanel"
+            x:Uid="bypassProxyStackPanel"
+            Grid.Column="1"
+            Grid.Row="18"
+            HorizontalAlignment="Stretch"
+            Orientation="Horizontal"
+            Visibility="Hidden">
+            <Grid
+                x:Uid="Grid_3">
+                <Grid.RowDefinitions>
+                    <RowDefinition x:Uid="RowDefinition_19" Height="5" />
+                    <RowDefinition x:Uid="RowDefinition_20" Height="Auto" />
+                    <RowDefinition x:Uid="RowDefinition_21" Height="Auto" />
+                    <RowDefinition x:Uid="RowDefinition_22" Height="Auto" />
+                    <RowDefinition x:Uid="RowDefinition_23" Height="Auto" />
+                    <RowDefinition x:Uid="RowDefinition_24" Height="Auto" />
+                    <RowDefinition x:Uid="RowDefinition_25" Height="5" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition x:Uid="ColumnDefinition_23" Width="Auto" />
+                    <ColumnDefinition x:Uid="ColumnDefinition_24" Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Label
+                    x:Name="Label_5"
+                    x:Uid="Label_5"
+                    Content="{x:Static resx:StringResources.ProxyConfigurationPageBypassProxyTitle}"
+                    Grid.Column="0"
+                    Grid.Row="1"
+                    Target="{Binding ElementName=textBypassProxy}" />
+                <TextBox
+                    x:Name="textBypassProxy"
+                    x:Uid="textBypassProxy"
+                    Grid.Column="0"
+                    Grid.Row="2"
+                    Margin="5,0,0,0"
+                    HorizontalAlignment="Left"
+                    Width="600"
+                    Height="40"
+                    TextWrapping="Wrap"
+                    IsEnabled="True"/>
+                <Label
+                    x:Name="Label_6"
+                    x:Uid="Label_6"
+                    Content="{x:Static resx:StringResources.ProxyConfigurationPageBypassProxyDisclaimer}"
+                    Grid.Column="0"
+                    Grid.Row="3" />
+                <StackPanel x:Name="bypassProxyRecommendationStackPanel" x:Uid="bypassProxyRecommendationStackPanel" Grid.Column="0" Grid.Row="5" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Stretch" Visibility="Hidden">
+                    <Label x:Name="Label_7" x:Uid="Label_7" Content="{x:Static resx:StringResources.ProxyConfigurationPageBypassProxyRecommendation}" Grid.Column="0" Grid.Row="0" />
+                    <TextBlock Name="txtBypassProxyLearnMore" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="1" Grid.Row="0">
+                        <Hyperlink x:Uid="Hyperlink_1" Foreground="#FF0066CC" NavigateUri="https://docs.microsoft.com/en-us/azure/site-recovery/vmware-azure-deploy-configuration-server#network-requirements" RequestNavigate="HandleRequestNavigate">
+                            <Run x:Uid="Run_1" Text="{x:Static resx:StringResources.LearnMore}" />
+                        </Hyperlink>
+                    </TextBlock>
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+    </Grid>
+</ns0:BasePageForWpfControls>

@@ -1,0 +1,13 @@
+<Request Id="0003" Version="1.0">
+<Header>
+  <Authentication>
+    <AccessKeyID>39F830AD9C46DE48B87EBE56F4C919D7C7E96CD9</AccessKeyID>
+    <AccessSignature>OTZhZWQ5NzUxNDNhNGUxMjViZTgwZTdhMTlhZmMzYmNiZTExNjNiZg==</AccessSignature>
+  </Authentication>
+</Header>
+<Body>
+  <FunctionRequest Name="GetHostByIP" Include="No">
+    <Parameter Name="HostIP" Value="192.168.15.25" />    
+   </FunctionRequest> 
+</Body>
+</Request>

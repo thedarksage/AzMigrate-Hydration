@@ -1,0 +1,122 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{166CD82C-2BC9-4B76-B2FC-CAE354B5972C}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>DataNotifyEventTests</RootNamespace>
+    <ProjectName>Microsoft.Test.Inmage.DataNotifyEventTests</ProjectName>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>false</UseOfMfc>
+    <SpectreMitigation>false</SpectreMitigation>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>false</UseOfMfc>
+    <SpectreMitigation>Spectre</SpectreMitigation>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\win-rules.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\win-rules.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\Microsoft.Test.Inmage.IoctlController;$(BOOST_INCLUDES);..\..\..\..\..\drivers\Include\win32;..\..\..\..\..\drivers\InVolFlt\windows\Interface;..\..\..\..\..\common\win32;..\..\..\..\common\Logger\win;..\..\..\..\common\Logger;..\..\..\..\common\InmageTestException\win;..\..\..\..\common\InmageTestException;..\..\..\..\common\PlatformAPIs\win;..\..\..\..\common\PlatformAPIs;..\..\..\..\common\BlockDevice\win;..\..\..\..\common\BlockDevice;..\..\..\..\..\inmsafecapis\win;..\..\..\..\..\inmsafecapis;..\..\..\..\..\common;..\..\..\..\common;..\Microsoft.Test.Inmage.ReplicationManager;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SV_WINDOWS;WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <UseFullPaths>true</UseFullPaths>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>..\Microsoft.Test.Inmage.IoctlController;$(BOOST_INCLUDES);..\..\..\..\..\drivers\Include\win32;..\..\..\..\..\drivers\InVolFlt\windows\Interface;..\..\..\..\..\common\win32;..\..\..\..\common\Logger\win;..\..\..\..\common\Logger;..\..\..\..\common\InmageTestException\win;..\..\..\..\common\InmageTestException;..\..\..\..\common\PlatformAPIs\win;..\..\..\..\common\PlatformAPIs;..\..\..\..\common\BlockDevice\win;..\..\..\..\common\BlockDevice;..\..\..\..\..\inmsafecapis\win;..\..\..\..\..\inmsafecapis;..\..\..\..\..\common;..\..\..\..\common;..\Microsoft.Test.Inmage.ReplicationManager;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SV_WINDOWS;WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <UseFullPaths>true</UseFullPaths>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="DataNotifyEventTests.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\common\BlockDevice\BlockDevice.vcxproj">
+      <Project>{64109230-6e25-4271-9d32-0d1b0190ad97}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\common\InmageTestException\InmageTestException.vcxproj">
+      <Project>{4b126509-a3af-411c-b97e-756f2e632ed7}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\common\Logger\Logger.vcxproj">
+      <Project>{052b4b0e-da28-4837-9f3c-6d51c8fd4bc0}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\common\PlatformAPIs\PlatformAPIs.vcxproj">
+      <Project>{ea88a4d7-3d8e-4fee-9183-ffc1e237ee81}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.Test.Inmage.IoctlController\Microsoft.Test.Inmage.IoctlController.vcxproj.vcxproj">
+      <Project>{f5902828-296f-4d0e-a551-1367593f615b}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

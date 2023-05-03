@@ -438,7 +438,7 @@ namespace NsVolumeAttributes
 
     const char SCSI_UUID[] = "scsi_uuid";  // SCSI UUID from page 83
 
-    const char IS_PART_OF_CLUSTER[] = "clustered"; //for clustered disk or volume identification
+    const char IS_PART_OF_CLUSTER[] = "clustered"; //for clustered disk or volume identification 
 };
 
 

@@ -701,8 +701,10 @@ public:
 
     /*windows failover cluster configurations*/
     void setClusterId(const std::string& hostId) const;
+    void setClusterName(const std::string& clusterName) const;
 
     std::string getClusterId() const;
+    std::string getClusterName() const;
 
 public:
     //

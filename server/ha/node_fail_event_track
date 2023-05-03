@@ -1,0 +1,98 @@
+#!/bin/sh
+#
+# nodentwd      This shell script takes care tracking the failover 
+#               reason and write to failover log
+
+# Processname:    node_fail_event_track 
+# Config:         None
+# Author:         kbhattacharya
+# Date:           8/19/2009
+#
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+base_dir="/home/svsystems"
+failover_log="/home/svsystems/var/ha_failover.log"
+ha_conf_file="/etc/ha.d/ha.cf"
+ha_host_name=`hostname`
+monitor_httpd=`service httpd status | grep stopped`
+monitor_mysqld=`service mysqld status | grep stopped`
+
+
+start(){
+    echo "=============================================" >> $failover_log 2>&1
+    for line in `grep node $ha_conf_file | awk '{print $2}'`
+    do
+        if [ "$line" != "$ha_host_name" ]; then
+
+            #
+            # Ping the other node to check if the host
+            # is reachable
+            #
+            if ! ping -q -c3 $line > /dev/null 2>&1 ; then
+	    date=`date`
+	    echo "$date:[$ha_host_name]: ping to $line failed ";
+                #
+                # Other node is not reachable.
+                # Get the ping node from ha.cf 
+                # 
+                ping_node=`grep ping $ha_conf_file | awk '{print $2}'`
+
+                if ! ping -q -c3 $ping_node > /dev/null 2>&1 ; then
+		date=`date`
+		echo "$date:[$ha_host_name]: There is a problem with network connectivity."
+		echo "$date:[$ha_host_name]: Neither ping node [$ping_node], nor other node is reachable [$line]"
+                    #
+                    # ping node is not reachable
+                    # So network outage 
+                    #
+                    echo "$date:[$ha_host_name]: There is a problem with network connectivity."  >> $failover_log 2>&1
+                    echo "$date:[$ha_host_name]: Neither ping node [$ping_node], nor other node is reachable [$line]"  >> $failover_log 2>&1
+                else
+		    date=`date`
+		    echo "$date:[$ha_host_name]: There is a problem with network connectivity of other node [$line]."
+		    echo "$date:[$ha_host_name]: Ping node $ping_node is reachable, but other node [$line] is not."
+                    #
+                    # problem with connectivity 
+                    # of other node
+                    #
+                    echo "$date:[$ha_host_name]: There is a problem with network connectivity of other node."  >> $failover_log 2>&1
+                    echo "$date:[$ha_host_name]: Ping node $ping_node is reachable, but other node [$line] is not."  >> $failover_log 2>&1
+                fi    
+            fi
+        fi     
+    done 
+    #if [ "$monitor_httpd" != "" ]; then
+        #
+        # Issue with the apache
+        #
+	#date=`date`
+        #echo "$date:[$ha_host_name]: httpd is not running"  >> $failover_log 2>&1
+        #if [ -f /var/log/httpd/error_log ]; then
+        #    echo "------ Apache Error Log Entry ------"  >> $failover_log 2>&1
+        #    tail -20 /var/log/httpd/error_log >> $failover_log 2>&1
+        #fi
+    #fi
+    if [ "$monitor_mysqld" != "" ]; then
+        #
+        # Issue with the mysql
+        #
+	date=`date`
+        echo "$date:[$ha_host_name]: mysqld is not running"  >> $failover_log 2>&1
+        if [ -f /var/log/mysqld.log ]; then
+            echo "------ MySQL Log Entry ------"  >> $failover_log 2>&1
+            tail -20 /var/log/mysqld.log >> $failover_log 2>&1
+        fi
+    fi
+
+    #if [ -f /var/log/messages ]
+    #then
+    #    echo "------ Messages Log Entry ------"  >> $failover_log 2>&1
+    #    tail -100 /var/log/messages | grep -E "heartbeat|mach_down|ResourceManager|IPaddr|shutdown" >> $failover_log 2>&1
+    #fi
+    #echo "=============================================" >> $failover_log 2>&1
+ 
+}
+
+start

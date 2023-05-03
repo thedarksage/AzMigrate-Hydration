@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>ASR_UA_$id$</id>
+    <version>$NugetVersion$</version>
+    <authors>Internal</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>ASR Mobility Agent</description>
+  </metadata>
+  <files>
+    <file src="$agentPath$" target="." />
+  </files>
+</package>

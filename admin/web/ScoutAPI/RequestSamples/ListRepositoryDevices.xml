@@ -1,0 +1,11 @@
+<Request Id="0011" Version="1.0">
+<Header>
+  <Authentication>
+    <AccessKeyID>39F830AD9C46DE48B87EBE56F4C919D7C7E96CD9</AccessKeyID>
+    <AccessSignature>Zjk1YzVhMzAyYzgyZDQ4MDJkZWEzMDY0MDYzYzM4NDQzZDZlNTYyOA==</AccessSignature>
+  </Authentication>
+</Header>
+<Body>
+  <FunctionRequest Name="ListRepositoryDevices" Include="No"/>
+</Body>
+</Request>

@@ -1,0 +1,145 @@
+# configs
+OBJ= 		vdev_proc_common.o	\
+		disk_btree_core.o 	\
+		vdev_mem_debug.o 	\
+		vdev_proc.o 		\
+		vsnap_common.o 		\
+		vdev_control_common.o 	\
+		vsnap_init.o 		\
+		vsnap_ioctl.o 		\
+		vsnap_kernel.o		\
+		vsnap_kernel_helpers.o	\
+		disk_btree_cache.o	\
+		vdev_thread.o		\
+		vdev_thread_common.o	\
+		vsnap_io_common.o	\
+		vsnap_io.o		\
+		vsnap_control.o		\
+		vv_control.o		\
+		vsnap_open.o		\
+		vdev_debug.o
+
+#OBJ=vdev_control_common.o
+
+MODULE=linvsnap
+OS := $(shell uname)
+ARCH := $(shell uname -p)
+CURRENT_DIR := $(shell pwd)
+
+# AIX
+ifeq ($(OS), AIX)
+CC=cc
+
+OBJ += 	vdev_soft_state.o	\
+	vdev_logger.o
+
+# for gcc
+#CFLAGS += -maix64 -D_AIX_ -Wall -Wstrict-prototypes -Winline -D_KERNEL
+#CFLAGS += -D_MSGQSUPPORT
+
+CFLAGS += -D_AIX_ -q64 -qcpluscmt -qlanglvl=extc89 -qkeyword=inline -qlist -qsource
+CFLAGS += -D_KERNEL -DIBMR2 -D_INM_LOGGER_ -D__INM_KERNEL_DRIVERS__ -I./../../../inmsafecapis/unix
+
+ifeq (yes, $(debug))
+        CFLAGS += -D_VSNAP_DEBUG_ -DEBUG
+#	CFLAGS += -g3 # enable vsnap debugging
+
+else
+        ifeq (dev, $(debug))
+                CFLAGS += -D_VSNAP_DEBUG_         # vsnap debugging
+                CFLAGS += -D_VSNAP_DEV_DEBUG_     # debugging for dev
+		CFLAGS += -DEBUG
+#		CFLAGS += -g3
+        else
+                CFLAGS += -O3                     # on all optimizations
+	endif
+endif # debug=yes
+
+LD=/usr/bin/ld
+LDFLAGS=-b64 -e vdev_config -bI:/usr/lib/kernex.exp -lsys -lcsys -bmap:linvsnap.map
+AR=/usr/bin/ar
+ARFLAGS=-X64 -r -c
+
+COMPILE_OBJ=$(CC) $(CFLAGS) -c
+COMPILE_EXP=$(CC) $(CFLAGS) -o $@ -E
+LINK=$(LD) $(LDFLAGS) -o $(MODULE)64 $(OBJ)
+ARCHIVE=$(AR) $(ARFLAGS) $(MODULE) $(MODULE)64
+
+
+LN=ld ar
+
+endif #AIX
+
+
+# Dont modify below here
+EXP := $(OBJ:.o=.e)
+
+# color coding
+NO_COLOR=[0m
+CRLNK_COLOR=[0m[01;32m
+CC_COLOR=[0m[01;32m
+WARN_COLOR=[0m[01;33m
+ERROR_COLOR=[0m[01;31m
+LINENO_COLOR=[0m[01;36m
+SYM_COLOR=[0m[01;35m
+FILE_COLOR=[0m[01;34m
+RM_COLOR=[0m[01;32m
+
+COLOR_SED=2>&1 | sed 's/[[:alnum:]*/*[[:alnum:]_]*\.[ch]\:/$(FILE_COLOR)&$(NO_COLOR)/g'
+COLOR_SED += | sed 's/[0-9][0-9]*[,\:]/$(LINENO_COLOR)&$(NO_COLOR)/g'
+COLOR_SED += | sed 's/warning:/$(WARN_COLOR)&$(NO_COLOR)/'
+COLOR_SED += | sed 's/error:/$(ERROR_COLOR)&$(NO_COLOR)/'
+COLOR_SED += | sed 's/^/$(NO_COLOR)/g'
+COLOR_SED += | sed "s/\(‘\)\([^‘]*\)\(’\)/‘$(SYM_COLOR)\2$(NO_COLOR)’/g"
+COLOR_SED += | sed "s/\('\)\([^']*\)\('\)/'$(SYM_COLOR)\2$(NO_COLOR)'/g"
+
+CMN_STRING=$(CRLNK_COLOR)[SETUP]$(NO_COLOR) Common Files
+CC_STRING=$(CC_COLOR)[CC]$(NO_COLOR)
+LN_STRING=$(CC_COLOR)[LN]$(NO_COLOR)
+AR_STRING=$(CC_COLOR)[AR]$(NO_COLOR)
+ERROR_STRING=$(ERROR_COLOR)
+CLEANOBJ_STRING=$(RM_COLOR)[CLEANUP]$(NO_COLOR) $(OBJ)
+CLEANLNK_STRING=$(RM_COLOR)[CLEANUP]$(NO_COLOR) Common Files
+CLEANEXE_STRING=$(RM_COLOR)[CLEANUP]$(NO_COLOR) $(DIR)
+MKDIR_STRING=$(CC_COLOR)[MKDIR]$(NO_COLOR)
+
+
+# LABEL_CC=@echo "$(CC_STRING)" 		$@ "$(ERROR_STRING)";
+LABEL_CMN=@echo "	$(CMN_STRING)";
+LABEL_CC=@echo "	$(CC_STRING)" 		$@;
+LABEL_LN=@echo "	$(LN_STRING)" 		$(MODULE) "$(ERROR_STRING)";
+LABEL_AR=@echo "	$(AR_STRING)" 		$(MODULE) "$(ERROR_STRING)";
+LABEL_NOCOLOR=@echo "$(NO_COLOR)";
+LABEL_CLEANOBJ=@echo "	$(CLEANOBJ_STRING)";
+LABEL_CLEANCMN=@echo "	$(CLEANLNK_STRING)";
+LABEL_CLEANEXE=@echo "	$(CLEANEXE_STRING)";
+LABEL_MKDIR=@echo "	$(MKDIR_STRING) $(DIR)"
+
+all:	$(OBJ) $(LN) reset
+	${LABEL_NOCOLOR}
+
+reset:
+	${LABEL_NOCOLOR}
+
+expand: $(EXP)
+
+%.e : 	%.c
+	$(COMPILE_EXP) $< $(COLOR_SED)
+
+%.o : 	%.c
+	${LABEL_CC} $(COMPILE_OBJ) $< $(COLOR_SED)
+
+ld:
+	${LABEL_LN} $(LINK)
+
+ar:
+	${LABEL_AR} $(ARCHIVE)
+
+clean_obj:
+	${LABEL_CLEANOBJ} rm -f *.o *.lst
+
+# clean_links:
+# 	${LABEL_CLEANCMN} find ../common -name "*.[ch]" | awk -F / '{print $$NF}' | xargs rm -f
+
+clean: 	clean_obj
+	${LABEL_CLEANEXE} rm -f $(MODULE)

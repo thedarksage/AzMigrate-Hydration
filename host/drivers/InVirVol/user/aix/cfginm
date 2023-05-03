@@ -1,0 +1,288 @@
+#!/bin/ksh
+
+export CFG_PATH=/home/chirag
+tmpfile=/tmp/file.$$
+logfile=/var/log/cfginm.log
+
+control="vsnapcontrol"
+
+export name=""
+export att=""
+
+>$tmpfile
+
+echo >> $logfile
+echo >> $logfile
+
+defexe=""
+cfgexe="/etc/methods/cfgscsidisk"
+chgexe="/etc/methods/chgdisk"
+ucfgexe=""
+undefexe="/etc/methods/undefine"
+
+devargs="$@"
+
+function log
+{
+	echo "$@" >> $logfile
+}
+
+#
+# Cleanup Function
+#
+# Args - None
+#
+function cleanup
+{
+
+$DBG
+rm -rf $tmpfile
+}
+
+#
+# Generate tmpfile with required attribute ODM entry. We try to guess the value
+# type and default to string if an unknown attribute needs to be set
+#
+# Args: $1 - Attribute Name
+#   $3 - Attribute Value
+#
+
+function genfile_Attribute
+{
+
+$DBG
+
+# Have a switch case here which determines the rep type of attr
+case "$1" in
+    *)  rep=s
+        ;;
+esac
+
+# We append CuAt eentries to already existing entries in file
+cat<< ABC >> $tmpfile
+CuAt:
+        name = "$name"
+        attribute = "$1"
+        value = "$2"
+        type = "R"
+        generic = "DU"
+        rep = "$rep"
+        nls_index = 0
+ABC
+
+}
+
+
+#
+# Adds Custom device entry for the given device
+#
+function define
+{
+
+$DBG
+
+cat << ABC > $tmpfile
+CuDv:
+        name = "$name"
+        status = 1
+        chgstatus = 1
+        ddins = "linvsnap"
+        location = ""
+        parent = ""
+        connwhere = ""
+        PdDvLn = "disk/vscsi/inmage"
+ABC
+
+if [ "$name" != "$control" ]
+then
+	for att in $attr
+	do
+		field=`echo $att | cut -f 1 -d "="`
+		value=`echo $att | cut -f 2 -d "="`
+
+		genfile_Attribute $field $value
+	done
+fi
+
+odmadd $tmpfile
+
+}
+
+function configure
+{
+$DBG
+$cfgexe $devargs
+}
+
+#
+# Change attributes of a device
+# We send it down to default change exe. If it does not honour
+# that request we add a custom attribute
+#
+function change
+{
+
+$DBG
+
+$chgexe $devargs > /dev/null 2>&1
+if [[ $? -eq 0 ]]
+then
+	log "chgdisk fulfilled request, returning"
+	return
+fi
+
+log "chgdisk failed, will add attrs on my own"
+
+for att in $attr
+do
+	field=`echo $att | cut -f 1 -d "="`
+	value=`echo $att | cut -f 2 -d "="`
+
+	genfile_Attribute $field $value
+
+	log `cat $tmpfile`
+
+	temp=`odmget -q "name=$name AND attribute=$field" CuAt`
+
+	if [ "$temp" = "" ]
+	then
+		log "no attribute $field, will add it"
+		odmadd $tmpfile
+	else
+		log "Changing"
+		odmchange -o CuAt -q "name=$name AND attribute=$field" $tmpfile
+	fi
+done
+}
+
+#
+# Function to undefine device. Basically cleanup the namespace and odm entries
+#
+function unconfigure
+{
+set -x
+#$ucfgexe $devargs
+
+odmget -q "name=$name" CuDv > $tmpfile
+
+grep -q status $tmpfile || {
+	log `unknown device`
+	exit -1
+}
+
+sed 's/status = 1/status = 0/' $tmpfile
+
+odmchange -o CuDv -q "name=$name" $tmpfile
+}
+
+function undefine
+{
+
+$DBG
+
+$undefexe $devargs
+
+attr=`odmget -q name=$name CuDv`
+if [[ $attr != "" ]]
+then
+	log "Deleting CuAt and CuDv entries"
+	odmdelete -o CuAt -q name=$name
+	odmdelete -o CuDv -q name=$name
+fi
+
+}
+
+#
+# Main Function ... basically find the functionaliry requested and call
+# appropriate function. We have a single file which does all device config
+# mgmt and the remaing are softlinks to it.
+#
+$DBG
+filename=`basename $0`
+
+while getopts :a:c:l:s:t: opt
+do
+	case $opt in
+		a)	log "Got attr $OPTARG"
+			attr="$attr $OPTARG"
+			;;
+
+		c)	if [ "$OPTARG" != "disk" ]
+			then
+				log "Device class should be \"disk\""
+				cleanup
+				exit -1
+			fi
+			;;
+
+		l)	if [ "$name" != "" ]
+			then
+				log "One device at a time"
+				cleanup
+				exit -1
+			fi
+			name="$OPTARG"
+			;;
+
+		s)	if [ "$OPTARG" != "vscsi" ]
+			then
+				log "Device subclass should be \"vscsi\""
+				cleanup
+				exit -1
+			fi
+			;;
+
+		t)	if [ "$OPTARG" != "inmage" ]
+			then
+				log "Device type should be \"inmage\""
+				cleanup
+				exit -1
+			fi
+			;;
+
+		:)	log "No argument for option - $OPTARG"
+			cleanup
+			exit -1
+			;;
+
+		?)	log "Unknown Option - $OPTARG"
+			cleanup
+			exit -1
+			;;
+	esac
+done
+
+if [ "$name" = "" ]
+then
+	log "No device name"
+	cleanup
+	exit -1
+fi
+
+log "name = $name"
+log "attr = $attr"
+
+case $filename in
+	definm)		log "Define device"
+			define
+			echo "$name"
+			;;
+
+	cfginm)		log "Configure device"
+			configure
+			;;
+
+	chginm)		log "Change Device Attributes"
+			change
+			;;
+
+	ucfginm)	log "Unconfigure device"
+			unconfigure
+			;;
+
+	undefinm)	log "Undefine device"
+			undefine
+			;;
+esac
+
+cleanup

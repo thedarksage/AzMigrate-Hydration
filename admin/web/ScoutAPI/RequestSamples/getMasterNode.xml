@@ -1,0 +1,11 @@
+<Request Id="0510" Version="1.0">
+<Header>
+  <Authentication>
+    <AccessKeyID>8A1681E612A2025087B703FDF1F8F617E506B053</AccessKeyID>
+    <AccessSignature>YTU5YzQxMGQyNDc0OGI5ZDhkMjZmYWNlNTRkNmNkYjE4MDgxNGEzNw==</AccessSignature>
+  </Authentication>
+</Header>
+<Body>
+  <FunctionRequest Name="getMasterNode" />
+</Body>
+</Request>

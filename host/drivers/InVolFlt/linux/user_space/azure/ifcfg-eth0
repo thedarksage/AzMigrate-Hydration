@@ -1,0 +1,10 @@
+DHCP_HOSTNAME=localhost
+DEVICE=eth0
+ONBOOT=yes
+DHCP=yes
+BOOTPROTO=dhcp
+TYPE=Ethernet
+USERCTL=no
+PEERDNS=yes
+IPV6INIT=no
+

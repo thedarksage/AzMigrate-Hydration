@@ -1,0 +1,9 @@
+host\EvtCollForw\Release\evtcollforw.pdb
+host\cxps\x64\Release\cxps.pdb
+host\cxpscli\x64\Release\cxpscli.pdb
+host\gencert\x64\Release\gencert.pdb
+server\ProcessServerCore\bin\Release\Microsoft.Azure.SiteRecovery.ProcessServer.Core.pdb
+server\windows\ProcessServer\bin\Release\ProcessServer.pdb
+server\windows\ProcessServerMonitor\bin\Release\ProcessServerMonitor.pdb
+server\windows\ProcessServerCustomActions\bin\Release\ProcessServerCustomActions.pdb
+server\windows\ProcessServerMSI\x64\bin\Release\ProcessServer.wixpdb

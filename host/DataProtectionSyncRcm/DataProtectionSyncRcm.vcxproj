@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{BE03B3F0-5F19-4F2B-8A13-DC1AEE197667}</ProjectGuid>
+    <RootNamespace>DataProtectionSyncRcm</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>DataProtectionSyncRcm</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+    <SpectreMitigation>Spectre</SpectreMitigation>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\win-rules.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\win-rules.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>Release\</OutDir>
+    <IntDir>Release\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>NCrypt.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <SDLCheck>
+      </SDLCheck>
+      <AdditionalIncludeDirectories>..\volumeinfocollector;..\volumeinfocollector\win32;..\dataprotectionCommon;..\AzureRcmLib;$(ESJSON_INCLUDES);..\genericprofiler;..\s2libs\foundation\win32;..\azureagentapi;..\azureagentapi\win;..\comconversion;..\errorexception;..\cxpslib;..\curlwrapperlib;$(OPENSSL_INCLUDES);..\ClusterCustomerResource\clustmon\;..\dplibs;..\common;..\inmsafeint;..\inmsafeint\win;..\securitylib;..\securitylib\win;..\inmsafecapis;..\inmsafecapis\win;..\common\win32;$(BOOST_INCLUDES);..\config;..\devicefilter;..\devicefilter\win;..\drivers\InVolFlt\windows\Interface;$(CURL_INCLUDES);..\s2libs\common;..\s2libs\foundation;..\s2libs\thread;..\s2libs\streams;..\s2libs;..\s2\domain;..\s2;..\tal;$(ACE_INCLUDES);..\drivers\Include\win32;$(SQLITE3X_INCLUDES);..\cdplibs;..\cdplibs\v1;..\cdplibs\v3;..\config\win;..\vsnaplib;..\drivers\Tests\win32\drvutil;$(ZLIB_INCLUDES);..\log;..\dataprotection;..\conversionlib;..\vacplibs;..\cxtransportlib;..\fio;..\fio\win;..\simplelogger;..\simplelogger\win;..\zflate;..\listfile;..\listfile\win;..\scopeguard;..\localdirectsynclib;..\inmpipeline;..\cdpapplylib;..\volumescopier;../volumeinfocollector;$(INM_MD5_INCLUDES);$(SIGSLOT_INCLUDES);..\CommitTagLib;..\AzureRecoveryLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <PreprocessorDefinitions>DP_SYNC_RCM;_WIN32_WINNT=0x0502;WIN32;NDEBUG;_CONSOLE;SV_WINDOWS;ACE_AS_STATIC_LIBS;_LARGEFILE_SOURCE=1;_LARGEFILE64_SOURCE=1;_FILE_OFFSET_BITS=64;CURL_STATICLIB;WIN32_LEAN_AND_MEAN;VSNAP_USER_MODE;SV_USES_LONGPATHS;BOOST_ASIO_DISABLE_IOCP=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader />
+      <BrowseInformation>true</BrowseInformation>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <OmitFramePointers>true</OmitFramePointers>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>..\securitylib\$(Configuration);..\AzureRcmLib\$(Configuration);$(ACE_LIB_DIR);..\dplibs\$(Configuration);..\s2libs\$(Configuration);..\config\$(Configuration);..\tal\$(Configuration);..\common\$(Configuration);$(OPENSSL_LIB_DIR_RELEASE);$(CURL_LIB_DIR_RELEASE);$(ZLIB_LIB_DIR);$(SQLITE_LIB_DIR_RELEASE);..\cdplibs\$(Configuration);..\vsnaplib\$(Configuration);$(SQLITE3X_LIB_DIR_RELEASE);$(BOOST_LIB_DIR);..\cdpapplylibRcm\$(Configuration);..\localdirectsynclib\$(Configuration);$(INM_MD5_LIB_DIR_RELEASE);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>WinHttp.lib;NCrypt.lib;Crypt32.lib;ACEs.lib;ResUtils.lib;ClusApi.lib;imagehlp.lib;zlib.lib;Ws2_32.lib;libcurl.lib;wininet.lib;winmm.lib;libssl.lib;libcrypto.lib;version.lib;ACEs.lib;sqlite3x.lib;sqlite.lib;psapi.lib;Iphlpapi.lib;inm_md5.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapExports>true</MapExports>
+      <SubSystem>Console</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <OutputFile>$(OutDir)DataProtectionSyncRcm.exe</OutputFile>
+      <AdditionalOptions>/IGNORE:4089 /DEBUGTYPE:CV,FIXUP  %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\thirdparty\boost\boost-build-win\boost-build-win.vcxproj">
+      <Project>{43491c14-304a-4660-bc4c-df0cb18f6b87}</Project>
+      <Private>true</Private>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
+    <ProjectReference Include="..\AzureADAuthProviderLib\AzureADAuthProviderLib.vcxproj">
+      <Project>{db17e4ec-f77e-47ea-a2df-c259459e43bd}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\azureagentapi\azureagentapi.vcxproj">
+      <Project>{4008e995-d123-4385-a57c-e1d4a4f6a875}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\AzureRcmLib\AzureRcmLib.vcxproj">
+      <Project>{1b31c199-948a-4e49-8be0-67d4ae3e5eb0}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\AzureRecoveryLib\AzureRecoveryLib.vcxproj">
+      <Project>{3844ec72-39a9-427f-8759-15b735791aae}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\cdpapplylibRcm\cdpapplylibRcm.vcxproj">
+      <Project>{a6a3e169-ba3f-4dc0-a11b-92db80d9eabe}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\cdplibs\cdplibs.vcxproj">
+      <Project>{59e6f8b4-4dd0-49fb-a224-36b38f1a570e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\common\hostagenthelpers.vcxproj">
+      <Project>{1c2786b8-492f-4c58-bec6-a57cfb95adbb}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\config\config.vcxproj">
+      <Project>{48330794-e280-45a0-9f16-69010ef753bb}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\conversionlib\conversionlib.vcxproj">
+      <Project>{6840a3a5-58d9-4327-8b1b-e2e969e886eb}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\curlwrapperlib\curlwrapperlib.vcxproj">
+      <Project>{92ba00c2-ef73-42d0-8e73-41013842520b}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\cxtransportlib\cxtransportlib.vcxproj">
+      <Project>{9e0ca837-3319-4025-b77f-a63401298aa5}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\deviceidinformer\deviceidinformer.vcxproj">
+      <Project>{001ca622-5f73-4817-9e65-4284507d46c8}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\disklayoutmgr\disklayoutmgr.vcxproj">
+      <Project>{3ff792f6-0390-4415-9757-a98bfa3ef0ac}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\diskpartwrapper\diskpartwrapper.vcxproj">
+      <Project>{3710ab83-8a71-4cb5-891a-9aef44a79558}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\dplibs\dplibs.vcxproj">
+      <Project>{a3af0fad-b10f-4153-986b-933cda30d8e8}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\genericprofiler\genericprofiler.vcxproj">
+      <Project>{eb48111b-261b-401c-a4c9-c3923e5c72a6}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\inmpipeline\inmpipeline.vcxproj">
+      <Project>{2ee2a0bb-a245-4dc6-a7e7-bd2d0205ce94}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\log\Log.vcxproj">
+      <Project>{da7e75ec-e026-42d5-9315-7e52e8f5b34b}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\npwwn\npwwn.vcxproj">
+      <Project>{fa3d7d03-d8ba-4a16-9a90-e049673a43df}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\s2libs\s2libs.vcxproj">
+      <Project>{aae78f4c-6c2c-4cbc-bbe8-d3df90adcbf9}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\scsicommandissuer\scsicommandissuer.vcxproj">
+      <Project>{23184c97-9448-42fc-adbf-98151c633a08}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\securitylib\securitylib.vcxproj">
+      <Project>{620e652a-08c3-4514-baaa-8b9558d5942e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\simplelogger\simplelogger.vcxproj">
+      <Project>{06cca603-9558-4cd7-82f3-817e089eacd6}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\tal\tal.vcxproj">
+      <Project>{46fa67f0-05d1-417a-9741-e98527323473}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\vacplibs\vacplibs.vcxproj">
+      <Project>{970c5dee-eaf2-47c0-b10b-a2c77d37d986}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\volumeinfocollector\volumeinfocollector.vcxproj">
+      <Project>{91b8db14-468e-4f21-8036-db87a6b7d9bf}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\volumescopier\volumescopier.vcxproj">
+      <Project>{826f5e56-c304-48d3-b82e-31df92a1a44a}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\vsnaplib\VsnapLib.vcxproj">
+      <Project>{e390f8a1-5841-44f1-99cf-e139f8b06c50}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\ClusterCustomerResource\clustmon\cluster.cpp" />
+    <ClCompile Include="..\dataprotectionCommon\globalHealthCollator.cpp" />
+    <ClCompile Include="..\dataprotection\clustergen.cpp" />
+    <ClCompile Include="..\dataprotection\clusterparams.cpp" />
+    <ClCompile Include="..\dataprotection\fastsync.cpp" />
+    <ClCompile Include="..\dataprotection\fsclusterinfo.cpp" />
+    <ClCompile Include="..\dataprotection\hashcomparedata.cpp" />
+    <ClCompile Include="..\dataprotection\hcdgen.cpp" />
+    <ClCompile Include="..\dataprotection\hcdsend.cpp" />
+    <ClCompile Include="..\dataprotection\processcluster.cpp" />
+    <ClCompile Include="dataprotectionRcm.cpp" />
+    <ClCompile Include="fastsyncRcm.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="resyncRcmSettings.cpp" />
+    <ClCompile Include="resyncStateManager.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\ClusterCustomerResource\clustmon\cluster.h" />
+    <ClInclude Include="..\dataprotectionCommon\dataprotectionBase.h" />
+    <ClInclude Include="..\dataprotectionCommon\globalHealthCollator.h" />
+    <ClInclude Include="..\dataprotection\fastsync.h" />
+    <ClInclude Include="..\dataprotection\fsclusterinfo.h" />
+    <ClInclude Include="..\dataprotection\hashcomparedata.h" />
+    <ClInclude Include="..\dataprotection\hcdgen.h" />
+    <ClInclude Include="..\dataprotection\processcluster.h" />
+    <ClInclude Include="dataprotectionRcm.h" />
+    <ClInclude Include="dpRcmProgramargs.h" />
+    <ClInclude Include="fastsyncRcm.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="resyncRcmSettings.h" />
+    <ClInclude Include="resyncStateManager.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="DataProtectionSyncRcm.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

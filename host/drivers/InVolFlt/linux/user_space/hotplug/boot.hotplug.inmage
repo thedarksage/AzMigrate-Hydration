@@ -1,0 +1,38 @@
+#! /bin/sh
+#
+# /etc/init.d/boot.hotplug.inmage
+#
+### BEGIN INIT INFO
+# Provides:          boot.hotplug.inmage
+# Required-Start:    REQUIRED_SERVICE
+# Required-Stop:
+# Default-Start:     REQUIRED_LEVEL
+# Default-Stop:
+# Description:       Helps use InMage's hotplug script instead of system's
+### END INIT INFO
+
+. /etc/rc.status
+
+# to get max number of parallel fsck processes
+. /etc/sysconfig/boot
+
+	case "$1" in
+		  start)
+			grep -q "inmage=0" /proc/1/environ || sysctl -w kernel.hotplug="/etc/init.d/inm_hotplug"
+		        ;;
+		   stop)
+			sysctl -w kernel.hotplug="/sbin/hotplug"
+		        ;;
+		   restart)
+			grep -q "inmage=0" /proc/1/environ || sysctl -w kernel.hotplug="/etc/init.d/inm_hotplug"
+		        ;;
+		    status)
+			sysctl kernel.hotplug
+		        ;;
+		    *)
+		   	 echo "Usage: $0 {start|stop|status|restart}"
+			 exit 1
+		 ;;
+	 esac 
+
+rc_exit

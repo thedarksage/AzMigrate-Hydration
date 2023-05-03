@@ -1,0 +1,245 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{10EF2614-A9A6-4CAF-90AC-5A8D978569C0}</ProjectGuid>
+    <RootNamespace>cdpapplylib</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <SpectreMitigation>Spectre</SpectreMitigation>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="..\win-rules.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="..\win-rules.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="..\win-rules.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="..\win-rules.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>12.0.21005.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>Debug\</OutDir>
+    <IntDir>Debug\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>Release\</OutDir>
+    <IntDir>Release\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\volumeinfocollector;..\volumeinfocollector\win32;$(ESJSON_INCLUDES);..\genericprofiler;..\errorexception;..\cxpslib;..\curlwrapperlib;$(OPENSSL_INCLUDES);..\ClusterCustomerResource\clustmon\;..\dplibs;..\common;..\inmsafeint;..\inmsafeint\win;..\inmsafecapis;..\inmsafecapis\win;..\securitylib;..\securitylib\win;..\common\win32;$(BOOST_INCLUDES);..\config;..\devicefilter;..\devicefilter\win;..\drivers\InVolFlt\windows\Interface;$(CURL_INCLUDES);..\s2libs\common;..\s2libs\foundation\win32;..\s2libs\foundation;..\s2libs\thread;..\s2libs\streams;..\s2libs;..\s2\domain;..\tal;$(ACE_INCLUDES);..\drivers\Include\win32;$(SQLITE3X_INCLUDES);..\cdplibs;..\cdplibs\v1;..\cdplibs\v3;..\config\win;..\vsnaplib;..\drivers\Tests\win32\drvutil;$(ZLIB_INCLUDES);..\log;..\conversionlib;..\vacplibs;..\cxtransportlib;..\fio;..\fio\win;..\simplelogger;..\simplelogger\win;..\zflate;..\listfile;..\listfile\win;..\scopeguard;..\localdirectsynclib;..\cdpapplylib\win;..\cdpapplylib;$(INM_MD5_INCLUDES);$(SIGSLOT_INCLUDES);..\azureagentapi;..\azureagentapi\win;..\volumeinfocollector;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_WIN32_WINNT=0x0502;WIN32;NDEBUG;_CONSOLE;SV_WINDOWS;ACE_AS_STATIC_LIBS;_LARGEFILE_SOURCE=1;_LARGEFILE64_SOURCE=1;_FILE_OFFSET_BITS=64;CURL_STATICLIB;WIN32_LEAN_AND_MEAN;VSNAP_USER_MODE;SV_USES_LONGPATHS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader />
+      <ProgramDataBaseFileName>$(IntDir)cdpapplylib.pdb</ProgramDataBaseFileName>
+      <BrowseInformation>true</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(ESJSON_INCLUDES);..\genericprofiler;..\ClusterCustomerResource\clustmon\;..\dplibs;..\common;..\inmsafeint;..\inmsafeint\win;..\inmsafecapis;..\inmsafecapis\win;..\securitylib;..\securitylib\win;..\common\win32;$(BOOST_INCLUDES);..\config;..\devicefilter;..\devicefilter\win;..\drivers\InVolFlt\windows\Interface;$(CURL_INCLUDES);..\s2libs\common;..\s2libs\foundation;..\s2libs\thread;..\s2libs\streams;..\s2libs;..\s2\domain;..\tal;$(ACE_INCLUDES);..\drivers\Include\win32;$(SQLITE3X_INCLUDES);..\cdplibs;..\cdplibs\v1;..\cdplibs\v3;..\config\win;..\vsnaplib;..\drivers\Tests\win32\drvutil;$(ZLIB_INCLUDES);..\log;..\conversionlib;..\vacplibs;..\cxtransportlib;..\cxpslib;..\fio;..\fio\win;..\simplelogger;..\simplelogger\win;..\zflate;..\listfile;..\listfile\win;..\errorexception;..\scopeguard;..\localdirectsynclib;..\cdpapplylib\win;..\cdpapplylib;$(INM_MD5_INCLUDES);$(SIGSLOT_INCLUDES);..\azureagentapi;..\azureagentapi\win;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_WIN32_WINNT=0x0502;WIN32;NDEBUG;_CONSOLE;SV_WINDOWS;ACE_AS_STATIC_LIBS;_LARGEFILE_SOURCE=1;_LARGEFILE64_SOURCE=1;_FILE_OFFSET_BITS=64;CURL_STATICLIB;WIN32_LEAN_AND_MEAN;VSNAP_USER_MODE;SV_USES_LONGPATHS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader />
+      <ProgramDataBaseFileName>$(IntDir)cdpapplylib.pdb</ProgramDataBaseFileName>
+      <BrowseInformation>true</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>..\volumeinfocollector;..\volumeinfocollector\win32;$(ESJSON_INCLUDES);..\genericprofiler;..\errorexception;..\cxpslib;..\curlwrapperlib;$(OPENSSL_INCLUDES);..\ClusterCustomerResource\clustmon\;..\dplibs;..\common;..\inmsafeint;..\inmsafeint\win;..\inmsafecapis;..\inmsafecapis\win;..\securitylib;..\securitylib\win;..\common\win32;$(BOOST_INCLUDES);..\config;..\devicefilter;..\devicefilter\win;..\drivers\InVolFlt\windows\Interface;$(CURL_INCLUDES);..\s2libs\common;..\s2libs\foundation;..\s2libs\foundation\win32;..\s2libs\thread;..\s2libs\streams;..\s2libs;..\s2\domain;..\tal;$(ACE_INCLUDES);..\drivers\Include\win32;$(SQLITE3X_INCLUDES);..\cdplibs;..\cdplibs\v1;..\cdplibs\v3;..\config\win;..\vsnaplib;..\drivers\Tests\win32\drvutil;$(ZLIB_INCLUDES);..\log;..\conversionlib;..\vacplibs;..\cxtransportlib;..\fio;..\fio\win;..\simplelogger;..\simplelogger\win;..\zflate;..\listfile;..\listfile\win;..\scopeguard;..\localdirectsynclib;..\cdpapplylib;..\cdpapplylib\win;$(INM_MD5_INCLUDES);$(SIGSLOT_INCLUDES);..\azureagentapi;..\azureagentapi\win;..\volumeinfocollector;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>ACE_AS_STATIC_LIBS;_WIN32_WINNT=0x0502;WIN32;NDEBUG;_CONSOLE;SV_WINDOWS;_LARGEFILE_SOURCE=1;_LARGEFILE64_SOURCE=1;_FILE_OFFSET_BITS=64;CURL_STATICLIB;WIN32_LEAN_AND_MEAN;VSNAP_USER_MODE;SV_USES_LONGPATHS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader />
+      <ProgramDataBaseFileName>$(IntDir)cdpapply.pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Lib>
+      <AdditionalDependencies>ACEs.lib</AdditionalDependencies>
+    </Lib>
+    <Lib>
+      <AdditionalLibraryDirectories>$(ACE_LIB_DIR)</AdditionalLibraryDirectories>
+    </Lib>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>$(ESJSON_INCLUDES);..\genericprofiler;..\ClusterCustomerResource\clustmon\;..\dplibs;..\common;..\inmsafeint;..\inmsafeint\win;..\inmsafecapis;..\inmsafecapis\win;..\securitylib;..\securitylib\win;..\common\win32;$(BOOST_INCLUDES);..\config;..\devicefilter;..\devicefilter\win;..\drivers\InVolFlt\windows\Interface;$(CURL_INCLUDES);..\s2libs\common;..\s2libs\foundation;..\s2libs\thread;..\s2libs\streams;..\s2libs;..\s2\domain;..\tal;$(ACE_INCLUDES);..\drivers\Include\win32;$(SQLITE3X_INCLUDES);..\cdplibs;..\cdplibs\v1;..\cdplibs\v3;..\config\win;..\vsnaplib;..\drivers\Tests\win32\drvutil;$(ZLIB_INCLUDES);..\log;..\conversionlib;..\vacplibs;..\cxtransportlib;..\cxpslib;..\fio;..\fio\win;..\simplelogger;..\simplelogger\win;..\zflate;..\listfile;..\listfile\win;..\errorexception;..\scopeguard;..\localdirectsynclib;..\cdpapplylib;..\cdpapplylib\win;$(INM_MD5_INCLUDES);$(SIGSLOT_INCLUDES);..\azureagentapi;..\azureagentapi\win;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_WIN32_WINNT=0x0502;WIN32;NDEBUG;_CONSOLE;SV_WINDOWS;ACE_AS_STATIC_LIBS;_LARGEFILE_SOURCE=1;_LARGEFILE64_SOURCE=1;_FILE_OFFSET_BITS=64;CURL_STATICLIB;WIN32_LEAN_AND_MEAN;VSNAP_USER_MODE;SV_USES_LONGPATHS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader />
+      <ProgramDataBaseFileName>$(IntDir)cdpapply.pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="cdpapply.cpp" />
+    <ClCompile Include="cdpresyncapply.cpp" />
+    <ClCompile Include="cdptargetapply.cpp" />
+    <ClCompile Include="cdpv2writer.cpp" />
+    <ClCompile Include="dataprotectionsync.cpp" />
+    <ClCompile Include="dataprotectionutils.cpp" />
+    <ClCompile Include="differentialsync.cpp" />
+    <ClCompile Include="diffinfo.cpp" />
+    <ClCompile Include="diffsortcriterion.cpp" />
+    <ClCompile Include="dpdrivercomm.cpp" />
+    <ClCompile Include="groupinfo.cpp" />
+    <ClCompile Include="programargs.cpp" />
+    <ClCompile Include="retentionvolumeapplier.cpp" />
+    <ClCompile Include="svproactor.cpp" />
+    <ClCompile Include="volumeinfo.cpp" />
+    <ClCompile Include="aix\dataprotectionsyncminor.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="linux\dataprotectionsyncminor.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="sun\dataprotectionsyncminor.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="win\dataprotectionsyncmajor.cpp" />
+    <ClCompile Include="win\svproactormajor.cpp" />
+    <ClCompile Include="unix\dpdrivercomm.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="unix\svproactormajor.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ApplyException.h" />
+    <ClInclude Include="cdpapply.h" />
+    <ClInclude Include="cdpresyncapply.h" />
+    <ClInclude Include="cdptargetapply.h" />
+    <ClInclude Include="cdpv2writer.h" />
+    <ClInclude Include="dataprotectionexception.h" />
+    <ClInclude Include="dataprotectionsync.h" />
+    <ClInclude Include="dataprotectionutils.h" />
+    <ClInclude Include="differentialsync.h" />
+    <ClInclude Include="diffinfo.h" />
+    <ClInclude Include="diffsortcriterion.h" />
+    <ClInclude Include="dpdrivercomm.h" />
+    <ClInclude Include="groupinfo.h" />
+    <ClInclude Include="programargs.h" />
+    <ClInclude Include="retentionvolumeapplier.h" />
+    <ClInclude Include="svproactor.h" />
+    <ClInclude Include="theconfigurator.h" />
+    <ClInclude Include="volumeinfo.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

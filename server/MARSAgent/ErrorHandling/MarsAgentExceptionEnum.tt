@@ -1,0 +1,16 @@
+﻿<#
+/*
+T4 templates are very sensitive to spacing. The overall layout typically looks odd, if the generated code is to be
+properly indented. Thus, nearly every source indent and blank line here (or lack thereof) are significant.
+Beware trailing whitespace in a line that ends a control block can cause a blank line to appear before the next line.
+*/
+#>
+<#@ template debug="true" hostspecific="false" language="C#" #>
+<#@ assembly name="System.IO" #>
+<#@ output extension="codegen.cs" #>
+<#@ include file="$(CodeGeneratorIncludeFolder)\ExceptionEnumGenerator.ttinclude" #>
+<#
+    string componentXmlFilePath = Path.Combine(
+    Directory.GetCurrentDirectory(), "MarsAgent", "ErrorHandling", "ExceptionComponents.xml");
+    CreateExceptionEnum("MarsAgent", componentXmlFilePath);
+#>

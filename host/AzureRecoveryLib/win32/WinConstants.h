@@ -100,6 +100,8 @@ namespace AzureRecovery
         const int MAX_STARTUP_SCRIPT_SEARCH_LIMIT = 1000;
 
         const char WIN2K8_VERSION_PREFIX[] = "6.0.";
+        const char WIN2K12_VERSION_PREFIX[] = "6.2";
+        const char WIN2K12R2_VERSION_PREFIX[] = "6.3.";
     }
 
     namespace ServiceNames
@@ -129,6 +131,7 @@ namespace AzureRecovery
         const char DOTNET_FRAMEWORK_PATH[] = "\\Windows\\Microsoft.NET\\Framework";
         const char WINDOWS_AZURE_DIR[] = "\\WindowsAzure";
         const char WIN_GA_DOTNET_VER[] = "4.0";
+        const char POWERSHELL_EXE_NAME[] = "powershell.exe";
     }
 }
 

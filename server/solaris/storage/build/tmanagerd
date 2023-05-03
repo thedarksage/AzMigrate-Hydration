@@ -1,0 +1,126 @@
+#!/bin/sh
+
+# Create Start links in runlevels 1, 2 & 3 (runlevel 5 is powerdown in solaris).
+# Create Kill links in runlevels 0,4,5 & 6.
+
+# export PATH variable
+PATH=/usr/sbin:/usr/bin:.:$PATH
+export PATH
+
+BASE_DIR="/home/svsystems"
+LOG_FILE="/home/svsystems/var/tmanager.log"
+
+stop_sampled()
+{
+	case `uname` in
+		SunOS)
+			if [ `uname -r` = "5.10" ] || [ `uname -r` = "5.11" ]; then
+				echo "Executing stop method"			
+				PROC_IDS=`ps -ef | grep "tmanager.pl" | grep -v 'grep' | awk '{print $2}' | tr "\n" " "`
+				if [ ! -z $PROC_IDS ]; then
+					/usr/bin/kill -9 $PROC_IDS	
+					RETVAL=$?
+				fi
+
+			else
+				echo >> ${LOG_FILE} 2>&1
+				echo `date` >> ${LOG_FILE} 2>&1
+				echo "Executing stop method"
+				PROC_IDS=`ps -ef | grep "tmanager.pl" | grep -v 'grep' | awk '{print $2}' | tr "\n" " "`
+				if [ ! -z $PROC_IDS ]; then
+					/usr/bin/kill -9 $PROC_IDS 
+					RETVAL=$?
+				fi
+			fi
+			;;
+		AIX)
+			echo "Executing stop method"
+			/usr/sbin/killall -9 tmanager.pl >> ${LOG_FILE} 2>&1 
+			RETVAL=$?
+			;;
+	esac
+}
+
+start()
+{
+	case `uname` in
+		SunOS)
+			if [ `uname -r` = "5.10" ] || [ `uname -r` = "5.11" ]; then
+				echo "Executing start method"
+				/usr/bin/perl ${BASE_DIR}/bin/tmanager.pl run_events & >> ${LOG_FILE} 2>&1	
+				RETVAL=$?
+				PROC_IDS=`ps -ef | grep "systemmonitor.pl" | grep -v 'grep' | awk '{print $2}' | tr "\n" " "`
+				if [ ! -z $PROC_IDS ]; then
+					/usr/bin/kill -9 $PROC_IDS 
+					RETVAL=$?
+				fi
+				/usr/bin/perl ${BASE_DIR}/bin/systemmonitor.pl & >> ${LOG_FILE} 2>&1	
+				RETVAL=$?
+			else
+				echo >> ${LOG_FILE} 2>&1
+				echo `date` >> ${LOG_FILE} 2>&1		
+				echo "Executing start method"
+				/usr/bin/perl ${BASE_DIR}/bin/tmanager.pl run_events & >> ${LOG_FILE} 2>&1
+				RETVAL=$?
+				PROC_IDS=`ps -ef | grep "systemmonitor.pl" | grep -v 'grep' | awk '{print $2}' | tr "\n" " "`
+				if [ ! -z $PROC_IDS ]; then
+					/usr/bin/kill -9 $PROC_IDS 
+					RETVAL=$?
+				fi
+				/usr/bin/perl ${BASE_DIR}/bin/systemmonitor.pl & >> ${LOG_FILE} 2>&1	
+				RETVAL=$?
+			fi
+			;;
+		AIX)
+			echo >> ${LOG_FILE} 2>&1
+			echo `date` >> ${LOG_FILE} 2>&1
+			echo "Executing start method"
+			/usr/bin/perl ${BASE_DIR}/bin/tmanager.pl run_events & >> ${LOG_FILE} 2>&1
+			RETVAL=$?
+			/usr/bin/perl ${BASE_DIR}/bin/systemmonitor.pl & >> ${LOG_FILE} 2>&1	
+			RETVAL=$?
+			;;
+	esac
+	exit $RETVAL
+}
+
+case "$1" in
+
+	start)
+		start
+		;;
+	stop)
+		stop_sampled
+		;;
+	status)
+		case `uname` in
+        		SunOS)
+		                PROC_PID=`ps -ef | grep "tmanager.pl" | grep -v 'grep' | awk '{print $2}' | tr "\n" " "`
+                		;;
+        		AIX)
+                		PROC_PID=`ps -ef | grep "tmanager.pl" | grep -v 'grep' | awk '{print $2}' | tr "\n" " "`
+                		;;
+		esac
+
+		if [ -z "${PROC_PID}" ]; then
+		    echo "storaged daemon is not running!"
+		    RET_PROC=1
+		else
+		    echo "storaged daemon  is running..."
+		    RET_PROC=0
+		fi
+		
+		exit $RET_PROC
+		;;
+
+	restart)
+		stop_sampled		
+		start
+		;;
+	*)
+		echo "Usage: $0 {start|stop|restart|status}"
+		exit 1
+		;;
+esac
+
+exit $RETVAL

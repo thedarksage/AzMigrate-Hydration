@@ -1,0 +1,17 @@
+<Request Id="0505" Version="1.0">
+<Header>
+  <Authentication>
+    <AccessKeyID>8A1681E612A2025087B703FDF1F8F617E506B053</AccessKeyID>
+    <AccessSignature>NmE4ZDIyZGNlOTE3YWYzNGZhMGJkOTlhMjM4ZjE0Y2E1MmM0ZWNkYQ==</AccessSignature>
+  </Authentication>
+</Header>
+<Body>
+  <FunctionRequest Name="resumeReplication">
+    <ParameterGroup Id="LunList">  
+      <Parameter Name="LunId1" Value="2000b080000002807"/>
+      <Parameter Name="LunId2" Value="2000b080000002806"/>
+      <Parameter Name="LunId3" Value="2000b080000002802"/>
+    </ParameterGroup>  
+  </FunctionRequest>
+</Body>
+</Request>

@@ -1,0 +1,22 @@
+<Request Id="1" Version="1.0">
+<Header>
+  <Authentication>
+	<AccessKeyID>11F3242118FF2ADD5D117CBF216F29AC578F6BA6</AccessKeyID>
+	<AuthMethod>CXAuth</AuthMethod>
+	<CXUserName>admin</CXUserName>
+  </Authentication>
+</Header>
+<Body> 
+  <FunctionRequest Name="RollbackReadinessCheck">
+	<Parameter Name="MutilVMSyncPoint" Value="Yes" /> <!-- Yes/No -->
+	<Parameter Name="RecoveryPoint" Value="LatestTag" /><!-- LatestTag/LatestTime/Custom -->
+	<Parameter Name="TagName" Value="FileSystem186573" /><!--TagName in case of custom -->
+    <!-- Either ProtectionPlanId or Servers to be specified -->
+    <Parameter Name="ProtectionPlanId" Value="3"/>
+	<ParameterGroup Id="Servers">
+		<Parameter Name="HostId1" Value="F6284022-71CB-5E43-B69AF768614FF3DC" /> 
+		<Parameter Name="HostId2" Value="E6284022-71CB-5E43-B69AF768614FF3DC" />
+	</ParameterGroup>
+  </FunctionRequest>
+</Body> 
+</Request>

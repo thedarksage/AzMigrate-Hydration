@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TestMap>
+  <TestJobGroup Name="PSUnitTests" TestSystem="Default" ConfigPath="[BuildRoot]\CloudTest\Config\PSUnitTestJobGroup.xml" IsActive="true"/>
+</TestMap>

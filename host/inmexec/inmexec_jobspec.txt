@@ -1,0 +1,70 @@
+# A line will be identified as comment if the line begins with a '#'
+
+[version]
+version=1.0
+
+#global prescript and post script, executed before and after all the commands are executed respectively.
+[global]
+prescript=
+postcript=
+
+#job is a command which will be executed independently. Multiple jobs run in parallel. 
+[job]
+
+#Optional entry, executed before the command is run
+prescript=
+
+#Optional entry, executed after the command is run
+postscript=
+
+#Mandatory entry, Please note that duoble quotes are not required for any of the arguments passed. Passing double quotes might result an error
+#in linux. If you intend to pass double quotes a space should be added before and after the double quotes
+command=C:\\Program Files (x86)\\InMage Systems\\cdpcli.exe --vsnap --op=mount --vsnappairs=R:\mount point 2,R:\vsnap_r1,;H:\jsw2k8sp2_1350667655\j_volpack2_virtualvolume,R:\vsnap1,; --recentcrashconsistentpoint --timerange=,2012/10/17 10:32:31:589:250:0
+
+#Optional, not used
+stdin=
+
+#Optional. The text output from the command executed is written to the file passed. If the file exists, the output is appended to end of file.
+#The output will be logged to stdout if the file is not passed
+stdout=C:\\stdout.txt
+
+#Optional. The errors logged from the command executed is written to the file passed. If the file exists, the output is appended to end of file.
+#The output will be logged to stderr if the file is not passed
+stderr=C:\\stderr.txt
+
+#Mandatory, this is where the job exit status is written
+# For each job executed, the status file will contain the status information in following format
+# <unique id>:<pre script exit status>:<command exit status>:<post script exit status>
+# example: 
+# cmd1:0:0:0
+exitstatusfile=C:\\status.txt
+
+#Mandatory, the id should be unique. 
+uniqueid=cmd1
+
+
+[job]
+prescript=
+postscript=
+
+#sample command for linux
+command==/usr/local/InMage/Vx/bin/cdpcli --vsnap --op=mount --vsnappairs=/dev/sda11,/home/vsnap1 space,,; /dev/sda8,/home/vsnap2,,; --recentcrashconsistentpoint --timerange=,2012/10/17 11:32:30:508:982:7
+
+stdin=
+stdout=/stdout1.txt
+stderr=/stderr1.txt
+exitstatusfile=C:\\status.txt
+uniqueid=cmd2
+
+[job]
+prescript=
+postscript=
+
+#sample command for linux with double quotes. Please note that a space is added before the double quotes
+command==/usr/local/InMage/Vx/bin/cdpcli --vsnap --op=mount --vsnappairs= "/dev/sda11,/home/vsnap1 space,,; /dev/sda8,/home/vsnap2,,;" --recentcrashconsistentpoint --timerange= ",2012/10/17 11:32:30:508:982:7"
+
+stdin=
+stdout=C:\\stdout2.txt
+stderr=C:\\stdout2.txt
+exitstatusfile=C:\\status.txt
+uniqueid=cmd3

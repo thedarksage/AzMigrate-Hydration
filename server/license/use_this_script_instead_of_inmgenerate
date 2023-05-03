@@ -1,0 +1,26 @@
+#!/bin/sh
+if [ ! -e inmgenerate ]; then
+	echo "Place the binary \"inmgenerate\" in this directory"
+	exit 0
+else
+	if [ -e /usr/lib/libcrypto.so.1.0.1 ]; then 
+
+		if [ -e output ]; then
+			./inmgenerate $@
+		else
+			mkdir output
+			./inmgenerate $@
+		fi		
+	else
+		cp libcrypto.so.1.0.1 /usr/lib/libcrypto.so.1.0.1
+		
+		if [ -e output ]; then
+			./inmgenerate $@
+		else
+			mkdir output
+			./inmgenerate $@
+		fi
+
+		rm /usr/lib/libcrypto.so.1.0.1
+	fi
+fi

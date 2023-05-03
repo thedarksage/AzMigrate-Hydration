@@ -1,0 +1,14 @@
+<Request Id="0066" Version="1.0">
+     <Header>
+      	<Authentication>
+		<AccessKeyID>39F830AD9C46DE48B87EBE56F4C919D7C7E96CD9</AccessKeyID>
+             		<AccessSignature>NjdmZmQ5ZTEzMDc0ZWQ1ODE0NDE3NmEzMTgwYzRlY2EzNzU4ZjgwYQ==</AccessSignature>
+        	</Authentication>
+     </Header>
+     <Body>
+	<FunctionRequest Name="ResumeProtectionBySystemGUID" Include="No">
+		<Parameter Name="SystemGUID" Value="77BC3384-071D-744D-9A61A7BD3588CCE6_INT " />
+			
+     	</FunctionRequest>
+     </Body>
+</Request>

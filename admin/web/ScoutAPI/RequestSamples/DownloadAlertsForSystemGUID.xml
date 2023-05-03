@@ -1,0 +1,14 @@
+<Request Id="0047" Version="1.0">
+<Header>
+  <Authentication>
+    <AccessKeyID>39F830AD9C46DE48B87EBE56F4C919D7C7E96CD9</AccessKeyID>
+    <AccessSignature>NjExMmE2YTczYjhlZTgyZWRkY2I2YjM0N2JkMjc2ZDI4NmJlMWQ0Yg==</AccessSignature>
+  </Authentication>
+</Header>
+<Body>
+  <FunctionRequest Name="DownloadAlertsForSystemGUID" Include="No" >  
+    <Parameter Name="Lastdownloadedtimestamp" Value="21-21-2010 10-20" />
+    <Parameter Name="SystemGUID" Value = "DDC9525FF275C104EFA1DFFD528BD0145F903CB1"/>
+  </FunctionRequest>
+</Body>
+</Request>

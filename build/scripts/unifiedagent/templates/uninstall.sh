@@ -319,7 +319,7 @@ elif [ "$VX_AGENT_FOUND" = "VX" ]; then
 fi
 
 # Specific to RHEL7 platform
-if [ "$OS" = "RHEL7-64" -o "$OS" = "RHEL8-64" ]; then 
+if [ "$OS" = "RHEL7-64" -o "$OS" = "RHEL8-64"  -o "$OS" = "RHEL9-64" ]; then 
     #We need to run the following command after all services including involflt and 
     #all the legacy sysv-init service like vxagent, svagent etc have been disabled/removed.
 

@@ -1,0 +1,24 @@
+---
+abstract: 'Get/set UTC file times with stat/utime on Win32'
+author:
+  - 'Steve Hay <shay@cpan.org>'
+build_requires:
+  Test::More: 0
+configure_requires:
+  ExtUtils::MakeMaker: 6.36
+distribution_type: module
+generated_by: 'Module::Install version 0.77'
+license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Win32-UTCFileTime
+no_index:
+  directory:
+    - inc
+    - t
+requires:
+  perl: 5.6.0
+resources:
+  license: http://dev.perl.org/licenses/
+version: 1.50

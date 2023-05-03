@@ -1,0 +1,170 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{B0406851-8F99-4FCF-BBB4-8A60F2C8B1EC}</ProjectGuid>
+    <Keyword>MakeFileProj</Keyword>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="..\win-rules.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="..\win-rules.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="..\win-rules.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="..\win-rules.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>12.0.21005.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>Debug\</OutDir>
+    <IntDir>Debug\</IntDir>
+    <NMakeBuildCommandLine>nmake -f Makefile debug</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>nmake -f Makefile clean_debug &amp;&amp; nmake -f Makefile debug</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>nmake -f Makefile clean_debug</NMakeCleanCommandLine>
+    <NMakeOutput />
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);..\AzureRecoveryLib;..\s2libs\thread;..\drivers\InVolFlt\windows\Interface;..\vacplibs;..\inmsafecapis\win;..\inmsafecapis;..\devicefilter;..\devicefilter\win;..\common;..\inmsafeint;$(OPENSSL_INCLUDES);..\cxpslib\win;..\errorexception;..\securitylib;..\securitylib\win;..;.;$(BOOST_INCLUDES);$(ACE_INCLUDES)</IncludePath>
+    <NMakeIncludeSearchPath>$(VC_IncludePath);$(WindowsSDK_IncludePath);..\AzureRcmLib;..\AzureADAuthProviderLib;..\s2libs\thread;..\drivers\InVolFlt\windows\Interface;..\vacplibs;..\inmsafecapis\win;..\inmsafecapis;..\devicefilter;..\devicefilter\win;..\common;..\inmsafeint;$(OPENSSL_INCLUDES);..\cxpslib\win;..\errorexception;..\securitylib;..\InMageVssProvider;..\securitylib\win;..;.;$(BOOST_INCLUDES);$(ACE_INCLUDES)</NMakeIncludeSearchPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <NMakeBuildCommandLine>nmake -f MakefileX64 debug</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>nmake -f MakefileX64 clean_debug &amp;&amp; nmake -f MakefileX64 debug</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>nmake -f MakefileX64 clean_debug</NMakeCleanCommandLine>
+    <NMakeOutput />
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);..\AzureRecoveryLib;..\s2libs\thread;..\drivers\InVolFlt\windows\Interface;..\vacplibs;..\inmsafecapis\win;..\inmsafecapis;..\devicefilter;..\devicefilter\win;..\common;..\inmsafeint;$(OPENSSL_INCLUDES);..\cxpslib\win;..\errorexception;..\securitylib;..\securitylib\win;..;.;$(BOOST_INCLUDES);$(ACE_INCLUDES)</IncludePath>
+    <NMakeIncludeSearchPath>$(VC_IncludePath);$(WindowsSDK_IncludePath);..\AzureRcmLib;..\AzureADAuthProviderLib;..\s2libs\thread;..\drivers\InVolFlt\windows\Interface;..\vacplibs;..\inmsafecapis\win;..\inmsafecapis;..\devicefilter;..\devicefilter\win;..\common;..\inmsafeint;$(OPENSSL_INCLUDES);..\cxpslib\win;..\errorexception;..\securitylib;..\securitylib\win;..\InMageVssProvider;..;.;$(BOOST_INCLUDES);$(ACE_INCLUDES)</NMakeIncludeSearchPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>Release\</OutDir>
+    <IntDir>Release\</IntDir>
+    <NMakeBuildCommandLine>nmake -f Makefile release</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>nmake -f Makefile clean_release &amp;&amp; nmake -f Makefile release</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>nmake -f Makefile clean_release</NMakeCleanCommandLine>
+    <NMakeOutput />
+    <NMakeIncludeSearchPath>$(VC_IncludePath);$(WindowsSDK_IncludePath);..\AzureRcmLib;..\AzureADAuthProviderLib;..\s2libs\thread;..\drivers\InVolFlt\windows\Interface;..\vacplibs;..\inmsafecapis\win;..\inmsafecapis;..\devicefilter;..\devicefilter\win;..\common;..\inmsafeint;$(OPENSSL_INCLUDES);..\cxpslib\win;..\errorexception;..\securitylib;..\InMageVssProvider;..\securitylib\win;..;.;$(BOOST_INCLUDES);$(ACE_INCLUDES)</NMakeIncludeSearchPath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);..\AzureRecoveryLib;..\s2libs\thread;..\drivers\InVolFlt\windows\Interface;..\vacplibs;..\inmsafecapis\win;..\inmsafecapis;..\devicefilter;..\devicefilter\win;..\common;..\inmsafeint;$(OPENSSL_INCLUDES);..\cxpslib\win;..\errorexception;..\securitylib;..\securitylib\win;..;.;$(BOOST_INCLUDES);$(ACE_INCLUDES)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <NMakeBuildCommandLine>nmake -f MakefileX64 release</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>nmake -f MakefileX64 clean_release &amp;&amp; nmake -f MakefileX64 release</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>nmake -f MakefileX64 clean_release</NMakeCleanCommandLine>
+    <NMakeOutput />
+    <IncludePath>$(WindowsSDK_IncludePath);$(VC_IncludePath);..\AzureRecoveryLib;..\s2libs\thread;..\drivers\InVolFlt\windows\Interface;..\vacplibs;..\inmsafecapis;..\inmsafecapis\win;..\devicefilter;..\devicefilter\win;..\common;..\inmsafeint;$(OPENSSL_INCLUDES);..\cxpslib\win;..\errorexception;..\securitylib;..\securitylib\win;..;.;$(BOOST_INCLUDES);$(ACE_INCLUDES);$(IncludePath)</IncludePath>
+    <NMakeIncludeSearchPath>$(VC_IncludePath);$(WindowsSDK_IncludePath);..\AzureRcmLib;..\AzureADAuthProviderLib;..\s2libs\thread;..\drivers\InVolFlt\windows\Interface;..\vacplibs;..\inmsafecapis\win;..\inmsafecapis;..\devicefilter;..\devicefilter\win;..\common;..\inmsafeint;$(OPENSSL_INCLUDES);..\cxpslib\win;..\errorexception;..\securitylib;..\InMageVssProvider;..\securitylib\win;..;.;$(BOOST_INCLUDES);$(ACE_INCLUDES)</NMakeIncludeSearchPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\common\win32\DiskHelpers.cpp" />
+    <ClCompile Include="..\common\win32\registry.cpp" />
+    <ClCompile Include="..\common\win32\Failoverclusterinfocollector.cpp" />
+    <ClCompile Include="..\hydrationconfigurator\HydrationConfigurator.cpp" />
+    <ClCompile Include="..\hydrationconfigurator\win\HydrationProvider.cpp" />
+    <ClCompile Include="ArgParser.cpp" />
+    <ClCompile Include="CmdRequest.cpp" />
+    <ClCompile Include="Communicator.cpp" />
+    <ClCompile Include="deviceutils.cpp" />
+    <ClCompile Include="diskutils.cpp" />
+    <ClCompile Include="SecureTransport.cpp" />
+    <ClCompile Include="StreamEngine\StreamEngine.cpp" />
+    <ClCompile Include="util.cpp" />
+    <ClCompile Include="vacp.cpp" />
+    <ClCompile Include="VacpLogger.cpp" />
+    <ClCompile Include="VssRequestor.cpp" />
+    <ClCompile Include="VssWriter.cpp" />
+    <ClCompile Include="wmiutils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\common\win32\DiskHelpers.h" />
+    <ClInclude Include="..\common\win32\VacpErrors.h" />
+    <ClCompile Include="..\common\win32\registry.h" />
+    <ClCompile Include="..\common\win32\Failoverclusterinfocollector.h" />
+    <ClInclude Include="..\vacplibs\VacpErrorCodes.h" />
+    <ClInclude Include="ArgParser.h" />
+    <ClInclude Include="CmdRequest.h" />
+    <ClInclude Include="common.h" />
+    <ClInclude Include="Communicator.h" />
+    <ClInclude Include="..\drivers\InVolFlt\win32\InVolFlt.h" />
+    <ClInclude Include="deviceutils.h" />
+    <ClInclude Include="diskutils.h" />
+    <ClInclude Include="PerfCounter.h" />
+    <ClInclude Include="SecureTransport.h" />
+    <ClInclude Include="StreamEngine\InvoltTypes.h" />
+    <ClInclude Include="macros.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="StreamEngine\StreamEngine.h" />
+    <ClInclude Include="StreamEngine\StreamRecords.h" />
+    <ClInclude Include="util.h" />
+    <ClInclude Include="vacp.h" />
+    <ClInclude Include="..\config\vacp_tag_info.h" />
+    <ClInclude Include="VacpConf.h" />
+    <ClInclude Include="VssRequestor.h" />
+    <ClInclude Include="VssWriter.h" />
+    <ClInclude Include="vacpwmiutils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="vacp.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="readme.txt" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

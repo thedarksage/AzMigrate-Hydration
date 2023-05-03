@@ -11,7 +11,7 @@ X_OS:=$(shell ../build/scripts/general/OS_details.sh 1)
 
 ifeq ($(NON_RPM), YES)
 UA_TAR_NAME := Microsoft-ASR_UA_$(X_VERSION_DOTTED)_$(X_OS)_$(X_VERSION_PHASE)_$(shell date "+%d%h%Y")_$(X_CONFIGURATION).tar.gz
-ifeq ($(X_OS),$(filter $(X_OS), DEBIAN7-64 DEBIAN8-64 DEBIAN9-64 DEBIAN10-64))
+ifeq ($(X_OS),$(filter $(X_OS), DEBIAN7-64 DEBIAN8-64 DEBIAN9-64 DEBIAN10-64 DEBIAN11-64))
 	TAR_OPT := czvf
 else
 	TAR_OPT := --lzma -cvf

@@ -132,7 +132,7 @@ This is Inmage Vx Agent
 /InMage/Vx/scripts/initrd/*
 /InMage/Vx/bin/libcommon.sh
 
-%if %_vendor==redhat
+%if "%_vendor"=="redhat"
   %if %{?_with_RHEL5_64:1}%{!?_with_RHEL5_64:0}
      /InMage/Vx/bin/involflt.ko.2.6.18-194.el5
      /InMage/Vx/bin/involflt.ko.2.6.18-194.el5xen
@@ -155,6 +155,12 @@ This is Inmage Vx Agent
      /InMage/Vx/bin/involflt.ko.4.18.0-147.el8.x86_64
      /InMage/Vx/bin/involflt.ko.4.18.0-305.el8.x86_64
      /InMage/Vx/bin/involflt.ko.4.18.0-348.el8.x86_64
+     /InMage/Vx/bin/involflt.ko.4.18.0-425.3.1.el8.x86_64
+     /InMage/Vx/bin/involflt.ko.4.18.0-425.10.1.el8_7.x86_64
+  %else
+  %if %{?_with_RHEL9_64:1}%{!?_with_RHEL9_64:0}
+     /InMage/Vx/bin/involflt.ko.5.14.0-70.13.1.0.3.el9_0.x86_64
+     /InMage/Vx/bin/involflt.ko.5.14.0-162.6.1.el9_1.x86_64
   %else
   %if %{?_with_OL6_64:1}%{!?_with_OL6_64:0}
      /InMage/Vx/bin/involflt.ko.2.6.32-131.0.15.el6.x86_64
@@ -175,6 +181,13 @@ This is Inmage Vx Agent
   %else
   %if %{?_with_OL8_64:1}%{!?_with_OL8_64:0}
      /InMage/Vx/bin/drivers/involflt.ko.*
+  %else
+  %if %{?_with_OL9_64:1}%{!?_with_OL9_64:0}
+     /InMage/Vx/bin/drivers/involflt.ko.5.14.0-70.13.1.0.3.el9_0.x86_64
+     /InMage/Vx/bin/drivers/involflt.ko.5.15.0-0.30.19.el9uek.x86_64
+     /InMage/Vx/bin/drivers/involflt.ko.5.14.0-162.6.1.el9_1.x86_64
+  %endif   
+  %endif
   %endif
   %endif
   %endif
@@ -184,7 +197,7 @@ This is Inmage Vx Agent
   %endif
 %endif
 
-%if %_vendor==suse
+%if "%_vendor"=="suse"
   %if %{?_with_SLES11_SP3_64:1}%{!?_with_SLES11_SP3_64:0}
      /InMage/Vx/bin/involflt.ko.3.0.76-0.11-default
      /InMage/Vx/bin/involflt.ko.3.0.76-0.11-xen

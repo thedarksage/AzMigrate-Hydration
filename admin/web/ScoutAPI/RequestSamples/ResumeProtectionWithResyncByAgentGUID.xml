@@ -1,0 +1,19 @@
+<Request Id="0021" Version="1.0">
+     <Header>
+      	<Authentication>
+		<AccessKeyID>DDC9525FF275C104EFA1DFFD528BD0145F903CB1</AccessKeyID>
+             		<AccessSignature></AccessSignature>
+        	</Authentication>
+     </Header>
+     <Body>
+	<FunctionRequest Name="ResumeProtectionWithResyncByAgentGUID" Include="No">
+		<Parameter Name="AgentGUID" Value="277919C2-FFC0-6744-A03751A88FC87985 " />
+		<Parameter Name="AllVolumes" Value="Yes" />
+		<ParameterGroup Id="VolumeList">
+			<Parameter Name="VolumeName1" Value="Vol1"/>	
+			<Parameter Name="VolumeName3" Value="Vol2"/>	
+		</ParameterGroup>
+
+		</FunctionRequest>
+     </Body>
+</Request>

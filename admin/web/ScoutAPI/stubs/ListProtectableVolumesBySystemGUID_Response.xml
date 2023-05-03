@@ -1,0 +1,13 @@
+<Function Name="ListProtectableVolumesBySystemGUID" Id="" ReturnCode="0" Message="">
+	  <FunctionResponse>	
+		<ParameterGroup Id="3ad54fb2-62f4-4947-a288-45bc1272e9d5" >
+			<Parameter Name=" VolumeGUID " Value="3ad54fb2-62f4-4947-a288-45bc1272e9d5" />
+			<Parameter Name="VolumeName" Value="C" />
+			<Parameter Name="VolumeMountPoint" Value="C:\" />
+			<Parameter Name="VolumeLabel" Value="OS" />
+			<Parameter Name="VolumeUsedAs" Value="BootVolume/SystemReservedVolume" />
+			<Parameter Name="VolumeType" Value="Fixed" />
+			<Parameter Name="Capacity" Value="1048576" />
+		</ParameterGroup>		
+   	</FunctionResponse> 
+</Function> 

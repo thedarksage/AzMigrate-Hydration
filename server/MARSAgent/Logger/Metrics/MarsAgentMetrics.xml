@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<srs:Metrics xmlns:srs="http://schemas.microsoft.com/2012/DisasterRecovery/Metrics.xsd">
+  <Metric>
+    <Name>OperationSucceeded</Name>
+    <LogValueRequired>true</LogValueRequired>
+    <Dimension order="0">
+      <Name>Operation</Name>
+    </Dimension>
+    <Annotation order="0">
+      <Name>Msg</Name>
+    </Annotation>
+  </Metric>
+  <Metric>
+    <Name>OperationFailed</Name>
+    <LogValueRequired>true</LogValueRequired>
+    <Dimension order="0">
+      <Name>Operation</Name>
+    </Dimension>
+    <Dimension order="1">
+      <Name>ExceptionType</Name>
+    </Dimension>
+    <Dimension order="2">
+      <Name>Error</Name>
+    </Dimension>
+    <Annotation order="0">
+      <Name>Msg</Name>
+    </Annotation>
+  </Metric>
+</srs:Metrics>

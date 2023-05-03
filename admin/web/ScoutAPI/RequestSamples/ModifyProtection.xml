@@ -1,0 +1,58 @@
+<Request Id="1" Version="1.0">
+ <Header>
+  <Authentication>
+  <AccessKeyID>11F3242118FF2ADD5D117CBF216F29AC578F6BA6</AccessKeyID>
+  <AuthMethod>CXAuth</AuthMethod>
+  <CXUserName>admin</CXUserName>
+  </Authentication>
+</Header>
+<Body>
+ <FunctionRequest Name="ModifyProtection">
+  <Parameter Name="ProtectionPlanId" Value="1"/>
+   <ParameterGroup Id="Servers">
+    <ParameterGroup Id="Server1">
+      <Parameter Name="HostId" Value="F6284022-71CB-5E43-B69AF768614FF3DC"/>
+      <Parameter Name="ProcessServer" Value="E864323B-17AB-6D48-B23076FF9E5C9CE6"/>
+      <Parameter Name="MasterTarget" Value="F864323B-17AB-6D48-B23076FF9E5C9CE6"/>
+      <Parameter Name="RetentionDrive" Value="R"/> <!-- Optional,  R is default -->
+	  <Parameter Name="ProtectionDirection" Value="E2A"/> <!-- Optional (E2A/A2E)-->
+      <ParameterGroup Id="DiskMapping">
+        <ParameterGroup Id="Disk1">
+          <Parameter Name="SourceDiskName" Value="//PhysicalDrive0">
+          <Parameter Name="TargetLUNId" Value="1">
+        </ParameterGroup>
+        <ParameterGroup Id="Disk2">
+          <Parameter Name="SourceDiskName" Value="//PhysicalDrive1">
+          <Parameter Name="TargetLUNId" Value="2">
+        </ParameterGroup>
+        <ParameterGroup Id="Disk3">
+          <Parameter Name="SourceDiskName" Value="//PhysicalDrive2">
+          <Parameter Name="TargetLUNId" Value="3">
+        </ParameterGroup>
+      </ParameterGroup>
+    </ParameterGroup>
+    <ParameterGroup Id="Server2">
+      <Parameter Name="HostId" Value="E8884022-71CB-5E43-B69AF768614FE3DD"/>
+      <Parameter Name="ProcessServer" Value="E864323B-17AB-6D48-B23076FF9E5C9CE6"/>
+      <Parameter Name="MasterTarget" Value="F864323B-17AB-6D48-B23076FF9E5C9CE6"/>
+      <Parameter Name="RetentionDrive" Value="R"/> <!-- Optional,  R is default -->
+	  <Parameter Name="ProtectionDirection" Value="A2E"/> <!-- Optional (E2A/A2E)-->
+      <ParameterGroup Id="DiskMapping">
+        <ParameterGroup Id="Disk1">
+          <Parameter Name="SourceDiskName" Value="//PhysicalDrive0">
+          <Parameter Name="TargetLUNId" Value="1">
+        </ParameterGroup>
+        <ParameterGroup Id="Disk2">
+          <Parameter Name="SourceDiskName" Value="//PhysicalDrive1">
+          <Parameter Name="TargetLUNId" Value="2">
+        </ParameterGroup>
+        <ParameterGroup Id="Disk3">
+          <Parameter Name="SourceDiskName" Value="//PhysicalDrive2">
+          <Parameter Name="TargetLUNId" Value="3">
+        </ParameterGroup>
+      </ParameterGroup>
+    </ParameterGroup>
+  </ParameterGroup>
+ </FunctionRequest>
+</Body> 
+</Request>

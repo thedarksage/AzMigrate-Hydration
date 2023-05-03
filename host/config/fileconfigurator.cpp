@@ -905,6 +905,7 @@ static const char KEY_HEALTHCOLLATOR_PATH[] = "HealthCollatorPath";
 static const char KEY_ADDITIONAL_INSTALL_PATHS[] = "AdditionalInstallPaths";
 
 static const char KEY_CLUSTER_ID[] = "ClusterId";
+static const char KEY_CLUSTER_NAME[] = "ClusterName";
 
 FileConfiguratorMode FileConfigurator::s_initmode = FILE_CONFIGURATOR_MODE_VX_AGENT;
 
@@ -5053,4 +5054,14 @@ void FileConfigurator::setClusterId(const std::string& clusterId) const
 std::string FileConfigurator::getClusterId() const 
 {
     return get(SECTION_VXAGENT, KEY_CLUSTER_ID, std::string());
+}
+
+void FileConfigurator::setClusterName(const std::string& clusterName) const
+{
+    set(SECTION_VXAGENT, KEY_CLUSTER_NAME, clusterName);
+}
+
+std::string FileConfigurator::getClusterName() const
+{
+    return get(SECTION_VXAGENT, KEY_CLUSTER_NAME, std::string());
 }

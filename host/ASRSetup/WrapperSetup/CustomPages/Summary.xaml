@@ -1,0 +1,38 @@
+﻿<ns0:BasePageForWpfControls
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+    xmlns:ns0="clr-namespace:ASRSetupFramework;assembly=ASRSetupFramework"
+    xmlns:resx="clr-namespace:ASRResources;assembly=ASRResources"
+    x:Class="UnifiedSetup.Summary"
+    x:Uid="ns0:BasePageForWpfControls_1"
+    Height="415"
+    Width="695">
+
+    <Grid x:Uid="Grid_1" Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition x:Uid="RowDefinition_1" Height="10" />
+            <RowDefinition x:Uid="RowDefinition_2" Height="Auto" />
+            <RowDefinition x:Uid="RowDefinition_3" Height="*" />
+            <RowDefinition x:Uid="RowDefinition_4" Height="40" />
+            
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition x:Uid="ColumnDefinition_1" MaxWidth="27" Width="27" />
+            <ColumnDefinition x:Uid="ColumnDefinition_2" Width="*" />
+            <ColumnDefinition x:Uid="ColumnDefinition_3" Width="32" />
+        </Grid.ColumnDefinitions>
+        <TreeView x:Name="MainTreeView" Grid.Column="1" Grid.Row="2">
+            <TreeViewItem x:Name="SummaryTreeViewItem" IsExpanded="True">
+                <TreeViewItem x:Name="InstallTypeTreeViewItem" IsExpanded="True">
+                    <TreeViewItem x:Name="InstallTypeTreeViewChildItem"/>
+                </TreeViewItem>
+                <TreeViewItem x:Name="EnvironmentTreeViewItem" IsExpanded="True">
+                    <TreeViewItem x:Name="EnvironmentTreeViewChildItem"/>
+                </TreeViewItem>
+                <TreeViewItem x:Name="InstallationDriveTreeViewItem" IsExpanded="True">
+                    <TreeViewItem x:Name="InstallationDriveTreeViewChildItem"/>
+                </TreeViewItem>
+            </TreeViewItem>
+        </TreeView>
+    </Grid>
+</ns0:BasePageForWpfControls>

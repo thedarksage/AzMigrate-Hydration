@@ -1,0 +1,12 @@
+keepalive 5
+deadtime 120
+warntime 5
+initdead 130 # depend on your hardware
+udpport 694
+ping pingip
+mcast interface multicastgroup 694 1 0
+auto_failback off
+node hostname1
+node hostname2
+respawn root /usr/libdir/heartbeat/ipfail
+use_logd yes

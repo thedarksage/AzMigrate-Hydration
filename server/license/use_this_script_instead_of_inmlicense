@@ -1,0 +1,26 @@
+#!/bin/sh
+if [ ! -e inmlicense ]; then
+	echo "Place the binary \"inmlicense\" in this directory"
+	exit 0
+else
+	if [ -e /usr/lib/libcrypto.so.1.0.1 ]; then 
+
+		if [ -e output ]; then
+			./inmlicense $@
+		else
+			mkdir output
+			./inmlicense $@
+		fi		
+	else
+		cp libcrypto.so.1.0.1 /usr/lib/libcrypto.so.1.0.1
+		
+		if [ -e output ]; then
+			./inmlicense $@
+		else
+			mkdir output
+			./inmlicense $@
+		fi
+
+		rm /usr/lib/libcrypto.so.1.0.1
+	fi
+fi

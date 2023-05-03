@@ -1,0 +1,251 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
+    <ProjectGuid>{21CC2B9A-BBBB-4BE2-870A-DF2439CD0E04}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.Azure.SiteRecovery.ProcessServer.Core</RootNamespace>
+    <AssemblyName>Microsoft.Azure.SiteRecovery.ProcessServer.Core</AssemblyName>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <CodeAnalysisIgnoreGeneratedCode>false</CodeAnalysisIgnoreGeneratedCode>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <CodeAnalysisIgnoreGeneratedCode>false</CodeAnalysisIgnoreGeneratedCode>
+    <PlatformTarget>x64</PlatformTarget>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="ClientLibHelpers, Version=$(PROCESS_SERVER_RCM_CLIENT_LIB_HELPERS_VERSION), Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>True</SpecificVersion>
+      <Private>False</Private>
+      <HintPath>$(PROCESS_SERVER_RCM_CLIENT_LIB_HELPERS_PATH)</HintPath>
+    </Reference>
+    <Reference Include="CredentialStore, Version=$(PROCESS_SERVER_CREDSTORE_VERSION), Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>True</SpecificVersion>
+      <Private>False</Private>
+      <HintPath>$(PROCESS_SERVER_CREDSTORE_PATH)</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ApplicationInsights, Version=$(AI_VERSION), Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>True</SpecificVersion>
+      <Private>False</Private>
+      <HintPath>$(AI_PATH)</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AI.ServerTelemetryChannel, Version=$(AI_SRVTELCHANNEL_VERSION), Culture=neutral, publicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>True</SpecificVersion>
+      <Private>False</Private>
+      <HintPath>$(AI_SRVTELCHANNEL_PATH)</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Identity.Client, Version=$(MSAL_VERSION), Culture=neutral, publicKeyToken=0a613f4dd989e8ae, processorArchitecture=MSIL">
+      <SpecificVersion>True</SpecificVersion>
+      <Private>False</Private>
+      <HintPath>$(MSAL_PATH)</HintPath>
+    </Reference>
+	<Reference Include="Microsoft.IdentityModel.Abstractions, Version=$(MSAB_VERSION), Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>True</SpecificVersion>
+	  <Private>False</Private>
+      <HintPath>$(MSAB_PATH)</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=$(PROCESS_SERVER_NEWTONSOFTJSON_VERSION), Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>True</SpecificVersion>
+      <Private>False</Private>
+      <HintPath>$(PROCESS_SERVER_NEWTONSOFTJSON_PATH)</HintPath>
+    </Reference>
+    <Reference Include="RcmAgentCommonLib, Version=$(PROCESS_SERVER_RCM_AGENT_COMMON_LIB_VERSION), Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>True</SpecificVersion>
+      <Private>False</Private>
+      <HintPath>$(PROCESS_SERVER_RCM_AGENT_COMMON_LIB_PATH)</HintPath>
+    </Reference>
+    <Reference Include="RcmClientLib, Version=$(PROCESS_SERVER_RCM_CLIENT_LIB_VERSION), Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>True</SpecificVersion>
+      <Private>False</Private>
+      <HintPath>$(PROCESS_SERVER_RCM_CLIENT_LIB_PATH)</HintPath>
+    </Reference>
+    <Reference Include="RcmContract, Version=$(PROCESS_SERVER_RCM_CONTRACT_VERSION), Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>True</SpecificVersion>
+      <Private>False</Private>
+      <HintPath>$(PROCESS_SERVER_RCM_CONTRACT_PATH)</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ServiceBus, Version=$(PROCESS_SERVER_SERVICE_BUS_VERSION), Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>True</SpecificVersion>
+      <Private>False</Private>
+      <HintPath>$(PROCESS_SERVER_SERVICE_BUS_PATH)</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Net.Http.WebRequest" />
+    <Reference Include="System.Runtime.Caching" />
+    <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.ValueTuple, Version=$(PROCESS_SERVER_VALUE_TUPLE_VERSION), Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <SpecificVersion>True</SpecificVersion>
+      <Private>False</Private>
+      <HintPath>$(PROCESS_SERVER_VALUE_TUPLE_PATH)</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\host\common\version.cs">
+      <Link>version.cs</Link>
+    </Compile>
+    <Compile Include="Config\AmethystConfig.cs" />
+    <Compile Include="Config\AppConfig.cs" />
+    <Compile Include="Config\ApplianceSettings.cs" />
+    <Compile Include="Config\CxpsConfig.cs" />
+    <Compile Include="Config\IniEditor.cs" />
+    <Compile Include="Config\IniParser.cs" />
+    <Compile Include="Config\IniRow.cs" />
+    <Compile Include="Config\PSConfiguration.cs" />
+    <Compile Include="Config\PSInstallationInfo.cs" />
+    <Compile Include="Config\PSTaskSettings.cs" />
+    <Compile Include="CSApi\PSTaskFactory.cs" />
+    <Compile Include="Native\NetworkApi.cs" />
+    <Compile Include="TaskHandlers\PSTaskManager.cs" />
+    <Compile Include="CSApi\CachedProcessServerSettings.cs" />
+    <Compile Include="CSApi\CSApiFactory.cs" />
+    <Compile Include="CSApi\CSProcessServerSettings.cs" />
+    <Compile Include="CSApi\IProcessServerCSApiStubs.cs" />
+    <Compile Include="CSApi\PhpFormatter.cs" />
+    <Compile Include="CSApi\ProcessServerCSApiStubsImpl.cs" />
+    <Compile Include="Monitoring\ProcessServerRCMMonitorStubsImpl.cs" />
+    <Compile Include="CSApi\ProcessServerSettings.cs" />
+    <Compile Include="CSApi\XmlElements.cs" />
+    <Compile Include="Monitoring\IProcessServerMonitoringStubs.cs" />
+    <Compile Include="Monitoring\MonitoringApiFactory.cs" />
+    <Compile Include="Monitoring\ProcessServerMonitoringStubsImpl.cs" />
+    <Compile Include="MessageSerivce\EventHubClientFactory.cs" />
+    <Compile Include="MessageSerivce\EventHubWrapper.cs" />
+    <Compile Include="MessageSerivce\EventHubWrapperFactory.cs" />
+    <Compile Include="MessageSerivce\IMessageServiceWrapper.cs" />
+    <Compile Include="MessageSerivce\IMessageWrapperFactory.cs" />
+    <Compile Include="MessageSerivce\MessageServiceFactory.cs" />
+    <Compile Include="Native\Common.cs" />
+    <Compile Include="Native\DataProtectionApi.cs" />
+    <Compile Include="Native\FileApi.cs" />
+    <Compile Include="Native\KernelTransactionManager.cs" />
+    <Compile Include="Native\ProcessApi.cs" />
+    <Compile Include="Native\Registry.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RcmApi\IProcessServerRcmApiStubs.cs" />
+    <Compile Include="RcmApi\ProcessServerRcmApiStubsImpl.cs" />
+    <Compile Include="RcmApi\RcmApiFactory.cs" />
+    <Compile Include="RcmApi\RcmHttpHeaders.cs" />
+    <Compile Include="RcmApi\RcmJobErrors.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>RcmJobErrors.tt</DependentUpon>
+    </Compile>
+    <Compile Include="RcmApi\RcmJobProcessor.cs" />
+    <Compile Include="RcmApi\RcmProcessServerSettings.cs" />
+    <Compile Include="RestWrapper.cs" />
+    <Compile Include="Settings.cs" />
+    <Compile Include="Setup\ConfiguratorOutput.cs" />
+    <Compile Include="Setup\IdempotencyContext.cs" />
+    <Compile Include="Setup\RcmAgentErrors.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>RcmAgentErrors.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Setup\RcmConfigurator.cs" />
+    <Compile Include="Tracing\AppInsightsTraceListener.cs" />
+    <Compile Include="Tracing\InMageAdminLogV2Row.cs" />
+    <Compile Include="Tracing\InMageAdminLogV2TracePacket.cs" />
+    <Compile Include="Tracing\InMageTelemetryPSV2Row.cs" />
+    <Compile Include="Tracing\MdsLctlInMageAdminLogV2TraceSourceExtensions.cs" />
+    <Compile Include="Tracing\MdsLctlInMageTelemetryPSV2TraceSourceExtensions.cs" />
+    <Compile Include="Tracing\MdsLogCutterTraceListener.cs" />
+    <Compile Include="Tracing\PSTraceListenerBase.cs" />
+    <Compile Include="Utils\ApplianceUtils.cs" />
+    <Compile Include="Utils\DateTimeUtils.cs" />
+    <Compile Include="Utils\DiffFileUtils.cs" />
+    <Compile Include="Utils\DirectoryUtils.cs" />
+    <Compile Include="Utils\DisposeUtils.cs" />
+    <Compile Include="Utils\NativeMethods.cs" />
+    <Compile Include="Utils\SettingsUtils.cs" />
+    <Compile Include="Utils\TaskUtils.cs" />
+    <Compile Include="Utils\CryptoUtils.cs" />
+    <Compile Include="Utils\FileUtils.cs" />
+    <Compile Include="Utils\FirewallUtils.cs" />
+    <Compile Include="Utils\FSUtils.cs" />
+    <Compile Include="Utils\IOUtils.cs" />
+    <Compile Include="Utils\JsonUtils.cs" />
+    <Compile Include="Utils\LegacyCSUtils.cs" />
+    <Compile Include="Utils\MiscUtils.cs" />
+    <Compile Include="Utils\ProcessUtils.cs" />
+    <Compile Include="Utils\RandUtils.cs" />
+    <Compile Include="Utils\ServiceUtils.cs" />
+    <Compile Include="Utils\SystemUtils.cs" />
+    <Compile Include="Tracing\Tracers.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="NetFwTypeLib">
+      <Guid>{58FBCF7C-E7A9-467C-80B3-FC65E8FCCA08}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="RcmApi\RcmJobErrors.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>RcmJobErrors.cs</LastGenOutput>
+    </Content>
+    <EmbeddedResource Include="RcmApi\RcmJobErrors.xml" />
+    <Content Include="Setup\RcmAgentErrors.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>RcmAgentErrors.cs</LastGenOutput>
+    </Content>
+    <EmbeddedResource Include="Setup\RcmAgentErrors.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SRSErrors.xsd">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\..\host\win-rules.props" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

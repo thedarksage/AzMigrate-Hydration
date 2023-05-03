@@ -1,0 +1,27 @@
+HA Installation & Configuration:
+
+1) Untar the CX HA tar.gz package
+2) Execute install_ha.sh
+3) Enter the hostnames for primary node, secondary node, multi casting node IP, ping node IP, the interface card(eth0,eth1...), and cluster IP when prompted (these values must be the same while configuring HA on both nodes)
+4) HA configuration should now be complete
+
+In order to setup mysql database backup and restore, the following steps must be done. Assume the 2 CX hosts that belong to the cluster are hostA and hostB
+
+1) Install FX agent for linux on both the CX hosts
+2) Set up an FX job from hostA to hostB with following options
+- copy contents of source directly to target without creating sub-directory
+- source and target directory as '/home/svsystems/bin/db1'
+- pre-script at source as '/home/svsystems/bin/db1/db_backup.sh'
+- post-script at target as '/home/svsystems/bin/db1/db_restore.sh'
+- Schedule as run every 5 minutes
+3) Set up an FX job from hostB to hostA with following options
+- copy contents of source directly to target without creating sub-directory
+- source and target directory as '/home/svsystems/bin/db2'
+- pre-script at source as '/home/svsystems/bin/db2/db_backup.sh'
+- post-script at target as '/home/svsystems/bin/db2/db_restore.sh'
+- Schedule as run every 5 minutes
+4) Mysql database replication setup will now be complete
+
+Other Instructions:
+- Ensure to generate a license file with 2 MAC addresses, one for each CX host; and copy it to both CX hosts
+- After performing a failover, the host that we "failed over" from will have heartbeat and accompanying services shut down. These will have to be manually restarted or the box will have to be rebooted in order to perform a failback.

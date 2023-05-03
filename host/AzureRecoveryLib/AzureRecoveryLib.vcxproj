@@ -129,7 +129,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_WIN32_WINNT=0x0502;ACE_AS_STATIC_LIBS;CURL_STATICLIB;WIN32_LEAN_AND_MEAN;ATL_NO_LEAN_AND_MEAN;LIBXML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ACE_INCLUDES);$(BOOST_INCLUDES);$(CURL_INCLUDES);$(OPENSSL_INCLUDES);$(LIBXML2_INCLUDES);..\securitylib;..\securitylib\win;..\common;..\inmsafecapis;..\inmsafecapis\win;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ACE_INCLUDES);$(BOOST_INCLUDES);$(CURL_INCLUDES);$(OPENSSL_INCLUDES);$(LIBXML2_INCLUDES);..\scopeguard;..\securitylib;..\securitylib\win;..\common;..\inmsafecapis;..\inmsafecapis\win;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -148,7 +148,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_WIN32_WINNT=0x0502;ACE_AS_STATIC_LIBS;CURL_STATICLIB;WIN32_LEAN_AND_MEAN;ATL_NO_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ACE_INCLUDES);$(BOOST_INCLUDES);$(CURL_INCLUDES);$(OPENSSL_INCLUDES);$(LIBXML2_INCLUDES);..\securitylib;..\securitylib\win;..\common;..\inmsafecapis;..\inmsafecapis\win;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ACE_INCLUDES);$(BOOST_INCLUDES);$(CURL_INCLUDES);$(OPENSSL_INCLUDES);$(LIBXML2_INCLUDES);..\scopeguard;..\securitylib;..\securitylib\win;..\common;..\inmsafecapis;..\inmsafecapis\win;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ControlFlowGuard>Guard</ControlFlowGuard>
     </ClCompile>
     <Link>
@@ -173,6 +173,7 @@
     <ClCompile Include="Config\LibXmlUtil.cpp" />
     <ClCompile Include="Config\RecoveryConfig.cpp" />
     <ClCompile Include="RestHelper\CloudBlob.cpp" />
+    <ClCompile Include="resthelper\CloudBlockBlob.cpp" />
     <ClCompile Include="resthelper\EventHub.cpp" />
     <ClCompile Include="RestHelper\HttpClient.cpp" />
     <ClCompile Include="RestHelper\HttpRequest.cpp" />
@@ -197,6 +198,7 @@
     <ClInclude Include="Config\LibXmlUtil.h" />
     <ClInclude Include="Config\RecoveryConfig.h" />
     <ClInclude Include="RestHelper\CloudBlob.h" />
+    <ClInclude Include="resthelper\CloudBlockBlob.h" />
     <ClInclude Include="resthelper\EventHub.h" />
     <ClInclude Include="RestHelper\HttpClient.h" />
     <ClInclude Include="RestHelper\HttpRequest.h" />

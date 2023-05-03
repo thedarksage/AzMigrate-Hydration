@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TestJobGroup>
+  <!-- Resource spec points to a Windows platform image that is defined in asrsrc-prod-sea cloudtestpool -->
+  <ResourceSpec>
+    <Resource SKU="Standard_DS2_V2" Image="2022-DataCenter"/>
+  </ResourceSpec>
+  
+  <Setup TimeoutMins="60">
+    <BuildFiles>
+      <!-- Copy Test Scripts from build drop -->
+      <Copy Src="[BuildRoot]\[BuildType]-[BuildArch]\cloudtest\a2agql\*" Dest="[WorkingDirectory]" Writable="true"/>
+    </BuildFiles>
+	  <Scripts>
+      <!-- Install Azure Powershell and other prereq's -->
+	    <Script Path="[WorkingDirectory]\InstallPrereq.ps1" />
+	  </Scripts>	
+  </Setup>
+
+  <!-- Trigger Cleanup -->
+  <TestJob Name="Cleanup" Type="SingleBox" Tags="Tests=SourceA2AGQL" OwnerAliases="sisunkar" TimeoutMins="600" >
+    <Execution Type="Exe" Path="C:\WINDOWS\system32\cmd.exe " Args="/c powershell.exe [WorkingDirectory]\CleanupResourceGroups.ps1 -SubscriptionId '41b6b0c9-3e3a-4701-811b-92135df8f9e3'"/>
+  </TestJob>
+
+  <Cleanup TimeoutMins="10" />
+</TestJobGroup>

@@ -1,0 +1,33 @@
+[mysqld]
+datadir=/home/svsystems/mysql
+socket=/var/lib/mysql/mysql.sock
+set-variable = max_allowed_packet=16M
+set-variable = max_connections=800
+set-variable = max_connect_errors=25
+set-variable = wait_timeout=60
+set-variable = long_query_time=5
+set-variable = low_priority_updates=1
+set-variable = concurrent_insert=2
+set-variable = innodb_buffer_pool_size=17M
+set-variable = join_buffer_size=20M
+set-variable = query_cache_size=40M
+set-variable = query_cache_limit=1M
+set-variable = table_cache=2400
+set-variable = key_buffer_size=3M
+set-variable = thread_cache_size=50
+set-variable = tmp_table_size=64M
+set-variable = max_heap_table_size=64M
+skip-name-resolve
+skip-character-set-client-handshake=false
+collation-server=utf8_general_ci
+character-set-server=utf8
+
+[mysql.server]
+user=mysql
+basedir=/var/lib
+default-character-set=utf8
+
+[safe_mysqld]
+err-log=/var/log/mysqld.log
+pid-file=/var/run/mysqld/mysqld.pid
+default-character-set=utf8

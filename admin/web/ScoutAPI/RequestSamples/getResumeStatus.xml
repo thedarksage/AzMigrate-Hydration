@@ -1,0 +1,13 @@
+<Request Id="0506" Version="1.0">
+<Header>
+  <Authentication>
+    <AccessKeyID>8A1681E612A2025087B703FDF1F8F617E506B053</AccessKeyID>
+    <AccessSignature>NWEwZmQ0ZTc5NGRmZTNkNjVmN2JlNjBlZGFiMThkYWI4NmEzY2FmMg==</AccessSignature>
+  </Authentication>
+</Header>
+<Body>
+  <FunctionRequest Name="getResumeStatus">
+    <Parameter Name="RequestId" Value="42" />
+  </FunctionRequest>
+</Body>
+</Request>

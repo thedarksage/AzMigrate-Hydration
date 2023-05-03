@@ -1,0 +1,161 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{F8871CC8-44BC-4356-B440-00A58E47C0F1}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>InMage</RootNamespace>
+    <AssemblyName>InMageAPILibrary</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\common\version.cs">
+      <Link>version.cs</Link>
+    </Compile>
+    <Compile Include="APIHelpers\CXAPI.cs" />
+    <Compile Include="APIHelpers\CXClient.cs" />
+    <Compile Include="APIHelpers\CXConstants.cs" />
+    <Compile Include="APIHelpers\LocalAPI.cs" />
+    <Compile Include="APIHelpers\RequestObjects\CXCreateProtectionV2Request.cs" />
+    <Compile Include="APIHelpers\RequestObjects\CXCreateRollbackRequest.cs" />
+    <Compile Include="APIHelpers\RequestObjects\CXInstallMobilityServiceRequest.cs" />
+    <Compile Include="APIHelpers\RequestObjects\CXListConsistencyPointsRequest.cs" />
+    <Compile Include="APIHelpers\RequestObjects\CXListScoutComponentRequest.cs" />
+    <Compile Include="APIHelpers\RequestObjects\CXModifyProtection.cs" />
+    <Compile Include="APIHelpers\RequestObjects\CXModifyProtectionPropertiesRequest.cs" />
+    <Compile Include="APIHelpers\RequestObjects\CXModifyProtectionPropertiesV2Request.cs" />
+    <Compile Include="APIHelpers\RequestObjects\CXModifyProtectionV2Request.cs" />
+    <Compile Include="APIHelpers\RequestObjects\CXProtectionReadinessCheckRequest.cs" />
+    <Compile Include="APIHelpers\RequestObjects\CXRollbackReadinessCheckStatus.cs" />
+    <Compile Include="APIHelpers\RequestObjects\CXSetVPNDetailsRequest.cs" />
+    <Compile Include="APIHelpers\RequestObjects\CXStopProtectionRequest.cs" />
+    <Compile Include="APIHelpers\RequestObjects\CXUnInstallMobilityServiceRequest.cs" />
+    <Compile Include="APIHelpers\RequestObjects\PSFailoverRequest.cs" />
+    <Compile Include="APIHelpers\RequestObjects\UserAccount.cs" />
+    <Compile Include="APIHelpers\ResponseObjects\ConfigurationServer.cs" />
+    <Compile Include="APIHelpers\ResponseObjects\ConsistencyPoints .cs" />
+    <Compile Include="APIHelpers\ResponseObjects\CSPSHealth.cs" />
+    <Compile Include="APIHelpers\ResponseObjects\ErrorDetails.cs" />
+    <Compile Include="APIHelpers\ResponseObjects\Event.cs" />
+    <Compile Include="APIHelpers\ResponseObjects\EventList.cs" />
+    <Compile Include="APIHelpers\ResponseObjects\HostServer.cs" />
+    <Compile Include="APIHelpers\ResponseObjects\MobilityServiceInstallStatus.cs" />
+    <Compile Include="APIHelpers\ResponseObjects\PlanList.cs" />
+    <Compile Include="APIHelpers\ResponseObjects\ProtectionDetails.cs" />
+    <Compile Include="APIHelpers\ResponseObjects\ProtectionReadinessCheckStatus.cs" />
+    <Compile Include="APIHelpers\ResponseObjects\RemoveProtectionRequestStatus.cs" />
+    <Compile Include="APIHelpers\ResponseStatus.cs" />
+    <Compile Include="APIHelpers\ResponseObjects\RetentionVolume.cs" />
+    <Compile Include="APIHelpers\ResponseObjects\NetworkConfiguration.cs" />
+    <Compile Include="APIHelpers\ResponseObjects\HardwareConfiguration.cs" />
+    <Compile Include="APIHelpers\ResponseObjects\DiskDetail.cs" />
+    <Compile Include="APIHelpers\ResponseObjects\RollbackRequestStatus.cs" />
+    <Compile Include="APIHelpers\ResponseObjects\ScoutAgent.cs" />
+    <Compile Include="APIHelpers\ResponseObjects\MasterTarget.cs" />
+    <Compile Include="APIHelpers\ResponseObjects\ProcessServer.cs" />
+    <Compile Include="APIHelpers\ResponseObjects\ScoutComponents.cs" />
+    <Compile Include="APIHelpers\ResponseObjects\MobilityServiceUnInstallStatus.cs" />
+    <Compile Include="APIHelpers\ResponseParser.cs" />
+    <Compile Include="APIHelpers\RequestObjects\CXListInfrastructureRequest.cs" />
+    <Compile Include="APIHelpers\RequestObjects\CXCreateProtectionRequest.cs" />
+    <Compile Include="APIHelpers\RequestObjects\CXDiscoverInfrastructureRequest.cs" />
+    <Compile Include="APIHelpers\RequestObjects\DiskMappingForProtection.cs" />
+    <Compile Include="APIHelpers\RequestObjects\CXStatusRequest.cs" />
+    <Compile Include="APIHelpers\RequestObjects\ICXRequest.cs" />
+    <Compile Include="APIHelpers\ResponseObjects\Infrastructure.cs" />
+    <Compile Include="APIHelpers\ResponseObjects\ProtectionRequestStatus.cs" />
+    <Compile Include="APIHelpers\ResponseObjects\SourceServer.cs" />
+    <Compile Include="APIHelpers\Utils.cs" />
+    <Compile Include="APIModel\APIInterfaces\APIInterface.cs" />
+    <Compile Include="APIModel\APIInterfaces\APIInterfaceFactory.cs" />
+    <Compile Include="APIModel\APIInterfaces\CXAPIInterface.cs" />
+    <Compile Include="APIModel\APIModelException.cs" />
+    <Compile Include="APIModel\Authentication.cs" />
+    <Compile Include="APIModel\Body.cs" />
+    <Compile Include="APIModel\Function.cs" />
+    <Compile Include="APIModel\FunctionRequest.cs" />
+    <Compile Include="APIModel\FunctionResponse.cs" />
+    <Compile Include="APIModel\Header.cs" />
+    <Compile Include="APIModel\Parameter.cs" />
+    <Compile Include="APIModel\ParameterGroup.cs" />
+    <Compile Include="APIModel\Request.cs" />
+    <Compile Include="APIModel\RequestBuilder.cs" />
+    <Compile Include="APIModel\RequestBuilderFactory.cs" />
+    <Compile Include="APIModel\Response.cs" />
+    <Compile Include="APIModel\ResponseBuilder.cs" />
+    <Compile Include="APIModel\XMLSerialize.cs" />
+    <Compile Include="Log\Logger.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\csharphttpclient\httpclient.csproj">
+      <Project>{AFA371E1-579B-4347-B4A8-EC6DFB94442A}</Project>
+      <Name>httpclient</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

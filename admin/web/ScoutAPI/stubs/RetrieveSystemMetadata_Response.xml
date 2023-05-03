@@ -1,0 +1,5 @@
+<Function Name="RetrieveSystemMetadata" Id="" ReturnCode="0" Message="">        
+	<FunctionResponse>	
+		<Parameter Name="Metadata" Value="Metadata string"/>
+   	</FunctionResponse> 
+</Function>

@@ -1,0 +1,97 @@
+# 4.9.0-1-amd64
+deb http://snapshot.debian.org/archive/debian/20170129T032733Z stretch main
+
+# 4.9.0-2-amd64
+deb http://snapshot.debian.org/archive/debian/20170331T211400Z stretch main
+
+# 4.9.0-3-amd64
+deb http://snapshot.debian.org/archive/debian/20170911T174434Z stretch main
+deb http://snapshot.debian.org/archive/debian/20170911T174434Z stretch-updates main
+deb http://snapshot.debian.org/archive/debian-security/20170807T051812Z stretch/updates main
+
+# 4.9.0-4-amd64
+deb http://snapshot.debian.org/archive/debian/20171224T175424Z stretch main
+deb http://snapshot.debian.org/archive/debian/20171224T175424Z stretch-updates main
+deb http://snapshot.debian.org/archive/debian-security/20170920T221221Z stretch/updates main
+
+# 4.9.0-5-amd64
+deb http://snapshot.debian.org/archive/debian-security/20180104T222554Z stretch/updates main
+
+# 4.9.0-6-amd64
+deb http://snapshot.debian.org/archive/debian/20180514T045534Z stretch main
+deb http://snapshot.debian.org/archive/debian/20180514T045534Z stretch-updates main
+deb http://snapshot.debian.org/archive/debian-security/20180508T221205Z stretch/updates main
+
+# 4.9.0-7-amd64
+deb http://snapshot.debian.org/archive/debian/20180817T212433Z stretch main
+deb http://snapshot.debian.org/archive/debian/20180817T212433Z stretch-updates main
+deb http://snapshot.debian.org/archive/debian-security/20180814T220613Z stretch/updates main
+
+# 4.9.0-8-amd64
+deb http://snapshot.debian.org/archive/debian/20190220T034951Z stretch main
+deb http://snapshot.debian.org/archive/debian/20190220T034951Z stretch-updates main
+deb http://snapshot.debian.org/archive/debian-security/20190813T053201Z stretch/updates main
+
+# 4.9.0-9-amd64
+deb http://snapshot.debian.org/archive/debian/20190726T035715Z stretch main
+deb http://snapshot.debian.org/archive/debian/20190726T035715Z stretch-updates main
+
+# 4.9.0-11-amd64
+deb http://snapshot.debian.org/archive/debian/20191125T025441Z stretch main
+deb http://snapshot.debian.org/archive/debian/20191125T025441Z stretch-updates main
+deb http://snapshot.debian.org/archive/debian-security/20191112T191906Z stretch/updates main
+
+# 4.9.0-12-amd64
+deb http://snapshot.debian.org/archive/debian/20200505T150017Z stretch main
+deb http://snapshot.debian.org/archive/debian/20200505T150017Z stretch-updates main
+
+# 4.9.0-14-amd64
+deb http://snapshot.debian.org/archive/debian-security/20201217T230151Z stretch/updates main
+
+# 4.9.0-15-amd64
+deb http://snapshot.debian.org/archive/debian-security/20210308T201041Z stretch/updates main
+
+# 4.9.0-16-amd64
+deb http://snapshot.debian.org/archive/debian-security/20210720T160113Z stretch/updates main
+
+# 4.9.0-17-amd64
+deb http://snapshot.debian.org/archive/debian-security/20211216T192125Z stretch/updates main
+
+# 4.19.0-0.bpo.1-amd64 4.19.0-0.bpo.1-cloud-amd64 4.19.0-0.bpo.2-amd64 4.19.0-0.bpo.2-cloud-amd64
+deb http://snapshot.debian.org/archive/debian/20190212T033028Z stretch-backports main
+
+# 4.19.0-0.bpo.4-amd64 4.19.0-0.bpo.4-cloud-amd64
+deb http://snapshot.debian.org/archive/debian/20190403T164551Z stretch-backports main
+
+# 4.19.0-0.bpo.5-amd64 4.19.0-0.bpo.5-cloud-amd64
+deb http://snapshot.debian.org/archive/debian/20190822T101249Z stretch-backports main
+
+# 4.19.0-0.bpo.6-amd64 4.19.0-0.bpo.6-cloud-amd64
+deb http://snapshot.debian.org/archive/debian/20200205T035630Z stretch-backports main
+
+# 4.19.0-0.bpo.8-amd64 4.19.0-0.bpo.8-cloud-amd64
+deb http://snapshot.debian.org/archive/debian/20200806T145518Z stretch-backports main
+
+# 4.19.0-0.bpo.10-amd64 4.19.0-0.bpo.10-cloud-amd64
+deb http://snapshot.debian.org/archive/debian-security/20200811T161403Z stretch/updates main
+
+# 4.19.0-0.bpo.11-amd64 4.19.0-0.bpo.11-cloud-amd64
+deb http://snapshot.debian.org/archive/debian-security/20200928T105300Z stretch/updates main
+
+# 4.19.0-0.bpo.12-amd64 4.19.0-0.bpo.12-cloud-amd64
+deb http://snapshot.debian.org/archive/debian-security/20201028T000643Z stretch/updates main
+
+# 4.19.0-0.bpo.13-amd64 4.19.0-0.bpo.13-cloud-amd64
+deb http://snapshot.debian.org/archive/debian-security/20201209T111409Z stretch/updates main
+
+# 4.19.0-0.bpo.14-amd64 4.19.0-0.bpo.14-cloud-amd64
+deb http://snapshot.debian.org/archive/debian-security/20210212T104355Z stretch/updates main
+
+# 4.19.0-0.bpo.16-amd64 4.19.0-0.bpo.16-cloud-amd64
+deb http://snapshot.debian.org/archive/debian-security/20210330T192302Z stretch/updates main
+
+# 4.19.0-0.bpo.17-amd64 4.19.0-0.bpo.17-cloud-amd64
+deb http://snapshot.debian.org/archive/debian-security/20210720T194830Z stretch/updates main
+
+# 4.19.0-0.bpo.18-amd64 4.19.0-0.bpo.18-cloud-amd64
+deb http://snapshot.debian.org/archive/debian-security/20211014T095326Z stretch/updates main

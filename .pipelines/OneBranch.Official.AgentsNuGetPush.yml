@@ -1,0 +1,475 @@
+# Yaml configuration file for Agents NuGet push.
+trigger: none
+schedules:
+- cron: "30 23 * * *"
+  displayName: Daily Build 05:00 AM IST
+  branches:
+    include:
+    - develop
+  always: true
+
+variables:
+  REPOROOT: $(Build.SourcesDirectory)
+  OUTPUTROOT: $(REPOROOT)\out
+  BRANCHNAME: $(Build.SourceBranchName)
+  AGENTARTIFACTSPATH: $(REPOROOT)\host\setup\AgentArtifacts
+  WindowsContainerImage: 'onebranch.azurecr.io/windows/ltsc2019/vse2019:latest'
+  CDP_BUILD_TAG: agentnugetpush
+
+resources:
+  repositories: 
+    - repository: templates
+      type: git
+      name: OneBranch.Pipelines/GovernedTemplates
+      ref: refs/heads/main
+
+extends:
+  template: v2/OneBranch.Official.CrossPlat.yml@templates
+  parameters:
+    cloudvault:
+      enabled: true
+      runmode: stage
+      artifacts:
+        - drop_build_main
+    globalSdl:
+      tsa:
+        enabled: true
+      binskim:
+        break: false
+      policheck:
+        break: true
+
+    stages:
+    - stage: build
+      jobs:
+      - job: main
+        pool:
+          type: windows
+        
+        variables:
+          ob_outputDirectory: '$(Build.SourcesDirectory)\Out'
+
+        steps:
+          # Generate version files.
+          - task: PowerShell@2
+            displayName: 'Generate Version Files'
+            inputs:
+              targetType: 'filePath'
+              filePath: $(REPOROOT)\.pipelines\GenerateVersionFiles.ps1
+              arguments: '-SourcesRootDirectory $(REPOROOT)'
+              
+          # Get version details from VersionData.txt
+          - task: PowerShell@2
+            displayName: "Get Version Data"
+            inputs:
+              targetType: 'inline'
+              script: |
+                $VersionDataContents = Get-Content -Path "$(Build.SourcesDirectory)\VersionData.txt" -Raw | ConvertFrom-StringData
+                $BuildVersion = $VersionDataContents.BuildVersion
+                Write-Host "##vso[task.setvariable variable=BUILDVERSION;]$BuildVersion"
+                
+          # Download Windows agent
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download Windows Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 217108
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+               **/*.exe
+              path: $(AGENTARTIFACTSPATH)
+              artifact: drop_build_main
+            continueOnError: true
+              
+          # Download DEBIAN7 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download DEBIAN7 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 233071
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+              path: $(AGENTARTIFACTSPATH)
+              artifact: drop_build_main
+            continueOnError: true
+
+          # Download DEBIAN8 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download DEBIAN8 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 233306
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+              path: $(AGENTARTIFACTSPATH)
+              artifact: drop_build_main
+            continueOnError: true
+
+          # Download DEBIAN9 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download DEBIAN9 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 233307
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+              path: $(AGENTARTIFACTSPATH)
+              artifact: drop_build_main
+            continueOnError: true
+
+          # Download DEBIAN10 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download DEBIAN10 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 233069
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+              path: $(AGENTARTIFACTSPATH)
+              artifact: drop_build_main
+            continueOnError: true
+
+          # Download DEBIAN11 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download DEBIAN11 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 301282
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+              path: $(AGENTARTIFACTSPATH)
+              artifact: drop_build_main
+            continueOnError: true
+              
+          # Download OL6 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download OL6 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 233308
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+              path: $(AGENTARTIFACTSPATH)
+              artifact: drop_build_main
+            continueOnError: true
+
+          # Download OL7 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download OL7 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 233309
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+              path: $(AGENTARTIFACTSPATH)
+              artifact: drop_build_main
+            continueOnError: true
+
+          # Download OL8 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download OL8 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 233310
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+              path: $(AGENTARTIFACTSPATH)
+              artifact: drop_build_main
+            continueOnError: true
+          
+          # Download OL9 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download OL9 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 308970
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+              path: $(AGENTARTIFACTSPATH)
+              artifact: drop_build_main
+            continueOnError: true
+
+          # Download RHEL6 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download RHEL6 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 233311
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+              path: $(AGENTARTIFACTSPATH)
+              artifact: drop_build_main
+            continueOnError: true
+
+          # Download RHEL7 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download RHEL7 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 233312
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+              path: $(AGENTARTIFACTSPATH)
+              artifact: drop_build_main
+            continueOnError: true
+
+          # Download RHEL8 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download RHEL8 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 233313
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+              path: $(AGENTARTIFACTSPATH)
+              artifact: drop_build_main
+            continueOnError: true
+          
+          # Download RHEL9 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download RHEL9 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 308971
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+              path: $(AGENTARTIFACTSPATH)
+              artifact: drop_build_main
+            continueOnError: true
+
+          # Download SLES-12 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download SLES-12 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 305929
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+              path: $(AGENTARTIFACTSPATH)
+              artifact: drop_build_main
+            continueOnError: true
+              
+          
+          # Download SLES-15 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download SLES-15 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 305931
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+              path: $(AGENTARTIFACTSPATH)
+              artifact: drop_build_main
+            continueOnError: true
+            
+          # Download UBUNTU-14.04 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download UBUNTU-14.04 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 233314
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+              path: $(AGENTARTIFACTSPATH)
+              artifact: drop_build_main
+            continueOnError: true
+
+          # Download UBUNTU-16.04 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download UBUNTU-16.04 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 233315
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+              path: $(AGENTARTIFACTSPATH)
+              artifact: drop_build_main
+            continueOnError: true
+
+          # Download UBUNTU-18.04 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download UBUNTU-18.04 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 233316
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+              path: $(AGENTARTIFACTSPATH)
+              artifact: drop_build_main
+            continueOnError: true
+
+          # Download UBUNTU-20.04 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download UBUNTU-20.04 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 233061
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+              path: $(AGENTARTIFACTSPATH)
+              artifact: drop_build_main
+            continueOnError: true
+
+          # Download UBUNTU-22.04 agent.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download UBUNTU-22.04 Agent'
+            inputs:
+              source: specific
+              project: One
+              pipeline: 301283
+              runVersion: latestFromBranch
+              runBranch: refs/heads/$(BRANCHNAME)
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              patterns: |
+                **/*release.tar.gz
+              path: $(AGENTARTIFACTSPATH)
+              artifact: drop_build_main
+            continueOnError: true
+
+          # Create nuspec file for agents.
+          - task: PowerShell@2
+            displayName: 'Create nuspec file for agents'
+            inputs:
+              targetType: 'inline'
+              script: |
+                $files = Get-ChildItem $(AGENTARTIFACTSPATH)\* -Include *release.tar.gz, *release.exe
+                Write-Host "$(AGENTARTIFACTSPATH)"
+                Write-Host $files.FullName
+                foreach ($file in $files) {
+                    $fileName = $file.Name
+                    $pkgName = "ASR_UA_" + $fileName.Split('_')[3] + "_" + "$(BRANCHNAME)"
+                    $nugetTemplatespec = "$(REPOROOT)\.pipelines\Agent.nuspec"
+                    $nuspec = [xml](Get-Content $nugetTemplatespec)
+                    $nuspec.package.metadata.id = $pkgName
+                    $nuspec.package.metadata.version = "$(BUILDVERSION)"
+                    $nuspec.package.files.file.src = "$file"
+                    $nuspec.package.files.file.target = $fileName
+                    $nuspecName = -Join ($pkgName,".","nuspec")
+                    $nuspecPath = -Join ("$(REPOROOT)","\",$nuspecName)
+                    $nuspec.Save($nuspecPath);
+                }
+              workingDirectory: '$(REPOROOT)'
+          
+          # Print AgentArtifacts folder contents
+          - task: PowerShell@2
+            displayName: 'Print AgentArtifacts Folder Contents'
+            inputs:
+              targetType: 'inline'
+              script: |
+                Get-ChildItem $(AGENTARTIFACTSPATH)
+                
+          - task: NuGetCommand@2
+            displayName: 'Package agent nuget'
+            inputs:
+              command: pack
+              packagesToPack: '$(REPOROOT)\*.nuspec'
+              packDestination: '$(Build.SourcesDirectory)\out\packages'
+              allowPackageConflicts: true
+            
+          - task: NuGetCommand@2
+            displayName: 'Nuget Push to One/ASRDPNugetFeed'
+            inputs:
+              command: 'push'
+              packagesToPush: '$(Build.SourcesDirectory)\out\packages\*.nupkg'
+              nuGetFeedType: 'internal'
+              publishVstsFeed: 'One/ASRDPNugetFeed'

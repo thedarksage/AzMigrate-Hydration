@@ -1,0 +1,174 @@
+#!/bin/sh
+# This is for SLES systems
+### BEGIN INIT INFO
+# Provides: DRSCOUTHotplugAgentServiceForVolumeReplication
+# Required-Start: network
+# Required-Stop:
+# Default-Start: 1 2 3 5
+# Default-Stop:
+# Description:   This script is the daemon script for volume replication agent
+### END INIT INFO
+
+export PATH=/bin:/sbin:$PATH
+
+DM_DEV=""
+inm_dbg_str=""
+
+# err logger for the script
+inm_log() {
+	inm_dbg_str+="|"
+	inm_dbg_str+=`date +"%b %d %H:%M:%S"`
+	inm_dbg_str+=" $*"
+}
+
+# FUNCTION: Invokes inm_logger to write into kernel ring buffer
+cleanup() {
+	INM_LOGGER=/etc/init.d/inm_logger
+	if [ -f $INM_LOGGER ] ; then
+		$INM_LOGGER "inm_hotplug: " $inm_dbg_str
+	else
+		echo $inm_dbg_str
+	fi
+}
+
+# FUNCTION: Get the absolute pathname of a logical volume, given its device name under /dev
+GetLVMPathName()
+{
+	local LVM_DEV_NAME=$1
+
+	timeout=60
+	for major in `cat /sys/block/${LVM_DEV_NAME}/dev | grep -o "[0-9]*"`; do break; done
+	local LVM_DEV_MAJ_NUM=$major
+	for minor in `cat /sys/block/${LVM_DEV_NAME}/dev | grep -o ":[0-9]*" | grep -o "[0-9]\+"`; do break; done
+	local LVM_DEV_MIN_NUM=$minor
+
+	while [ "$timeout" -gt 0 ] ; do
+		sleep 1
+
+		DM_DEV=`for i in \`LANG=C ls -l /dev/mapper | grep "^b.*${LVM_DEV_MAJ_NUM},[ ]*${LVM_DEV_MIN_NUM}"\`; do echo $i ; done | sed -n '$ p'`
+		DM_DEV="/dev/mapper/$DM_DEV"
+
+		if [ ! -z $DM_DEV ] ; then
+			inm_log "lvm device $DM_DEV has created for device = $LVM_DEV_NAME"
+			break
+		fi
+
+		inm_log "waiting for $device to be created (timeout = $timeout)"
+		timeout=$(( $timeout - 1 ))
+	done
+
+	if [ $DM_DEV = "/dev/mapper/" ]; then
+		for device in `ls /dev/mapper/*`
+		do
+			ls -l $device | grep -w "../${LVM_DEV_NAME}" > /dev/null
+			if [ $? -eq "0" ]; then
+				DM_DEV=$device
+				break
+			fi
+		DM_DEV=""
+		done
+	fi
+
+
+	if [ "$timeout" -eq 0 ] ; then
+		inm_log "timeout"
+	fi
+}
+
+# FUNCTION: Create the filter driver node /dev/involflt if the driver is already loaded
+CreateFiltDrvNode()
+{
+	if lsmod | grep involflt > /dev/null 2>&1 && [ ! -c /dev/involflt ]; then
+
+		local FILTDRVNODE_MAJ_NUM=`cat /proc/devices | grep involflt | grep -o "^[0-9]*"`
+        	mknod /dev/involflt c $FILTDRVNODE_MAJ_NUM 0
+
+	fi
+}
+
+# FUNCTION: Stack the logical volumes by getting their absolute pathnames and sending appropriate ioctls to involflt
+BootStackLVM()
+{
+
+	CreateFiltDrvNode
+
+	local LVM_DEV_NAME=$1
+	GetLVMPathName $LVM_DEV_NAME
+
+	local LVM_DEV_PATH=$DM_DEV
+
+	if [ -z "$LVM_DEV_PATH" ] ; then 
+		inm_log 'Boot stacking is failed for device $LVM_DEV_NAME'
+		return 1
+	fi
+
+	local LVM_FILT_DEV=`echo $LVM_DEV_PATH | sed 's/\//_/g'`
+	local LVM_FILT_DEV_PERS_PATH=`echo /etc/vxagent/involflt/$LVM_FILT_DEV`
+
+	# The kernel sends ACTION="add" in the case of a LVM creation during boot-time
+
+	if [ -d $LVM_FILT_DEV_PERS_PATH ]; then
+
+		local VOL_FILT_DISABLED_FILE_PATH=`echo $LVM_FILT_DEV_PERS_PATH/VolumeFilteringDisabled`
+
+		if [ -f $VOL_FILT_DISABLED_FILE_PATH -a `cat $VOL_FILT_DISABLED_FILE_PATH` -eq 0 ]; then
+
+			/etc/vxagent/hotplug_utils/inm_dmit --op=stack --src_vol=$LVM_DEV_PATH
+
+			if [ $? -eq 0 ]; then
+				inm_log "Tried for autostacking on device $LVM_DEV_PATH ($LVM_DEV_NAME) - success" 
+			else
+				inm_log "Tried for autostacking on device $LVM_DEV_PATH ($LVM_DEV_NAME)- failed" 
+			fi
+
+		elif [ -f $VOL_FILT_DISABLED_FILE_PATH -a `cat $VOL_FILT_DISABLED_FILE_PATH` -ne 0 ]; then
+
+			inm_log "STOP FILTERING already issued on $LVM_DEV_PATH ..."
+
+		fi
+	
+	fi
+}
+
+###################################################
+# MAIN ENTRY POINT OF THE SCRIPT
+###################################################
+
+inm_log "HOTPLUG DEVICE = $DEVPATH , ACTION = $ACTION"
+
+# Invoking the ORIGINAL hotplug binary on platforms that have it
+
+if [ -e /sbin/hotplug ]; then
+
+        if [ $# -lt 1 ]; then
+                inm_log "$0 : Insufficient no. of args!"
+                inm_log "Usage: [ $0 <blk file name in /dev dir>"
+                cleanup
+                exit 1
+        else
+                inm_log "Executing /sbin/hotplug for $DEVPATH ..."
+                /sbin/hotplug $*
+        fi
+
+fi
+
+# Only add operations is supposed to be handled
+if [ $ACTION != "add" ] ; then
+	inm_log " $ACTION operation ignored"
+	cleanup
+	exit 1
+fi
+
+# Now carrying out the boot stacking of any logical volumes for whom volume filtering is enabled
+
+LVM_DEV_NAME=`for i in \`echo $DEVPATH | sed 's/\// /g'\`; do echo $i; done | sed -n '$ p'`
+LVM_DEV_SYSFS_PATH=`echo /sys/block/$LVM_DEV_NAME`
+
+if [ -d $LVM_DEV_SYSFS_PATH ]; then
+
+	inm_log "Processing $LVM_DEV_SYSFS_PATH ..."
+	inm_log "Logical Volume Device Name as sent by the kernel in DEVPATH variable = $LVM_DEV_NAME ..."
+	BootStackLVM $LVM_DEV_NAME
+
+fi
+cleanup

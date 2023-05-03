@@ -1,0 +1,76 @@
+<Function Name="GetProtectionDetailsBySystemGUID" Id="" ReturnCode="0" Message="">
+	<FunctionResponse>	
+		<ParameterGroup Id="E" >
+			<Parameter Name="VolumeName" Value="E" />
+			<Parameter Name="PairState" Value="Resync" />
+			<Parameter Name="ResyncProgress" Value="50%" />
+			<Parameter Name="ResyncRequiredState" Value="No" />
+			<Parameter Name="RepositoryName" Value="rep1" />
+			<Parameter Name="RepositoryPath" Value="C:\rep1" />
+			<Parameter Name="CurrentRPO" Value="46" />
+			<Parameter Name="PendingChangesSize" Value="23423425" />
+			<ParameterGroup Id = "AvailableRecoveryRanges">
+				<ParameterGroup Id="12314314123123-34234245123123" >
+					<Parameter Name="StartTime" Value="12314314123123" />
+					<Parameter Name="EndTime" Value="34234245123123" />
+					<Parameter Name="StartTimeUTC" Value="34234245123123" />
+					<Parameter Name="EndTimeUTC" Value="34234245123123" />
+					<Parameter Name="Accuracy" Value="Exact"/>
+ 				</ParameterGroup>
+				<ParameterGroup Id="12314314123123-54234245123123" >
+					<Parameter Name="StartTime" Value="12314314123123" />
+					<Parameter Name="EndTime" Value="34234245123123" />
+					<Parameter Name="StartTimeUTC" Value="34234245123123" />
+					<Parameter Name="EndTimeUTC" Value="34234245123123" />
+					<Parameter Name="Accuracy" Value="Approximate"/>
+	 			</ParameterGroup>
+			</ParameterGroup>
+			<ParameterGroup Id = "AvailableRestorePoints">
+				<ParameterGroup Id="tag1" >
+					<Parameter Name="RestorePoint" Value="tag1" />
+					<Parameter Name="RestorePointGUID" Value="39F830AD9C46DE48B87EsdfBE56F4C919D7C7E96CD9" />
+					<Parameter Name="RestorePointTimestamp" Value="34234245123123"/>
+					<Parameter Name="Accuracy" Value="Notguaranteeed"/>
+				</ParameterGroup> 
+				<ParameterGroup Id="tag2" >
+					<Parameter Name="RestorePoint" Value="tag2" />
+					<Parameter Name="RestorePointGUID" Value="39F830AD9C46DE48B87EsdfBE56F4C919D7C7E96CD9" />
+					<Parameter Name="RestorePointTimestamp" Value="34234245123123"/>
+					<Parameter Name="Accuracy" Value="Exact"/>
+				</ParameterGroup> 
+			</ParameterGroup>
+			<ParameterGroup Id="RetentionSettings">
+				<ParameterGroup Id="Retention Actuals">
+					<Parameter Name="SizeOccupied(MB)" Value="2048" />
+					<ParameterGroup Id="TotalTImeRange">
+					      <Parameter Name="StartTime" Value="12-12-2010 03-56" />					      <Parameter Name="EndTime" Value="12-12-2010 08-56" />						</ParameterGroup>
+				</ParameterGroup>
+				<ParameterGroup Id="Retention Configured">
+					<Parameter Name="RetentionType" Value="Time" />
+					<ParameterGroup Id="RetentionWindow" />
+						<ParameterGroup Id="Daily" >
+							<Parameter Name="Duration" Value="7 months" />
+							<Parameter Name="Granualarity" Value="1Hr"/>
+							<Parameter Name="Count" Value="1" />
+						</ParameterGroup>
+						<ParameterGroup Id="Weekly" >
+							<Parameter Name="Duration" Value="1" />
+							<Parameter Name="Granualarity" Value="1day"/>
+                            <Parameter Name="Count" Value="1" />
+						</ParameterGroup>
+						<ParameterGroup Id="Monthly" >
+							<Parameter Name="Duration" Value="2" />
+							<Parameter Name="Granualarity" Value="1week"/>
+                            <Parameter Name="Count" Value="1" />
+						</ParameterGroup>
+						<ParameterGroup Id="Yearly" >
+							<Parameter Name="Duration" Value="1" />
+                                <Parameter Name="Granualarity" Value="1month"/>
+                            	<Parameter Name="Count" Value="1" />
+						</ParameterGroup>
+				</ParameterGroup>
+			</ParameterGroup>
+			<Parameter Name="RPOPolicy" Value="RPO Policy" />
+		</ParameterGroup>	
+   	</FunctionResponse> 
+</Function>

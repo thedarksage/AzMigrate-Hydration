@@ -1,0 +1,486 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Win8.1 Debug|Win32">
+      <Configuration>Win8.1 Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Win8.1 Release|Win32">
+      <Configuration>Win8.1 Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Win8 Debug|Win32">
+      <Configuration>Win8 Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Win8 Release|Win32">
+      <Configuration>Win8 Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Win7 Debug|Win32">
+      <Configuration>Win7 Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Win7 Release|Win32">
+      <Configuration>Win7 Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Win8.1 Debug|x64">
+      <Configuration>Win8.1 Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Win8.1 Release|x64">
+      <Configuration>Win8.1 Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Win8 Debug|x64">
+      <Configuration>Win8 Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Win8 Release|x64">
+      <Configuration>Win8 Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Win7 Debug|x64">
+      <Configuration>Win7 Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Win7 Release|x64">
+      <Configuration>Win7 Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{31B461F5-0AA8-403D-AB0A-04101D00AEDB}</ProjectGuid>
+    <TemplateGuid>{dd38f7fc-d7bd-488b-9242-7d8754cde80d}</TemplateGuid>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
+    <Configuration>Win8.1 Debug</Configuration>
+    <Platform Condition="'$(Platform)' == ''">Win32</Platform>
+    <RootNamespace>InVolFlt_WDK81</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win8.1 Debug|Win32'" Label="Configuration">
+    <TargetVersion>WindowsV6.3</TargetVersion>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>WindowsKernelModeDriver8.1</PlatformToolset>
+    <ConfigurationType>Driver</ConfigurationType>
+    <DriverType>WDM</DriverType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win8.1 Release|Win32'" Label="Configuration">
+    <TargetVersion>WindowsV6.3</TargetVersion>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>WindowsKernelModeDriver8.1</PlatformToolset>
+    <ConfigurationType>Driver</ConfigurationType>
+    <DriverType>WDM</DriverType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win8 Debug|Win32'" Label="Configuration">
+    <TargetVersion>Windows8</TargetVersion>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>WindowsKernelModeDriver8.1</PlatformToolset>
+    <ConfigurationType>Driver</ConfigurationType>
+    <DriverType>WDM</DriverType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win8 Release|Win32'" Label="Configuration">
+    <TargetVersion>Windows8</TargetVersion>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>WindowsKernelModeDriver8.1</PlatformToolset>
+    <ConfigurationType>Driver</ConfigurationType>
+    <DriverType>WDM</DriverType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win7 Debug|Win32'" Label="Configuration">
+    <TargetVersion>Windows7</TargetVersion>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>WindowsKernelModeDriver8.1</PlatformToolset>
+    <ConfigurationType>Driver</ConfigurationType>
+    <DriverType>WDM</DriverType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win7 Release|Win32'" Label="Configuration">
+    <TargetVersion>Windows7</TargetVersion>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>WindowsKernelModeDriver8.1</PlatformToolset>
+    <ConfigurationType>Driver</ConfigurationType>
+    <DriverType>WDM</DriverType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win8.1 Debug|x64'" Label="Configuration">
+    <TargetVersion>WindowsV6.3</TargetVersion>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>WindowsKernelModeDriver8.1</PlatformToolset>
+    <ConfigurationType>Driver</ConfigurationType>
+    <DriverType>WDM</DriverType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win8.1 Release|x64'" Label="Configuration">
+    <TargetVersion>WindowsV6.3</TargetVersion>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>WindowsKernelModeDriver8.1</PlatformToolset>
+    <ConfigurationType>Driver</ConfigurationType>
+    <DriverType>WDM</DriverType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win8 Debug|x64'" Label="Configuration">
+    <TargetVersion>Windows8</TargetVersion>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>WindowsKernelModeDriver8.1</PlatformToolset>
+    <ConfigurationType>Driver</ConfigurationType>
+    <DriverType>WDM</DriverType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win8 Release|x64'" Label="Configuration">
+    <TargetVersion>Windows8</TargetVersion>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>WindowsKernelModeDriver8.1</PlatformToolset>
+    <ConfigurationType>Driver</ConfigurationType>
+    <DriverType>WDM</DriverType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win7 Debug|x64'" Label="Configuration">
+    <TargetVersion>Windows7</TargetVersion>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>WindowsKernelModeDriver8.1</PlatformToolset>
+    <ConfigurationType>Driver</ConfigurationType>
+    <DriverType>WDM</DriverType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win7 Release|x64'" Label="Configuration">
+    <TargetVersion>Windows7</TargetVersion>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>WindowsKernelModeDriver8.1</PlatformToolset>
+    <ConfigurationType>Driver</ConfigurationType>
+    <DriverType>WDM</DriverType>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win8.1 Debug|Win32'">
+    <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+    <OutDir>$(Platform)\$(ConfigurationName)\</OutDir>
+    <IntDir>$(Platform)\$(ConfigurationName)\</IntDir>
+    <TargetName>InVolFlt</TargetName>
+    <IncludePath>$(ProjectDir);$(IncludePath);..\..\..\..\common\win32;..\..\..\..\common;..\..\..\Include\win32;..\..\..\InVolFlt\win32</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win8.1 Release|Win32'">
+    <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+    <OutDir>$(Platform)\$(ConfigurationName)\</OutDir>
+    <IntDir>$(Platform)\$(ConfigurationName)\</IntDir>
+    <TargetName>InVolFlt</TargetName>
+    <IncludePath>$(ProjectDir);$(IncludePath);..\..\..\..\common\win32;..\..\..\..\common;..\..\..\Include\win32;..\..\..\InVolFlt\win32</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win8 Debug|Win32'">
+    <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+    <OutDir>$(Platform)\$(ConfigurationName)\</OutDir>
+    <IntDir>$(Platform)\$(ConfigurationName)\</IntDir>
+    <TargetName>InVolFlt</TargetName>
+    <IncludePath>$(ProjectDir);$(IncludePath);..\..\..\..\common\win32;..\..\..\..\common;..\..\..\Include\win32;..\..\..\InVolFlt\win32</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win8 Release|Win32'">
+    <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+    <OutDir>$(Platform)\$(ConfigurationName)\</OutDir>
+    <IntDir>$(Platform)\$(ConfigurationName)\</IntDir>
+    <TargetName>InVolFlt</TargetName>
+    <IncludePath>$(ProjectDir);$(IncludePath);..\..\..\..\common\win32;..\..\..\..\common;..\..\..\Include\win32;..\..\..\InVolFlt\win32</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win7 Debug|Win32'">
+    <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+    <IncludePath>$(ProjectDir);$(IncludePath);..\..\..\..\common\win32;..\..\..\..\common;..\..\..\Include\win32;..\..\..\InVolFlt\win32</IncludePath>
+    <OutDir>$(Platform)\$(ConfigurationName)\</OutDir>
+    <IntDir>$(Platform)\$(ConfigurationName)\</IntDir>
+    <TargetName>InVolFlt</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win7 Release|Win32'">
+    <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+    <OutDir>$(Platform)\$(ConfigurationName)\</OutDir>
+    <IntDir>$(Platform)\$(ConfigurationName)\</IntDir>
+    <TargetName>InVolFlt</TargetName>
+    <IncludePath>$(ProjectDir);$(IncludePath);..\..\..\..\common\win32;..\..\..\..\common;..\..\..\Include\win32;..\..\..\InVolFlt\win32</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win8.1 Debug|x64'">
+    <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+    <OutDir>$(Platform)\$(ConfigurationName)\</OutDir>
+    <TargetName>InVolFlt</TargetName>
+    <IncludePath>$(ProjectDir);$(IncludePath);..\..\..\..\common\win32;..\..\..\..\common;..\..\..\Include\win32;..\..\..\InVolFlt\win32</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win8.1 Release|x64'">
+    <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+    <OutDir>$(Platform)\$(ConfigurationName)\</OutDir>
+    <TargetName>InVolFlt</TargetName>
+    <IncludePath>$(ProjectDir);$(IncludePath);..\..\..\..\common\win32;..\..\..\..\common;..\..\..\Include\win32;..\..\..\InVolFlt\win32</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win8 Debug|x64'">
+    <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+    <OutDir>$(Platform)\$(ConfigurationName)\</OutDir>
+    <TargetName>InVolFlt</TargetName>
+    <IncludePath>$(ProjectDir);$(IncludePath);..\..\..\..\common\win32;..\..\..\..\common;..\..\..\Include\win32;..\..\..\InVolFlt\win32</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win8 Release|x64'">
+    <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+    <OutDir>$(Platform)\$(ConfigurationName)\</OutDir>
+    <TargetName>InVolFlt</TargetName>
+    <IncludePath>$(ProjectDir);$(IncludePath);..\..\..\..\common\win32;..\..\..\..\common;..\..\..\Include\win32;..\..\..\InVolFlt\win32</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win7 Debug|x64'">
+    <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+    <OutDir>$(Platform)\$(ConfigurationName)\</OutDir>
+    <TargetName>InVolFlt</TargetName>
+    <IncludePath>$(ProjectDir);..\..\..\..\common\win32;..\..\..\Include\win32;$(IncludePath);..\..\..\..\common;..\..\..\InVolFlt\win32</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win7 Release|x64'">
+    <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+    <OutDir>$(Platform)\$(ConfigurationName)\</OutDir>
+    <TargetName>InVolFlt</TargetName>
+    <IncludePath>$(ProjectDir);$(IncludePath);..\..\..\..\common\win32;..\..\..\..\common;..\..\..\Include\win32;..\..\..\InVolFlt\win32</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Win8.1 Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
+    </ClCompile>
+    <MessageCompile>
+      <SetCustomerbit>true</SetCustomerbit>
+    </MessageCompile>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies);$(KernelBufferOverflowLib);$(DDK_LIB_PATH)\ntoskrnl.lib;$(DDK_LIB_PATH)\hal.lib;$(DDK_LIB_PATH)\wmilib.lib;$(DDK_LIB_PATH)\ntstrsafe.lib</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Win7 Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
+    </ClCompile>
+    <MessageCompile>
+      <SetCustomerbit>true</SetCustomerbit>
+    </MessageCompile>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies);$(KernelBufferOverflowLib);$(DDK_LIB_PATH)\ntoskrnl.lib;$(DDK_LIB_PATH)\hal.lib;$(DDK_LIB_PATH)\wmilib.lib;$(DDK_LIB_PATH)\ntstrsafe.lib</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Win7 Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <DisableSpecificWarnings />
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies);$(KernelBufferOverflowLib);$(DDK_LIB_PATH)\ntoskrnl.lib;$(DDK_LIB_PATH)\hal.lib;$(DDK_LIB_PATH)\wmilib.lib;$(DDK_LIB_PATH)\ntstrsafe.lib</AdditionalDependencies>
+    </Link>
+    <MessageCompile>
+      <SetCustomerbit>true</SetCustomerbit>
+    </MessageCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Win7 Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <DisableSpecificWarnings />
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies);$(KernelBufferOverflowLib);$(DDK_LIB_PATH)\ntoskrnl.lib;$(DDK_LIB_PATH)\hal.lib;$(DDK_LIB_PATH)\wmilib.lib;$(DDK_LIB_PATH)\ntstrsafe.lib</AdditionalDependencies>
+    </Link>
+    <MessageCompile>
+      <SetCustomerbit>true</SetCustomerbit>
+    </MessageCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Win7 Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <DisableSpecificWarnings />
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies);$(KernelBufferOverflowLib);$(DDK_LIB_PATH)\ntoskrnl.lib;$(DDK_LIB_PATH)\hal.lib;$(DDK_LIB_PATH)\wmilib.lib;$(DDK_LIB_PATH)\ntstrsafe.lib</AdditionalDependencies>
+    </Link>
+    <MessageCompile>
+      <SetCustomerbit>true</SetCustomerbit>
+    </MessageCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Win8 Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <DisableSpecificWarnings />
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies);$(KernelBufferOverflowLib);$(DDK_LIB_PATH)\ntoskrnl.lib;$(DDK_LIB_PATH)\hal.lib;$(DDK_LIB_PATH)\wmilib.lib;$(DDK_LIB_PATH)\ntstrsafe.lib</AdditionalDependencies>
+    </Link>
+    <MessageCompile>
+      <SetCustomerbit>true</SetCustomerbit>
+    </MessageCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Win8 Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <DisableSpecificWarnings />
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies);$(KernelBufferOverflowLib);$(DDK_LIB_PATH)\ntoskrnl.lib;$(DDK_LIB_PATH)\hal.lib;$(DDK_LIB_PATH)\wmilib.lib;$(DDK_LIB_PATH)\ntstrsafe.lib</AdditionalDependencies>
+    </Link>
+    <MessageCompile>
+      <SetCustomerbit>true</SetCustomerbit>
+    </MessageCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Win8 Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <DisableSpecificWarnings />
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies);$(KernelBufferOverflowLib);$(DDK_LIB_PATH)\ntoskrnl.lib;$(DDK_LIB_PATH)\hal.lib;$(DDK_LIB_PATH)\wmilib.lib;$(DDK_LIB_PATH)\ntstrsafe.lib</AdditionalDependencies>
+    </Link>
+    <MessageCompile>
+      <SetCustomerbit>true</SetCustomerbit>
+    </MessageCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Win8 Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <DisableSpecificWarnings />
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies);$(KernelBufferOverflowLib);$(DDK_LIB_PATH)\ntoskrnl.lib;$(DDK_LIB_PATH)\hal.lib;$(DDK_LIB_PATH)\wmilib.lib;$(DDK_LIB_PATH)\ntstrsafe.lib</AdditionalDependencies>
+    </Link>
+    <MessageCompile>
+      <SetCustomerbit>true</SetCustomerbit>
+    </MessageCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Win8.1 Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <DisableSpecificWarnings />
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies);$(KernelBufferOverflowLib);$(DDK_LIB_PATH)\ntoskrnl.lib;$(DDK_LIB_PATH)\hal.lib;$(DDK_LIB_PATH)\wmilib.lib;$(DDK_LIB_PATH)\ntstrsafe.lib</AdditionalDependencies>
+    </Link>
+    <MessageCompile>
+      <SetCustomerbit>true</SetCustomerbit>
+    </MessageCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Win8.1 Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <DisableSpecificWarnings />
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies);$(KernelBufferOverflowLib);$(DDK_LIB_PATH)\ntoskrnl.lib;$(DDK_LIB_PATH)\hal.lib;$(DDK_LIB_PATH)\wmilib.lib;$(DDK_LIB_PATH)\ntstrsafe.lib</AdditionalDependencies>
+    </Link>
+    <MessageCompile>
+      <SetCustomerbit>true</SetCustomerbit>
+    </MessageCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Win8.1 Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Win8.1 Release|Win32'">
+    <ClCompile>
+      <SDLCheck>false</SDLCheck>
+      <DisableSpecificWarnings />
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies);$(KernelBufferOverflowLib);$(DDK_LIB_PATH)\ntoskrnl.lib;$(DDK_LIB_PATH)\hal.lib;$(DDK_LIB_PATH)\wmilib.lib;$(DDK_LIB_PATH)\ntstrsafe.lib</AdditionalDependencies>
+    </Link>
+    <MessageCompile>
+      <SetCustomerbit>true</SetCustomerbit>
+    </MessageCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Inf Include="InVolFlt_WDK81.inf" />
+  </ItemGroup>
+  <ItemGroup>
+    <FilesToPackage Include="$(TargetPath)" />
+    <FilesToPackage Include="@(Inf->'%(CopyOutput)')" Condition="'@(Inf)'!=''" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\AsyncIORequest.cpp" />
+    <ClCompile Include="..\BaseClass.cpp" />
+    <ClCompile Include="..\BitmapAPI.cpp" />
+    <ClCompile Include="..\BitmapOperations.cpp" />
+    <ClCompile Include="..\BitmapPersistentValues.cpp" />
+    <ClCompile Include="..\Bypass.cpp" />
+    <ClCompile Include="..\ChangeNode.cpp" />
+    <ClCompile Include="..\classes.cpp" />
+    <ClCompile Include="..\DataFile.cpp" />
+    <ClCompile Include="..\DataFileWriter.cpp" />
+    <ClCompile Include="..\DataFileWriterMgr.cpp" />
+    <ClCompile Include="..\DataFlt.cpp" />
+    <ClCompile Include="..\DirtyBlock.cpp" />
+    <ClCompile Include="..\DriverContext.cpp" />
+    <ClCompile Include="..\FileStream.cpp" />
+    <ClCompile Include="..\FileStreamSegmentMapper.cpp" />
+    <ClCompile Include="..\HelperFunctions.cpp" />
+    <ClCompile Include="..\InVolFlt.cpp" />
+    <ClCompile Include="..\IOBuffer.cpp" />
+    <ClCompile Include="..\IoctlInfo.cpp" />
+    <ClCompile Include="..\ListNode.cpp" />
+    <ClCompile Include="..\md5.cpp" />
+    <ClCompile Include="..\MetaDataMode.cpp" />
+    <ClCompile Include="..\misc.cpp" />
+    <ClCompile Include="..\MntMgr.cpp" />
+    <ClCompile Include="..\mscs.cpp" />
+    <ClCompile Include="..\Profiler.cpp" />
+    <ClCompile Include="..\Registry.cpp" />
+    <ClCompile Include="..\RegMultisz.cpp" />
+    <ClCompile Include="..\SegmentedBitmap.cpp" />
+    <ClCompile Include="..\TagNode.cpp" />
+    <ClCompile Include="..\VBitmap.cpp" />
+    <ClCompile Include="..\VContext.cpp" />
+    <ClCompile Include="..\WorkQueue.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\common\svdparse.h" />
+    <ClInclude Include="..\..\..\Include\win32\DriverTags.h" />
+    <ClInclude Include="..\..\..\Include\win32\DrvDefines.h" />
+    <ClInclude Include="..\AsyncIORequest.h" />
+    <ClInclude Include="..\BaseClass.h" />
+    <ClInclude Include="..\BitmapAPI.h" />
+    <ClInclude Include="..\BitmapOperations.h" />
+    <ClInclude Include="..\BitmapPersistentValues.h" />
+    <ClInclude Include="..\Bypass.h" />
+    <ClInclude Include="..\ChangeNode.h" />
+    <ClInclude Include="..\Common.h" />
+    <ClInclude Include="..\CPP-RunTimeSupport.h" />
+    <ClInclude Include="..\DataFile.h" />
+    <ClInclude Include="..\DataFileWriter.h" />
+    <ClInclude Include="..\DataFileWriterMgr.h" />
+    <ClInclude Include="..\DataFlt.h" />
+    <ClInclude Include="..\DirtyBlock.h" />
+    <ClInclude Include="..\DriverContext.h" />
+    <ClInclude Include="..\FileStream.h" />
+    <ClInclude Include="..\FileStreamSegmentMapper.h" />
+    <ClInclude Include="..\global.h" />
+    <ClInclude Include="..\HelperFunctions.h" />
+    <ClInclude Include="..\InMageDebug.h" />
+    <ClInclude Include="..\InVolFlt.h" />
+    <ClInclude Include="..\IOBuffer.h" />
+    <ClInclude Include="..\IoctlInfo.h" />
+    <ClInclude Include="..\ListNode.h" />
+    <ClInclude Include="..\MetaDataMode.h" />
+    <ClInclude Include="..\misc.h" />
+    <ClInclude Include="..\MntMgr.h" />
+    <ClInclude Include="..\mscs.h" />
+    <ClInclude Include="..\OSDevice.h" />
+    <ClInclude Include="..\Platform.h" />
+    <ClInclude Include="..\Profiler.h" />
+    <ClInclude Include="..\Registry.h" />
+    <ClInclude Include="..\RegMultisz.h" />
+    <ClInclude Include="..\ScopeSpinLock.h" />
+    <ClInclude Include="..\ScopeTrace.h" />
+    <ClInclude Include="..\SegmentedBitmap.h" />
+    <ClInclude Include="..\SegmentMapper.h" />
+    <ClInclude Include="..\TagNode.h" />
+    <ClInclude Include="..\VBitmap.h" />
+    <ClInclude Include="..\VContext.h" />
+    <ClInclude Include="..\WinSvdParse.h" />
+    <ClInclude Include="..\WorkQueue.h" />
+    <ClInclude Include="..\WriteMetaData.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <MessageCompile Include="..\InVolFltLog.mc">
+      <SetCustomerbit>true</SetCustomerbit>
+    </MessageCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\InVolFlt.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

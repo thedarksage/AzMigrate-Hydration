@@ -1,0 +1,156 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\aix">
+      <UniqueIdentifier>{442bc26d-c2a2-4774-bc56-693ccf1191cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\linux">
+      <UniqueIdentifier>{5bf58674-c732-432a-b3cc-c5e6f96dffdc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\sun">
+      <UniqueIdentifier>{95c5a8bd-88be-4974-8f88-4cacc9025b63}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\win">
+      <UniqueIdentifier>{6f9b7b44-8162-41e2-8903-f3c72895eaee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\unix">
+      <UniqueIdentifier>{d8bb20c8-6c4b-494c-b256-5cd55bbc71b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="cdpapply.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cdpresyncapply.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cdptargetapply.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cdpv2writer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataprotectionsync.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataprotectionutils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="differentialsync.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="diffinfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="diffsortcriterion.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="groupinfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="programargs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="retentionvolumeapplier.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="svproactor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="volumeinfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="aix\dataprotectionsyncminor.cpp">
+      <Filter>Source Files\aix</Filter>
+    </ClCompile>
+    <ClCompile Include="linux\dataprotectionsyncminor.cpp">
+      <Filter>Source Files\linux</Filter>
+    </ClCompile>
+    <ClCompile Include="sun\dataprotectionsyncminor.cpp">
+      <Filter>Source Files\sun</Filter>
+    </ClCompile>
+    <ClCompile Include="win\dataprotectionsyncmajor.cpp">
+      <Filter>Source Files\win</Filter>
+    </ClCompile>
+    <ClCompile Include="win\svproactormajor.cpp">
+      <Filter>Source Files\win</Filter>
+    </ClCompile>
+    <ClCompile Include="unix\dpdrivercomm.cpp">
+      <Filter>Source Files\unix</Filter>
+    </ClCompile>
+    <ClCompile Include="unix\svproactormajor.cpp">
+      <Filter>Source Files\unix</Filter>
+    </ClCompile>
+    <ClCompile Include="dpdrivercomm.cpp">
+      <Filter>Source Files\win</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="cdpapply.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cdpresyncapply.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cdptargetapply.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cdpv2writer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataprotectionexception.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataprotectionsync.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataprotectionutils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="differentialsync.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="diffinfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="diffsortcriterion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dpdrivercomm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="groupinfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="programargs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="retentionvolumeapplier.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="svproactor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="theconfigurator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="volumeinfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ApplyException.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

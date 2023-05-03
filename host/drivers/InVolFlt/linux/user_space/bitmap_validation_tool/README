@@ -1,0 +1,8 @@
+./bitmap <option> <bitmap-file-name>
+
+
+-r/--read - reading bitmap file
+--header/-d - reads bitmap header file
+c - clear bits in bitmap file
+s - set bits in bitmap file
+

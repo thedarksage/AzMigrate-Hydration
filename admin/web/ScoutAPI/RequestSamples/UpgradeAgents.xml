@@ -1,0 +1,28 @@
+<Request Id="0008" Version="1.0">
+	<Header>
+		<Authentication>
+			<AccessKeyID>DDC9525FF275C104EFA1DFFD528BD0145F903CB1</AccessKeyID>
+			<AccessSignature></AccessSignature>
+		</Authentication> 
+	</Header>
+	<Body> 
+		<FunctionRequest Name="UpgradeAgents" >      
+			<ParameterGroup Id="UpgradeAgentList1">
+				<Parameter Name="HostIP" Value="10.0.168.20"/>
+				<Parameter Name="HostName" Value="imits086.dev-domain.net"/>
+				<Parameter Name="PushServerIP" Value="10.0.1.87"/>
+				<Parameter Name="Username" Value="root"/>
+				<Parameter Name="Domain" Value=""/>
+				<Parameter Name="Build" Value="InMage_UA_7.00.00.00_RHEL5U5-64_DIT_03Aug2012_release.tar.gz"/> 
+			</ParameterGroup>
+			<ParameterGroup Id="UpgradeAgentList2">
+				<Parameter Name="HostIP" Value="10.0.1.183"/>
+				<Parameter Name="HostName" Value="IMITS183"/>
+				<Parameter Name="PushServerIP" Value="10.0.6.44"/>
+				<Parameter Name="Username" Value="administrator"/>
+				<Parameter Name="Domain" Value="appdev"/>
+				<Parameter Name="Build" Value="InMage_UA_7.00.00.00_Windows_DIT_3Aug2012_release.exe"/> 
+			</ParameterGroup>			
+	  </FunctionRequest>
+	</Body>
+</Request>

@@ -1,0 +1,11 @@
+HKCR
+{
+	NoRemove AppID
+	{
+		{60DB7335-5F41-4DF5-B295-BAD9710EAA68} = s 'InMage Host Agents'
+		'frsvc.exe'
+		{
+			val AppID = s {60DB7335-5F41-4DF5-B295-BAD9710EAA68}
+		}
+	}
+}

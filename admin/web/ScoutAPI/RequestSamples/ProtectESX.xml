@@ -1,0 +1,32 @@
+<Request Id="0001" Version="1.0">
+<Header>
+	<Authentication> 
+	    <AccessKeyID>DDC9525FF275C104EFA1DFFD528BD0145F903CB1</AccessKeyID>
+	    <AccessSignature></AccessSignature>
+    </Authentication> 
+</Header>
+<Body> 
+	<FunctionRequest Name="ProtectESX" Include="N">
+      	<Parameter Name="HostIdentification" Value="C8408DF5-3E1C-A44B-9E1C42A2724516A9" />
+		<Parameter Name="PlanName" Value="vCon Plan" />
+		<Parameter Name="JobType" Value="Protection" />
+		<Parameter Name="ConfigureFXJob" Value="Yes/No" />
+		<Parameter Name="ScheduleType" Value="run_now/run_on_demand" />
+		<ParameterGroup Id="JobOptions">
+			<Parameter Name="JobName" Value="Master Target - Master Target" />
+			<Parameter Name="SourceHostId" Value="bc9f18fd-d3da-4311-ab99-d1462b4dbcc3" />
+			<Parameter Name="TargetHostId" Value="bc9f18fd-d3da-4311-ab99-d1462b4dbcc3" />
+			<Parameter Name="SourceDir" Value="/usr/local/InMage/Fx/failover_data/PLAN2_win-mt-42.QA-DC.net_451128" />
+			<Parameter Name="TargetDir" Value="C:\Program Files (x86)\InMage Systems\\Failover\Data\PLAN2_win-mt-42.QA-DC.net_451128" />
+			<Parameter Name="ExcludeFiles" Value="*.*" />
+			<Parameter Name="IncludeFiles" Value="*.txt" />
+			<Parameter Name="TransferMode" Value="Push/Pull" />
+			<Parameter Name="SourcePreScript" Value="SRC PRE SCRIPT" />
+            <Parameter Name="SourcePostScript" Value="SRC POST SCRIPT" />
+            <Parameter Name="TargetPreScript" Value="TRG PRE SCRIPT" />
+			<Parameter Name="TargetPostScript" Value="TRG POST SCRIPT" />
+
+		</ParameterGroup>
+	</FunctionRequest>
+</Body> 
+</Request>

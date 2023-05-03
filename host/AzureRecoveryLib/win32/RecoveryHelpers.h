@@ -31,6 +31,8 @@ namespace AzureRecovery
 
     bool VerifyRegistrySettingsForWinGA(const std::string& srcOSVolume, std::stringstream& errorstream);
 
+    bool VerifyWinVMBusRegistrySettings(std::string& errorMsg);
+
     bool VerifyDisks(std::string& errorMsg);
 
     bool PrepareActivePartitionDrive(std::string& drivePath, std::string& errorMsg);
@@ -84,7 +86,8 @@ namespace AzureRecovery
         int& retcode,
         std::string& curTaskDesc,
         std::stringstream& errStream,
-        bool disableAutomount);
+        bool disableAutomount,
+        bool verifyVMBusRegistry);
 
     bool TransferGuestAgentService(
         std::string& serviceToTransfer,

@@ -1,0 +1,31 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:          involflt_start
+# Required-Start:    mountdevsubfs
+# Required-Stop:
+# X-Start-Before:    checkroot
+# Should-Start:
+# Default-Start:     S
+# Default-Stop:
+# Short-Description: Load involflt filter driver
+### END INIT INFO
+
+set -e
+
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH
+export PATH
+
+case "$1" in
+    start)
+        echo "Starting involflt_start service"
+        /bin/bash /etc/vxagent/bin/involflt.sh start
+        ;;
+    stop)
+        echo "Stopping involflt_start"
+        ;;
+    *)
+        echo "Usage: $0 {start|stop}"
+        exit 1
+        ;;
+esac

@@ -1,0 +1,13 @@
+<Request Id="0502" Version="1.0">
+<Header>
+  <Authentication>
+    <AccessKeyID>8A1681E612A2025087B703FDF1F8F617E506B053</AccessKeyID>
+    <AccessSignature>MmM4OWNjMzA1NzRlNjhiZjkxOTE0OGQ3YTQ1MzI2YWQwYTgwYTdhMw==</AccessSignature>
+  </Authentication>
+</Header>
+<Body>
+  <FunctionRequest Name="getProtectedLuns">
+    <Parameter Name="ArraySerial" Value="A002806BBF" />
+  </FunctionRequest>  
+</Body>
+</Request>

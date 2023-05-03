@@ -1,0 +1,62 @@
+
+Multi-VM WAL test
+
+1. test_crash_cp.sh is the driver for this test. Supports one disk per machine.
+   One master node from which to run test_crash_cp.sh and remote commands are executed on rest of the client nodes.
+    
+   ex: a 24 hour run on three nodes
+   # nohup ./test_crash_cp.sh -b 512 -d localhost:/dev/sdd -d 10.150.174.89:/dev/sdd -d 10.150.169.79:/dev/sdd  -i 30 -n 86400 &
+
+2. Install ASR Mobility Agent on the test machines.
+    # ./install -r MS -q -v vmware
+
+3. Modify vacpunix/main.cpp to log output to console. build on required distros and replace vacp in /usr/local/ASR/Vx/bin/
+
+InMage-Azure-SiteRecovery/host$ git diff -w vacpunix/
+diff --git a/host/vacpunix/main.cpp b/host/vacpunix/main.cpp
+index 00c40a378..d13711cdd 100755
+--- a/host/vacpunix/main.cpp
++++ b/host/vacpunix/main.cpp
+@@ -3254,7 +3254,7 @@ int main(int argc, char ** argv)
+     5. print success/failure.
+
+     */
+-
++#if 0
+     for (int i = ACE::max_handles () - 1; i >= 0; i--)
+         ACE_OS::close (i);
+
+@@ -3273,6 +3273,7 @@ int main(int argc, char ** argv)
+     boost::shared_ptr<void> fdGuardIn(static_cast<void*>(0), boost::bind(fdSafeClose, fdin));
+     boost::shared_ptr<void> fdGuardOut(static_cast<void*>(0), boost::bind(fdSafeClose, fdout));
+     boost::shared_ptr<void> fdGuardErr(static_cast<void*>(0), boost::bind(fdSafeClose, fderr));
++#endif
+
+     set_resource_limits();
+     prctl(PR_SET_PDEATHSIG, SIGTERM);
+
+4. Build test code in InMage-Azure-SiteRecovery/host/drivers/InVolFlt/tests and tar the folder and copy to master node machine
+   # gmake
+   # cd ..
+   # tar cvf tests.tar tests/
+
+5. on the master node copy the binaries to /usr/local/bin after unpacking the tar
+   # tar xvf tests.tar
+   # cp tests/Linux_x86_64/cc_drain /usr/local/bin
+   # cp tests/Linux_x86_64/cc_verify /usr/local/bin
+   # cp tests/Linux_x86_64/write_pattern /usr/local/bin
+
+6. Enable password less ssh from master node to client nodes.
+   a. ssh-keygen on masternode and client nodes for root user.
+   b. ssh-copy-id from masternode to all client nodes for root user. 
+
+7. If using different distros,
+    a. build the test code on each of the distros
+    b. on the client test machines, manually place cc_drain, cc_verify and write_pattern at /usr/local/bin
+    c. comment prepare_remote_nodes in test_crash_cp.sh on master node
+
+8. Change nif="eth0" in test_crash_cp.sh on the master node if the net interface name is different
+   Ex: on Ubuntu 20.04 it is ens160
+
+9. For whatever reasons if the test fails, need to clean up the test process running on master and client nodes.
+   list the process with names cc_drain, cc_verify, write_pattern, inm_dmit

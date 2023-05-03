@@ -1,0 +1,13 @@
+<Request Id="0508" Version="1.0">
+<Header>
+  <Authentication>
+    <AccessKeyID>8A1681E612A2025087B703FDF1F8F617E506B053</AccessKeyID>
+    <AccessSignature>YTc5ZWE3YWFiMWIwZTE1N2Q5MTYxODNkMmRiMGQ3NDY2MDllYTg5Mg==</AccessSignature>
+  </Authentication>
+</Header>
+<Body>
+  <FunctionRequest Name="getFailoverStatus">
+    <Parameter Name="RequestId" Value="41" />
+  </FunctionRequest>
+</Body>
+</Request>

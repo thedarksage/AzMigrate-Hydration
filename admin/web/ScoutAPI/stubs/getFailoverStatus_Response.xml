@@ -1,0 +1,19 @@
+<Function Name=" getFailoverStatus" Id="" Returncode="0" Message="Success">
+<FunctionResponse>
+<ParameterGroup Id="2000b080000002807">
+<Parameter Name="LunId" Value="2000b080000002807"/>
+<Parameter Name="State" Value="success"/>
+<Parameter Name="Status" Value="failedover"/>
+</ParameterGroup>
+<ParameterGroup Id="2000b080000002806">
+<Parameter Name="LunId" Value="2000b080000002806"/>
+<Parameter Name="State" Value="success"/>
+<Parameter Name="Status" Value="failedover"/>
+</ParameterGroup>
+<ParameterGroup Id="2000b080000002808">
+<Parameter Name="LunId" Value="2000b080000002808"/>
+<Parameter Name="State" Value="success"/>
+<Parameter Name="Status" Value="failedover"/>
+</ParameterGroup>
+</FunctionResponse>
+</Function>

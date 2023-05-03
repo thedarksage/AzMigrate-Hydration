@@ -1,0 +1,32 @@
+<Request Id="1" Version="1.0">
+<Header>
+  <Authentication>
+	<AccessKeyID>11F3242118FF2ADD5D117CBF216F29AC578F6BA6</AccessKeyID>
+	<AuthMethod>CXAuth</AuthMethod>
+	<CXUserName>admin</CXUserName>
+  </Authentication>
+</Header>
+<Body>
+  <FunctionRequest Name="ProtectionReadinessCheck">
+	<Parameter Name="ProcessServer" Value="E864323B-17AB-6D48-B23076FF9E5C9CE6"/>
+	<Parameter Name="MasterTarget" Value="E864323B-17AB-6D48-B23076FF9E5C9CE6"/> 
+	<ParameterGroup Id="ServerMapping">
+		<ParameterGroup Id="Configuration1"> 
+		   <Parameter Name="ProcessServer" Value="E864323B-17AB-6D48-B23076FF9E5C9CE6"/>
+		   <Parameter Name="Source" Value="A4284022-71CB-5E43-B69AF768614FF3DF" />
+		   <Parameter Name="MasterTarget" Value="I864323B-17AB-6D48-B23076FF9E5C9CE6"/>
+		</ParameterGroup>
+		<ParameterGroup Id="Configuration2"> 
+		   <Parameter Name="ProcessServer" Value="E864323B-17AB-6D48-B23076FF9E5C9CE6"/>
+		   <Parameter Name="Source" Value="C6284022-71CB-5E43-B69AF768614FF3DD" />
+		   <Parameter Name="MasterTarget" Value="H864323B-17AB-6D48-B23076FF9E5C9CE6"/>   
+		   </ParameterGroup>
+		<ParameterGroup Id="Configuration3">
+		   <Parameter Name="ProcessServer" Value="E864323B-17AB-6D48-B23076FF9E5C9CE6"/>
+		   <Parameter Name="Source" Value="F864323B-17AB-6D48-B23076FF9E5C9CE6"/> 
+		   <Parameter Name="MasterTarget" Value="E6284022-71CB-5E43-B69AF768614FF3DB" />
+		</ParameterGroup>
+	</ParameterGroup>
+  </FunctionRequest>
+</Body>
+</Request>

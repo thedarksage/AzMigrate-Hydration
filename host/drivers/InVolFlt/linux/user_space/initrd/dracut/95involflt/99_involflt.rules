@@ -1,0 +1,3 @@
+SUBSYSTEM!="block" GOTO="end_inmrule"
+ACTION=="add", RUN+="/bin/sh /sbin/involflt_init.sh flt_stack %k"
+LABEL="end_inmrule"

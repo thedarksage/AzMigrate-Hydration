@@ -1,0 +1,224 @@
+#!/bin/sh
+
+# simple script to run programs under valgrind it works by
+# renaming the original program that is to be run under valgrind 
+# to program-valgrind and then generate a script with the name
+# of the original program that can be run
+#
+# it then waits for a SIGTERM or for the program to exit (which 
+# ever comes first).if it receives a SIGTEM it will send that on
+# to valgrind (note: for s2 and dataprotection instead of sending
+# SIGTERM is uses sendquit that will actually signal the 
+# ACE_Manual_Event that they use so that they exit normally.
+# 
+# it will also simulate a daemon program if you use the -d option
+# that way if you are using startup scripts that expect the program
+# to daemonize itself, they should still work correctly
+# although it should be noteded 
+
+Usage()
+{
+	 echo ""
+	 echo "usage: run-under-valgrind [-d] [-r] [-s <signal>] <program>"
+	 echo ""
+	 echo "  attempts to run <program> under valgrind. valgrind must be"
+	 echo "  installed and in the path. <program> must not be executing."
+	 echo ""
+	 echo "  options (can be given in any order):"
+	 echo "    -d          (optional): simulate a daemon program"
+	 echo "                          note: when <program> is svagents, -d is"
+	 echo "                          implied so you don't have to specify -d"
+	 echo "    -r          (optional): remove <program> from running under valgrind"
+	 echo "    -s <signal> (optional): use <signal> instead of the default SIGTERM when issuing"
+	 echo "                            kill command to the program running under valgrind"
+	 echo "    <program>   (required): program to run or remove from running under valgrind"
+	 echo ""
+}
+
+CreateScript()
+{
+	 rm -f $PROGRAM
+	 touch $PROGRAM
+
+	 PWD=`pwd`
+
+	 LOGFILE="${PWD}/${PROGRAM}-valgrind.log"
+
+	 VALGRIND_OPTS="--tool=memcheck -v --track-fds=yes --log-file=${LOGFILE} --show-below-main=yes --num-callers=30 --show-reachable=yes --leak-check=full"
+
+	 echo "#!/bin/sh" >> $PROGRAM
+	 echo "" >> $PROGRAM
+	 echo "QUIT=\"\"" >> $PROGRAM
+	 echo "" >> $PROGRAM
+	 echo "SIGTERMHandler()" >> $PROGRAM
+	 echo "{" >> $PROGRAM
+	 echo "	 QUIT=\"true\"" >> $PROGRAM
+	 echo "}" >> $PROGRAM
+	 echo " " >> $PROGRAM
+	 echo "trap SIGTERMHandler SIGTERM" >> $PROGRAM
+	 echo "" >> $PROGRAM
+	 if [ "svagents" = "$PROGRAM" ] || [ "" != "$DAEMONIZE" ] ; then 
+		  echo "# simulate daemon" >> $PROGRAM
+		  echo "if [ \"CHILD_PROCESS\" != \"\$1\" ] ; then" >> $PROGRAM
+		  echo "    \$0 CHILD_PROCESS \$* >/dev/null 2>&1 </dev/null &" >> $PROGRAM
+		  echo "    exit" >> $PROGRAM
+		  echo "fi" >> $PROGRAM
+		  echo " " >> $PROGRAM
+		  echo "# skip over the CHILD_PROCESS arg" >> $PROGRAM
+		  echo "shift" >> $PROGRAM
+		  echo " " >> $PROGRAM
+	 fi
+	 echo "$VALGRIND $VALGRIND_OPTS \${0}-valgrind \$* 2> \${0}-valgrind.err &" >> $PROGRAM
+	 echo "" >> $PROGRAM
+	 echo "PID=\$!" >> $PROGRAM
+	 echo "" >> $PROGRAM
+	 echo "while [ \"\" = \"\$QUIT\" ] && [ \"\" != \"\$PID\" ] ; do" >> $PROGRAM
+	 echo "    sleep 1" >> $PROGRAM
+	 echo "    PID=\`ps -aeo pid,cmd | grep  \"\${0}-valgrind\"  | grep -v grep | awk '{print \$1}'\`" >> $PROGRAM
+	 echo "done" >> $PROGRAM
+	 echo "" >> $PROGRAM
+	 echo "if [ \"\" != \"\$PID\" ] ; then" >> $PROGRAM
+
+	 # s2 and dataprotection use ace manual event to check for quit so need
+	 # sendquit to signal that so they exit normally
+	 if [ "s2" = "$PROGRAM" ] || [ "dataprotection" = "$PROGRAM" ] ; then 
+		  echo "    /usr/local/InMage/Vx/bin/sendquit \$PID" >> $PROGRAM
+	 else
+		  # all others will get a normal kill 
+		  echo "    kill -s ${SIGNAL} \$PID" >> $PROGRAM
+	 fi
+
+	 echo "fi" >> $PROGRAM
+	 echo "" >> $PROGRAM
+	 echo "while [ \"\" != \"\$PID\" ] ; do" >> $PROGRAM
+	 echo "    sleep 1" >> $PROGRAM
+	 echo "    PID=\`ps -aeo pid,cmd | grep \"\${0}-valgrind\" | grep -v grep | awk '{print \$1}'\`" >> $PROGRAM
+	 echo "done" >> $PROGRAM
+	 echo "" >> $PROGRAM
+	 echo "VALGRIND_ERRORS=\`cat \${0}-valgrind.err\`" >> $PROGRAM
+	 echo "if [ \"\" = \"\$VALGRIND_ERRORS\" ] ; then " >> $PROGRAM
+	 echo "    rm -f \${0}-valgrind.err" >> $PROGRAM
+	 echo "fi" >> $PROGRAM
+	 echo " " >> $PROGRAM
+
+	 chmod 777 $PROGRAM
+}
+
+PROGRAM=""
+REMOVE=""
+DAEMONIZE=""
+SIGNAL="SIGTERM"
+
+if [ "" = "$1" ] ; then
+	  Usage
+	  exit
+fi
+
+while test "$1" != "" ; do
+	 case $1 in 
+		  -r)
+				REMOVE="true"				
+				;;
+		  -d)
+				DAEMONIZE="true"
+				;;
+		  -s)
+				SIGNAL=$2
+				shift
+				;;
+		  --help | -h)
+				Usage
+				exit
+				;;
+		  *)				
+				if [ "" = "$PROGRAM" ] ; then 
+					 PROGRAM=$1
+				else
+					 echo "******* E R R O R *******"
+					 echo "invalid arguments"
+					 Usage
+					 exit
+				fi
+				;;
+	 esac
+	 shift
+done
+	 
+if [ ! -f "$PROGRAM" ] ; then 
+	 echo "******* E R R O R *******"
+    echo "$PROGRAM not found"
+	 Usage
+	 exit 
+fi
+
+VALID_SIGNALS="SIGHUP SIGINT SIGQUIT SIGABRT SIGKILL SIGALRM SIGTERM SIGBUS SIGCHLD SIGCONT SIGFPE SIGILL SIGPIPE SIGSEGV SIGSTOP SIGTSTP SIGTTIN SIGTTOU SIGURG SIGUSR1 SIGUSR2"
+
+SIG_OK=""
+
+for i in $VALID_SIGNALS ; do
+	 if [ "$i" = "$SIGNAL" ] ; then
+		  SIG_OK="true"
+		  break
+	 fi
+done
+
+if [ "" = "$SIG_OK" ] ; then
+	 echo "******* E R R O R *******"
+	 echo "$SIGNAL is not one of the supported signals"
+	 echo "valid signals are $VALID_SIGNALS"
+	 exit
+fi
+	 
+PS=`ps -aeo cmd | grep -e ${PROGRAM} -e ${PROGRAM}-valgrind | grep -v grep | grep -v run-under-valgrind`
+if [ "" != "$PS" ] ; then
+	 echo " program ${PROGRAM} is currently running. It must be stopped"
+	 Usage
+	 exit
+fi
+
+if [ "" = "$REMOVE" ] ; then 
+
+	 VALGRIND=`which valgrind`
+	 if [ "" = "$VALGRIND" ] ; then
+		  echo "******* E R R O R *******"
+		  echo "valgrind not found, it must be installed"
+		  exit
+	 fi
+	 
+	 CHECK=`file $PROGRAM | grep executable | grep -v script`
+	 if [ "0" != "$?" ] ; then 
+		  if [ ! -f ${PROGRAM}-valgrind ] ; then
+				echo "******* E R R O R *******"
+				echo "program $PROGRAM does not appear to be a binary executable file"
+				echo "and it does not appeear that you have already set up $PROGRAM "
+				echo "to run under valgrind"		  
+				Usage
+				exit
+		  fi
+	 fi
+	
+	 if [ ! -f ${PROGRAM}-valgrind ] ; then
+		  mv -f $PROGRAM ${PROGRAM}-valgrind
+		  RC=$?
+		  if [ ! -f "${PROGRAM}-valgrind" ] ; then 
+				echo "******* E R R O R *******"
+				echo "could not create ${PROGRAM}-valgrind: $RC"
+				echo "aborting run-under-valgrind"
+				exit 
+		  fi
+	 fi
+
+	 CreateScript
+else
+	 if [ -f ${PROGRAM}-valgrind ] ; then 
+		  mv -f ${PROGRAM}-valgrind $PROGRAM
+		  RC=$?
+		  if [ -f "${PROGRAM}-valgrind" ] ; then 
+				echo "******* E R R O R *******"
+				echo "unable to remove ${PROGRAM} from running under valgrind: $RC"
+				echo "try manually moving ${PROGRAM}-valgrind to ${PROGRAM}"
+				echo "or possibly deleting ${PROGRAM} and then rename ${PROGRAM}-valgrind to ${PROGRAM}"
+				exit 
+		  fi
+	 fi
+fi

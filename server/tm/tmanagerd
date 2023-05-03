@@ -1,0 +1,468 @@
+#!/bin/bash
+
+#
+# tmanagerd    This shell script takes care of starting and stopping
+#    the SV Systems TimeShot Manager
+#
+# chkconfig: - 78 12
+# description:    TimeShot Manager
+# processname:  tmanagerd
+# config:       None
+# pidfile:      /var/cx/tmanagerd.pid
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+# Source networking configuration.
+. /etc/sysconfig/network
+
+# Bug 8444 selinux support
+if [ -f /etc/selinux/config ] ; then
+   if grep -iqw '^SELINUX=enforcing' /etc/selinux/config ; then
+        setsebool -P ftp_home_dir=1
+        setsebool -P ftpd_disable_trans=1
+        setsebool -P mysqld_disable_trans=1
+        setsebool -P httpd_disable_trans=1
+        chcon -t textrel_shlib_t /home/svsystems/rrd/lib/perl/auto/RRDs/RRDs.so >/dev/null 2>&1
+        audit2allow -M mypol -i /var/log/audit/audit.log >/dev/null 2>&1
+        semodule -i mypol.pp
+   fi
+fi
+
+prog="tmanagerd"
+
+base_dir="/home/svsystems"
+mkdir -p /var/cx
+shut_dir="/var/cx"
+#base_dir=`cat base_dir`
+cx_type=`cat $base_dir/etc/amethyst.conf  | grep CX_TYPE | grep -v "#"  |  awk -F"=" '{print $2}' | sed -e 's/"//g'`
+cx_role=`cat $base_dir/etc/amethyst.conf  | grep CX_MODE |  awk -F"= " '{print $2}' | sed -e 's/"//g'`
+
+transprotocol=`cat $base_dir/etc/amethyst.conf  | grep CXPS_XFER |  awk -F"= " '{print $2}' | sed -e 's/"//g'`
+CXPSCTL="/etc/init.d/cxpsctl"
+#echo "transprotocol $transprotocol"
+#echo "CX TYPE $cx_type"
+#echo "CX ROLE --->$cx_role<----"
+
+conf_dir="/home/svsystems/etc/tman_services.conf"	
+
+start(){
+	
+	rm -f $"$shut_dir"/.tmanshutdown
+
+	touch /home/svsystems/var/phpdebug.txt
+    chown root.apache /home/svsystems/var/phpdebug.txt
+    chmod 777 /home/svsystems/var/phpdebug.txt
+	
+	# from /web/curl_dispatch_http.php
+	touch /home/svsystems/var/curl_monitor.log
+    chown root.apache /home/svsystems/var/curl_monitor.log
+	chmod 777 /home/svsystems/var/curl_monitor.log
+	
+	# from Retention.php
+	touch /home/svsystems/var/VolumeProtection.log
+    chown root.apache /home/svsystems/var/VolumeProtection.log
+	chmod 777 /home/svsystems/var/VolumeProtection.log
+	
+	# from /cli/rep/set_pair.php
+	touch /tmp/cxclilog.txt
+    chown root.apache /tmp/cxclilog.txt
+	chmod 777 /tmp/cxclilog.txt
+
+	# set -1 as priority to mysqld processes
+	for mysqlpid in `pgrep mysqld`
+ 	do
+  		renice -2 -p $mysqlpid >/dev/null 2>&1
+  	done
+
+	if [ $cx_type -ne 1 ]; then		
+		if grep -iqw '^volsync=ON' $"$conf_dir" ; then
+			# Start volume replication synchronization threads
+			#/bin/kill -9 `cat $shut_dir/tman_volsync.pid  2> /dev/null ` > /dev/null 2>&1
+			/usr/bin/killall -9 volsync.pl 2>/dev/null
+			$"$base_dir"/bin/volsync.pl volsync >> $"$base_dir"/var/volsync.log 2>&1 &
+			ret=$?
+			if [ $ret -eq 0 ]; then
+				action $"Starting volume replication" /bin/true
+			else
+				action $"Starting volume replication" /bin/false
+			fi
+			[ $ret -eq 0 ] && touch $"$shut_dir"/tmanagerd.lock
+		fi		
+	fi
+	
+	# Start event manager threads
+	/usr/bin/killall -9 eventmanager.pl 2>/dev/null 
+	$"$base_dir"/bin/eventmanager.pl >> $"$base_dir"/var/eventmanager.log 2>&1 &
+	ret=$?
+	if [ $ret -eq 0 ]; then
+		action $"Starting event manager" /bin/true
+	else
+		action $"Starting event manager" /bin/false
+	fi
+	[ $ret -eq 0 ] && touch $"$shut_dir"/tmanagerd.lock    
+	
+	# Start systemmonitor thread
+	/usr/bin/killall -9 systemmonitor.pl 2>/dev/null 
+	$"$base_dir"/bin/systemmonitor.pl >> $"$base_dir"/var/systemmonitor.log 2>&1 &
+	ret=$?
+	if [ $ret -eq 0 ]; then
+		action $"Starting system monitor" /bin/true
+	else
+		action $"Starting system monitor" /bin/false		
+	fi
+	[ $ret -eq 0 ] && touch $"$shut_dir"/tmanagerd.lock
+
+    # BPM & MRTG will start for PS or Combined CS/PS
+    if [ $cx_type -ne 1 ]; then		
+		if grep -iqw '^bpm=ON' $"$conf_dir" ; then
+			# Start Bpm Module synchronization threads
+			/usr/bin/killall -9 bpm.pl 2>/dev/null
+			$"$base_dir"/bin/bpm.pl > $"$base_dir"/var/bpmtrace.log 2>&1 &
+			ret=$?
+			if [ $ret -eq 0 ]; then
+			   action $"Starting BPM Module" /bin/true
+			else
+			   action $"Starting BPM Module" /bin/false
+			fi
+		fi
+		[ $ret -eq 0 ] && touch $"$shut_dir"/tmanagerd.lock
+	fi		
+
+	# Push Server will start for CS or Combined CS/PS
+	if [ $cx_type -ne 2 ]; then		
+		if grep -iqw '^pushinstalld=ON' $"$conf_dir" ; then
+			/usr/bin/killall -9 pushinstalld 2>/dev/null
+
+			$"$base_dir"/bin/pushinstalld &
+			if [ $ret -eq 0 ]; then
+				action $"Starting Push Server " /bin/true
+			else
+				action $"Starting Push Server " /bin/false
+			fi
+		fi
+	fi
+	[ $ret -eq 0 ] && touch $"$shut_dir"/tmanagerd.lock	
+
+   # scheduler will start for CS or Combined CS/PS
+    if [ $cx_type -ne 2 ]; then
+                if grep -iqw '^scheduler=ON' $"$conf_dir" ; then
+                        # Start file replication synchronization threads
+                        /usr/bin/killall -15 scheduler 2>/dev/null
+                        $"$base_dir"/bin/scheduler &
+                        ret=$?
+                        if [ $ret -eq 0 ]; then
+                                action $"Starting file replication" /bin/true
+                        else
+                                action $"Starting file replication" /bin/false
+                        fi
+                        [ $ret -eq 0 ] && touch $"$shut_dir"/tmanagerd.lock
+                fi
+    fi
+
+	count=`ps -ef | grep -v 'grep' | grep -c healthmonitor.pl`
+    if [ $count -ne 0 ]; then
+		/usr/bin/killall -9 healthmonitor.pl 2>/dev/null
+		ret=$?
+		if [ $ret -eq 0 ]; then
+			action $"Shutting down health monitor" /bin/true
+		else
+			action $"Shutting down health monitor" /bin/false
+		fi	
+	fi
+	
+	return $ret
+}
+
+stop(){
+
+    # Stop file replication synchronization threads
+	if [ $cx_type -ne 2 ]; then
+
+	    file_count=`ps -ef | grep -v 'grep' | grep -c scheduler`
+            if [ $file_count -ne 0 ]; then
+		    /usr/bin/killall -15 scheduler 2>/dev/null
+		    ret=$?
+		    if [ $ret -eq 0 ]; then
+		       action $"Stopping file replication" /bin/true
+		    else
+		       action $"Stopping file replication" /bin/false
+		    fi
+	    else
+	            action $"File replication already stopped" /bin/true
+	    fi
+	fi	
+	
+    if [ $cx_type -ne 1 ]; then
+	    # Stop BPM Module synchronization threads
+	    bpm_count=`ps -ef | grep -v 'grep' | grep -c bpm.pl`
+            if [ $bpm_count -ne 0 ]; then
+
+		    /usr/bin/killall -9 bpm.pl >/dev/null 2>&1
+		    ret=$?
+		    if [ $ret -eq 0 ]; then
+		       action $"Stopping BPM Module" /bin/true
+		    else
+		       action $"Stopping BPM Module" /bin/false
+		    fi
+             else
+	            action $"BPM Module already stopped" /bin/true
+	     fi
+    fi   
+
+	# Stopping event manager events
+	event_count=`ps -ef | grep -v 'grep' | grep -c eventmanager.pl`
+    if [ $event_count -ne 0 ]; then
+		/usr/bin/killall -9 eventmanager.pl  2>/dev/null
+		ret=$?
+		if [ $ret -eq 0 ]; then
+	    	action $"Stopping event manager" /bin/true
+		else
+		   action $"Stopping event manager" /bin/false
+		fi
+    		[ $ret -eq 0 ] && rm -f $"$base_dir"/var/eventmanager.pid
+	else
+		action $"Event manager already stopped" /bin/true
+	fi
+	
+	# Creating shutdown file for volsync kill
+	if [ $cx_type -ne 1 ]; then
+	    # Stop volume replication synchronization children and monitor threads
+	    touch $"$shut_dir"/.tmanshutdown
+	    ret=$?
+	    if [ $ret -eq 0 ]; then
+	       action $"Stopping volume replication (Children)" /bin/true
+	    else
+	       action $"Stopping volume replication (Children)" /bin/false
+	    fi
+    fi
+    
+
+    #added by BSR to fix 1741
+    max_timeout=120
+    timeout=10
+    current_timeout=0
+    temp_value=`ps -ef | grep volsync_child | grep -v 'grep' | awk '{print $10}' | grep -c volsync_child`
+    while test $temp_value -gt 0 
+    do
+    	sleep $timeout
+    	temp_value=`ps -ef | grep volsync_child | grep -v 'grep' | awk '{print $10}' | grep -c volsync_child`
+    	current_timeout=`expr $current_timeout + $timeout`
+    	if test $current_timeout -ge $max_timeout 
+    	then
+    		echo "volsync is still processing resync file. Please wait for some time and try again"
+    		exit 1
+    	fi
+    done
+	
+	if [ $cx_type -ne 2 ]; then
+		# Stop Push Server threads
+		push_count=`ps -ef | grep -v 'grep' | grep -c pushinstalld`
+		if [ $push_count -ne 0 ]; then
+
+				/usr/bin/killall -9 pushinstalld >/dev/null 2>&1
+				ret=$?
+				if [ $ret -eq 0 ]; then
+				   action $"Stopping Push Server" /bin/true
+				else
+				   action $"Stopping Push Server" /bin/false
+				fi
+		else
+				 action $"Push Server already stopped" /bin/true
+		fi
+    fi
+	
+	count=`ps -ef | grep -v 'grep' | grep -c healthmonitor.pl`
+    if [ $count -ne 0 ]; then
+		/usr/bin/killall -9 healthmonitor.pl 2>/dev/null
+		ret=$?
+		if [ $ret -eq 0 ]; then
+			action $"Shutting down health monitor" /bin/true
+		else
+			action $"Shutting down health monitor" /bin/false
+		fi	
+	fi
+	
+    echo Tmanager stopped completely
+	#End of change for the fix, 1741
+    return $ret
+}
+ 
+restart(){
+    stop
+    start
+}
+
+condrestart(){
+    [ -e /var/lock/subsys/tmanagerd ] && restart || :
+}
+
+shutdown(){
+
+	count=`ps -ef | grep -v 'grep' | grep -c scheduler`
+    if [ $count -ne 0 ]; then
+		/usr/bin/killall -15 scheduler 2>/dev/null
+		ret=$?
+		if [ $ret -eq 0 ]; then
+			action $"Shutting down file replication" /bin/true
+		else
+			action $"Shutting down file replication" /bin/false
+		fi
+	else
+		action $"File replication already stopped" /bin/true
+	fi
+
+    count=`ps -ef | grep -v 'grep' | grep -c bpm.pl`
+    if [ $count -ne 0 ]; then
+		/usr/bin/killall -9 bpm.pl 2>/dev/null
+		ret=$?
+		if [ $ret -eq 0 ]; then
+			action $"Shutting down BPM Module" /bin/true
+		else
+			action $"Shutting down BPM Module" /bin/false
+		fi
+	else
+		action $"BPM Module already stopped" /bin/true
+	fi
+
+	count=`ps -ef | grep -v 'grep' | grep -c eventmanager.pl`
+    if [ $count -ne 0 ]; then
+		/usr/bin/killall -9 eventmanager.pl 2>/dev/null
+		ret=$?
+		if [ $ret -eq 0 ]; then
+			action $"Shutting down event manager" /bin/true
+		else
+			action $"Shutting down event manager" /bin/false
+		fi    	
+	else
+		action $"Event manager already stopped" /bin/true
+	fi
+	rm -f $"$base_dir"/var/eventmanager.pid
+
+	count=`ps -ef | grep -v 'grep' | grep -c tmanager.pl`
+    if [ $count -ne 0 ]; then
+        /usr/bin/killall -9 tmanager.pl 2>/dev/null	
+	fi
+	
+	count=`ps -ef | grep -v 'grep' | grep -c run_event.pl`
+    if [ $count -ne 0 ]; then
+        /usr/bin/killall -9 run_event.pl 2>/dev/null
+	fi
+
+	count=`ps -ef | grep -v 'grep' | grep -c rx.pl`
+    if [ $count -ne 0 ]; then
+		/usr/bin/killall -9 rx.pl 2>/dev/null
+	fi
+
+    count=`ps -ef | grep -v 'grep' | grep -c volsync.pl`
+    if [ $count -ne 0 ]; then
+		/usr/bin/killall -9 volsync.pl 2>/dev/null
+		ret=$?
+		if [ $ret -eq 0 ]; then
+			action $"Shutting down volume replication (Children)" /bin/true
+		else
+			action $"Shutting down volume replication (Children)" /bin/false
+		fi
+	else
+		action $"Volume replication (Children) already stopped" /bin/true
+	fi
+
+	count=`ps -ef | grep -v 'grep' | grep -c pushinstalld`
+    if [ $count -ne 0 ]; then
+		/usr/bin/killall -9 pushinstalld 2>/dev/null
+		ret=$?
+		if [ $ret -eq 0 ]; then
+			action $"Shutting down Push Server" /bin/true
+		else
+			action $"Shutting down Push Server" /bin/false
+		fi
+	else
+		action $"Push Server already stopped" /bin/true
+	fi
+
+	count=`ps -ef | grep -v 'grep' | grep -c systemmonitor.pl`
+    if [ $count -ne 0 ]; then
+		/usr/bin/killall -9 systemmonitor.pl 2>/dev/null
+		ret=$?
+		if [ $ret -eq 0 ]; then
+			action $"Shutting down system monitor" /bin/true
+		else
+			action $"Shutting down system monitor" /bin/false
+		fi
+	else
+		action $"System monitor already stopped" /bin/true
+	fi
+
+	count=`ps -ef | grep -v 'grep' | grep -c healthmonitor.pl`
+    if [ $count -ne 0 ]; then
+		/usr/bin/killall -9 healthmonitor.pl 2>/dev/null
+		ret=$?
+		if [ $ret -eq 0 ]; then
+			action $"Shutting down health monitor" /bin/true
+		else
+			action $"Shutting down health monitor" /bin/false
+		fi	
+	fi
+	
+	rm -f $"$base_dir"/var/events/*
+    rm -f $"$base_dir"/var/services/*
+    echo Tmanager shut down complete
+    return $ret
+}
+
+# See how we were called.
+case "$1" in
+  start)
+  if [ -f $conf_dir ] ; then
+    start  
+  else
+	echo tmanager cant get started as conffile is missing
+  fi
+    ;;
+  stop)
+    stop
+    ;;
+  status)
+    status eventmanager.pl    
+	
+	if [ $cx_type != "1" ]; then
+		status bpm.pl
+		status volsync.pl
+	fi
+	
+	status systemmonitor.pl
+	
+	if [ $cx_type != "2" ]; then
+	    status httpd
+	    status mysqld
+	fi
+		
+    if [ $cx_type != "1" ] && [ $transprotocol == "0" ]; then		
+		status proftpd	
+	fi
+		
+	if [ $cx_type != "1" ] && [ $transprotocol == "1" ]; then		
+		$CXPSCTL status
+    fi
+	
+	if [ $cx_type != "2" ]; then
+	    status pushinstalld
+	    status scheduler
+	fi	
+    ;;
+  restart)
+    restart
+    ;;
+  condrestart)
+    condrestart
+    ;;
+  shutdown)
+	shutdown
+  	;;	
+  *)
+    echo $"Usage: $0 {start|stop|status|condrestart|restart|shutdown}"
+    exit 1
+esac
+
+exit $?
+

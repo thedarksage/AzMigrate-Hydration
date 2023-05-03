@@ -1,0 +1,18 @@
+<Request Id="0019" Version="1.0">
+<Header>
+  <Authentication>
+    <AccessKeyID>39F830AD9C46DE48B87EBE56F4C919D7C7E96CD9</AccessKeyID>
+    <AccessSignature>MDQxMzcwZDFiYWI1N2U0OWU5MzIyMzllOGRjMzk0ZTIwYTgxY2ZkOQ==</AccessSignature>
+  </Authentication>
+</Header>
+<Body>
+  <FunctionRequest Name="ResyncProtectionBySystemGUID" Include="No">
+    <Parameter Name="SystemGUID" Value="77BC3384-071D-744D-9A61A7BD3588CCE6_INT"/>
+	<Parameter Name="AllVolumes" Value="Yes"/>
+    <ParameterGroup Id="VolumeList">
+      <Parameter Name="VolumeName1" Value="A"/>      
+      <Parameter Name="VolumeName2" Value="B"/>  
+    </ParameterGroup>
+  </FunctionRequest>
+</Body>
+</Request>

@@ -1,0 +1,35 @@
+# linux-compiler-gcc-4.9-x86-4.9.82-1+deb9u3~bpo8+1h
+deb http://snapshot.debian.org/archive/debian/20180420T165136Z jessie main
+
+# 3.16.0-4-amd64
+deb http://snapshot.debian.org/archive/debian/20150413T093346Z jessie main
+
+# 3.16.0-5-amd64
+deb http://snapshot.debian.org/archive/debian-security/20180109T160515Z jessie/updates main
+
+# 3.16.0-7-amd64
+deb http://snapshot.debian.org/archive/debian-security/20181004T150008Z jessie/updates main
+
+# 3.16.0-8-amd64
+deb http://snapshot.debian.org/archive/debian-security/20190401T073600Z jessie/updates main
+
+# 3.16.0-9-amd64
+deb http://snapshot.debian.org/archive/debian-security/20190528T091404Z jessie/updates main
+
+# 3.16.0-10-amd64
+deb http://snapshot.debian.org/archive/debian-security/20210201T142922Z jessie/updates main
+
+# 4.9.0-0.bpo.4-amd64
+deb http://snapshot.debian.org/archive/debian/20171224T175424Z jessie-backports main
+
+# 4.9.0-0.bpo.5-amd64
+deb http://snapshot.debian.org/archive/debian/20180106T174014Z jessie-backports main
+
+# 4.9.0-0.bpo.7-amd64
+deb http://snapshot.debian.org/archive/debian-security/20180718T034218Z jessie-backports main
+
+# 4.9.0-0.bpo.8-amd64
+deb http://snapshot.debian.org/archive/debian-security/20180828T035618Z jessie-backports main
+
+# 4.9.0-0.bpo.9-amd64
+deb http://snapshot.debian.org/archive/debian-security/20190503T010204Z jessie-backports main

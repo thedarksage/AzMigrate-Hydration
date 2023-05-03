@@ -1,0 +1,147 @@
+#/bin/sh
+export PATH=/bin:/sbin:$PATH
+#set -x
+
+usage() {
+        echo $"Usage: $0"
+        echo $"Usage: $0 -v for verbose installation"
+        echo "Description : This scripts installs the grub bootloader"
+}
+
+# See how we were called.
+while getopts "hv" i; do
+    case "$i" in
+        h)
+                usage
+                exit 1
+                ;;
+        v)
+                verbose=1
+                ;;
+
+    esac
+done
+
+err_msg() {
+    ret_code=$1
+    mesg=$2
+
+    if [ $ret_code -eq 0 ]
+    then
+         echo "$mesg ... done successfully"
+         rm -f ./.tmp.v2$$
+    else
+	 echo "$mesg ... failed (check ../.tmp.v2$$ for errors)"
+    fi
+}
+
+list_dev() {
+    i=-1
+    sno=1
+    printf "SR NO.\t DEVICE NAME\tDRIVE ORDERING NO\n\n"
+    for dv in `fdisk -l | grep Disk | cut -d" " -f 2 | cut -d":" -f 1`
+    do
+        let 'i++'
+        for bdev in $*
+        do
+            echo $bdev | grep -w hd$i 2>/dev/null > /dev/null
+            if [ $? -ne 0 ]
+            then
+               echo "$dv is not the one" >> ./.tmp.v2$$
+               continue
+            fi
+            printf "%d)\t%s\thd%d %s\n" $sno $dv $i $bdev
+            let 'sno++'
+        done
+    done
+}
+
+find_dev() {
+    case $1 in 
+    '1')  grub --batch <<EOT 2> /dev/null
+    find /boot/grub/stage1
+    quit
+EOT
+;;
+    '2') grub --batch <<EOT 2> /dev/null
+	find /grub/stage1
+        quit
+EOT
+    ;;
+   esac   
+}
+
+opt=`find_dev 1 | grep Error | wc -c | cut -d" " -f 1`
+
+if [ $opt -ne 0 ]
+then
+     opt=2
+else
+     opt=1
+fi
+target=`find_dev $opt | grep hd`
+find_dev $opt | grep hd
+echo "List of Devices .. where I can install boot loader"
+echo $target
+
+
+echo "" > ./.tmp_v1$$
+list_dev $target | tee ./.tmp_v1$$
+echo "Choose the device (0 to exit)"
+read choice
+cat ./.tmp_v1$$ | grep -w "^$choice" 2>/dev/null > /dev/null
+if [ $? -ne 0 ]
+then
+    if [ $choice -ne 0 ]
+    then
+        echo "invalid choice\n"
+    fi
+    exit
+fi
+HD=`cat ./.tmp_v1$$ | grep -w "^$choice" | awk '{printf "%s",$3}'`
+ginstdev=`cat ./.tmp_v1$$ | grep -w "^$choice" | awk '{printf "%s",$4}'`
+
+get_instdev() {
+     for i in $target
+     do
+         echo $i | grep -w $HD 2> /dev/null > /dev/null
+         if [ $? -eq 0 ]
+         then
+             echo $i
+         fi
+     done
+}
+
+echo $ginstdev
+echo "installing device $ginstdev"
+echo "hd value = $HD"
+
+echo "verify the device details (y)"
+echo "NOTE: After this step, you do not have any control, please becareful" \
+     "If you find any problem with this script, use the rescue cds to recover" \
+     "boot loader on the replicated disk"
+
+read choice
+if [ "$choice" != "y" ]
+then
+     echo "exiting ..."
+     exit
+fi
+grub --batch <<EOT >./.tmp_v2$$ 2>/dev/null
+root $ginstdev
+setup ($HD)
+quit
+EOT
+
+err_msg $? "grub installation"
+
+if [ "$verbose" = "1" ]
+then
+        echo "grub installation details"
+        cat ./.tmp_v2$$
+fi
+
+echo "Change the file system labels for partitions (/boot, / etc) as source" \
+     "change the labels if you are going to remove the disks" 
+rm -f ./.tmp_v2$$
+rm -f ./.tmp_v1$$

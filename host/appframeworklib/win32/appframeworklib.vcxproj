@@ -1,0 +1,454 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug Win 2K|Win32">
+      <Configuration>Debug Win 2K</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug Win 2K|x64">
+      <Configuration>Debug Win 2K</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release Win 2K|Win32">
+      <Configuration>Release Win 2K</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release Win 2K|x64">
+      <Configuration>Release Win 2K</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{5F87D42A-6FE1-4110-82F4-52153D89F33C}</ProjectGuid>
+    <RootNamespace>ApplicationFramework</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Win 2K|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Win 2K|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Win 2K|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Win 2K|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release Win 2K|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="..\win-rules.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug Win 2K|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="..\win-rules.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="..\win-rules.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="..\win-rules.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release Win 2K|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="..\win-rules.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug Win 2K|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="..\win-rules.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="..\win-rules.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="..\win-rules.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>12.0.21005.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>Debug\</OutDir>
+    <IntDir>Debug\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>Release\</OutDir>
+    <IntDir>Release\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Win 2K|Win32'">
+    <OutDir>Debug\</OutDir>
+    <IntDir>Debug\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Win 2K|x64'">
+    <OutDir>$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Win 2K|Win32'">
+    <OutDir>Release\</OutDir>
+    <IntDir>Release\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Win 2K|x64'">
+    <OutDir>$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\InmXmlParser;..\scheduler\;.\win32;.\discovery\win32;.\ruleengine\win32;.\util\win32;.\app\win32;..\config;..\Utilities\Windows\WinOpLib;..\FailoverLib;..\cdplibs;..\vacplibs;..\s2libs\thread;..\s2libs\common;..\s2libs;..\s2libs\foundation;..\log;..\common\win32;..\common;..\inmsafeint;..\inmsafeint\win;..\inmsafecapis;..\inmsafecapis\win;..\config\win;$(ACE_INCLUDES);..\..\thirdparty\vss\inc\ws03;$(BOOST_INCLUDES);$(SQLITE3X_INCLUDES);..;$(CURL_INCLUDES);.;$(INM_MD5_INCLUDES);$(SIGSLOT_INCLUDES);..\..\thirdparty\SqlDMO;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;SV_WINDOWS=1;ACE_AS_STATIC_LIBS;WIN32_LEAN_AND_MEAN;_WIN32_WINNT=0x0502;VSNAP_USER_MODE;_LARGEFILE_SOURCE=1;_LARGEFILE64_SOURCE=1;_FILE_OFFSET_BITS=64;SV_USES_LONGPATHS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\InmXmlParser;..\scheduler\;.\win32;.\discovery\win32;.\ruleengine\win32;.\util\win32;.\app\win32;..\config;..\Utilities\Windows\WinOpLib;..\FailoverLib;..\cdplibs;..\vacplibs;..\s2libs\thread;..\s2libs\common;..\s2libs;..\s2libs\foundation;..\log;..\common\win32;..\common;..\inmsafeint;..\inmsafeint\win;..\inmsafecapis;..\inmsafecapis\win;..\config\win;$(ACE_INCLUDES);..\..\thirdparty\vss\inc\ws03;$(BOOST_INCLUDES);$(SQLITE3X_INCLUDES);..;$(CURL_INCLUDES);.;$(INM_MD5_INCLUDES);$(SIGSLOT_INCLUDES);..\..\thirdparty\SqlDMO;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;SV_WINDOWS=1;ACE_AS_STATIC_LIBS;WIN32_LEAN_AND_MEAN;_WIN32_WINNT=0x0502;VSNAP_USER_MODE;_LARGEFILE_SOURCE=1;_LARGEFILE64_SOURCE=1;_FILE_OFFSET_BITS=64;SV_USES_LONGPATHS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\scheduler;.;.\discovery\win32;.\util\win32;.\ruleengine\win32;.\win32;app\win32;..\FailoverLib;..\Utilities\Windows\WinOpLib;..\cdplibs;..\s2libs\thread;..\vacplibs;..\config;..\s2libs\common;..\s2libs;..\s2libs\foundation;..\log;..\common\win32;..\common;..\inmsafeint;..\inmsafeint\win;..\inmsafecapis;..\inmsafecapis\win;..\config\win;$(ACE_INCLUDES);..\..\thirdparty\vss\inc\ws03;$(BOOST_INCLUDES);$(SQLITE3X_INCLUDES);..;$(CURL_INCLUDES);..\InmXmlParser;$(INM_MD5_INCLUDES);$(SIGSLOT_INCLUDES);..\..\thirdparty\SqlDMO;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;SV_WINDOWS=1;ACE_AS_STATIC_LIBS;WIN32_LEAN_AND_MEAN;_WIN32_WINNT=0x0502;VSNAP_USER_MODE;_LARGEFILE_SOURCE=1;_LARGEFILE64_SOURCE=1;_FILE_OFFSET_BITS=64;SV_USES_LONGPATHS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\scheduler;.;.\discovery\win32;.\util\win32;.\ruleengine\win32;.\win32;app\win32;..\FailoverLib;..\Utilities\Windows\WinOpLib;..\cdplibs;..\s2libs\thread;..\vacplibs;..\config;..\s2libs\common;..\s2libs;..\s2libs\foundation;..\log;..\common\win32;..\common;..\inmsafeint;..\inmsafeint\win;..\inmsafecapis;..\inmsafecapis\win;..\config\win;$(ACE_INCLUDES);..\..\thirdparty\vss\inc\ws03;$(BOOST_INCLUDES);$(SQLITE3X_INCLUDES);..;$(CURL_INCLUDES);..\InmXmlParser;$(INM_MD5_INCLUDES);$(SIGSLOT_INCLUDES);..\..\thirdparty\SqlDMO;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;SV_WINDOWS=1;ACE_AS_STATIC_LIBS;WIN32_LEAN_AND_MEAN;_WIN32_WINNT=0x0502;VSNAP_USER_MODE;_LARGEFILE_SOURCE=1;_LARGEFILE64_SOURCE=1;_FILE_OFFSET_BITS=64;SV_USES_LONGPATHS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug Win 2K|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\scheduler\;.;.\win32;.\discovery\win32;.\ruleengine\win32;.\util\win32;.\app\win32;..\config;..\Utilities\Windows\WinOpLib;..\FailoverLib;..\cdplibs;..\vacplibs;..\s2libs\thread;..\s2libs\common;..\s2libs;..\s2libs\foundation;..\log;..\common\win32;..\common;..\inmsafeint;..\inmsafeint\win;..\inmsafecapis;..\inmsafecapis\win;..\config\win;$(ACE_INCLUDES);..\..\thirdparty\vss\inc\ws03;$(BOOST_INCLUDES);$(SQLITE3X_INCLUDES);..;$(CURL_INCLUDES);..\InmXmlParser;$(INM_MD5_INCLUDES);$(SIGSLOT_INCLUDES);..\..\thirdparty\SqlDMO;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;SV_WINDOWS=1;ACE_AS_STATIC_LIBS;WIN32_LEAN_AND_MEAN;_WIN32_WINNT=0x0502;VSNAP_USER_MODE;_LARGEFILE_SOURCE=1;_LARGEFILE64_SOURCE=1;_FILE_OFFSET_BITS=64;SV_USES_LONGPATHS;SCOUT_WIN2K_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug Win 2K|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\scheduler\;.;.\win32;.\discovery\win32;.\ruleengine\win32;.\util\win32;.\app\win32;..\config;..\Utilities\Windows\WinOpLib;..\FailoverLib;..\cdplibs;..\vacplibs;..\s2libs\thread;..\s2libs\common;..\s2libs;..\s2libs\foundation;..\log;..\common\win32;..\common;..\inmsafeint;..\inmsafeint\win;..\inmsafecapis;..\inmsafecapis\win;..\config\win;$(ACE_INCLUDES);..\..\thirdparty\vss\inc\ws03;$(BOOST_INCLUDES);$(SQLITE3X_INCLUDES);..;$(CURL_INCLUDES);$(INM_MD5_INCLUDES);$(SIGSLOT_INCLUDES);..\..\thirdparty\SqlDMO;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;SV_WINDOWS=1;ACE_AS_STATIC_LIBS;WIN32_LEAN_AND_MEAN;_WIN32_WINNT=0x0502;VSNAP_USER_MODE;_LARGEFILE_SOURCE=1;_LARGEFILE64_SOURCE=1;_FILE_OFFSET_BITS=64;SV_USES_LONGPATHS;SCOUT_WIN2K_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Win 2K|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\scheduler;.;.\discovery\win32;.\util\win32;.\ruleengine\win32;.\win32;app\win32;..\FailoverLib;..\Utilities\Windows\WinOpLib;..\cdplibs;..\s2libs\thread;..\vacplibs;..\config;..\s2libs\common;..\s2libs;..\s2libs\foundation;..\log;..\common\win32;..\common;..\inmsafeint;..\inmsafeint\win;..\inmsafecapis;..\inmsafecapis\win;..\config\win;$(ACE_INCLUDES);..\..\thirdparty\vss\inc\ws03;$(BOOST_INCLUDES);$(SQLITE3X_INCLUDES);..;$(CURL_INCLUDES);..\InmXmlParser;$(INM_MD5_INCLUDES);$(SIGSLOT_INCLUDES);..\..\thirdparty\SqlDMO;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;SV_WINDOWS=1;ACE_AS_STATIC_LIBS;WIN32_LEAN_AND_MEAN;_WIN32_WINNT=0x0502;VSNAP_USER_MODE;_LARGEFILE_SOURCE=1;_LARGEFILE64_SOURCE=1;_FILE_OFFSET_BITS=64;SV_USES_LONGPATHS;SCOUT_WIN2K_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Win 2K|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\scheduler;.;.\discovery\win32;.\util\win32;.\ruleengine\win32;.\win32;app\win32;..\FailoverLib;..\Utilities\Windows\WinOpLib;..\cdplibs;..\s2libs\thread;..\vacplibs;..\config;..\s2libs\common;..\s2libs;..\s2libs\foundation;..\log;..\common\win32;..\common;..\inmsafeint;..\inmsafeint\win;..\inmsafecapis;..\inmsafecapis\win;..\config\win;$(ACE_INCLUDES);..\..\thirdparty\vss\inc\ws03;$(BOOST_INCLUDES);$(SQLITE3X_INCLUDES);..;$(CURL_INCLUDES);$(INM_MD5_INCLUDES);$(SIGSLOT_INCLUDES);..\..\thirdparty\SqlDMO;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;SV_WINDOWS=1;ACE_AS_STATIC_LIBS;WIN32_LEAN_AND_MEAN;_WIN32_WINNT=0x0502;VSNAP_USER_MODE;_LARGEFILE_SOURCE=1;_LARGEFILE64_SOURCE=1;_FILE_OFFSET_BITS=64;SV_USES_LONGPATHS;SCOUT_WIN2K_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="controller.cpp" />
+    <ClCompile Include="app\appcontroller.cpp" />
+    <ClCompile Include="app\win32\appfactorymajor.cpp" />
+    <ClCompile Include="app\win32\bes\besapplication.cpp" />
+    <ClCompile Include="app\win32\bes\bescontroller.cpp" />
+    <ClCompile Include="app\win32\bes\besdiscovery.cpp" />
+    <ClCompile Include="app\win32\mssql\mssqlapplication.cpp" />
+    <ClCompile Include="app\win32\mssql\mssqlcontroller.cpp" />
+    <ClCompile Include="app\win32\mssql\mssqldiscoveryandvalidator.cpp" />
+    <ClCompile Include="app\win32\mssql\mssqlmetadata.cpp" />
+    <ClCompile Include="app\win32\mssql\mssqlmetadatadiscovery.cpp" />
+    <ClCompile Include="app\win32\mssql\sqldiscovery.cpp" />
+    <ClCompile Include="app\win32\exchange\exchangeapplication.cpp" />
+    <ClCompile Include="app\win32\exchange\exchangecontroller.cpp" />
+    <ClCompile Include="app\win32\exchange\exchangediscovery.cpp" />
+    <ClCompile Include="app\win32\exchange\exchangediscoveryandvalidator.cpp" />
+    <ClCompile Include="app\win32\exchange\exchangemetadata.cpp" />
+    <ClCompile Include="app\win32\exchange\exchangemetadatadiscovery.cpp" />
+    <ClCompile Include="app\win32\fileserver\fileserverapplication.cpp" />
+    <ClCompile Include="app\win32\fileserver\fileservercontroller.cpp" />
+    <ClCompile Include="app\win32\fileserver\fileserverdiscovery.cpp" />
+    <ClCompile Include="app\win32\fileserver\fileserverdiscoveryandvalidator.cpp" />
+    <ClCompile Include="config\appconfchangemediator.cpp" />
+    <ClCompile Include="config\appconfigurator.cpp" />
+    <ClCompile Include="config\appconfigvalueobj.cpp" />
+    <ClCompile Include="config\applocalconfigurator.cpp" />
+    <ClCompile Include="config\appparser.cpp" />
+    <ClCompile Include="config\connection.cpp" />
+    <ClCompile Include="config\cxupdatecache.cpp" />
+    <ClCompile Include="discovery\discoverycontroller.cpp" />
+    <ClCompile Include="discovery\win32\discoveryandvalidator.cpp" />
+    <ClCompile Include="discovery\win32\discoveryfactory.cpp" />
+    <ClCompile Include="discovery\win32\hostdiscovery.cpp" />
+    <ClCompile Include="ruleengine\validator.cpp" />
+    <ClCompile Include="ruleengine\win32\exchangevalidators.cpp" />
+    <ClCompile Include="ruleengine\win32\fileservervalidators.cpp" />
+    <ClCompile Include="ruleengine\win32\inmagevalidator.cpp" />
+    <ClCompile Include="ruleengine\win32\mssqlvalidators.cpp" />
+    <ClCompile Include="ruleengine\win32\ruleengine.cpp" />
+    <ClCompile Include="ruleengine\win32\rulefactory.cpp" />
+    <ClCompile Include="ruleengine\win32\systemvalidators.cpp" />
+    <ClCompile Include="util\volpack.cpp" />
+    <ClCompile Include="util\common\bulkProtection.cpp" />
+    <ClCompile Include="util\common\bulkprotectionandvalidator.cpp" />
+    <ClCompile Include="util\common\cloudcontroller.cpp" />
+    <ClCompile Include="util\common\commonmajor.cpp" />
+    <ClCompile Include="util\common\util.cpp" />
+    <ClCompile Include="util\win32\Clusteroperation.cpp" />
+    <ClCompile Include="util\win32\clusterutil.cpp" />
+    <ClCompile Include="util\win32\exportdevicemajor.cpp" />
+    <ClCompile Include="util\win32\system.cpp" />
+    <ClCompile Include="util\win32\utilmajor.cpp" />
+    <ClCompile Include="util\win32\vssutil.cpp" />
+    <ClCompile Include="win32\ado\ado.cpp" />
+    <ClCompile Include="win32\ado\sqlado.cpp" />
+    <ClCompile Include="win32\ldap\exchangeldaphelper.cpp" />
+    <ClCompile Include="win32\ldap\ldap.cpp" />
+    <ClCompile Include="win32\wmi\sqlwmi.cpp" />
+    <ClCompile Include="win32\wmi\systemwmi.cpp" />
+    <ClCompile Include="win32\wmi\wmi.cpp" />
+    <ClCompile Include="win32\wmi\wmiutil.cpp" />
+    <ClCompile Include="Consistency\tagdiscovery.cpp" />
+    <ClCompile Include="Consistency\TagGenerator.cpp" />
+    <ClCompile Include="storagerepository\win32\storagerepositorymajor.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="util\win32\utilmajor.h" />
+    <ClInclude Include="appglobals.h" />
+    <ClInclude Include="controller.h" />
+    <ClInclude Include="app\appcontroller.h" />
+    <ClInclude Include="app\appfactory.h" />
+    <ClInclude Include="app\application.h" />
+    <ClInclude Include="app\win32\mssql\mssqlapplication.h" />
+    <ClInclude Include="app\win32\mssql\mssqlcontroller.h" />
+    <ClInclude Include="app\win32\mssql\mssqldiscoveryandvalidator.h" />
+    <ClInclude Include="app\win32\mssql\mssqlexception.h" />
+    <ClInclude Include="app\win32\mssql\mssqlmetadata.h" />
+    <ClInclude Include="app\win32\mssql\mssqlmetadatadiscovery.h" />
+    <ClInclude Include="app\win32\mssql\sqldiscovery.h" />
+    <ClInclude Include="app\win32\bes\besapplication.h" />
+    <ClInclude Include="app\win32\bes\bescontroller.h" />
+    <ClInclude Include="app\win32\bes\besdiscovery.h" />
+    <ClInclude Include="app\win32\exchange\exchangeapplication.h" />
+    <ClInclude Include="app\win32\exchange\exchangecontroller.h" />
+    <ClInclude Include="app\win32\exchange\exchangediscovery.h" />
+    <ClInclude Include="app\win32\exchange\exchangediscoveryandvalidator.h" />
+    <ClInclude Include="app\win32\exchange\exchangeexception.h" />
+    <ClInclude Include="app\win32\exchange\exchangemetadata.h" />
+    <ClInclude Include="app\win32\exchange\exchangemetadatadiscovery.h" />
+    <ClInclude Include="app\win32\fileserver\fileserverapplication.h" />
+    <ClInclude Include="app\win32\fileserver\fileservercontroller.h" />
+    <ClInclude Include="app\win32\fileserver\fileserverdiscovery.h" />
+    <ClInclude Include="app\win32\fileserver\fileserverdiscoveryandvalidator.h" />
+    <ClInclude Include="config\appconfchangemediator.h" />
+    <ClInclude Include="config\appconfigurator.h" />
+    <ClInclude Include="config\appconfigvalueobj.h" />
+    <ClInclude Include="config\applocalconfigurator.h" />
+    <ClInclude Include="config\appparser.h" />
+    <ClInclude Include="config\connection.h" />
+    <ClInclude Include="config\cxupdatecache.h" />
+    <ClInclude Include="discovery\discoverycontroller.h" />
+    <ClInclude Include="discovery\discoveryfactory.h" />
+    <ClInclude Include="discovery\win32\hostdiscovery.h" />
+    <ClInclude Include="ruleengine\validator.h" />
+    <ClInclude Include="ruleengine\win32\exchangevalidators.h" />
+    <ClInclude Include="ruleengine\win32\fileservervalidators.h" />
+    <ClInclude Include="ruleengine\win32\inmagevalidator.h" />
+    <ClInclude Include="ruleengine\win32\mssqlvalidators.h" />
+    <ClInclude Include="ruleengine\win32\ruleengine.h" />
+    <ClInclude Include="ruleengine\win32\rulefactory.h" />
+    <ClInclude Include="ruleengine\win32\systemvalidators.h" />
+    <ClInclude Include="util\exportdevice.h" />
+    <ClInclude Include="util\usermgmt.h" />
+    <ClInclude Include="util\volpack.h" />
+    <ClInclude Include="util\common\bulkProtection.h" />
+    <ClInclude Include="util\common\bulkprotectionandvalidator.h" />
+    <ClInclude Include="util\common\bulkprotectionvalidator.h" />
+    <ClInclude Include="util\common\cloudcontroller.h" />
+    <ClInclude Include="util\common\util.h" />
+    <ClInclude Include="util\win32\Clusteroperation.h" />
+    <ClInclude Include="util\win32\clusterutil.h" />
+    <ClInclude Include="util\win32\system.h" />
+    <ClInclude Include="util\win32\system_win.h" />
+    <ClInclude Include="util\win32\systemInfo.h" />
+    <ClInclude Include="util\win32\vssutil.h" />
+    <ClInclude Include="win32\ado\ado.h" />
+    <ClInclude Include="win32\ado\sqlado.h" />
+    <ClInclude Include="win32\ldap\exchangeldaphelper.h" />
+    <ClInclude Include="win32\ldap\ldap.h" />
+    <ClInclude Include="win32\wmi\sqlwmi.h" />
+    <ClInclude Include="win32\wmi\systemwmi.h" />
+    <ClInclude Include="win32\wmi\wmi.h" />
+    <ClInclude Include="win32\wmi\wmiutil.h" />
+    <ClInclude Include="Consistency\tagdiscovery.h" />
+    <ClInclude Include="Consistency\TagGenerator.h" />
+    <ClInclude Include="storagerepository\storagerepository.h" />
+    <ClInclude Include="storagerepository\win32\storagerepositorymajor.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\thirdparty\boost\boost-build-win\boost-build-win.vcxproj">
+      <Project>{43491c14-304a-4660-bc4c-df0cb18f6b87}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\config\config.vcxproj">
+      <Project>{48330794-e280-45a0-9f16-69010ef753bb}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\dplibs\dplibs.vcxproj">
+      <Project>{a3af0fad-b10f-4153-986b-933cda30d8e8}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\log\Log.vcxproj">
+      <Project>{da7e75ec-e026-42d5-9315-7e52e8f5b34b}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\s2libs\s2libs.vcxproj">
+      <Project>{aae78f4c-6c2c-4cbc-bbe8-d3df90adcbf9}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -1,0 +1,300 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+#include "..\common\version.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#ifndef APSTUDIO_INVOKED
+#include "targetver.h"
+#endif
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#ifndef APSTUDIO_INVOKED\r\n"
+    "#include ""targetver.h""\r\n"
+    "#endif\r\n"
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#include ""res\\hostconfigwxcommon.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""     // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_HOSTCONFIGWXCOMMON_DIALOG DIALOGEX 0, 0, 320, 200
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "Host Agent Config"
+FONT 8, "Arial Narrow", 0, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,209,179,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,263,179,50,14
+    CTEXT           "TODO: Place dialog controls here.",IDC_STATIC,10,96,300,8
+END
+
+IDD_PROPPAGE_GLOBAL DIALOGEX 0, 0, 254, 221
+STYLE DS_SETFONT | WS_CHILD | WS_DISABLED | WS_CAPTION
+EXSTYLE WS_EX_PALETTEWINDOW
+CAPTION "Global"
+FONT 8, "Arial Narrow", 400, 0, 0x0
+BEGIN
+    GROUPBOX        "CX Server Settings",IDC_GROUPBOX_CX_SETTINGS,7,7,240,207
+    LTEXT           "FQDN or IP: ",IDC_STATIC_IP_ADDRESS,16,29,57,8
+	EDITTEXT        IDC_CX_IPADDRESS, 72, 26, 170, 15, ES_AUTOHSCROLL
+    LTEXT           "Port Number : ",IDC_STATIC_PORT_NUMBER,16,49,47,8
+    EDITTEXT        IDC_EDIT_CX_PORT,72,46,43,12,ES_AUTOHSCROLL
+    CONTROL         "Enable Fixed NAT Hostname : ",IDC_CHECK_NAT_HOSTNAME,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,91,119,10
+    EDITTEXT        IDC_EDIT_NAT_HOSTNAME,135,90,108,14,ES_AUTOHSCROLL
+    CONTROL         "Enable Fixed NAT IP Address : ",IDC_CHECK_NAT_IP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,116,119,10
+    CONTROL         "",IDC_NAT_CX_IPADDRESS,"SysIPAddress32",WS_TABSTOP,135,113,108,14
+    LTEXT           "Note: Only IPv4 Address allowed",IDC_STATIC_IPV4_ALLOWED,10,194,112,8
+    LTEXT           "Please wait, Wizard is Initializing ...",IDC_STATIC_INITIALIZING,60,159,118,8
+    LTEXT           "Changes are applying. Please wait ...",IDC_STATIC_IN_PROGRESS,56,181,127,8,NOT WS_VISIBLE
+    CONTROL         "Use HTTPS",IDC_CHECK_ENABLE_HTTPS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,118,50,56,8
+    LTEXT           "*",IDC_ASTERIC,57,27,8,8
+    LTEXT           "*",IDC_ASTERIC2,62,48,8,8
+    LTEXT           "Indicates mandatory fields",IDC_IndicateMandatory,33,202,87,8
+    RTEXT           "*",IDC_ASTERIC3,24,201,8,8
+    LTEXT           "Passphrase : ",IDC_STATIC_PASSPHRASE,16,69,47,8
+    EDITTEXT        IDC_EDIT_PASSPHRASE,72,66,171,12,ES_PASSWORD | ES_AUTOHSCROLL
+    LTEXT           "*",IDC_ASTERIC5,59,67,8,8
+    LTEXT           "Modify Passphrase",IDC_STATIC_MODIFYPASSPHRASE,16,69,65,8,SS_NOTIFY
+END
+
+IDD_PROPPAGE_AGENT DIALOGEX 0, 0, 254, 221
+STYLE DS_SETFONT | WS_CHILD | WS_DISABLED | WS_CAPTION
+EXSTYLE WS_EX_PALETTEWINDOW
+CAPTION "Agent"
+FONT 8, "Arial Narrow", 400, 0, 0x0
+BEGIN
+    GROUPBOX        "VX Agent",IDC_GROUPBOX_AGENT,7,7,240,207
+    LTEXT           "Application Cache Directory",IDC_STATIC_APP_CACHE_DIR,10,23,92,8
+    EDITTEXT        IDC_EDIT_CACHE_DIR_PATH,10,36,208,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDC_BTN_BROWSE_CACHE_DIR,221,36,24,14
+    LTEXT           "Cache Directory change note",IDC_STATIC_CHACHE_DIR_CHANGE_NOTE,10,87,233,89
+    LTEXT           "Changes are applying. Please wait ...",IDC_STATIC_IN_PROGRESS,62,191,128,8,NOT WS_VISIBLE
+    LTEXT           "*",IDC_ASTERIC,101,23,8,8
+    LTEXT           "Indicates mandatory field",IDC_MANDATORY,20,199,83,8
+    RTEXT           "*",IDC_ASTERIC2,10,199,8,8
+END
+
+IDD_PROPPAGE_LOGGING DIALOGEX 0, 0, 254, 221
+STYLE DS_SETFONT | WS_CHILD | WS_DISABLED | WS_CAPTION
+EXSTYLE WS_EX_PALETTEWINDOW
+CAPTION "Logging"
+FONT 8, "Arial Narrow", 400, 0, 0x0
+BEGIN
+    GROUPBOX        "Agent Logging",IDC_GROUPBOX_LOGGING,7,7,240,207
+    GROUPBOX        "VX Logging",IDC_VX_LOGGING_GROUPBOX,11,26,233,62
+    LTEXT           "Local Log Level",IDC_STATIC_LOCAL_LOGGING,22,47,64,8
+    EDITTEXT        IDC_EDIT_LOCAL_LOG_LEVEL,99,45,54,12,ES_AUTOHSCROLL
+    CONTROL         "",IDC_SPIN_LOCAL_LOG_LEVEL,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_HOTTRACK,154,44,10,13
+    LTEXT           "Remote Log Level",IDC_STATIC_REMOTE_LOG_LEVEL,22,65,62,8
+    EDITTEXT        IDC_EDIT_REMOTE_LOG_LEVEL,99,63,54,12,ES_AUTOHSCROLL
+    CONTROL         "",IDC_SPIN_REMOTE_LOG_LEVEL,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_HOTTRACK,154,63,10,13
+    GROUPBOX        "FX Logging",IDC_FX_LOGGING_GROUPBOX,11,103,233,45
+    LTEXT           "Log Level",IDC_STATIC_FX_LOG_LEVEL,22,123,34,8
+    EDITTEXT        IDC_EDIT_FX_LOG_LEVEL,99,120,54,12,ES_AUTOHSCROLL
+    CONTROL         "",IDC_SPIN_FX_LOG_LEVEL,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_HOTTRACK,154,119,10,13
+    LTEXT           "Changes are applying. Please wait ...",IDC_STATIC_IN_PROGRESS,57,183,127,8,NOT WS_VISIBLE
+END
+
+IDD_PROPPAGE_LOGON DIALOGEX 0, 0, 254, 221
+STYLE DS_SETFONT | WS_CHILD | WS_DISABLED | WS_CAPTION
+EXSTYLE WS_EX_PALETTEWINDOW
+CAPTION "Logon"
+FONT 8, "Arial Narrow", 400, 0, 0x0
+BEGIN
+    GROUPBOX        "Logon User",IDC_GROUPBOX_LOGON,7,7,240,207
+    GROUPBOX        "User Configuration",IDC_STATIC_USER_CONFIG,11,20,233,55
+    LTEXT           "User Name : ",IDC_STATIC_USER_NAME,18,35,47,8
+    EDITTEXT        IDC_EDIT_USER_NAME,70,33,149,13,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDC_BT_USER_SEARCH,220,32,21,15
+    LTEXT           "Password : ",IDC_STATIC_USER_PASSWORD,18,54,42,8
+    EDITTEXT        IDC_EDIT_PASSWORD,70,53,149,13,ES_PASSWORD | ES_AUTOHSCROLL
+    GROUPBOX        "InMage Application Agent",IDC_STATIC_APPAGENT_USER,11,81,233,46
+    LTEXT           "Application Agent uses the configured user account for executing scripts and commands.",IDC_STATIC_APPAGENT_NOTE,18,108,222,16
+    GROUPBOX        "InMage FX Agent",IDC_STATIC_FXAGENT_USER,11,133,233,43
+    CONTROL         "Use Local System Account",IDC_RADIO_FX_LOCAL_SYSTEM,
+                    "Button",BS_AUTORADIOBUTTON | WS_GROUP,18,145,106,10
+    CONTROL         "Use User Account",IDC_RADIO_FX_USER_ACOUNT,"Button",BS_AUTORADIOBUTTON,18,159,77,10
+    LTEXT           "Changes are applying. Please wait ...",IDC_STATIC_IN_PROGRESS,58,189,127,8,NOT WS_VISIBLE
+    CONTROL         "Use User Account",IDC_CHECK_APPAGENT_USER,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,18,95,77,10
+    LTEXT           "*",IDC_ASTERIC,61,34,8,8
+    LTEXT           "*",IDC_ASTERIC2,56,53,8,8
+    RTEXT           "*",IDC_ASTERIC4,12,199,8,8
+    LTEXT           "Indicates mandatory fields",IDC_MANDATORYINDICATION,21,199,87,8
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION INMAGE_PRODUCT_VERSION
+ PRODUCTVERSION INMAGE_PRODUCT_VERSION
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904e4"
+        BEGIN
+            VALUE "CompanyName", "Microsoft Corporation"
+            VALUE "FileDescription", "Host Agent Config"
+            VALUE "FileVersion", INMAGE_PRODUCT_VERSION_STR
+            VALUE "InternalName", "hostconfigwxcommon.exe"
+            VALUE "LegalCopyright", INMAGE_COPY_RIGHT
+            VALUE "OriginalFilename", "hostconfigwxcommon.exe"
+            VALUE "ProductName", INMAGE_PRODUCT_NAME
+            VALUE "ProductVersion", PROD_VERSION
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_HOSTCONFIGWXCOMMON_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 313
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 193
+    END
+
+    IDD_PROPPAGE_GLOBAL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 247
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 214
+    END
+
+    IDD_PROPPAGE_AGENT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 247
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 214
+    END
+
+    IDD_PROPPAGE_LOGGING, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 247
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 214
+    END
+
+    IDD_PROPPAGE_LOGON, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 247
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 214
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#include "res\hostconfigwxcommon.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"     // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

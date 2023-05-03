@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+
+<!-- 
+    This file contains the definitions for the all the events.
+-->
+<SRSEventsCollection xmlns:srs="http://schemas.microsoft.com/2010/dls/SRSEventsConfig.xsd">
+
+  <!--All the success events go here.-->
+  <SRSEvents Type="Success" MinEventCode="2101" MaxEventcode="2200">
+    
+    <SRSEvent>
+      <Name>SampleOperationSuccessEvent</Name>
+      <Code>2101</Code>
+      <EventLogLevel>Information</EventLogLevel>
+      <Message>Stuff worked.</Message>
+      <RecommendedAction>Missing!!!</RecommendedAction>
+      <Owner>Jaysha</Owner>
+      <FeatureTeamReviewed>false</FeatureTeamReviewed>
+    </SRSEvent>
+    
+  </SRSEvents>
+
+  <!--This group contains all the failure events.-->
+  <SRSEvents Type="Failure-PGActionable" MinEventCode="4101" MaxEventcode="4200">
+    
+    <SRSEvent>
+      <Name>SampleOperationErrorEvent</Name>
+      <Code>4101</Code>
+      <EventLogLevel>Error</EventLogLevel>
+      <Message>Stuff did not work.</Message>
+      <RecommendedAction>Missing!!!</RecommendedAction>
+      <Owner>Jaysha</Owner>
+      <FeatureTeamReviewed>false</FeatureTeamReviewed>
+    </SRSEvent>
+  </SRSEvents>
+
+</SRSEventsCollection>

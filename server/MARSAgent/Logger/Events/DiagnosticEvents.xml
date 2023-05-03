@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+
+<!-- 
+    This file contains the definitions for the all the events.
+-->
+<SRSEventsCollection xmlns:srs="http://schemas.microsoft.com/2010/dls/SRSEventsConfig.xsd">
+
+  <!--All the success events go here.-->
+  <SRSEvents Type="Success" MinEventCode="2001" MaxEventcode="2100">
+
+    <SRSEvent>
+      <Name>FetchedReplicationSettings</Name>
+      <Code>2001</Code>
+      <EventLogLevel>Information</EventLogLevel>
+      <Message>Fetched replication settings.</Message>
+      <RecommendedAction>No action needed.</RecommendedAction>
+      <Owner>Jaysha</Owner>
+      <FeatureTeamReviewed>false</FeatureTeamReviewed>
+    </SRSEvent>
+
+  </SRSEvents>
+
+  <!--This group contains all the failure events.-->
+  <SRSEvents Type="Failure-PGActionable" MinEventCode="4001" MaxEventcode="4100">
+
+    <SRSEvent>
+      <Name>LogContextMissingEvent</Name>
+      <Code>4001</Code>
+      <EventLogLevel>Warning</EventLogLevel>
+      <Message>Log context is not set on the current thread.</Message>
+      <RecommendedAction>None.</RecommendedAction>
+      <Owner>Jaysha</Owner>
+      <FeatureTeamReviewed>false</FeatureTeamReviewed>
+    </SRSEvent>
+
+    <SRSEvent>
+      <Name>ExceptionFetchingReplicationSettings</Name>
+      <Code>4002</Code>
+      <EventLogLevel>Warning</EventLogLevel>
+      <Message>Replication settings could not be fetched.</Message>
+      <RecommendedAction>No action needed.</RecommendedAction>
+      <Owner>Jaysha</Owner>
+      <FeatureTeamReviewed>false</FeatureTeamReviewed>
+      <element Name="exceptionType" Type="string"></element>
+      <element Name="exceptionMessage" Type="string"></element>
+    </SRSEvent>
+    
+  </SRSEvents>
+
+</SRSEventsCollection>

@@ -1,0 +1,15 @@
+Listen PORT
+
+#
+# VirtualHost example:
+# Almost any Apache directive may go into a VirtualHost container.
+# The first VirtualHost section is used for requests without a known
+# server name.
+#
+<VirtualHost _default_:PORT >
+    ServerName localhost
+    ServerAdmin USER@HOSTNAME
+    DocumentRoot DOCUMENT_ROOT
+    ErrorLog logs/ERROR_LOG
+    CustomLog logs/ACCESS_LOG common
+</VirtualHost>

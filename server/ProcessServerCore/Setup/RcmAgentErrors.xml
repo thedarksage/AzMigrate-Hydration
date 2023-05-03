@@ -1,0 +1,466 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<srs:SRSErrors
+  xmlns="http://schemas.microsoft.com/2012/DisasterRecovery/SRSErrors.xsd"
+  xmlns:srs="http://schemas.microsoft.com/2012/DisasterRecovery/SRSErrors.xsd">
+
+  <!--Find instructions to add new errors at the end of this file-->
+
+  <Error>
+    <ErrorCode>0</ErrorCode>
+    <EnumName>Success</EnumName>
+    <Message>Operation completed successfully.</Message>
+    <Severity>Information</Severity>
+    <ErrorTags>
+      <Category>ComponentReportedError</Category>
+    </ErrorTags>
+  </Error>
+
+  <!--Copy starting from here till end to update any sevice-side error XMLs-->
+
+  <!--Process Server Configurator error code range : 520300 - 520699-->
+
+  <Error>
+    <!--This particular error is used by the Configurator PowerShell script to
+    populate an error object, even if PSCore.dll coudln't be loaded. So, reflect
+    any changes made to this error to the PowerShell script too.
+    -->
+    <ErrorCode>520300</ErrorCode>
+    <EnumName>ConfiguratorUnexpectedError</EnumName>
+    <Message>The operation failed due to an internal error.</Message>
+    <PossibleCauses>The operation failed due to an internal error.</PossibleCauses>
+    <RecommendedAction>Retry the operation. If the issue persists, contact support.</RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags>
+      <Category>ComponentReportedError</Category>
+    </ErrorTags>
+  </Error>
+
+  <Error>
+    <ErrorCode>520301</ErrorCode>
+    <EnumName>ConfiguratorActionFailed</EnumName>
+    <Message>The operation failed due to an internal error.</Message>
+    <PossibleCauses>The operation failed due to an internal error.</PossibleCauses>
+    <RecommendedAction>Retry the operation. If the issue persists, contact support.</RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags>
+      <Category>ComponentReportedError</Category>
+    </ErrorTags>
+  </Error>
+
+  <Error>
+    <ErrorCode>520302</ErrorCode>
+    <EnumName>NotInstalled</EnumName>
+    <Message>Process Server installation couldn't be found on the appliance.</Message>
+    <PossibleCauses>
+      1. Process Server is not installed
+      2. Process Server's registry key (HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Azure Site Recovery Process Server) is missing.
+    </PossibleCauses>
+    <RecommendedAction>
+      1. Install the Process Server, if not already done.
+      2. Ensure the registry key (HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Azure Site Recovery Process Server) is intact and valid. For further help, contact support.
+    </RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags>
+      <Category>ComponentReportedError</Category>
+    </ErrorTags>
+  </Error>
+
+  <Error>
+    <ErrorCode>520303</ErrorCode>
+    <EnumName>UnexpectedMode</EnumName>
+    <Message>Process Server is expected to be installed in %ExpectedCSMode; mode but found to be installed in an unexpected mode %InstalledCSMode;.</Message>
+    <PossibleCauses>Process Server is installed in an unexpected mode.</PossibleCauses>
+    <RecommendedAction>Uninstall the Process Server. Install it back in the expected mode %ExpectedCSMode;.</RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags>
+      <Category>ComponentReportedError</Category>
+    </ErrorTags>
+  </Error>
+
+  <Error>
+    <ErrorCode>520304</ErrorCode>
+    <EnumName>BadInputReplicationDataPort</EnumName>
+    <Message>Replication data port cannot be zero.</Message>
+    <PossibleCauses>The replication data port passed as a configurator parameter is unset or zero.</PossibleCauses>
+    <RecommendedAction>Retry the operation by passing a non-zero port number.</RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags>
+      <Category>ComponentReportedError</Category>
+    </ErrorTags>
+  </Error>
+
+  <Error>
+    <ErrorCode>520305</ErrorCode>
+    <EnumName>AlreadyFirstTimeConfigured</EnumName>
+    <Message>Process Server is already first time configured.</Message>
+    <PossibleCauses>Process Server is already first time configured.</PossibleCauses>
+    <RecommendedAction>
+      1. Since Process Server is already in the expected state, the invalid operation performed at the current state is blocked. Verify if the action is indeed valid.
+      2. Unconfigure the process server
+    </RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags>
+      <Category>ComponentReportedError</Category>
+    </ErrorTags>
+  </Error>
+
+  <Error>
+    <ErrorCode>520306</ErrorCode>
+    <EnumName>NotYetFirstTimeConfigured</EnumName>
+    <Message>Process Server is not yet first time configured.</Message>
+    <PossibleCauses>Process Server is not yet first time configured.</PossibleCauses>
+    <RecommendedAction>
+      1. The operation is expected to be executed after the Process Server is configured. Verify if the sequence of operations performed is indeed valid.
+      2. First-time configure the Process Server.
+    </RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags>
+      <Category>ComponentReportedError</Category>
+    </ErrorTags>
+  </Error>
+
+  <Error>
+    <ErrorCode>520307</ErrorCode>
+    <EnumName>BadInputEmptyCacheLocation</EnumName>
+    <Message>Cache location input cannot be empty.</Message>
+    <PossibleCauses>Cache location input to the configurator is empty.</PossibleCauses>
+    <RecommendedAction>Retry the operation by passing a non-empty absolute path for the Cache location.</RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags>
+      <Category>ComponentReportedError</Category>
+    </ErrorTags>
+  </Error>
+
+  <Error>
+    <ErrorCode>520308</ErrorCode>
+    <EnumName>BadInputCacheLocationRelativePath</EnumName>
+    <Message>Cache location input %InvalidCacheLocation; cannot be a relative path.</Message>
+    <PossibleCauses>Cache location input is a relative path.</PossibleCauses>
+    <RecommendedAction>Retry the operation by passing a non-empty absolute path for the Cache location.</RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags>
+      <Category>ComponentReportedError</Category>
+    </ErrorTags>
+  </Error>
+
+  <Error>
+    <ErrorCode>520309</ErrorCode>
+    <EnumName>ReplicationLogFolderAlreadyConfigured</EnumName>
+    <Message>Replication log folder path is already configured for the Process Server - %AlreadyConfiguredFolderPath;.</Message>
+    <PossibleCauses>A previous unclean configurator action could've caused this.</PossibleCauses>
+    <RecommendedAction>Retry the operation after unconfiguring the Process Server.</RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags>
+      <Category>ComponentReportedError</Category>
+    </ErrorTags>
+  </Error>
+
+  <Error>
+    <ErrorCode>520310</ErrorCode>
+    <EnumName>ReplicationLogFolderAlreadyPresent</EnumName>
+    <Message>Replication log folder is already existing in the Process Server - %ExistingFolderPath;.</Message>
+    <PossibleCauses>A previous unclean configurator action could've caused this.</PossibleCauses>
+    <RecommendedAction>Retry the operation after deleting the %ExistingFolderPath; folder.</RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags>
+      <Category>ComponentReportedError</Category>
+    </ErrorTags>
+  </Error>
+
+  <Error>
+    <ErrorCode>520311</ErrorCode>
+    <EnumName>TelemetryFolderAlreadyConfigured</EnumName>
+    <Message>Telemetry folder path is already configured for the Process Server - %AlreadyConfiguredFolderPath;.</Message>
+    <PossibleCauses>A previous unclean configurator action could've caused this.</PossibleCauses>
+    <RecommendedAction>Retry the operation after unconfiguring the Process Server.</RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags>
+      <Category>ComponentReportedError</Category>
+    </ErrorTags>
+  </Error>
+
+  <Error>
+    <ErrorCode>520312</ErrorCode>
+    <EnumName>TelemetryFolderAlreadyPresent</EnumName>
+    <Message>Telemetry folder is already existing in the Process Server - %ExistingFolderPath;.</Message>
+    <PossibleCauses>A previous unclean configurator action could've caused this.</PossibleCauses>
+    <RecommendedAction>Retry the operation after deleting the %ExistingFolderPath; folder.</RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags>
+      <Category>ComponentReportedError</Category>
+    </ErrorTags>
+  </Error>
+
+  <Error>
+    <ErrorCode>520313</ErrorCode>
+    <EnumName>ReqDefFolderAlreadyConfigured</EnumName>
+    <Message>Default request folder path is already configured for the Process Server - %AlreadyConfiguredFolderPath;.</Message>
+    <PossibleCauses>A previous unclean configurator action could've caused this.</PossibleCauses>
+    <RecommendedAction>Retry the operation after unconfiguring the Process Server.</RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags>
+      <Category>ComponentReportedError</Category>
+    </ErrorTags>
+  </Error>
+
+  <Error>
+    <ErrorCode>520314</ErrorCode>
+    <EnumName>ReqDefFolderAlreadyPresent</EnumName>
+    <Message>Default request folder is already existing in the Process Server - %ExistingFolderPath;.</Message>
+    <PossibleCauses>A previous unclean configurator action could've caused this.</PossibleCauses>
+    <RecommendedAction>Retry the operation after deleting the %ExistingFolderPath; folder.</RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags>
+      <Category>ComponentReportedError</Category>
+    </ErrorTags>
+  </Error>
+
+  <Error>
+    <ErrorCode>520315</ErrorCode>
+    <EnumName>GenCertFailed</EnumName>
+    <Message>Generating certificates for Process Server's HTTPS listener failed with exit code %ReturnValue;.</Message>
+    <PossibleCauses>The operation failed due to an internal error.</PossibleCauses>
+    <RecommendedAction>Retry the operation. If the issue persists, contact support.</RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags>
+      <Category>ComponentReportedError</Category>
+    </ErrorTags>
+  </Error>
+
+  <Error>
+    <ErrorCode>520316</ErrorCode>
+    <EnumName>NotRegistered</EnumName>
+    <Message>Process Server is expected to be registered with Rcm.</Message>
+    <PossibleCauses>Process Server is not registered with Rcm.</PossibleCauses>
+    <RecommendedAction>Retry the operation after registering the Process Server with Rcm.</RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags>
+      <Category>ComponentReportedError</Category>
+    </ErrorTags>
+  </Error>
+
+  <Error>
+    <ErrorCode>520317</ErrorCode>
+    <EnumName>UnregisterNeeded</EnumName>
+    <Message>Process Server is expected to be unregistered.</Message>
+    <PossibleCauses>Process Server is still registered with Rcm.</PossibleCauses>
+    <RecommendedAction>
+      1. Retry the operation after unregistering the Process Server with Rcm.
+      2. In case of unconfigure, retry by passing -force to bypass this check.
+    </RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags>
+      <Category>ComponentReportedError</Category>
+    </ErrorTags>
+  </Error>
+
+  <Error>
+    <ErrorCode>520318</ErrorCode>
+    <EnumName>CorruptedInstallation</EnumName>
+    <Message>Process Server installation is corrupted.</Message>
+    <PossibleCauses>Values in Process Server's registry key (HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Azure Site Recovery Process Server) are invalid.</PossibleCauses>
+    <RecommendedAction>Ensure the registry key (HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Azure Site Recovery Process Server) and its values are intact and valid. For further help, contact support.</RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags>
+      <Category>ComponentReportedError</Category>
+    </ErrorTags>
+  </Error>
+
+  <Error>
+    <ErrorCode>520319</ErrorCode>
+    <EnumName>RegisterOrModifyWithRcmFailed</EnumName>
+    <Message>Failed to Register or Modify the Process Server with Rcm.</Message>
+    <PossibleCauses>The operation failed due to an internal error.</PossibleCauses>
+    <RecommendedAction>Retry the operation. If the issue persists, contact support.</RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags>
+      <Category>ComponentReportedError</Category>
+    </ErrorTags>
+  </Error>
+
+  <Error>
+    <ErrorCode>520320</ErrorCode>
+    <EnumName>TestConnectionWithRcmFailed</EnumName>
+    <Message>Failed to Test the connection of the Process Server with Rcm.</Message>
+    <PossibleCauses>The operation failed due to an internal error.</PossibleCauses>
+    <RecommendedAction>Retry the operation. If the issue persists, contact support.</RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags>
+      <Category>ComponentReportedError</Category>
+    </ErrorTags>
+  </Error>
+
+  <Error>
+    <ErrorCode>520321</ErrorCode>
+    <EnumName>UnregisterWithRcmFailed</EnumName>
+    <Message>Failed to Unregister the Process Server with Rcm.</Message>
+    <PossibleCauses>The operation failed due to an internal error.</PossibleCauses>
+    <RecommendedAction>Retry the operation. If the issue persists, contact support.</RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags>
+      <Category>ComponentReportedError</Category>
+    </ErrorTags>
+  </Error>
+
+  <Error>
+    <ErrorCode>520322</ErrorCode>
+    <EnumName>FolderCreationFailed</EnumName>
+    <Message>Failed to create the folder %FolderPath;.</Message>
+    <PossibleCauses>Folder creation could've failed due to permission issue or an existing item in the given path.</PossibleCauses>
+    <RecommendedAction>Retry the operation. Manually try deleting the folder %FolderPath;, if present and then retry. If the issue persists, contact support.</RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags>
+      <Category>ComponentReportedError</Category>
+    </ErrorTags>
+  </Error>
+
+  <Error>
+    <ErrorCode>520323</ErrorCode>
+    <EnumName>FolderDeletionFailed</EnumName>
+    <Message>Failed to delete the folder %FolderPath;.</Message>
+    <PossibleCauses>Folder creation could've failed due to permission issue or an item in use error.</PossibleCauses>
+    <RecommendedAction>Retry the operation. Manually try deleting the folder %FolderPath;, if present and then retry. If the issue persists, contact support.</RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags>
+      <Category>ComponentReportedError</Category>
+    </ErrorTags>
+  </Error>
+
+  <Error>
+    <ErrorCode>520324</ErrorCode>
+    <EnumName>ReplicationDataPortIsInUse</EnumName>
+    <Message>Replication data port %InvalidPort; is in use by another process %ProcessName;.</Message>
+    <PossibleCauses>The replication data port passed as a configurator parameter is in use by another process.</PossibleCauses>
+    <RecommendedAction>Retry the operation by passing an unused port number.</RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags>
+      <Category>ComponentReportedError</Category>
+    </ErrorTags>
+  </Error>
+
+  <Error>
+    <ErrorCode>520325</ErrorCode>
+    <EnumName>ConfiguratorConnectFailure</EnumName>
+    <Message>The operation could not be completed because there is no outbound connectivity to the internet.</Message>
+    <PossibleCauses>The replication appliance does not have any connectivity to the internet.</PossibleCauses>
+    <RecommendedAction>
+      1. Make sure that you are connected to the internet.
+      2. If there are any firewall rules, then ensure that they are configured to allow communication with Azure Site recovery services.
+    </RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags>
+      <Category>ComponentReportedError</Category>
+    </ErrorTags>
+  </Error>
+
+  <Error>
+    <ErrorCode>520326</ErrorCode>
+    <EnumName>ConfiguratorNameResolutionFailure</EnumName>
+    <Message>The operation could not be completed because there is no outbound connectivity to the internet.</Message>
+    <PossibleCauses>The replication appliance does not have any connectivity to the internet or DNS resolution is not working correctly.</PossibleCauses>
+    <RecommendedAction>
+      1. Make sure that you are connected to the internet.
+      2. If there are any firewall rules, then ensure that they are configured to allow communication with Azure Site recovery services.
+      3. Ensure that your DNS resolution is working as expected.
+    </RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags>
+      <Category>ComponentReportedError</Category>
+    </ErrorTags>
+  </Error>
+
+  <Error>
+    <ErrorCode>520327</ErrorCode>
+    <EnumName>ConfiguratorProxyNameResolutionFailure</EnumName>
+    <Message>The operation could not be completed because there is no outbound connectivity to the proxy server.</Message>
+    <PossibleCauses>The replication appliance does not have any connectivity to the proxy server or DNS resolution is not working correctly.</PossibleCauses>
+    <RecommendedAction>
+      1. Make sure that you can connect to the proxy server.
+      2. If there are any firewall rules, then ensure that they are configured to allow communication with Azure Site recovery services.
+      3. Ensure that your DNS resolution is working as expected.
+    </RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags>
+      <Category>ComponentReportedError</Category>
+    </ErrorTags>
+  </Error>
+
+  <Error>
+    <ErrorCode>520328</ErrorCode>
+    <EnumName>ConfiguratorRequestProhibitedByProxy</EnumName>
+    <Message>The operation could not be completed because there is no outbound connectivity to the internet.</Message>
+    <PossibleCauses>The proxy server prohibits connection to Azure.</PossibleCauses>
+    <RecommendedAction>
+      1. Proxy server prohibits connection to Azure. Ensure proxy server to allow communication with Azure Site recovery services.
+    </RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags>
+      <Category>ComponentReportedError</Category>
+    </ErrorTags>
+  </Error>
+
+  <Error>
+    <ErrorCode>520329</ErrorCode>
+    <EnumName>FingerprintAccessFailure</EnumName>
+    <Message>The appliance configuration could not be performed successfully.</Message>
+    <PossibleCauses>The process server fingerprint file is not accessible.</PossibleCauses>
+    <RecommendedAction>Navigate to the file "ps.fingerprint" located at "%PsFingerPrintFilePath" and ensure that you can access it. If not, then change the permissions of the file. Once done, retry the operation.</RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags>
+      <Category>ComponentReportedError</Category>
+    </ErrorTags>
+  </Error>
+
+  <Error>
+    <ErrorCode>520330</ErrorCode>
+    <EnumName>FingerprintReadInternalError</EnumName>
+    <Message>The operation failed due to an internal error.</Message>
+    <PossibleCauses>The operation failed due to an internal error.</PossibleCauses>
+    <RecommendedAction>Retry the operation. If the issue persists, contact support.</RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags>
+      <Category>ComponentReportedError</Category>
+    </ErrorTags>
+  </Error>
+
+  <Error>
+    <ErrorCode>520331</ErrorCode>
+    <EnumName>DnsFqdnFetchFailed</EnumName>
+    <Message>The operation failed due to FQDN resolution error.</Message>
+    <PossibleCauses>The operation failed due to FQDN resolution error.</PossibleCauses>
+    <RecommendedAction>Retry the operation. If the issue persists, contact support.</RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags>
+      <Category>ClientError</Category>
+    </ErrorTags>
+  </Error>
+
+  <Error>
+    <ErrorCode>520332</ErrorCode>
+    <EnumName>FailedToStartServices</EnumName>
+    <Message>Unable to start %Services; on ProcessServer</Message>
+    <PossibleCauses>Navigate to services.msc and ensure that the service(s) %Services; are not disabled and set to automatic start mode.</PossibleCauses>
+    <RecommendedAction>Retry the operation. If the issue persists, contact support.</RecommendedAction>
+    <Severity>Error</Severity>
+    <ErrorTags>
+        <Category>ComponentReportedError</Category>
+    </ErrorTags>
+  </Error>
+
+  <!--
+  1. Only append errors to the end of the Xml with consecutive error codes.
+  2. Even if an error is deprecated or no longer used, don't remove from the file
+     but indicate that the error is no longer used.
+  3. After any edits to this file, generate the latest RcmAgentErrors.cs by
+     a) Either go to Build > Transform All T4 templates
+     b) (or) Right click on RcmAgentErrors.tt in the solution explorer and select "Run Custom Tool"
+  4. After generating the RcmAgentErrors.cs file, ensure to commit it along with
+     this RcmAgentErrors.xml file.
+     **CAUTION: The file is design-time generated and so if not checked in, it won't
+     be updated in build machines or other dev machines**
+  5. Ensure to update the error codes XML in SRS repo with the latest changes.
+     Must only copy-paste the entire XML. That way we can always ensure that
+     the changes are made in the InMage Source repo.
+  -->
+
+</srs:SRSErrors>

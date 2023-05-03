@@ -1,0 +1,45 @@
+=================================================================
+
+<Request Id="Intel" Version="1.0">
+     <Header>
+       <Authenticate>
+  <identity>Intel</identity>
+              <passphrase></passphrase>
+       <Parameter Name="AAA" Value="100"/>        
+         </Authenticate>
+ <ParameterGroup Id="PG001">
+              <Parameter Name="BBB" Value="200"/>        
+ </ParameterGroup>
+     </Header>
+     <Body>
+     <FunctionRequest Name="ListVolumes" Id="XXXX" include="yes">
+        <ParameterGroup ID="PG002">
+  <Parameter Name="CCC" Value="300"/>        
+ </ParameterGroup>
+     </FunctionRequest>
+    </Body> 
+</Request>
+
+================================================================
+
+<Response Id="XXXXX" Version="1.0" Returncode=0 Message=”” > 
+<Body>  
+ <Function Name="ListVolumes" ID="X1" ReturnCode="0" Message="">
+ 	<FunctionRequest Name="ListVolumes">
+    	    <ParameterGroup ID="PG002">
+  			<Parameter Name="CCC" Value="300"/>        
+			  <Parameter Name="CCC" Value="300"/>        
+           <Parameter Name="CCC" Value="300"/>        
+			</ParameterGroup>
+    </FunctionRequest> 
+  <FunctionResponse> 
+		 <ParameterGroup Name="" Id="" >
+  		<Parameter Name="" Type="String" Value="" />
+ 		</ParameterGroup>
+  </FunctionResponse> 
+     
+</Function>
+</Body>
+</Response>
+==========================================================
+BSR

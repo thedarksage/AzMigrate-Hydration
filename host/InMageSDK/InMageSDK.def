@@ -1,0 +1,13 @@
+;
+;InMage Systems Pvt Ltd.
+;
+
+LIBRARY				"InMageSDK"
+
+EXPORTS
+					processRequestWithFile			@2	PRIVATE
+					processRequestWithStream		@3	PRIVATE
+					processRequestWithSimpleCStream @4 	PRIVATE
+					ErrorMessage					@5	PRIVATE
+					Inm_cleanUp						@6	PRIVATE
+					

@@ -1,0 +1,25 @@
+<Request Id="1" Version="1.0">
+<Header>
+  <Authentication>
+  <AccessKeyID>11F3242118FF2ADD5D117CBF216F29AC578F6BA6</AccessKeyID>
+  <AuthMethod>CXAuth</AuthMethod>
+  <CXUserName>admin</CXUserName>
+  </Authentication>
+</Header>
+<Body>
+ <FunctionRequest Name="ModifyProtectionProperties">
+	<Parameter Name="ProtectionPlanId" Value="1"/>
+    <Parameter Name="BatchResync" Value="3"/> <!-- Number of pairs that can be in initial sync at any point of time -->
+    <Parameter Name="MultiVmSync" Value="On"/>
+    <Parameter Name="RPOThreshold" Value="30"/> <!-- In Minutes -->
+    <Parameter Name="ConsistencyPoints" Value="1"/> <!-- Retain recovery points for (hours) -->
+    <Parameter Name="ApplicationConsistencyPoints" Value="30"/> <!-- Frequency of application consistency (minutes) -->
+    <Parameter Name="Compression" Value="Enabled"/> <!-- Enabled/Disabled, Default is Enabled --> <!-- Encryption is always to be Enabled. -->
+    <ParameterGroup Id="AutoResyncOptions">
+        <Parameter Name="StartTime" Value="12:00"/> <!-- Date:Time in 24 hour format, Default 12:00 -->
+        <Parameter Name="EndTime" Value="18:00"/> <!-- Date:Time in 24 hour format, Default 18:00 -->
+        <Parameter Name="Interval" Value="600"/> <!-- In seconds. Default 600 -->
+    </ParameterGroup>
+  </FunctionRequest>
+</Body> 
+</Request>

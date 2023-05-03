@@ -1,0 +1,16 @@
+<Function Name="getKnownArrays" Id="" ReturnCode="0" Message="Success">
+<FunctionResponse>
+<ParameterGroup Id="Axiom201">
+<Parameter Name="AxiomName" Value="Axiom201" />
+<Parameter Name="SerialNumber" Value="ABC000000XYZ" />
+<Parameter Name="IPAddress" Value="10.1.1.10" />
+<Parameter Name="Model" Value="AX600" />
+</ParameterGroup>
+<ParameterGroup Id="Axiom209">
+<Parameter Name="AxiomName" Value="Axiom209" />
+<Parameter Name="SerialNumber" Value="A990001ZXC" />
+<Parameter Name="IPAddress" Value="10.1.1.20" />
+<Parameter Name="Model" Value="AX600" />
+</ParameterGroup>
+</FunctionResponse>
+</Function>

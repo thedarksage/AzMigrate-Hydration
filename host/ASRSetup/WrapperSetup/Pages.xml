@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Pages>
+  <!--Start Installation Flow-->
+  <Page Id ="LaunchPage" Implementation="UnifiedSetup.LaunchPage">
+    <PreviousPage delegateId="UnifiedSetup.CustomDelegates.NullPageHandler"></PreviousPage>
+    <NextPage delegateId="UnifiedSetup.CustomDelegates.NextFromLaunchPage">InstallationProgress,ASRRegistrationPage,InstallationChoice,ThirdpartySoftwareLicensePage</NextPage>
+    <SetupStage></SetupStage>
+    <HelpPage>{D035D6FD-0E32-463B-8C45-34502ECBC611}</HelpPage>
+  </Page>
+  <Page Id ="InstallationChoice" Implementation="UnifiedSetup.InstallationChoice">
+    <PreviousPage delegateId="UnifiedSetup.CustomDelegates.NullPageHandler"></PreviousPage>
+    <NextPage delegateId="UnifiedSetup.CustomDelegates.CSorPSNextPage">ThirdpartySoftwareLicensePage,ReplicationApplianceDetailsPage</NextPage>
+    <SetupStage>before_you_begin</SetupStage>
+    <HelpPage>{D035D6FD-0E32-463B-8C45-34502ECBC611}</HelpPage>
+  </Page>
+  <Page Id ="ThirdpartySoftwareLicensePage" Implementation="UnifiedSetup.ThirdpartySoftwareLicensePage">
+    <PreviousPage delegateId="UnifiedSetup.CustomDelegates.DefaultPreviousPage">InstallationChoice</PreviousPage>
+    <NextPage delegateId="UnifiedSetup.CustomDelegates.ThirdpartySoftwareNextPage">InstallationProgress,ASRRegistrationPage</NextPage>
+    <SetupStage>third_party_software_license</SetupStage>
+    <HelpPage>{D035D6FD-0E32-463B-8C45-34502ECBC611}</HelpPage>
+  </Page>
+  <Page Id ="ASRRegistrationPage" Implementation="UnifiedSetup.ASRRegistrationPage">
+    <PreviousPage delegateId="UnifiedSetup.CustomDelegates.DefaultPreviousPage">ThirdpartySoftwareLicensePage</PreviousPage>
+    <NextPage delegateId="UnifiedSetup.CustomDelegates.DefaultNextPage">ProxyConfigurationPage</NextPage>
+    <SetupStage>azure_site_recovery_registration</SetupStage>
+    <HelpPage>{D035D6FD-0E32-463B-8C45-34502ECBC611}</HelpPage>
+  </Page>
+  <Page Id ="ReplicationApplianceDetailsPage" Implementation="UnifiedSetup.ReplicationApplianceDetailsPage">
+    <PreviousPage delegateId="UnifiedSetup.CustomDelegates.DefaultPreviousPage">InstallationChoice</PreviousPage>
+    <NextPage delegateId="UnifiedSetup.CustomDelegates.DefaultNextPage">ProxyConfigurationPage</NextPage>
+    <SetupStage>configuration_server_details</SetupStage>
+    <HelpPage>{D035D6FD-0E32-463B-8C45-34502ECBC611}</HelpPage>
+  </Page>
+  <Page Id ="ProxyConfigurationPage" Implementation="UnifiedSetup.ProxyConfigurationPage">
+    <PreviousPage delegateId="UnifiedSetup.CustomDelegates.PreviousFromProxyConfigurationPage">ASRRegistrationPage,ReplicationApplianceDetailsPage</PreviousPage>
+    <NextPage delegateId="UnifiedSetup.CustomDelegates.NextFromProxyConfigurationPage">InstallationProgress,PrerequisitesPage</NextPage>
+    <SetupStage>internet_settings</SetupStage>
+    <HelpPage>{D035D6FD-0E32-463B-8C45-34502ECBC611}</HelpPage>
+  </Page>
+  <Page Id ="PrerequisitesPage" Implementation="UnifiedSetup.PrerequisitesPage">
+    <PreviousPage delegateId="UnifiedSetup.CustomDelegates.DefaultPreviousPage">ProxyConfigurationPage</PreviousPage>
+    <NextPage delegateId="UnifiedSetup.CustomDelegates.CSorPSNextPage">MySQLPage,EnvironmentDetailsPage</NextPage>
+    <SetupStage>prerequisite_check</SetupStage>
+    <HelpPage>{D035D6FD-0E32-463B-8C45-34502ECBC611}</HelpPage>
+  </Page>
+  <Page Id ="MySQLPage" Implementation="UnifiedSetup.MySQLPage">
+    <PreviousPage delegateId="UnifiedSetup.CustomDelegates.DefaultPreviousPage">PrerequisitesPage</PreviousPage>
+    <NextPage delegateId="UnifiedSetup.CustomDelegates.DefaultNextPage">EnvironmentDetailsPage</NextPage>
+    <SetupStage>mysql_configuration</SetupStage>
+    <HelpPage>{D035D6FD-0E32-463B-8C45-34502ECBC611}</HelpPage>
+  </Page>
+  <Page Id ="EnvironmentDetailsPage" Implementation="UnifiedSetup.EnvironmentDetailsPage">
+    <PreviousPage delegateId="UnifiedSetup.CustomDelegates.CSorPSPreviousPage">MySQLPage,PrerequisitesPage</PreviousPage>
+    <NextPage delegateId="UnifiedSetup.CustomDelegates.DefaultNextPage">InstallLocationPage</NextPage>
+    <SetupStage>environment_details</SetupStage>
+    <HelpPage>{D035D6FD-0E32-463B-8C45-34502ECBC611}</HelpPage>
+  </Page>
+  <Page Id ="InstallLocationPage" Implementation="UnifiedSetup.InstallLocationPage">
+    <PreviousPage delegateId="UnifiedSetup.CustomDelegates.DefaultPreviousPage">EnvironmentDetailsPage</PreviousPage>
+    <NextPage delegateId="UnifiedSetup.CustomDelegates.DefaultNextPage">NetworkSelectionPage</NextPage>
+    <SetupStage>install_location</SetupStage>
+    <HelpPage>{D035D6FD-0E32-463B-8C45-34502ECBC611}</HelpPage>
+  </Page>
+  <Page Id ="NetworkSelectionPage" Implementation="UnifiedSetup.NetworkSelectionPage">
+    <PreviousPage delegateId="UnifiedSetup.CustomDelegates.DefaultPreviousPage">InstallLocationPage</PreviousPage>
+    <NextPage delegateId="UnifiedSetup.CustomDelegates.DefaultNextPage">Summary</NextPage>
+    <SetupStage>network_selection</SetupStage>
+    <HelpPage>{D035D6FD-0E32-463B-8C45-34502ECBC611}</HelpPage>
+  </Page>
+  <Page Id ="Summary" Implementation="UnifiedSetup.Summary">
+    <PreviousPage delegateId="UnifiedSetup.CustomDelegates.DefaultPreviousPage">NetworkSelectionPage</PreviousPage>
+    <NextPage delegateId="UnifiedSetup.CustomDelegates.DefaultNextPage">InstallationProgress</NextPage>
+    <SetupStage>summary</SetupStage>
+    <HelpPage>{D035D6FD-0E32-463B-8C45-34502ECBC611}</HelpPage>
+  </Page>
+  <Page Id ="InstallationProgress" Implementation="UnifiedSetup.InstallationProgress">
+    <PreviousPage delegateId="UnifiedSetup.CustomDelegates.DefaultPreviousPage">Summary</PreviousPage>
+    <NextPage delegateId="UnifiedSetup.CustomDelegates.DefaultNextPage"></NextPage>
+    <SetupStage>installation_progress</SetupStage>
+    <HelpPage>{D035D6FD-0E32-463B-8C45-34502ECBC611}</HelpPage>
+  </Page>
+  <!--End Register Flow-->
+</Pages>

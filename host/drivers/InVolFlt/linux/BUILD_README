@@ -1,0 +1,4 @@
+While compiling the InVolflt driver, KDIR argument should be passed to the makefile.
+
+Ex:
+	make -f involflt.mak KDIR=/lib/modules/2.6.18-8.el5/build debug=yes
