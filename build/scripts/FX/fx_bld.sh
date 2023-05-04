@@ -90,7 +90,7 @@ if [ "$OP_SYS" = "aix" ]; then
 
     	case $OS in
 		AIX53)
-			CURL_INCLUDE="-Ithirdparty/aix/lib53/curl-7.59.0/include"
+			CURL_INCLUDE="-Ithirdparty/aix/lib53/curl-7.87.0/include"
 			;;              
 	esac
 
@@ -175,7 +175,7 @@ elif [ "$OP_SYS" = "solaris58" -o "$OP_SYS" = "solaris5-9" -o "$OP_SYS" = "solar
 
 	if [ "$OP_SYS" = "solaris58" ]; then
            GCC_OPTS_SVFRD="$SYMBOL_FLAGS -m32 -Bstatic -Rlib -Wno-deprecated -I/usr/local/include -Ihost/fr_common -Ihost/fr_common/unix \
-                -Ithirdparty/curl-7.59.0/include \
+                -Ithirdparty/curl-7.87.0/include \
                 -DSV_UNIX -DSV_GENUUID -DSV_SUN_5DOT8 -DSTDC_HEADERS -DHAVE_UNISTD_H -DHAVE_SIGACTION \
                 -DHAVE_SETSID -DHAVE_STRCASECMP -DHAVE_STRING_H -DHAVE_NETINET_H -DHAVE_NETDB_H \
                 host/fr_log/logger.cpp \
@@ -189,7 +189,7 @@ elif [ "$OP_SYS" = "solaris58" -o "$OP_SYS" = "solaris5-9" -o "$OP_SYS" = "solar
                 host/frdaemon/daemon.cpp -o svfrd $LIBS $LD_FLAGS"
         elif [ "$OP_SYS" = "solaris5-9" ]; then
             GCC_OPTS_SVFRD="$SYMBOL_FLAGS -m32 -Bstatic -Rlib -Wno-deprecated -I/usr/local/include -Ihost/fr_common -Ihost/fr_common/unix \
-                -Ithirdparty/curl-7.59.0/include \
+                -Ithirdparty/curl-7.87.0/include \
                 -DSV_UNIX -DSV_GENUUID -DSV_SUN_5DOT9 -DSTDC_HEADERS -DHAVE_UNISTD_H -DHAVE_SIGACTION \
                 -DHAVE_SETSID -DHAVE_STRCASECMP -DHAVE_STRING_H -DHAVE_NETINET_H -DHAVE_NETDB_H \
                 host/fr_log/logger.cpp \
@@ -203,7 +203,7 @@ elif [ "$OP_SYS" = "solaris58" -o "$OP_SYS" = "solaris5-9" -o "$OP_SYS" = "solar
                 host/frdaemon/daemon.cpp -o svfrd $LIBS $LD_FLAGS"
         else
 	    GCC_OPTS_SVFRD="$SYMBOL_FLAGS -m32 -Bstatic -Rlib -Wno-deprecated -I/usr/local/include -Ihost/fr_common -Ihost/fr_common/unix \
-		-Ithirdparty/curl-7.59.0/include \
+		-Ithirdparty/curl-7.87.0/include \
 		-DSV_UNIX -DSV_GENUUID -DSV_SUNOS -DSTDC_HEADERS -DHAVE_UNISTD_H -DHAVE_SIGACTION \
 		-DHAVE_SETSID -DHAVE_STRCASECMP -DHAVE_STRING_H -DHAVE_NETINET_H -DHAVE_NETDB_H \
 		host/fr_log/logger.cpp \
@@ -218,7 +218,7 @@ elif [ "$OP_SYS" = "solaris58" -o "$OP_SYS" = "solaris5-9" -o "$OP_SYS" = "solar
 	fi
 
 	GCC_OPTS_UNREGAGENT="$SYMBOL_FLAGS -m32 -Bstatic -Rlib -Wno-deprecated -I/usr/local/include -Ihost/fr_common -Ihost/fr_common/unix \
-		-Ithirdparty/curl-7.59.0/include \
+		-Ithirdparty/curl-7.87.0/include \
 		-DSV_UNIX -DSV_GENUUID -DSV_SUNOS -DSTDC_HEADERS -DHAVE_UNISTD_H -DHAVE_SIGACTION \
 		-DHAVE_SETSID -DHAVE_STRCASECMP -DHAVE_STRING_H -DHAVE_NETINET_H -DHAVE_NETDB_H \
 		host/fr_log/logger.cpp \
@@ -232,7 +232,7 @@ elif [ "$OP_SYS" = "solaris58" -o "$OP_SYS" = "solaris5-9" -o "$OP_SYS" = "solar
 		host/fr_unregagent/unixunreg.cpp -o unregfragent $LIBS $LD_FLAGS"
 
 	GCC_OPTS_ALERT="$SYMBOL_FLAGS -m32 -Bstatic -Rlib -Wno-deprecated -I/usr/include -I/usr/local/include -Ihost/fr_common -Ihost/fr_common/unix \
-        	-Ihost/fr_config -Ihost/config -Ithirdparty/curl-7.59.0/include \
+        	-Ihost/fr_config -Ihost/config -Ithirdparty/curl-7.87.0/include \
 		-DSV_UNIX -DSV_SUNOS -DSV_GENUUID -DSTDC_HEADERS -DHAVE_UNISTD_H -DHAVE_SIGACTION -DHAVE_SETSID \
         	-DHAVE_STRCASECMP -DHAVE_STRING_H -DHAVE_NETDB_H -DHAVE_NETINET_H \
 		host/fr_log/logger.cpp \
@@ -246,7 +246,7 @@ elif [ "$OP_SYS" = "solaris58" -o "$OP_SYS" = "solaris5-9" -o "$OP_SYS" = "solar
         	host/fxalert/fxalert.cpp -o alert $LIBS $LD_FLAGS"
 
         GCC_OPTS_DSPACE="$SYMBOL_FLAGS -m32 -Bstatic -Rlib -Wno-deprecated -I/usr/include -I/usr/local/include -Ihost/fr_common -Ihost/fr_common/unix \
-        	-Ihost/fr_config -Ihost/config -Ithirdparty/curl-7.59.0/include \
+        	-Ihost/fr_config -Ihost/config -Ithirdparty/curl-7.87.0/include \
 		-DSV_UNIX -DSV_SUNOS -DSV_GENUUID -DSTDC_HEADERS -DHAVE_UNISTD_H -DHAVE_SIGACTION -DHAVE_SETSID \
         	-DHAVE_STRCASECMP -DHAVE_STRING_H -DHAVE_NETDB_H -DHAVE_NETINET_H \
 		host/fr_log/logger.cpp \
@@ -260,7 +260,7 @@ elif [ "$OP_SYS" = "solaris58" -o "$OP_SYS" = "solaris5-9" -o "$OP_SYS" = "solar
 	        host/fxdspace/fxdspace.cpp -o dspace $LIBS $LD_FLAGS"
 	
 	GCC_OPTS_REMOTECLI="$SYMBOL_FLAGS -m32 -Bstatic -Wno-deprecated -I/usr/local/include -Ihost/remotecli -Ihost/common -Ihost/cdplibs \
-		-Ithirdparty/curl-7.59.0/include \
+		-Ithirdparty/curl-7.87.0/include \
 		-DSV_UNIX -DSV_GENUUID -DSV_SUNOS -DSTDC_HEADERS -DHAVE_UNISTD_H -DHAVE_SIGACTION -DHAVE_SETSID -DHAVE_STRCASECMP -DHAVE_STRING_H \
 		-DHAVE_NETINET_H -DHAVE_NETDB_H host/remotecli/main.cpp host/remotecli/remotecli.cpp host/common/svutilities.cpp  -o remotecli \
 		-Llib $LIBS $LD_FLAGS"
@@ -269,7 +269,7 @@ elif [ "$OP_SYS" = "hpux" ]; then
 	unset LD_LIBRARY_PATH
 	LD_FLAGS='-lstdc++ -lgcc_s -lpthread'
         LIBS='lib/libcurl.a lib/libz.a lib/libssl.a lib/libcrypto.a lib/libcares.a lib/libidn.a'
-	GCC_OPTS_SVFRD="-Bstatic -Wl,+blib -Wno-deprecated -fno-exceptions -Ithirdparty/curl-7.59.0/config_release/include -I/usr/local/include -Ihost/fr_common \
+	GCC_OPTS_SVFRD="-Bstatic -Wl,+blib -Wno-deprecated -fno-exceptions -Ithirdparty/curl-7.87.0/config_release/include -I/usr/local/include -Ihost/fr_common \
 			-Ihost/fr_common/unix -DSV_UNIX -DSTDC_HEADERS -DHAVE_UNISTD_H -DHAVE_SIGACTION \
 			-DHAVE_SETSID -DHAVE_STRCASECMP -DHAVE_NETDB_H -DHAVE_NETINET_H \
 			host/fr_log/logger.cpp \
@@ -282,7 +282,7 @@ elif [ "$OP_SYS" = "hpux" ]; then
 			host/fragent/fragent.cpp \
 			host/frdaemon/daemon.cpp -o svfrd -Llib $LIBS $LD_FLAGS"
 
-		GCC_OPTS_UNREGAGENT="-Bstatic -Wl,+blib -Wno-deprecated -Ithirdparty/curl-7.59.0/config_release/include -I/usr/local/include \
+		GCC_OPTS_UNREGAGENT="-Bstatic -Wl,+blib -Wno-deprecated -Ithirdparty/curl-7.87.0/config_release/include -I/usr/local/include \
 			-Ihost/fr_common -Ihost/fr_common/unix \
 			-DSV_UNIX -DSTDC_HEADERS -DHAVE_UNISTD_H -DHAVE_SIGACTION -DHAVE_SETSID \
 			-DHAVE_STRCASECMP -DHAVE_NETDB_H -DHAVE_NETINET_H \
@@ -296,7 +296,7 @@ elif [ "$OP_SYS" = "hpux" ]; then
 			host/fr_common/unix/portableunix.cpp \
 			host/fr_unregagent/unixunreg.cpp -o unregfragent -Llib $LIBS $LD_FLAGS"
 		
-		GCC_OPTS_ALERT="-Bstatic -Wl,+blib -Wno-deprecated -Ithirdparty/curl-7.59.0/config_release/include -I/usr/include -I/usr/local/include \
+		GCC_OPTS_ALERT="-Bstatic -Wl,+blib -Wno-deprecated -Ithirdparty/curl-7.87.0/config_release/include -I/usr/include -I/usr/local/include \
 			-Ihost/fr_common -Ihost/fr_common/unix \
         		-Ihost/fr_config -Ihost/config -DSV_UNIX -DSTDC_HEADERS -DHAVE_UNISTD_H -DHAVE_SIGACTION -DHAVE_SETSID \
         		-DHAVE_STRCASECMP -DHAVE_NETDB_H -DHAVE_NETINET_H \
@@ -310,7 +310,7 @@ elif [ "$OP_SYS" = "hpux" ]; then
 			host/fragent/fragent.cpp \
         		host/fxalert/fxalert.cpp -o alert -Llib $LIBS $LD_FLAGS"
 
-		 GCC_OPTS_DSPACE="-Bstatic -Wl,+blib -Wno-deprecated -Ithirdparty/curl-7.59.0/config_release/include
+		 GCC_OPTS_DSPACE="-Bstatic -Wl,+blib -Wno-deprecated -Ithirdparty/curl-7.87.0/config_release/include
 			-I/usr/include -I/usr/local/include  \
 			-Ihost/fr_common -Ihost/fr_common/unix \
         		-Ihost/fr_config \
@@ -326,7 +326,7 @@ elif [ "$OP_SYS" = "hpux" ]; then
 			host/fragent/fragent.cpp \
 		        host/fxdspace/fxdspace.cpp -o dspace -Llib $LIBS $LD_FLAGS"
 
-		GCC_OPTS_REMOTECLI="-Bstatic -Wl,+blib -Wno-deprecated -D _REENTRANT -Ithirdparty/curl-7.59.0/config_release/include \
+		GCC_OPTS_REMOTECLI="-Bstatic -Wl,+blib -Wno-deprecated -D _REENTRANT -Ithirdparty/curl-7.87.0/config_release/include \
 			-I/usr/local/include -Ihost/remotecli \
 			-Ihost/common -Ihost/cdplibs \
 			-DSV_UNIX -DSV_GENUUID -DSV_SUNOS -DSTDC_HEADERS -DHAVE_UNISTD_H -DHAVE_SIGACTION -DHAVE_SETSID -DHAVE_STRCASECMP \
@@ -339,7 +339,7 @@ elif [ "$OP_SYS" = "hpux_itanium" ]; then
 		unset LD_LIBRARY_PATH
                 LD_FLAGS='-lstdc++ -lgcc_s -lssl -lpthread'
                 LIBS='lib/libcurl.a  lib/libz.a  lib/libssl.a  lib/libcrypto.a  lib/libcares.a lib/libidn.a'
-		GCC_OPTS_SVFRD="-Bstatic -Wl,+blib -Wno-deprecated -fno-exceptions -Ithirdparty/curl-7.59.0/config_release/include \
+		GCC_OPTS_SVFRD="-Bstatic -Wl,+blib -Wno-deprecated -fno-exceptions -Ithirdparty/curl-7.87.0/config_release/include \
 			-I/usr/local/include -Ihost/fr_common \
 			-Ihost/fr_common/unix -DSV_UNIX -DSTDC_HEADERS -DHAVE_UNISTD_H -DHAVE_SIGACTION \
 			-DHAVE_SETSID -DHAVE_STRCASECMP -DHAVE_NETDB_H -DHAVE_NETINET_H \
@@ -354,7 +354,7 @@ elif [ "$OP_SYS" = "hpux_itanium" ]; then
 			host/frdaemon/daemon.cpp -o svfrd \
 			-Llib $LIBS $LD_FLAGS"
 
-		GCC_OPTS_UNREGAGENT="-Bstatic -Wl,+blib -Wno-deprecated -Ithirdparty/curl-7.59.0/config_release/include -I/usr/local/include -Ihost/fr_common \
+		GCC_OPTS_UNREGAGENT="-Bstatic -Wl,+blib -Wno-deprecated -Ithirdparty/curl-7.87.0/config_release/include -I/usr/local/include -Ihost/fr_common \
 			-Ihost/fr_common/unix -Llib \
 			-DSV_UNIX -DSTDC_HEADERS -DHAVE_UNISTD_H -DHAVE_SIGACTION -DHAVE_SETSID \
 			-DHAVE_STRCASECMP -DHAVE_NETDB_H -DHAVE_NETINET_H \
@@ -369,7 +369,7 @@ elif [ "$OP_SYS" = "hpux_itanium" ]; then
 			host/fr_unregagent/unixunreg.cpp -o unregfragent \
 			-Llib $LIBS $LD_FLAGS"
 
-		GCC_OPTS_ALERT="-Bstatic -Wl,+blib -Wno-deprecated -Ithirdparty/curl-7.59.0/config_release/include -I/usr/include \
+		GCC_OPTS_ALERT="-Bstatic -Wl,+blib -Wno-deprecated -Ithirdparty/curl-7.87.0/config_release/include -I/usr/include \
 			-I/usr/local/include -Ihost/fr_common -Ihost/fr_common/unix \
         		-Ihost/fr_config -Ihost/config -DSV_UNIX -DSTDC_HEADERS -DHAVE_UNISTD_H -DHAVE_SIGACTION -DHAVE_SETSID \
 		        -DHAVE_STRCASECMP -DHAVE_NETDB_H -DHAVE_NETINET_H \
@@ -383,7 +383,7 @@ elif [ "$OP_SYS" = "hpux_itanium" ]; then
 			host/fragent/fragent.cpp \
 		        host/fxalert/fxalert.cpp -o alert -Llib $LIBS $LD_FLAGS"
 
-                 GCC_OPTS_DSPACE="-Bstatic -Wl,+blib -Wno-deprecated -Ithirdparty/curl-7.59.0/config_release/include -I/usr/include -I/usr/local/include \
+                 GCC_OPTS_DSPACE="-Bstatic -Wl,+blib -Wno-deprecated -Ithirdparty/curl-7.87.0/config_release/include -I/usr/include -I/usr/local/include \
 			-Ihost/fr_common -Ihost/fr_common/unix \
 		        -Ihost/fr_config -Ihost/config -DSV_UNIX -DSTDC_HEADERS -DHAVE_UNISTD_H -DHAVE_SIGACTION -DHAVE_SETSID \
 		        -DHAVE_STRCASECMP -DHAVE_NETDB_H -DHAVE_NETINET_H \
@@ -397,7 +397,7 @@ elif [ "$OP_SYS" = "hpux_itanium" ]; then
 			host/fragent/fragent.cpp \
 		        host/fxdspace/fxdspace.cpp -o dspace -Llib $LIBS $LD_FLAGS"
 
-		GCC_OPTS_REMOTECLI="-Bstatic -Wl,+blib -Wno-deprecated -D _REENTRANT -Ithirdparty/curl-7.59.0/config_release/include -I/usr/local/include \
+		GCC_OPTS_REMOTECLI="-Bstatic -Wl,+blib -Wno-deprecated -D _REENTRANT -Ithirdparty/curl-7.87.0/config_release/include -I/usr/local/include \
 			-Ihost/remotecli -Ihost/common \
 			-Ihost/cdplibs -DSV_UNIX -DSV_GENUUID -DSV_SUNOS -DSTDC_HEADERS -DHAVE_UNISTD_H -DHAVE_SIGACTION -DHAVE_SETSID \
 			-DHAVE_STRCASECMP -DHAVE_STRING_H -DHAVE_NETINET_H -DHAVE_NETDB_H host/remotecli/main.cpp \

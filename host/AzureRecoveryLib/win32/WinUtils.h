@@ -83,6 +83,8 @@ namespace AzureRecovery
 
     DWORD GetFileVersion(const std::string& file_path, std::string& version);
 
+    DWORD EnableBitlocker(const std::string& srcOsVol);
+
     void PrintAllDiskPartitions();
 }
 

@@ -40,6 +40,7 @@ namespace HydrationConfig
     const char EnableWindowsGAInstallation[] = "EnableWindowsGAInstallation";
     const char EnableLinuxGAInstallation[] = "EnableLinuxGAInstallation";
     const char EnableWindowsGAInstallationDR[] = "EnableWindowsGAInstallationDR";
+    const char IsConfidentialVmMigration[] = "IsConfidentialVmMigration";
 }
 
 namespace AzureRecovery

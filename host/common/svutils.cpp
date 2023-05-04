@@ -1,10 +1,8 @@
 #include <stdio.h>
 #include <sys/types.h>
-#include <string>
 #include "portablehelpers.h"
 using namespace std;
 #include <errno.h>
-#include "svtypes.h"
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif

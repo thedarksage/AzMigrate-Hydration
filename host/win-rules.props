@@ -7,7 +7,7 @@
     <ACE_LIB_DIR>..\packages\ace.6.4.6\ACE_wrappers\lib</ACE_LIB_DIR>
     <BOOST_INCLUDES>..\..\thirdparty\boost\boost_1_78_0</BOOST_INCLUDES>
     <BOOST_LIB_DIR>..\..\thirdparty\boost\boost_1_78_0\stage\win\Win32\lib</BOOST_LIB_DIR>
-    <CURL_PATH>..\..\thirdparty\curl-7.80.0</CURL_PATH>
+    <CURL_PATH>..\..\thirdparty\curl-7.87.0</CURL_PATH>
     <CURL_INCLUDES>$(CURL_PATH)\include</CURL_INCLUDES>
     <CURL_HEADERS>$(CURL_PATH)\include\curl</CURL_HEADERS>
     <CURL_LIB_DIR_DEBUG>$(CURL_PATH)\build\Win32\VC15\LIB Debug - LIB OpenSSL</CURL_LIB_DIR_DEBUG>

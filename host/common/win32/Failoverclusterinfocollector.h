@@ -147,6 +147,8 @@ public:
 
     bool IsClusterNode();
 
+    SVSTATUS CheckClusterHealth(const std::string& clusterName, bool& isClusterUp);
+
     bool GetClusSvcStatusOnCurrentNode(FailoverCluster::ClusterServiceStatus& status);
 
     std::string GetLastErrorMessage(void);
