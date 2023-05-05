@@ -18,7 +18,7 @@ THIRDPARTY_MAK = thirdparty.mak
 # ----------------------------------------------------------------------
 ACE_ROOT := ../thirdparty/ace-6.4.6/ACE_wrappers
 CDK_ROOT := ../thirdparty/cdk-5.0.4
-CURL_ROOT := ../thirdparty/curl-7.83.1
+CURL_ROOT := ../thirdparty/curl-7.87.0
 OPENSSL_ROOT := ../thirdparty/openssl-1.1.1n
 SQLITE_ROOT := ../thirdparty/sqlite-3.36.0
 SQLITE3X_ROOT := ../thirdparty/sqlite3x/sqlite3x
