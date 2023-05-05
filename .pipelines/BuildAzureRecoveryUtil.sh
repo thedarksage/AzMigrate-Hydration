@@ -50,6 +50,8 @@ chmod +x ../thirdparty/sqlite3x/sqlite3x/inmage_config_build
 
 chmod +x ../thirdparty/ace-6.4.6/ACE_wrappers/inmage_config_build
 
+chmod +x ../thirdparty/curl-7.87.0/inmage_config_build
+
 chmod +x ../thirdparty/sqlite3x/sqlite3x/inmage_config_build
 
 chmod +x ../thirdparty/sqlite-3.36.0/inmage_config_build
