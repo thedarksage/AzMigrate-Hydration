@@ -1,0 +1,19 @@
+export SRC_DIR="../src"
+g++  -Wno-deprecated \
+-DSV_UNIX \
+-DSTDC_HEADERS \
+-DHAVE_UNISTD_H \
+-DHAVE_SIGACTION \
+-DHAVE_SETSID \
+-DHAVE_STRCASECMP \
+-DHAVE_UUID_GENERATE \
+-lcurl \
+-luuid \
+$SRC_DIR/log/logger.cpp \
+$SRC_DIR/config/svconfig.cpp \
+$SRC_DIR/common/svtransport.cpp \
+$SRC_DIR/common/portableunix.cpp \
+$SRC_DIR/common/unixagenthelpers.cpp \
+$SRC_DIR/fragent/fragent.cpp \
+$SRC_DIR/frsvc/daemon.cpp \
+-o svfrd

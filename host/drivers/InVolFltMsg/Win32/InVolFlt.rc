@@ -1,0 +1,42 @@
+//---------------------------------------------------------------------------
+// InMagFlt.rc
+//
+// Copyright (C) 2004, InMage Systems.
+//---------------------------------------------------------------------------
+
+#include <windows.h>
+
+#include <ntverp.h>
+#include "..\..\..\common\version.h"
+
+#undef VER_COMPANYNAME_STR
+#undef VER_PRODUCTNAME_STR
+
+#define VER_FILETYPE                VFT_DRV
+#define VER_FILESUBTYPE             VFT2_DRV_SYSTEM
+#define VER_COMPANYNAME_STR         "Microsoft Corporation"
+#define VER_PRODUCTNAME_STR         INMAGE_PRODUCT_NAME
+#define VER_FILEDESCRIPTION_STR     "Volume Filter Message Driver"
+#define VER_INTERNALNAME_STR        "InVolFlt.sys OS " VER_PRODUCTVERSION_STRING
+#define VER_ORIGINALFILENAME_STR    "InVolFlt.sys"
+#define VER_LEGALCOPYRIGHT_YEARS    "2005"
+#define VER_LEGALCOPYRIGHT_STR      INMAGE_COPY_RIGHT
+
+// change to InMage product versions, not DDK versions
+#undef VER_PRODUCTVERSION
+#undef VER_PRODUCTVERSION_STR
+#undef VER_FILEVERSION
+#undef VER_FILEVERSION_STR
+
+#define VER_PRODUCTVERSION          INMAGE_PRODUCT_VERSION
+#define VER_PRODUCTVERSION_STR      PROD_VERSION
+#define VER_FILEVERSION             INMAGE_PRODUCT_VERSION
+#define VER_FILEVERSION_STR         INMAGE_PRODUCT_VERSION_STR
+
+#include "common.ver"
+
+LANGUAGE LANG_ENGLISH, SUBLANG_NEUTRAL
+
+#include "InVolFltLog.rc"
+
+

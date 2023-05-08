@@ -120,6 +120,12 @@ namespace TASK_DESCRIPTIONS
 
 #define E_REQUIRED_VMBUS_REGISTRIES_MISSING 34
 
+#define E_RECOVERY_UNSUPPORTED_FIRMWARE_FOR_CVM 35
+
+#define E_RECOVERY_UNSUPPORTED_DEVICE 36
+
+#define E_RECOVERY_CVM_INTERNAL 37
+
 namespace BlobStatusMetadataName
 {
     const char ExecutionStatus[]   = "ExecutionStatus";

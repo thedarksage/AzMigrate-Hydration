@@ -1,0 +1,122 @@
+CMD			 = 	consistency_point		
+
+IO			 	= 	md5cksum large_io_stress write_pattern cc_verify cc_drain writev filecmp
+
+LIB			 = 	libutils				\
+			   		liblogger				\
+					libflt					\
+			   		libcp   				\
+					mddriver				\
+					md5						
+
+# configs
+CC_FLAGS	 	= 	-g
+
+INC			 = 	-I lib   				\
+					-I ../common  			\
+					-I ../../lib/common  	\
+					-I ../../lib/linux
+
+#########################
+# Dont modify below here#
+#########################
+
+OS			 := 	$(shell uname)
+ARCH 		   := 	$(shell uname -p)
+
+# Linux
+ifeq ($(OS), Linux)
+CC			 	= 	gcc
+LIB			+= 	liblinux
+CC_FLAGS	   += 	-D_FLTLINUX -DINM_LINUX
+INC			+= 	-I ../linux
+LN_FLAGS	   += 	-lpthread
+endif
+
+C_FLAGS		 = 	$(CFLAGS) $(CC_FLAGS) $(INC)
+
+CMDOBJ		 := 	$(addsuffix .o, $(CMD))
+CMDEXE		 := 	$(addsuffix .e, $(CMD))
+IOOBJ		  := 	$(addsuffix .i, $(IO))
+IOEXE		  := 	$(addsuffix .x, $(IO))
+LIBOBJ		 := 	$(addsuffix .l, $(LIB))
+CDIR		 	= 	cmd
+CODIR		 	= 	$(CDIR)/obj
+IODIR		 	= 	io
+IOODIR		 	= 	$(IODIR)/obj
+LDIR		 	= 	lib
+LODIR		 	= 	$(LDIR)/obj
+EXEDIR		 	= 	$(OS)_$(ARCH)
+SDIR			=	scripts
+
+ifeq (1, $(v))
+
+LABEL_CC	 	= 
+LABEL_CL	 	= 
+LABEL_LN	 	=
+LABEL_NOCLR	 =
+LABEL_CLEAN	 =
+LABEL_MKDIR	 =
+
+else
+
+# color coding
+NO_COLOR	 	= 	[0m
+CC_COLOR	 	= 	[0m[00;32m
+ERROR_COLOR	 = 	[0m[01;31m
+RM_COLOR	 	= 	[0m[00;32m
+
+CC_STRING	 	= 	$(CC_COLOR)[CC]$(NO_COLOR)
+LN_STRING	 	= 	$(CC_COLOR)[LN]$(NO_COLOR)
+ERROR_STRING 	= 	$(ERROR_COLOR)
+CLEAN_STRING 	= 	$(RM_COLOR)[CLEANUP]$(NO_COLOR)
+MKDIR_STRING 	= 	$(CC_COLOR)[MKDIR]$(NO_COLOR)
+CP_STRING		=	$(CC_COLOR)[CP]$(NO_COLOR)
+
+LABEL_CL	 	= 	@echo "$(CC_STRING)"		 $(@:.l=) "$(ERROR_STRING)";
+LABEL_CC	 	= 	@echo "$(CC_STRING)"		 $(@:.o=) "$(ERROR_STRING)";
+LABEL_LN	 	= 	@echo "$(LN_STRING)"		 $(@:.e=) "$(ERROR_STRING)";
+LABEL_CI	 	= 	@echo "$(CC_STRING)"		 $(@:.i=) "$(ERROR_STRING)";
+LABEL_LI	 	= 	@echo "$(LN_STRING)"		 $(@:.x=) "$(ERROR_STRING)";
+LABEL_NOCLR	 = 	@echo "$(NO_COLOR)";
+LABEL_CLEAN	 = 	@echo "$(CLEAN_STRING)"	$(@:_clean=);
+LABEL_MKDIR	 = 	@echo "$(MKDIR_STRING)"	$(@:_mkdir=); 
+LABEL_CP		= 	@echo "$(CP_STRING)"	   $(@:_mkdir=); 
+
+endif
+
+all:	mkdir $(LIBOBJ) $(CMDOBJ) $(IOOBJ) $(CMDEXE) $(IOEXE) scripts clean_obj
+	${LABEL_NOCLR}
+
+%_mkdir:
+	${LABEL_MKDIR} mkdir -p $(@:_mkdir=)
+
+mkdir: $(CODIR)_mkdir $(LODIR)_mkdir $(IOODIR)_mkdir $(EXEDIR)_mkdir
+
+%_cp:
+	${LABEL_CP} cp -R $(@:_cp=)/* ${EXEDIR}
+
+%.l:	 $(LDIR)/%.c 
+	${LABEL_CL} $(CC) $(C_FLAGS) -D_FLTLIB -c -o $(LODIR)/$(@:.l=.o) $<
+
+%.o:	 $(CDIR)/%.c
+	${LABEL_CC} $(CC) $(C_FLAGS) -c -o $(CODIR)/$@ $<
+
+%.e:	 %.o $(LIBOBJ)
+	${LABEL_LN}$(CC) -o $(EXEDIR)/$(@:.e=) $(LODIR)/*.o $(CODIR)/$< $(LN_FLAGS)
+
+%.i:	 $(IODIR)/%.c
+	${LABEL_CI} $(CC) $(C_FLAGS) -c -o $(IOODIR)/$(@:.i=.o) $<
+
+%.x:	 %.i $(LIBOBJ)
+	${LABEL_LI}$(CC) -o $(EXEDIR)/$(@:.x=) $(LODIR)/*.o $(IOODIR)/$(<:.i=.o) $(LN_FLAGS)
+
+scripts: scripts_cp
+
+%_clean:
+	${LABEL_CLEAN} rm -rf $(@:_clean=)
+
+clean_obj: $(CODIR)_clean $(LODIR)_clean $(IOODIR)_clean
+
+clean:	clean_obj $(EXEDIR)_clean
+

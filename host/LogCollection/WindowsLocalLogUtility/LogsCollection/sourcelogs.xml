@@ -1,0 +1,40 @@
+<Agent_logs>
+ 	<copy_folders>
+		<folder folderName="failoverDataLogs" path="{installPath}\Failover\Data"></folder>
+		<folder folderName="dpLogs" path="{installPath}\vxlogs"></folder>
+		<folder folderName="transport" path="{installPath}\transport\log"></folder>
+		<folder folderName="ApplicationDataEtc" path="{installPath}\Application Data\etc"></folder>
+		<folder folderName="installerLog" path="{rootDir}ProgramData\ASRSetupLogs"></folder>
+		<folder folderName="Mobility Service" path="{rootDir}ProgramData\Microsoft Azure Site Recovery\Mobility Service"></folder>
+	</copy_folders>	
+	<copy_files>
+		<file fileName="*.log" path="{installPath}\"></file>
+		<file fileName="s2.xfer*" path="{installPath}\"></file>
+		<file fileName="UA_InstallLogFile.log" path="{rootDir}"></file>
+		<file fileName="UA_UnInstallLogFile.log" path="{rootDir}"></file>
+		<file fileName="*.conf" path="{installPath}\transport\"></file>
+		<file fileName="*.log" path="{installPath}\Application Data\"></file>
+		<file fileName="*.log" path="{installPath}\Application Data\ApplicationPolicyLogs\"></file>
+		<file fileName="*.log" path="{installPath}\FileRep\"></file>
+	</copy_files>
+	<collect_events>
+		<event eventFileName="system.evtx" eventName="System"></event>	
+		<event eventFileName="Application.evtx" eventName="Application"></event>
+	</collect_events>
+	<execute_commands>
+		<command outputFileName="systemInfo.txt" executeCommand="SystemInfo"></command>
+		<command outputFileName="writers.txt" executeCommand="vssadmin list writers"></command>	
+		<command outputFileName="providers.txt" executeCommand="vssadmin list providers"></command>			
+		<command outputFileName="shadows.txt" executeCommand="vssadmin list shadows"></command>	
+		<command outputFileName="mountvol.txt " executeCommand="mountvol"></command>
+		<command outputFileName="driverinfo.txt" executeCommand="{installPath}\drvutil.exe" args="--ps --dm"></command>
+		<command outputFileName="driverstatinfo.txt" executeCommand="{installPath}\drvutil.exe" args="--cd"></command>
+		<command outputFileName="driverstats.txt" executeCommand="{installPath}\drvutil.exe" args="--ps"></command>
+		<command outputFileName="globaltimestamp.txt" executeCommand="{installPath}\drvutil.exe"  args="--getglobaltimestamp"></command>
+	</execute_commands>
+</Agent_logs>
+
+
+
+
+

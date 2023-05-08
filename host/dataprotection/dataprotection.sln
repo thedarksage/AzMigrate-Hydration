@@ -1,0 +1,37 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dataprotection", "dataprotection.vcproj", "{E2F160DD-ADC7-4670-9BE9-3CF5407A3E6C}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testeventqueue", "testeventqueue.vcproj", "{A8B4A404-A0F0-4D0F-891D-9F27444A0EB6}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testhashcomparedata", "testhashcomparedata.vcproj", "{F48B18B3-3761-4804-8D98-FB434C55E027}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{E2F160DD-ADC7-4670-9BE9-3CF5407A3E6C}.Debug.ActiveCfg = Debug|Win32
+		{E2F160DD-ADC7-4670-9BE9-3CF5407A3E6C}.Debug.Build.0 = Debug|Win32
+		{E2F160DD-ADC7-4670-9BE9-3CF5407A3E6C}.Release.ActiveCfg = Release|Win32
+		{E2F160DD-ADC7-4670-9BE9-3CF5407A3E6C}.Release.Build.0 = Release|Win32
+		{A8B4A404-A0F0-4D0F-891D-9F27444A0EB6}.Debug.ActiveCfg = Debug|Win32
+		{A8B4A404-A0F0-4D0F-891D-9F27444A0EB6}.Debug.Build.0 = Debug|Win32
+		{A8B4A404-A0F0-4D0F-891D-9F27444A0EB6}.Release.ActiveCfg = Release|Win32
+		{A8B4A404-A0F0-4D0F-891D-9F27444A0EB6}.Release.Build.0 = Release|Win32
+		{F48B18B3-3761-4804-8D98-FB434C55E027}.Debug.ActiveCfg = Debug|Win32
+		{F48B18B3-3761-4804-8D98-FB434C55E027}.Debug.Build.0 = Debug|Win32
+		{F48B18B3-3761-4804-8D98-FB434C55E027}.Release.ActiveCfg = Release|Win32
+		{F48B18B3-3761-4804-8D98-FB434C55E027}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

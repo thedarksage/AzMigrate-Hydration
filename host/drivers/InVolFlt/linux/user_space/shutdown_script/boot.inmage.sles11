@@ -1,0 +1,81 @@
+#! /bin/sh
+#
+# /etc/init.d/boot.inmage
+#
+### BEGIN INIT INFO
+# Provides:          boot.inmage
+# Required-Start:
+# Required-Stop:
+# Default-Start:     B
+# Default-Stop:
+# X-Start-Before:    boot.udev boot.debugfs boot.efivars
+# X-Stop-After:      boot.udev boot.debugfs boot.efivars
+# Description:       Loads InMage Filter Driver ahead of rootfsck to protect root volume
+### END INIT INFO
+
+. /etc/rc.status
+
+SLES11_DRV_LD_OPTION=
+if [ -f /etc/SuSE-release ] &&  grep -q 'VERSION = 11' /etc/SuSE-release ; then
+       OSN=SLES11
+       SLES11_DRV_LD_OPTION="--allow-unsupported"
+fi
+
+CreateFiltDrvNode()
+{
+	if lsmod | grep involflt > /dev/null 2>&1 && [ ! -c /dev/involflt ]; then
+		local FILTDRVNODE_MAJ_NUM=`cat /proc/devices | grep involflt | cut -d" " -f1`
+		mknod /dev/involflt c $FILTDRVNODE_MAJ_NUM 0
+	fi
+}
+
+KillAllProc()
+{
+	echo "Inmage Sending all processes the TERM signal..."
+	killall5 -15
+	echo -e "$rc_done_up"
+	rc_wait /sbin/blogd /sbin/splash
+	echo "Inmage Sending all processes the KILL signal..."
+	killall5 -9
+	echo -e "$rc_done_up"
+}
+		
+# to get max number of parallel fsck processes
+. /etc/sysconfig/boot
+
+	case "$1" in
+		  start)
+			if [ -f /etc/SuSE-release ] && grep -q 'VERSION = 11' /etc/SuSE-release; then
+				grep -qi "inmage=0" /proc/1/environ || /etc/vxagent/bin/inm_dmit --op=init_driver_fully
+                /bin/bash /etc/vxagent/bin/involflt.sh start
+			else
+				grep -qi "inmage=0" /proc/1/environ || modprobe involflt $SLES11_DRV_LD_OPTION
+			fi
+		        ;;
+		   stop)
+			if [ "$OSN" = "SLES11" ] ; then
+				KillAllProc
+			fi
+
+			if [ -f /etc/SuSE-release ] && grep -q 'VERSION = 11' /etc/SuSE-release; then
+				fsfreeze -f / && sleep 1 && fsfreeze -u /
+			fi
+
+			CreateFiltDrvNode
+			/etc/vxagent/hotplug_utils/inmshutnotify || echo "**************** inmshutnotify failed ******************"
+		        ;;
+		   restart)
+		        rc_failed 3
+		        rc_status -v
+		        ;;
+		    status)
+		        rc_failed 4
+		        rc_status -v
+		        ;;
+		    *)
+		   	 echo "Usage: $0 {start|stop|status|restart}"
+			 exit 1
+		 ;;
+	 esac 
+
+rc_exit

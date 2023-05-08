@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{59E6F8B4-4DD0-49FB-A224-36B38F1A570E}</ProjectGuid>
+    <RootNamespace>cdplibs</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="..\win-rules.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="..\win-rules.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="..\win-rules-files\x64\win-rules.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="..\win-rules-files\x64\win-rules.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>12.0.21005.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>Debug\</OutDir>
+    <IntDir>Debug\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>Release\</OutDir>
+    <IntDir>Release\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\common;..\inmsafeint;..\inmsafeint\win;..\inmsafecapis;..\inmsafecapis\win;..\common\win32;$(ACE_INCLUDES);$(SQLITE3X_INCLUDES);$(BOOST_INCLUDES);..\s2libs\common;..\s2libs\foundation;..\s2libs\streams;..\s2libs\thread;..\config;..\tal;..\vacplibs;$(WINDDK)\inc\ddk\;..\devicefilter;..\devicefilter\win;..\drivers\InVolFlt\windows\Interface;..\drivers\include\win32;$(ZLIB_INCLUDES);$(CURL_INCLUDES)\curl;$(CURL_INCLUDES);..\drivers\InVirVol\win32;..\vsnaplib;..\drivers\Tests\win32\drvutil;..\SnapShotMgr\include;..\Retention;..\virtualvolumelib;..\log;..\config\win;$(ACE_INCLUDES)\ace\os_include;..\cdplibs;..\cdplibs\v1;..\cdplibs\v3;..\conversionlib;..\volumeinfocollector\win32;..\volumeinfocollector;..\cdpapplylib;..\localdirectsynclib;..\InmXmlParser;..\disklayoutmgr;$(SIGSLOT_INCLUDES);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_WIN32_WINNT=0x0502;WIN32;_DEBUG;_LIB;SV_WINDOWS=1;ACE_AS_STATIC_LIBS;_LARGEFILE_SOURCE=1;_LARGEFILE64_SOURCE=1;_FILE_OFFSET_BITS=64;CURL_STATICLIB;WIN32_LEAN_AND_MEAN;VSNAP_USER_MODE;ATL_NO_LEAN_AND_MEAN;SV_USES_LONGPATHS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4312;4311;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)cdplibs.lib</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\common;..\inmsafeint;..\inmsafeint\win;..\inmsafecapis;..\inmsafecapis\win;..\common\win32;$(ACE_INCLUDES);$(SQLITE3X_INCLUDES);$(BOOST_INCLUDES);..\s2libs\common;..\s2libs\foundation;..\s2libs\streams;..\s2libs\thread;..\config;..\tal;..\vacplibs;$(WINDDK)\inc\ddk\;..\devicefilter;..\devicefilter\win;..\drivers\InVolFlt\windows\Interface;..\drivers\include\win32;$(ZLIB_INCLUDES);$(CURL_INCLUDES)\curl;$(CURL_INCLUDES);..\drivers\InVirVol\win32;..\vsnaplib;..\drivers\Tests\win32\drvutil;..\SnapShotMgr\include;..\Retention;..\virtualvolumelib;..\log;..\config\win;$(ACE_INCLUDES)\ace\os_include;..\cdplibs;..\cdplibs\v1;..\cdplibs\v3;..\conversionlib;..\volumeinfocollector\win32;..\volumeinfocollector;..\cdpapplylib;..\localdirectsynclib;..\InmXmlParser;..\disklayoutmgr;$(SIGSLOT_INCLUDES);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_WIN32_WINNT=0x0502;WIN32;_DEBUG;_LIB;SV_WINDOWS=1;ACE_AS_STATIC_LIBS;_LARGEFILE_SOURCE=1;_LARGEFILE64_SOURCE=1;_FILE_OFFSET_BITS=64;CURL_STATICLIB;WIN32_LEAN_AND_MEAN;VSNAP_USER_MODE;ATL_NO_LEAN_AND_MEAN;SV_USES_LONGPATHS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4312;4311;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)cdplibs.lib</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\common;..\inmsafeint;..\inmsafeint\win;..\inmsafecapis;..\inmsafecapis\win;..\common\win32;$(ACE_INCLUDES);$(SQLITE3X_INCLUDES);$(BOOST_INCLUDES);..\s2libs\common;..\s2libs\foundation;..\s2libs\streams;..\s2libs\thread;..\config;..\tal;..\vacplibs;$(WINDDK)\inc\ddk\;..\devicefilter;..\devicefilter\win;..\drivers\InVolFlt\windows\Interface;..\drivers\include\win32;$(ZLIB_INCLUDES);$(CURL_INCLUDES)\curl;$(CURL_INCLUDES);..\drivers\InVirVol\win32;..\vsnaplib;..\drivers\Tests\win32\drvutil;..\SnapShotMgr\include;..\Retention;..\virtualvolumelib;..\log;..\config\win;$(ACE_INCLUDES)\ace\os_include;..\cdplibs;..\cdplibs\v1;..\cdplibs\v3;..\conversionlib;..\volumeinfocollector\win32;..\volumeinfocollector;..\cdpapplylib;..\localdirectsynclib;..\InmXmlParser;..\disklayoutmgr;$(SIGSLOT_INCLUDES);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_WIN32_WINNT=0x0502;WIN32;NDEBUG;_LIB;SV_WINDOWS=1;ACE_AS_STATIC_LIBS;_LARGEFILE_SOURCE=1;_LARGEFILE64_SOURCE=1;_FILE_OFFSET_BITS=64;CURL_STATICLIB;WIN32_LEAN_AND_MEAN;VSNAP_USER_MODE;ATL_NO_LEAN_AND_MEAN;SV_USES_LONGPATHS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4312;4311;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)cdplibs.lib</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\common;..\inmsafeint;..\inmsafeint\win;..\inmsafecapis;..\inmsafecapis\win;..\common\win32;$(ACE_INCLUDES);$(SQLITE3X_INCLUDES);$(BOOST_INCLUDES);..\s2libs\common;..\s2libs\foundation;..\s2libs\streams;..\s2libs\thread;..\config;..\tal;..\vacplibs;$(WINDDK)\inc\ddk\;..\devicefilter;..\devicefilter\win;..\drivers\InVolFlt\windows\Interface;..\drivers\include\win32;$(ZLIB_INCLUDES);$(CURL_INCLUDES)\curl;$(CURL_INCLUDES);..\drivers\InVirVol\win32;..\vsnaplib;..\drivers\Tests\win32\drvutil;..\SnapShotMgr\include;..\Retention;..\virtualvolumelib;..\log;..\config\win;$(ACE_INCLUDES)\ace\os_include;..\cdplibs;..\cdplibs\v1;..\cdplibs\v3;..\conversionlib;..\volumeinfocollector\win32;..\volumeinfocollector;..\cdpapplylib;..\localdirectsynclib;..\InmXmlParser;..\disklayoutmgr;$(SIGSLOT_INCLUDES);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_WIN32_WINNT=0x0502;WIN32;NDEBUG;_LIB;SV_WINDOWS=1;ACE_AS_STATIC_LIBS;_LARGEFILE_SOURCE=1;_LARGEFILE64_SOURCE=1;_FILE_OFFSET_BITS=64;CURL_STATICLIB;WIN32_LEAN_AND_MEAN;VSNAP_USER_MODE;ATL_NO_LEAN_AND_MEAN;SV_USES_LONGPATHS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4312;4311;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)cdplibs.lib</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="cdp_resync_txn.cpp" />
+    <ClCompile Include="cdpcli.cpp" />
+    <ClCompile Include="win\cdpclimajor.cpp" />
+    <ClCompile Include="cdpcoalesce.cpp" />
+    <ClCompile Include="cdpdatabase.cpp" />
+    <ClCompile Include="cdpdatabaseimpl.cpp" />
+    <ClCompile Include="cdpdatafilereader.cpp" />
+    <ClCompile Include="cdpemulatedvolumeimpl.cpp" />
+    <ClCompile Include="cdpfixdb.cpp" />
+    <ClCompile Include="cdplock.cpp" />
+    <ClCompile Include="cdprealvolumeimpl.cpp" />
+    <ClCompile Include="cdpredologfile.cpp" />
+    <ClCompile Include="cdpsnapshot.cpp" />
+    <ClCompile Include="win\cdpsnapshotmajor.cpp" />
+    <ClCompile Include="cdputil.cpp" />
+    <ClCompile Include="cdpvalidate.cpp" />
+    <ClCompile Include="cdpvolume.cpp" />
+    <ClCompile Include="cdpvolumeutil.cpp" />
+    <ClCompile Include="cdpwin.cpp" />
+    <ClCompile Include="decompress.cpp" />
+    <ClCompile Include="differentialfile.cpp" />
+    <ClCompile Include="..\cdpapplylib\diffsortcriterion.cpp" />
+    <ClCompile Include="flushandholdwritetxn.cpp" />
+    <ClCompile Include="inmemorydifffile.cpp" />
+    <ClCompile Include="simplevolumeapplier.cpp" />
+    <ClCompile Include="snapshotrequestprocessor.cpp" />
+    <ClCompile Include="svmarker.cpp" />
+    <ClCompile Include="v1\cdpv1database.cpp" />
+    <ClCompile Include="v1\cdpv1databaseimpl.cpp" />
+    <ClCompile Include="v1\cdpv1datafilereader.cpp" />
+    <ClCompile Include="v1\cdpv1fixdbimpl.cpp" />
+    <ClCompile Include="v1\cdpv1validateimpl.cpp" />
+    <ClCompile Include="v3\cdpv3bitmap.cpp" />
+    <ClCompile Include="v3\cdpv3databaseimpl.cpp" />
+    <ClCompile Include="v3\cdpv3fixdbimpl.cpp" />
+    <ClCompile Include="v3\cdpv3metadatafile.cpp" />
+    <ClCompile Include="v3\cdpv3metadatareadahead.cpp" />
+    <ClCompile Include="v3\cdpv3transaction.cpp" />
+    <ClCompile Include="v3\cdpv3validateimpl.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="cdp_resync_txn.h" />
+    <ClInclude Include="cdpcli.h" />
+    <ClInclude Include="cdpcoalesce.h" />
+    <ClInclude Include="cdpdatabase.h" />
+    <ClInclude Include="cdpdatabaseimpl.h" />
+    <ClInclude Include="cdpdatafilereader.h" />
+    <ClInclude Include="cdpdrtd.h" />
+    <ClInclude Include="cdpemulatedvolumeimpl.h" />
+    <ClInclude Include="cdpfixdb.h" />
+    <ClInclude Include="cdpfixdbimpl.h" />
+    <ClInclude Include="cdpglobals.h" />
+    <ClInclude Include="cdplock.h" />
+    <ClInclude Include="cdpplatform.h" />
+    <ClInclude Include="cdprealvolumeimpl.h" />
+    <ClInclude Include="cdpredologfile.h" />
+    <ClInclude Include="cdpsnapshot.h" />
+    <ClInclude Include="cdputil.h" />
+    <ClInclude Include="cdpvalidate.h" />
+    <ClInclude Include="cdpvalidateimpl.h" />
+    <ClInclude Include="cdpvolume.h" />
+    <ClInclude Include="cdpvolumeimpl.h" />
+    <ClInclude Include="cdpvolumeutil.h" />
+    <ClInclude Include="decompress.h" />
+    <ClInclude Include="differentialfile.h" />
+    <ClInclude Include="..\cdpapplylib\diffsortcriterion.h" />
+    <ClInclude Include="flushandholdwritetxn.h" />
+    <ClInclude Include="inmemorydifffile.h" />
+    <ClInclude Include="simplevolumeapplier.h" />
+    <ClInclude Include="snapshotrequestprocessor.h" />
+    <ClInclude Include="svmarker.h" />
+    <ClInclude Include="volumeapplier.h" />
+    <ClInclude Include="v1\cdpv1database.h" />
+    <ClInclude Include="v1\cdpv1databaseimpl.h" />
+    <ClInclude Include="v1\cdpv1datafilereader.h" />
+    <ClInclude Include="v1\cdpv1fixdbimpl.h" />
+    <ClInclude Include="v1\cdpv1globals.h" />
+    <ClInclude Include="v1\cdpv1tables.h" />
+    <ClInclude Include="v1\cdpv1validateimpl.h" />
+    <ClInclude Include="v3\cdpv3bitmap.h" />
+    <ClInclude Include="v3\cdpv3databaseimpl.h" />
+    <ClInclude Include="v3\cdpv3fixdbimpl.h" />
+    <ClInclude Include="v3\cdpv3globals.h" />
+    <ClInclude Include="v3\cdpv3metadatafile.h" />
+    <ClInclude Include="v3\cdpv3metadatareadahead.h" />
+    <ClInclude Include="v3\cdpv3tables.h" />
+    <ClInclude Include="v3\cdpv3transaction.h" />
+    <ClInclude Include="v3\cdpv3validateimpl.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\config\config.vcxproj">
+      <Project>{48330794-e280-45a0-9f16-69010ef753bb}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

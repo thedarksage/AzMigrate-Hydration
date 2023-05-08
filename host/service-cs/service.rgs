@@ -1,0 +1,11 @@
+HKCR
+{
+	NoRemove AppID
+	{
+		{97B7B310-7C47-4EC1-96CB-BAC51FB7B903} = s 'InMage Host Agents'
+		'svagents.exe'
+		{
+			val AppID = s {97B7B310-7C47-4EC1-96CB-BAC51FB7B903}
+		}
+	}
+}

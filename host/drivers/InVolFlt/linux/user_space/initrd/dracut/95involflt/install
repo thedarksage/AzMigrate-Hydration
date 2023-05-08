@@ -1,0 +1,9 @@
+#!/bin/sh
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
+    
+inst_hook pre-udev 99 "$moddir/involflt_init.sh"
+inst_rules "$moddir/99_involflt.rules"
+inst_simple "$moddir/inm_dmit" /sbin/inm_dmit
+inst_simple "$moddir/involflt_init.sh" /sbin/involflt_init.sh
+inst_simple "$moddir/involflt_init_lib.sh" /sbin/involflt_init_lib.sh

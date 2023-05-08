@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TestMap>
+  <TestJobGroup Name="TestGroup" TestSystem="Default" ConfigPath="[BuildRoot]\[BuildType]-[BuildArch]\cloudtest\a2agql\A2AGQLTestJobGroup.xml" IsActive="true"/>
+</TestMap>

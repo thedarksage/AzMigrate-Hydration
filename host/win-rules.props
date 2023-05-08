@@ -10,33 +10,140 @@
     <CURL_PATH>..\..\thirdparty\curl-7.87.0</CURL_PATH>
     <CURL_INCLUDES>$(CURL_PATH)\include</CURL_INCLUDES>
     <CURL_HEADERS>$(CURL_PATH)\include\curl</CURL_HEADERS>
-    <CURL_LIB_DIR_DEBUG>$(CURL_PATH)\build\Win32\VC15\LIB Debug - LIB OpenSSL</CURL_LIB_DIR_DEBUG>
-    <CURL_LIB_DIR_RELEASE>$(CURL_PATH)\build\Win32\VC15\LIB Release - LIB OpenSSL</CURL_LIB_DIR_RELEASE>
-    <CURL_PROJ_PATH>$(CURL_PATH)\projects\Windows\VC15\lib</CURL_PROJ_PATH>
+    <CURL_LIB_DIR_DEBUG>$(CURL_PATH)\build\Win32\VC14.30\LIB Debug - LIB OpenSSL</CURL_LIB_DIR_DEBUG>
+    <CURL_LIB_DIR_RELEASE>$(CURL_PATH)\build\Win32\VC14.30\LIB Release - LIB OpenSSL</CURL_LIB_DIR_RELEASE>
+    <CURL_PROJ_PATH>$(CURL_PATH)\projects\Windows\VC14.30\lib</CURL_PROJ_PATH>
     <OPENSSL_INCLUDES>..\..\thirdparty\openssl-1.1.1n\include</OPENSSL_INCLUDES>
-    <OPENSSL_LIB_DIR_DEBUG>..\packages\openssl.1.1.1-n-1\out64.dbg</OPENSSL_LIB_DIR_DEBUG>
+    <OPENSSL_LIB_DIR_DEBUG>..\packages\openssl.1.1.1-n-1\out32.dbg</OPENSSL_LIB_DIR_DEBUG>
     <OPENSSL_LIB_DIR_RELEASE>..\packages\openssl.1.1.1-n-1\out32</OPENSSL_LIB_DIR_RELEASE>
     <LIBSSH_INCLUDES>..\..\thirdparty\libssh2-1.10.0\include</LIBSSH_INCLUDES>
-    <LIBXML2_INCLUDES>..\..\thirdparty\libxml2\libxml2-2.9.13\include</LIBXML2_INCLUDES>
-    <LIBXML2_LIB_DIR_RELEASE>..\packages\libxml2.2.9.13\win32\lib\release\static</LIBXML2_LIB_DIR_RELEASE>
-    <LIBXML2_LIB_DIR_DEBUG>..\..packages\libxml2.2.9.13\win32\lib\debug\static</LIBXML2_LIB_DIR_DEBUG>
+    <LIBSSH_LIB_DIR_DEBUG>..\packages\libssh2.1.10.0-1\win32\Debug_lib</LIBSSH_LIB_DIR_DEBUG>
+    <LIBSSH_LIB_DIR_RELEASE>..\packages\libssh2.1.10.0-1\win32\Release_lib</LIBSSH_LIB_DIR_RELEASE>
+    <LIBXML2_INCLUDES>..\..\thirdparty\libxml2\libxml2-2.10.3\include</LIBXML2_INCLUDES>
+    <LIBXML2_LIB_DIR_RELEASE>..\packages\libxml2.2.10.3-2\win32\lib\release\static</LIBXML2_LIB_DIR_RELEASE>
+    <LIBXML2_LIB_DIR_DEBUG>..\packages\libxml2.2.10.3-2\win32\lib\debug\static</LIBXML2_LIB_DIR_DEBUG>
     <SQLITE3X_INCLUDES>..\..\thirdparty\sqlite3x\sqlite3x</SQLITE3X_INCLUDES>
-    <SQLITE3X_LIB_DIR_DEBUG>..\packages\sqlite3x.0.0.6\lib\x64\debug</SQLITE3X_LIB_DIR_DEBUG>
-    <SQLITE3X_LIB_DIR_RELEASE>..\packages\sqlite3x.0.0.6\lib\x64\release</SQLITE3X_LIB_DIR_RELEASE>
-    <SQLITE_LIB_DIR_DEBUG>..\packages\sqlite.3.36.0-1\lib\x64\debug</SQLITE_LIB_DIR_DEBUG>
-    <SQLITE_LIB_DIR_RELEASE>..\packages\sqlite.3.36.0-1\lib\x64\release</SQLITE_LIB_DIR_RELEASE>
+    <SQLITE3X_LIB_DIR_DEBUG>..\packages\sqlite3x.0.0.6\lib\win32\debug</SQLITE3X_LIB_DIR_DEBUG>
+    <SQLITE3X_LIB_DIR_RELEASE>..\packages\sqlite3x\lib\win32\release</SQLITE3X_LIB_DIR_RELEASE>
+    <SQLITE_LIB_DIR_DEBUG>..\packages\sqlite.3.36.0-1\lib\win32\debug</SQLITE_LIB_DIR_DEBUG>
+    <SQLITE_LIB_DIR_RELEASE>..\packages\sqlite.3.36.0-1\lib\win32\release</SQLITE_LIB_DIR_RELEASE>
     <ZLIB_INCLUDES>..\..\thirdparty\zlib-1.2.12\bin\windows\include</ZLIB_INCLUDES>
-    <ZLIB_LIB_DIR>..\packages\zlib.1.2.12\bin\windows\lib\x64</ZLIB_LIB_DIR>
+    <ZLIB_LIB_DIR>..\packages\zlib.1.2.12\bin\windows\lib</ZLIB_LIB_DIR>
     <OFFREG_INCLUDES>..\..\thirdparty\wdk-offline-reg</OFFREG_INCLUDES>
-    <OFFREG_LIB_DIR>..\..\thirdparty\wdk-offline-reg\x64</OFFREG_LIB_DIR>
+    <OFFREG_LIB_DIR>..\..\thirdparty\wdk-offline-reg\x86</OFFREG_LIB_DIR>
     <INM_MD5_ROOT>..\..\thirdparty\inm_md5</INM_MD5_ROOT>
     <INM_MD5_INCLUDES>$(INM_MD5_ROOT)</INM_MD5_INCLUDES>
-    <INM_MD5_LIB_DIR_DEBUG>..\packages\inmmd5.0.0.1-1\x64\Debug\lib</INM_MD5_LIB_DIR_DEBUG>
-    <INM_MD5_LIB_DIR_RELEASE>..\packages\inmmd5.0.0.1-1\x64\Release\lib</INM_MD5_LIB_DIR_RELEASE>
+    <INM_MD5_LIB_DIR_DEBUG>..\packages\inmmd5.0.0.1-1\Win32\Debug\lib</INM_MD5_LIB_DIR_DEBUG>
+    <INM_MD5_LIB_DIR_RELEASE>..\packages\inmmd5.0.0.1-1\Win32\Release\lib</INM_MD5_LIB_DIR_RELEASE>
     <SIGSLOT_ROOT>..\..\thirdparty\sigslot</SIGSLOT_ROOT>
     <SIGSLOT_INCLUDES>$(SIGSLOT_ROOT)</SIGSLOT_INCLUDES>
     <XENDETECT_INCLUDES>..\..\thirdparty\xendetect</XENDETECT_INCLUDES>
-	<ESJSON_INCLUDES>..\..\thirdparty\g40-esj-1.05</ESJSON_INCLUDES>
+    <EXCHANGESDK_INCLUDES>$(ProgramFiles)\Exchange SDK\SDK\Include</EXCHANGESDK_INCLUDES>
+    <ESJSON_INCLUDES>..\..\thirdparty\g40-esj-1.05</ESJSON_INCLUDES>
+    <SETUPTOOLS_PATH>..\packages\SetupTools.0.0.10</SETUPTOOLS_PATH>
+    <NEWTONSOFTJSON_PATH>..\packages\Newtonsoft.Json.13.0.1</NEWTONSOFTJSON_PATH>
+    <FLUENTASSERTIONS_PATH>..\packages\FluentAssertions.5.3.0</FLUENTASSERTIONS_PATH>
+    <VIM25SERVICE_PATH>..\packages\Vim25Service.1.0.2-preview-Signed</VIM25SERVICE_PATH>
+    <VMWAREVSPHEREMANAGEMENT_PATH>..\packages\VMware.VSphere.Management.1.0.64-preview</VMWAREVSPHEREMANAGEMENT_PATH>
+    <SHAREPOINTDLL_PATH>packages\SharePointDLL.0.0.1</SHAREPOINTDLL_PATH>
+    <AI_VERSION>2.15.0.44797</AI_VERSION>
+    <AI_PATH>..\packages\Microsoft.ApplicationInsights.2.15.0\lib\net46\Microsoft.ApplicationInsights.dll</AI_PATH>
+    <AI_SRVTELCHANNEL_VERSION>2.15.0.44797</AI_SRVTELCHANNEL_VERSION>
+    <AI_SRVTELCHANNEL_PATH>..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.15.0\lib\net452\Microsoft.AI.ServerTelemetryChannel.dll</AI_SRVTELCHANNEL_PATH>
+    <MSAL_VERSION>4.48.1.0</MSAL_VERSION>
+    <MSAL_PATH>..\packages\Microsoft.Identity.Client.4.48.1\lib\net461\Microsoft.Identity.Client.dll</MSAL_PATH>
+    <MSAB_VERSION>6.22.0.0</MSAB_VERSION>
+    <MSAB_PATH>..\packages\Microsoft.IdentityModel.Abstractions.6.22.0\lib\net461\Microsoft.IdentityModel.Abstractions.dll</MSAB_PATH>
+    <!-- Process Server - Start-->
+    <!--Nuget.org - Start-->
+    <PROCESS_SERVER_NEWTONSOFTJSON_VERSION>13.0.0.0</PROCESS_SERVER_NEWTONSOFTJSON_VERSION>
+    <PROCESS_SERVER_NEWTONSOFTJSON_PATH>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</PROCESS_SERVER_NEWTONSOFTJSON_PATH>
+    <PROCESS_SERVER_VALUE_TUPLE_VERSION>4.0.3.0</PROCESS_SERVER_VALUE_TUPLE_VERSION>
+    <PROCESS_SERVER_VALUE_TUPLE_PATH>..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</PROCESS_SERVER_VALUE_TUPLE_PATH>
+    <!--Nuget.org - End-->
+    <!--RecoveryServices.Internal - Start-->
+    <PROCESS_SERVER_CREDSTORE_VERSION>3.1.0.0</PROCESS_SERVER_CREDSTORE_VERSION>
+    <PROCESS_SERVER_CREDSTORE_PATH>..\packages\CredentialStore.1.1.0.6\lib\net462\CredentialStore.dll</PROCESS_SERVER_CREDSTORE_PATH>
+    <PROCESS_SERVER_RCM_CLIENT_LIB_HELPERS_VERSION>3.1.0.0</PROCESS_SERVER_RCM_CLIENT_LIB_HELPERS_VERSION>
+    <PROCESS_SERVER_RCM_CLIENT_LIB_HELPERS_PATH>..\packages\ClientLibHelpers.1.0.0.47\lib\net462\ClientLibHelpers.dll</PROCESS_SERVER_RCM_CLIENT_LIB_HELPERS_PATH>
+    <PROCESS_SERVER_RCM_AGENT_COMMON_LIB_VERSION>1.30.0.0</PROCESS_SERVER_RCM_AGENT_COMMON_LIB_VERSION>
+    <PROCESS_SERVER_RCM_AGENT_COMMON_LIB_PATH>..\packages\RcmAgentCommonLib.1.30.8485.9888\lib\net462\RcmAgentCommonLib.dll</PROCESS_SERVER_RCM_AGENT_COMMON_LIB_PATH>
+    <PROCESS_SERVER_RCM_CLIENT_LIB_VERSION>1.37.8450.18164</PROCESS_SERVER_RCM_CLIENT_LIB_VERSION>
+    <PROCESS_SERVER_RCM_CLIENT_LIB_PATH>..\packages\RcmClientLib.1.37.8450.18164\lib\net462\RcmClientLib.dll</PROCESS_SERVER_RCM_CLIENT_LIB_PATH>
+    <PROCESS_SERVER_RCM_CONTRACT_VERSION>1.37.8450.18164</PROCESS_SERVER_RCM_CONTRACT_VERSION>
+    <PROCESS_SERVER_RCM_CONTRACT_PATH>..\packages\RcmContract.1.37.8450.18164\lib\net462\RcmContract.dll</PROCESS_SERVER_RCM_CONTRACT_PATH>
+    <PROCESS_SERVER_SERVICE_BUS_VERSION>3.0.0.0</PROCESS_SERVER_SERVICE_BUS_VERSION>
+    <PROCESS_SERVER_SERVICE_BUS_PATH>..\packages\WindowsAzure.ServiceBus.6.0.2\lib\net462\Microsoft.ServiceBus.dll</PROCESS_SERVER_SERVICE_BUS_PATH>
+    <!--RecoveryServices.Internal - End-->
+    <!-- Process Server - End-->
+
+    <!-- RCM MARS Agent Packages - Start -->
+    <!--Nuget.org - Start-->
+    <MARS_AGENT_BCL_ASYNC_INT_VERSION>5.0.0.0</MARS_AGENT_BCL_ASYNC_INT_VERSION>
+    <MARS_AGENT_BCL_ASYNC_INT_PATH>..\packages\Microsoft.Bcl.AsyncInterfaces.5.0.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</MARS_AGENT_BCL_ASYNC_INT_PATH>
+    <MARS_AGENT_DP_LOG_ABS_VERSION>5.0.8.0</MARS_AGENT_DP_LOG_ABS_VERSION>
+    <MARS_AGENT_DP_LOG_ABS_PATH>..\packages\Microsoft.AspNetCore.DataProtection.Abstractions.5.0.8\lib\net461\Microsoft.AspNetCore.DataProtection.Abstractions.dll</MARS_AGENT_DP_LOG_ABS_PATH>
+    <MARS_AGENT_EXT_CACHING_VERSION>5.0.0.0</MARS_AGENT_EXT_CACHING_VERSION>
+    <MARS_AGENT_EXT_CACHING_PATH>..\packages\Microsoft.Extensions.Caching.Abstractions.5.0.0\lib\net461\Microsoft.Extensions.Caching.Abstractions.dll</MARS_AGENT_EXT_CACHING_PATH>
+    <MARS_AGENT_EXT_CACHING_MEM_VERSION>5.0.0.0</MARS_AGENT_EXT_CACHING_MEM_VERSION>
+    <MARS_AGENT_EXT_CACHING_MEM_PATH>..\packages\Microsoft.Extensions.Caching.Memory.5.0.0\lib\net461\Microsoft.Extensions.Caching.Memory.dll</MARS_AGENT_EXT_CACHING_MEM_PATH>
+    <MARS_AGENT_EXT_DEP_INJ_VERSION>5.0.0.0</MARS_AGENT_EXT_DEP_INJ_VERSION>
+    <MARS_AGENT_EXT_DEP_INJ_PATH>..\packages\Microsoft.Extensions.DependencyInjection.5.0.0\lib\net461\Microsoft.Extensions.DependencyInjection.dll</MARS_AGENT_EXT_DEP_INJ_PATH>
+    <MARS_AGENT_EXT_DEP_INJ_ABS_VERSION>5.0.0.0</MARS_AGENT_EXT_DEP_INJ_ABS_VERSION>
+    <MARS_AGENT_EXT_DEP_INJ_ABS_PATH>..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.5.0.0\lib\net461\Microsoft.Extensions.DependencyInjection.Abstractions.dll</MARS_AGENT_EXT_DEP_INJ_ABS_PATH>
+    <MARS_AGENT_EXT_LOG_VERSION>5.0.0.0</MARS_AGENT_EXT_LOG_VERSION>
+    <MARS_AGENT_EXT_LOG_PATH>..\packages\Microsoft.Extensions.Logging.5.0.0\lib\net461\Microsoft.Extensions.Logging.dll</MARS_AGENT_EXT_LOG_PATH>
+    <MARS_AGENT_EXT_LOG_ABS_VERSION>5.0.0.0</MARS_AGENT_EXT_LOG_ABS_VERSION>
+    <MARS_AGENT_EXT_LOG_ABS_PATH>..\packages\Microsoft.Extensions.Logging.Abstractions.5.0.0\lib\net461\Microsoft.Extensions.Logging.Abstractions.dll</MARS_AGENT_EXT_LOG_ABS_PATH>
+    <MARS_AGENT_EXT_OPTION_VERSION>5.0.0.0</MARS_AGENT_EXT_OPTION_VERSION>
+    <MARS_AGENT_EXT_OPTION_PATH>..\packages\Microsoft.Extensions.Options.5.0.0\lib\net461\Microsoft.Extensions.Options.dll</MARS_AGENT_EXT_OPTION_PATH>
+    <MARS_AGENT_EXT_PRIM_VERSION>5.0.0.0</MARS_AGENT_EXT_PRIM_VERSION>
+    <MARS_AGENT_EXT_PRIM_PATH>..\packages\Microsoft.Extensions.Primitives.5.0.0\lib\net461\Microsoft.Extensions.Primitives.dll</MARS_AGENT_EXT_PRIM_PATH>
+    <MSAL_WEB_VERSION>1.21.1.0</MSAL_WEB_VERSION>
+    <MSAL_WEB_PATH>..\packages\Microsoft.Identity.Web.TokenCache.1.21.1\lib\net462\Microsoft.Identity.Web.TokenCache.dll</MSAL_WEB_PATH>
+    <MARS_AGENT_NEWTONSOFTJSON_VERSION>13.0.0.0</MARS_AGENT_NEWTONSOFTJSON_VERSION>
+    <MARS_AGENT_NEWTONSOFTJSON_PATH>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</MARS_AGENT_NEWTONSOFTJSON_PATH>
+    <MARS_AGENT_VALUE_TUPLE_VERSION>4.0.3.0</MARS_AGENT_VALUE_TUPLE_VERSION>
+    <MARS_AGENT_VALUE_TUPLE_PATH>..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</MARS_AGENT_VALUE_TUPLE_PATH>
+    <MARS_AGENT_THREAD_TASK_EXT_VERSION>4.2.0.1</MARS_AGENT_THREAD_TASK_EXT_VERSION>
+    <MARS_AGENT_THREAD_TASK_EXT_PATH>..\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</MARS_AGENT_THREAD_TASK_EXT_PATH>
+    <!--Nuget.org - End-->
+    <!--RecoveryServices.Internal - Start-->
+    <MARS_AGENT_AADUTILITIES_VERSION>3.1.0.0</MARS_AGENT_AADUTILITIES_VERSION>
+    <MARS_AGENT_AADUTILITIES_PATH>..\packages\AadUtilities.1.0.0.35\lib\net462\AadUtilities.dll</MARS_AGENT_AADUTILITIES_PATH>
+    <MARS_AGENT_CODEGEN_VERSION>3.1.0.0</MARS_AGENT_CODEGEN_VERSION>
+    <MARS_AGENT_CODEGEN_PATH>..\packages\CodeGenerator.1.0.0.88</MARS_AGENT_CODEGEN_PATH>
+    <MARS_AGENT_CODEGEN_EXEPATH>$(MARS_AGENT_CODEGEN_PATH)\lib\net462\CodeGenerator.exe</MARS_AGENT_CODEGEN_EXEPATH>
+    <MARS_AGENT_LOGGER_BASE_VERSION>3.1.0.0</MARS_AGENT_LOGGER_BASE_VERSION>
+    <MARS_AGENT_LOGGER_BASE_PATH>..\packages\LoggerBase.1.0.0.90\lib\netstandard2.0\LoggerBase.dll</MARS_AGENT_LOGGER_BASE_PATH>
+    <MARS_AGENT_LOGGER_INTERFACE_VERSION>3.1.0.0</MARS_AGENT_LOGGER_INTERFACE_VERSION>
+    <MARS_AGENT_LOGGER_INTERFACE_PATH>..\packages\LoggerInterface.1.0.0.25\lib\netstandard2.0\LoggerInterface.dll</MARS_AGENT_LOGGER_INTERFACE_PATH>
+    <MARS_AGENT_METRICSEMIT_VERSION>3.1.0.0</MARS_AGENT_METRICSEMIT_VERSION>
+    <MARS_AGENT_METRICSEMIT_PATH>..\packages\Microsoft.Azure.MetricsEmitterInterface.1.0.0.3\lib\netstandard2.0\MetricsEmitterInterface.dll</MARS_AGENT_METRICSEMIT_PATH>
+    <MARS_AGENT_METRICSHELPER_VERSION>3.1.0.0</MARS_AGENT_METRICSHELPER_VERSION>
+    <MARS_AGENT_METRICSHELPER_PATH>..\packages\MetricsHelper.1.0.0.18\lib\netstandard2.0\MetricsHelper.dll</MARS_AGENT_METRICSHELPER_PATH>
+    <MARS_AGENT_VSTT_VERSION>15.0.0.0</MARS_AGENT_VSTT_VERSION>
+    <MARS_AGENT_VSTT_PATH>..\packages\Microsoft.VisualStudio.TextTemplating.15.0.15.9.28307\lib\net45\Microsoft.VisualStudio.TextTemplating.15.0.dll</MARS_AGENT_VSTT_PATH>
+    <MARS_AGENT_RCM_AGENT_COMMON_LIB_VERSION>1.30.0.0</MARS_AGENT_RCM_AGENT_COMMON_LIB_VERSION>
+    <MARS_AGENT_RCM_AGENT_COMMON_LIB_PATH>..\packages\RcmAgentCommonLib.1.30.8485.9888\lib\net462\RcmAgentCommonLib.dll</MARS_AGENT_RCM_AGENT_COMMON_LIB_PATH>
+    <MARS_AGENT_RCM_CLIENT_LIB_VERSION>1.37.8450.18164</MARS_AGENT_RCM_CLIENT_LIB_VERSION>
+    <MARS_AGENT_RCM_CLIENT_LIB_PATH>..\packages\RcmClientLib.1.37.8450.18164\lib\net462\RcmClientLib.dll</MARS_AGENT_RCM_CLIENT_LIB_PATH>
+    <MARS_AGENT_RCM_CONTRACT_VERSION>1.37.8450.18164</MARS_AGENT_RCM_CONTRACT_VERSION>
+    <MARS_AGENT_RCM_CONTRACT_PATH>..\packages\RcmContract.1.37.8450.18164\lib\net462\RcmContract.dll</MARS_AGENT_RCM_CONTRACT_PATH>
+    <MARS_AGENT_RCM_COMM_UTILS_VERSION>1.37.8450.18164</MARS_AGENT_RCM_COMM_UTILS_VERSION>
+    <MARS_AGENT_RCM_COMM_UTILS_PATH>..\packages\RcmCommonUtils.1.37.8450.18164\lib\net462\RcmCommonUtils.dll</MARS_AGENT_RCM_COMM_UTILS_PATH>
+    <MARS_AGENT_RCM_PATH_CG_VERSION>1.37.8450.18164</MARS_AGENT_RCM_PATH_CG_VERSION>
+    <MARS_AGENT_RCM_PATH_CG_PATH>..\packages\RcmMetricsHotPathToWarmPathCodeGenerator.1.37.8450.18164\lib\net462\RcmMetricsHotPathToWarmPathCodeGenerator.exe</MARS_AGENT_RCM_PATH_CG_PATH>
+    <MARS_AGENT_RCM_CLIENT_LIB_HELPERS_VERSION>3.1.0.0</MARS_AGENT_RCM_CLIENT_LIB_HELPERS_VERSION>
+    <MARS_AGENT_RCM_CLIENT_LIB_HELPERS_PATH>..\packages\ClientLibHelpers.1.0.0.47\lib\net462\ClientLibHelpers.dll</MARS_AGENT_RCM_CLIENT_LIB_HELPERS_PATH>
+    <MARS_AGENT_MT_REP_PROVIDER_VERSION>1.0.0.0</MARS_AGENT_MT_REP_PROVIDER_VERSION>
+    <MARS_AGENT_MT_REP_PROVIDER>..\packages\MTReplicationProviderLib.1.0.0\MTReplicationProviderLib.dll</MARS_AGENT_MT_REP_PROVIDER>
+	<MARS_AGENT_SERVICE_BUS_VERSION>3.0.0.0</MARS_AGENT_SERVICE_BUS_VERSION>
+    <MARS_AGENT_SERVICE_BUS_PATH>..\packages\WindowsAzure.ServiceBus.6.0.2\lib\net462\Microsoft.ServiceBus.dll</MARS_AGENT_SERVICE_BUS_PATH>
+	<MARS_AGENT_SBUS_EVENT_VERSION>0.1.0.0</MARS_AGENT_SBUS_EVENT_VERSION>
+    <MARS_AGENT_SBUS_EVENT_PATH>..\packages\Microsoft.Azure.ServiceBus.EventProcessorHost.5.0.0\lib\net462\Microsoft.ServiceBus.Messaging.EventProcessorHost.dll</MARS_AGENT_SBUS_EVENT_PATH>
+    <!--RecoveryServices.Internal - End-->
+    <!-- RCM MARS Agent Packages - End -->
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>12.0.21005.1</_ProjectFileVersion>
@@ -145,8 +252,29 @@
     <BuildMacro Include="XENDETECT_INCLUDES">
       <Value>$(XENDETECT_INCLUDES)</Value>
     </BuildMacro>
+    <BuildMacro Include="EXCHANGESDK_INCLUDES">
+      <Value>$(EXCHANGESDK_INCLUDES)</Value>
+    </BuildMacro>
     <BuildMacro Include="ESJSON_INCLUDES">
       <Value>$(ESJSON_INCLUDES)</Value>
     </BuildMacro>
-  </ItemGroup>
+    <BuildMacro Include="SETUPTOOLS_PATH">
+      <Value>$(SETUPTOOLS_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="NEWTONSOFTJSON_PATH">
+      <Value>$(NEWTONSOFTJSON_PATH)</Value>
+    </BuildMacro>	
+    <BuildMacro Include="FLUENTASSERTIONS_PATH">
+      <Value>$(FLUENTASSERTIONS_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="VIM25SERVICE_PATH">
+      <Value>$(VIM25SERVICE_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="VMWAREVSPHEREMANAGEMENT_PATH">
+      <Value>$(VMWAREVSPHEREMANAGEMENT_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="SHAREPOINTDLL_PATH">
+      <Value>$(SHAREPOINTDLL_PATH)</Value>
+    </BuildMacro>
+	</ItemGroup>
 </Project>

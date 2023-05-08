@@ -1,0 +1,87 @@
+#!/bin/bash
+
+# This is for SLES systems
+### BEGIN INIT INFO
+# Provides: VolumeReplicationInitAgentService
+# Required-Start: network
+# Required-Stop:
+# Default-Start: 1 2 3 5
+# Default-Stop:
+# Description:   This script is the daemon script for volume replication agent
+### END INIT INFO
+
+export PATH=/sbin:/bin:/usr/sbin:/usr/bin:$PATH
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+
+usage ()
+{
+    echo "Usage: service $prog {stop}"
+    RETVAL=1
+}
+
+usage() {
+	echo "usage error"
+}
+
+stop ()
+{
+
+	echo "inmage : sent notification to the filter driver"
+	mfs=`awk '!/^#/ && $1 ~ /^\/dev\// && $2 != "/" {print $2}' /proc/mounts`
+	for i in $mfs
+	do
+		echo "Inmage Umount ----> $i"
+		umount $i
+		if [ $? -ne 0 ]
+		then
+			echo "failed to umont $i.. killing all the processes............>>>>"
+			fuser -k $i
+			umount $i
+		fi
+	done
+	
+	
+        /etc/rc.d/init.d/inmshutnotify
+	if [ $? -ne 0 ]
+	then
+		i=0
+		while [ $i -le 5 ]
+		do
+			echo "@@@@@@@@@@@@@@@@@inmshutnotify failed@@@@@@@@@@@@@@@@@@"
+			let 'i++'
+		done
+	fi
+
+
+	i=0
+	while [ $i -le 5 ]
+	do
+		echo "*************************inmage filter driver shutdown ******"
+		let 'i++'
+	done
+	rm -f /var/lock/subsys/inmaged
+}
+
+start() {
+	if [ ! -f /var/lock/subsys/inmaged ]
+	then
+		echo "created the file"
+		touch /var/lock/subsys/inmaged
+	fi
+	i=0
+	while [ $i -le 5 ]
+	do
+		echo "*************************inmage filter driver take off ******"
+		let 'i++'
+	done
+}	
+
+case "$1" in 
+	start) start;;
+	stop) stop;;
+	*) usage;;
+esac
+
+

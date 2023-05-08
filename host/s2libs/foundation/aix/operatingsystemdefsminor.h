@@ -1,0 +1,6 @@
+#ifndef _OPERATINGSYSTEM__DEFSMINOR__H_
+#define _OPERATINGSYSTEM__DEFSMINOR__H_
+
+#define PROCESSORCMD "/usr/bin/uname -p"
+
+#endif /* _OPERATINGSYSTEM__DEFSMINOR__H_ */

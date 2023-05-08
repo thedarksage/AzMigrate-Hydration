@@ -848,4 +848,22 @@ public:
     }
 };
 
+class ProtectedMachinesNotInClusterAlert : public InmErrorAlertImp
+{
+public:
+    ProtectedMachinesNotInClusterAlert(const std::string &protectedMachineNotInCluster,
+        const std::string &clusterName)
+    {
+        Parameters_t p;
+        p["ProtectedMachineNotInCluster"] = protectedMachineNotInCluster;
+        p["ClusterName"] = clusterName;
+
+        std::stringstream msg;
+        msg << "The protected machines " << protectedMachineNotInCluster
+            << " are not in up state in the cluster " << clusterName;
+
+        SetDetails(E_SHARED_DISK_PROTECTED_NODE_NOT_IN_CLUSTER, p, msg.str());
+    }
+};
+
 #endif /* INM_ERROR_ALERT_DEFS_H */

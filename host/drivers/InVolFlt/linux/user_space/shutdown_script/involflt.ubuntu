@@ -1,0 +1,63 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:          asr
+# Required-Start:
+# Required-Stop:
+# X-Stop-After:      umountroot
+# Should-Stop:       halt reboot kexec
+# Default-Start:
+# Default-Stop:      0 6
+# Short-Description: Mark system clean shutdown
+### END INIT INFO
+
+CreateFiltDrvNode()
+{
+    if lsmod | grep involflt > /dev/null 2>&1 && [ ! -c /dev/involflt ]; then
+        local FILTDRVNODE_MAJ_NUM=`cat /proc/devices | grep involflt | cut -d" " -f1`
+        mknod /dev/involflt c $FILTDRVNODE_MAJ_NUM 0
+    fi
+}
+mark_clean_shutdown()
+{
+    # Ideally we whould like to executed just before
+    # remounting root as read only. However, umountroot
+    # script itself can write to syslog in case of init/libc 
+    # upgrade which would not be captured. So we execute
+    # AFTER umountroot script, which fails to remount root
+    # ro as involflt has opened file in write mode. We mark 
+    # system for clean shutdown and remount the rootfs ro 
+    
+    CreateFiltDrvNode
+    sync
+    /etc/vxagent/hotplug_utils/inmshutnotify
+    rc=$?
+    if [ $rc -ne 0 ]
+    then
+         # Failure is logged to syslog
+        /usr/bin/logger "ASR shutdown notification failed"
+    fi
+   
+    mount -n -o remount,ro /
+}
+
+case "$1" in
+
+  start)
+	;;
+
+  restart|reload|force-reload)
+	echo "ERR: \"$1\" not supported" >&2
+	exit 3
+	;;
+
+  stop)
+	mark_clean_shutdown
+	;;
+
+  *)
+	echo "Usage: $0 start|stop" >&2
+	exit 3
+	;;
+
+esac
+

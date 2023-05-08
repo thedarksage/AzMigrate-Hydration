@@ -1,0 +1,18 @@
+#!/bin/sh
+
+export PATH=/bin:/sbin:$PATH
+
+# This script installs boot-time stacking scripts for RHEL5
+# Check whether the kernel active after booting was called with a parameter like inmage=1
+# If yes, then load the involflt driver, otherwise don't. 
+# kdump kernel has irqpoll and maxcpus=1 arguments to the kernel, so check for these
+# environment variables and donot load fabric drivers
+# All parameters for the active kernel will be obtained from the file /proc/1/environ
+
+if ! grep -q -e "inmage=0" -e "irqpoll" -e "maxcpus=1" /proc/cmdline; then
+	modprobe qla2xxx
+	modprobe scst
+	modprobe scst_vdisk
+	modprobe qla2x00tgt
+	modprobe involflt
+fi

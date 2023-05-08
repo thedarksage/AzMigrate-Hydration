@@ -7,6 +7,7 @@ SRCS = \
 	resthelper/CloudBlob.cpp \
 	resthelper/ServiceBusQueue.cpp \
 	resthelper/EventHub.cpp \
+	resthelper/CloudBlockBlob.cpp \
 	common/Trace.cpp \
 	common/utils.cpp \
 	common/Process.cpp \
@@ -23,6 +24,7 @@ X_CFLAGS = \
 	-Icommon \
 	-Iinmsafecapis \
 	-Iinmsafecapis/$(X_MAJOR_ARCH) \
+	-Iscopeguard \
 	-Isecuritylib \
 	-Isecuritylib/$(X_MAJOR_ARCH) \
 	-Isecuritylib/$(X_MINOR_ARCH) \
@@ -31,8 +33,7 @@ X_CFLAGS = \
 	$(BOOST_INCLUDE) \
 	$(ZLIB_INCLUDE) \
 	$(OPENSSL_INCLUDE) \
-	$(LIBXML2_INCLUDE) \
-	-I../thirdparty/libxml2/libxml2-2.19.13/config_release/build/include/libxml
+	$(LIBXML2_INCLUDE)
 
 X_LIBS = 
 

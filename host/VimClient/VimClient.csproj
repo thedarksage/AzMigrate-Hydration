@@ -1,0 +1,101 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <ProjectGuid>{188F7AFC-DDBA-4924-AA52-57956ABD16A8}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>VimClient</RootNamespace>
+    <AssemblyName>VimClient</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <LocApply>true</LocApply>
+    <LocNeutralLanguage Condition="'$(LocNeutralLanguage)'==''">en</LocNeutralLanguage>
+    <InstrumentationEnabled>false</InstrumentationEnabled>
+    <Prefer32Bit>false</Prefer32Bit>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\common\MSSharedLibSN1024.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DelaySign>true</DelaySign>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Management.Automation" />
+    <Reference Include="System.Runtime.Caching" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="VMware.Vim">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Common\Ext_Dependencies\VMWare\Vim60\VMware.Vim.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Auto-Generated\VMwareClientException.cs">
+      <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
+    </Compile>
+    <Compile Include="Auto-Generated\VMwareClientErrorCode.cs">
+      <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
+    </Compile>
+    <Compile Include="Contracts\VmConfigureDiskInfo.cs" />
+    <Compile Include="Contracts\DiskInfo.cs" />
+    <Compile Include="Contracts\NicInfo.cs" />
+    <Compile Include="Contracts\VmCreateInfo.cs" />
+    <Compile Include="Contracts\VmUpdateInfo.cs" />
+    <Compile Include="Serializable\Info\Input.cs">
+      <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
+    </Compile>
+    <Compile Include="VMwareClient.cs" />
+    <Compile Include="Vim\FolderOpts.cs" />
+    <Compile Include="Vim\DataCenterOpts.cs" />
+    <Compile Include="Vim\DatastoreOpts.cs" />
+    <Compile Include="Vim\HostOpts.cs" />
+    <Compile Include="Vim\ResourcePoolOpts.cs" />
+    <Compile Include="Vim\VimDiagnostics.cs" />
+    <Compile Include="Vim\VimExtensions.cs" />
+    <Compile Include="Vim\VimTracing.cs" />
+    <Compile Include="Vim\VmOpts.cs" />
+    <Compile Include="VMwareClientException.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\VMwareClientErrors.$(LocNeutralLanguage).resx">
+      <Localizable>true</Localizable>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="AfterResolveReferences">
+  </Target>
+</Project>

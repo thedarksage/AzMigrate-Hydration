@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\sun">
+      <UniqueIdentifier>{0331b242-b968-4cf3-a4d6-2e10d1441e39}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\linux">
+      <UniqueIdentifier>{8bd67a32-adb1-470e-a6bc-6d912d1c968f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\win32">
+      <UniqueIdentifier>{9a261ce7-3bed-496b-a1de-85d3779fc897}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\unix">
+      <UniqueIdentifier>{c143e3fd-153f-47e0-be58-fb0617ef893a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\unix">
+      <UniqueIdentifier>{6a476cb5-3d7c-4f04-95e1-439fd0788150}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\sun">
+      <UniqueIdentifier>{d9ac282c-95cc-4b58-b3c5-926aff81ea1c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\linux">
+      <UniqueIdentifier>{2e0b4dd0-72bf-4020-b9ca-491b6be20e19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\win32">
+      <UniqueIdentifier>{37284927-622f-40bb-9696-f830742ae1d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="npwwn.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sun\npwwnminor.cpp">
+      <Filter>Source Files\sun</Filter>
+    </ClCompile>
+    <ClCompile Include="linux\npwwnminor.cpp">
+      <Filter>Source Files\linux</Filter>
+    </ClCompile>
+    <ClCompile Include="win32\npwwnmajor.cpp">
+      <Filter>Source Files\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="unix\npwwnmajor.cpp">
+      <Filter>Source Files\unix</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="npwwn.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="npwwnif.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="sun\npwwnminor.h">
+      <Filter>Header Files\sun</Filter>
+    </CustomBuild>
+    <CustomBuild Include="linux\npwwnminor.h">
+      <Filter>Header Files\linux</Filter>
+    </CustomBuild>
+  </ItemGroup>
+</Project>

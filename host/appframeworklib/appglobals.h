@@ -1,0 +1,172 @@
+#ifndef __GLOBAL__H
+#define __GLOBAL__H
+#ifdef SV_WINDOWS
+#import "C:\Program Files\Common Files\System\ADO\msado15.dll" rename_namespace("AdoNS") rename( "EOF", "EndOfFile" ) \
+    rename("EOS","AdoEOS") 
+#endif
+#include "portablehelpers.h"
+#define MAX_HOSTNAME_LENGTH 512
+#include <list>
+#include <string>
+#include <iostream>
+#include <set>
+#define DISCOVERY_SUCCESS   0
+#define DISCOVERY_FAIL      -1
+#define PASSIVE_INSTANCE    1
+#define IN_PROTECTION       2
+#define DISCOVERY_METADATANOTAVAILABLE 3
+
+#define INM_MSG_PRIORITY_IDLE          0
+#define INM_MSG_PRIORITY_LOWEST        1
+#define INM_MSG_PRIORITY_BELLOW_NORMAL 3
+#define INM_MSG_PRIORITY_NORMAL        5
+#define INM_MSG_PRIORITY_ABOVE_NORMAL  7
+#define INM_MSG_PRIORITY_HIGHEST       9
+#define INM_MSG_PRIORITY_TIME_CRITICAL 11
+
+#ifndef SV_WINDOWS
+typedef enum CLUSTER_RESOURCE_STATE {
+    ClusterResourceStateUnknown = -1,
+    ClusterResourceInherited,
+    ClusterResourceInitializing,
+    ClusterResourceOnline,
+    ClusterResourceOffline,
+    ClusterResourceFailed,
+    ClusterResourcePending = 128,
+    ClusterResourceOnlinePending,
+    ClusterResourceOfflinePending
+} CLUSTER_RESOURCE_STATE;
+#endif
+enum InmPolicyUpdateStatus
+{
+    POLICY_UPDATE_COMPLETED = 0,
+    POLICY_UPDATE_FAILED,
+    POLICY_UPDATE_DELETED,
+    POLICY_UPDATE_DUPLICATE
+};
+
+enum InmFailoverJobGroupId
+{
+    PRESCRIPT_SOURCE = 1,
+    ISSUE_CONSISTENCY = 2,
+    STOP_APP_SERVICES = 2,
+    POSTSCRIPT_SOURCE = 3,
+    PRESCRIPT_TARGET = 4,
+    ROLLBACK_VOLUMES = 5,
+    MIGRATE_USERS = 5,
+    CHANGE_SPN = 5,
+    MOVE_PUBLIC_FOLDER = 5,
+    REPOINT_PRIVATE_STORES = 6,
+    DNS_FAILOVER = 5,
+    AD_REPLICATION = 5,
+    EXPORT_FS_REGISTRY= 5,
+    UPDATE_NETBIOS = 5,
+    START_APPLICATION= 5,
+    SETUP_APPLICATION_ENVIRONMENT = 5,
+    POSTSCRIPT_TARGET =7,
+    CLUSTER_RECONSTRUCTION,
+    CUSTOM_SOURCE_SCRIPT,
+    CUSTOM_TARGET_SCRIPT,
+    FAST_FAILABACK_EXFAILOVER,
+    FAST_FAILBACK_DNS_FAILOVER,
+    START_APP_CLUSTER,
+    FAST_FAILBACK_WINOP,
+	FILESERVER_CHANGE_SPN = 15,
+	FILESERVER_UPDATE_NETBIOS = 15,
+	FILESERVER_DNS_FAILOVER = 16,
+	FILESERVER_START_APPLICATION = 16,
+	FILESERVER_AD_REPLICATION = 16
+};
+
+enum InmClusterReconstructionStates
+{
+    CLUSTER_RECONSTRUCTION_NOTSTARTED,
+    CLUSTER_RECONSTRUCTION_IN_PROGRESS,
+    CLUSTER_RECONSTRUCTION_COMPLETED,
+    CLSTER_RECONSTRUCTION_FAILED
+} ;
+
+enum InmProtectedAppType
+{
+    INM_APP_NONE,
+    INM_APP_EXCHNAGE,
+    INM_APP_MSSQL,
+    INM_APP_MSSQL2005,
+    INM_APP_MSSQL2000,
+    INM_APP_MSSQL2008,
+	INM_APP_MSSQL2012,
+    INM_APP_EXCH2003,
+    INM_APP_EXCH2007,
+    INM_APP_EXCH2010,
+    INM_APP_FILESERVER,
+    INM_APP_BES,
+	INM_APP_BULK,
+	INM_APP_ORACLE,
+    INM_APP_ARRAY,
+    INM_APP_DB2,
+	INM_APP_CLOUD
+} ;
+
+enum InmRuleStatus
+{
+    INM_RULESTAT_NONE,
+    INM_RULESTAT_PROGRESS,
+    INM_RULESTAT_PASSED,
+    INM_RULESTAT_FAILED,
+    INM_RULESTAT_CANT_FIX,
+    INM_RULESTAT_FIXED,
+    INM_RULESTAT_SKIPPED
+} ;
+
+enum InmFirewallStatus
+{
+    FIREWALL_STAT_NONE,
+    FIREWALL_STAT_DISABLED,
+    FIREWALL_STAT_ENABLED
+} ; 
+
+enum InmProcessStatus
+{
+    PROCESS_STAT_NONE,
+    PROCESS_STAT_NOT_RUNNING,
+    PROCESS_STAT_RUNNING
+} ;
+
+enum InmDnsUpdateType
+{
+    DNS_UPDATE_TYPE_NONE,
+    DNS_UPDATE_TYPE_DYNAMIC,
+    DNS_UPDATE_TYPE_NONDYNAMIC
+} ;
+
+struct InmProcess
+{
+	SV_UINT m_pid ;
+	std::string m_path ;
+} ;
+
+enum SCENARIO_TYPE
+{
+	SCENARIO_PROTECTION = 1,
+	SCENARIO_FAILOVER,
+	SCENARIO_FAILBACK,
+	SCENARIO_FASTFAILBACK
+};
+
+enum  CONTEXT_TYPE  
+{
+	CONTEXT_HADR = 1,
+	CONTEXT_BACKUP,
+	CONTEXT_BULK
+};
+
+enum VOLPACK_ACTION
+{
+	VOLPACK_CREATE,
+	VOLPACK_DELETE,
+	VOLPACK_RESIZE,
+	VOLPACK_INVALID = -1
+};
+
+#endif
+

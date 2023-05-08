@@ -1,0 +1,6 @@
+#define INMAGE_VX_SERVICE_LABEL		"InMage Scout VX Agent - Sentinel/Outpost"
+#define INMAGE_FX_SERVICE_LABEL		"InMage Scout FX Agent"
+#define INMAGE_BOOTSTRAP_SERVICE_LABEL	"InMage Scout VX Agent - Bootstrap"
+#define COMPANY				"InMage"
+#define PRODUCT_LABEL			"Scout"
+#define SERVER_NAME			"CX"

@@ -1,0 +1,102 @@
+#!/bin/sh
+
+# script to manage Transport Server
+# chkconfig: - 78 12
+# description: Transport Server
+# processname: cxps
+# config: None
+# pidfile: /home/svsystems/log/cxps.pid
+#
+# notes
+#  * set CXPS_HOME to the directory where cxps binary is installed
+#  * set CXPS_CONF to the full path of the cxps conf file to be used
+#  * set CXPS_MAX_TRIES should have the number of attempts to try to start
+#    and/or stop cxps before assuming something is wrong
+
+CXPS_HOME=
+CXPS_CONF=
+CXPS_MAX_TRIES="1 2 3"
+
+CXPS_PID=
+
+function get_pid
+{
+	 CXPS_PID=`ps -ef | grep cxps | grep -v cxpsctl | grep -v cxpsclient | grep -v grep | awk '{ print $2 }'`
+}
+
+function cxps_status
+{
+	 get_pid
+	 if [ "" = "$CXPS_PID" ] ; then
+		  echo "Transport Server stopped"
+		  echo ""
+	 else
+		  echo "Transport Server (pid $CXPS_PID) running"
+	 fi
+}
+
+function cxps_start
+{
+	 get_pid
+	 for i in $CXPS_MAX_TRIES ; do
+		  if [ "" = "$CXPS_PID" ] ; then
+				${CXPS_HOME}/cxps -c $CXPS_CONF
+				sleep 1
+				get_pid
+		  else
+				return
+		  fi
+	 done
+
+	 if [ "" = "$CXPS_PID" ] ; then
+		  echo "*** ERROR: Unable to start Transport Server"
+		  exit -1
+	 fi
+}
+
+function cxps_stop
+{
+	 get_pid
+	 for i in $CXPS_MAX_TRIES ; do
+		  if [ ! "" = "$CXPS_PID" ] ; then
+				kill $CXPS_PID
+				sleep 1
+				get_pid
+		  else
+				return
+		  fi
+	 done
+	 get_pid
+	 if [ ! "" = "$CXPS_PID" ] ; then
+		  sleep 2
+		  kill -9 $CXPS_PID
+		  sleep 1
+		  get_pid
+		  if [ ! "" = "$CXPS_PID" ] ; then
+				echo "*** ERROR: Unable to stop Transport Server"
+				exit -1
+		  fi
+	 fi
+}
+
+case $1 in 
+	 start)
+		  cxps_start
+		  ;;
+	 stop) 
+		  cxps_stop
+		  ;;		  
+	 status) 
+		  ;;
+	 restart) 
+		  cxps_stop
+		  cxps_start
+		  ;;
+	 *)
+		  echo "usage: $0 start | stop | status | restart"
+		  exit 0
+		  ;;
+esac
+	
+cxps_status			
+exit 0

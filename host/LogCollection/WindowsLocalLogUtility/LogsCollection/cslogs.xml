@@ -1,0 +1,46 @@
+<Agent_logs>
+	<copy_folders>
+		<folder folderName="var" path="{installPath}\var"></folder>
+		<folder folderName="vcon" path="{installPath}\vcon"></folder>
+		<folder folderName="W3SVC1" path="{rootDir}inetpub\logs\LogFiles\W3SVC1"></folder>
+		<folder folderName="HTTPERR" path="{systemPath}\LogFiles\HTTPERR"></folder>
+		<folder folderName="transport" path="{installPath}\transport\log"></folder>
+		<folder folderName="csDraInstall" path="{rootDir}ProgramData\ASRLogs"></folder>
+		<folder folderName="installerLog" path="{rootDir}ProgramData\ASRSetupLogs"></folder>
+	</copy_folders>	
+	<copy_files>
+		<file fileName="PushInstall_InstallLogFile.log" path="{rootDir}"></file>
+		<file fileName="PushInstall_UnInstallLogFile.log" path="{rootDir}"></file>
+		<file fileName="CX_*.log" path="{rootDir}"></file>
+		<file fileName="*.conf" path="{installPath}\transport\"></file>
+		<file fileName="*.conf" path="{installPath}\etc\"></file>
+		<file fileName="PushInstallService.conf" path="{pushInstallPath}\PushInstallSvc\"></file>
+		<file fileName="PushInstallService.log" path="{pushInstallPath}\PushInstallSvc\"></file>
+		<file fileName="PushInstaller.conf" path="{pushInstallPath}\PushInstallSvc\"></file>
+		<file fileName="php.ini" path="{rootDir}thirdparty\php5nts\"></file>
+		<file fileName="version" path="{installPath}\etc\"></file>
+		<file fileName="patch.log" path="{installPath}\"></file>
+		<file fileName="*.log" path="{systemPath}\config\"></file>
+		<file fileName="asr_*.etl" path="{rootDir}tempdra\"></file>
+		<file fileName="configtool.log" path="{installPath}\bin\"></file>
+	</copy_files>
+	<collect_events>
+		<event eventFileName="system.evtx" eventName="System"></event>	
+		<event eventFileName="Application.evtx" eventName="Application"></event>
+		<event eventFileName="asr.evtx" eventName="Microsoft-Azure Site Recovery-Provider/Operational"></event>
+	</collect_events>
+	<execute_commands>
+		<command outputFileName="systemInfo.txt" executeCommand="SystemInfo"></command>
+		<command outputFileName="cpuInfo.txt" executeCommand="cat /proc/cpuinfo"></command>
+		<command outputFileName="memoryInfo.txt" executeCommand="cat /proc/meminfo"></command>
+		<command outputFileName="spaceInfo.txt" executeCommand="df -kh"></command>
+		<command outputFileName="netstatInfo.txt" executeCommand="netstat -apnt"></command>
+		<command outputFileName="shadows.txt" executeCommand="vssadmin list shadows"></command>		
+	</execute_commands>
+</Agent_logs>
+
+
+
+
+
+

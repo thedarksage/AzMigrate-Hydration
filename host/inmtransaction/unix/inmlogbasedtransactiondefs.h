@@ -1,0 +1,7 @@
+#ifndef INMLOGBASEDTRANSACTION_DEFS_H
+#define INMLOGBASEDTRANSACTION_DEFS_H
+
+const char * const OPENMODES[] = {"w", "r+"};
+const int STATUSBACKPOS = 2;
+
+#endif /* INMLOGBASEDTRANSACTION_DEFS_H */

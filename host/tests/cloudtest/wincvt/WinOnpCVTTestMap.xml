@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TestMap>
+  <TestJobGroup Name="[OnPrem].Win.CVT" TestSystem="Default" ConfigPath="[BuildRoot]\[BuildType]-[BuildArch]\cloudtest\wincvt\WinOnpCVTTestJobGroup.xml" IsActive="true"/>
+</TestMap>

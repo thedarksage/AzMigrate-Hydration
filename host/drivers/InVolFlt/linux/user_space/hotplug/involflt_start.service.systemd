@@ -1,0 +1,20 @@
+#  systemd config for ASR
+
+[Unit]
+Description=Azure Site Recovery
+DefaultDependencies=no
+After=initrd-switch-root.target
+Before=systemd-fsck-root.service systemd-remount-fs.service
+RefuseManualStart=yes
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStart=/bin/bash /etc/vxagent/bin/involflt.sh start
+ExecStop=/bin/true
+StandardOutput=syslog+console
+StandardError=syslog+console
+KillMode=none
+
+[Install]
+WantedBy=default.target

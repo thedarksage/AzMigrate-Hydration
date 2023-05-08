@@ -1706,6 +1706,33 @@ bool PrepareSourceOSForAzure()
         case PrepareForAzureScript::E_ENABLE_DHCP_FAILED:
             error_code = E_RECOVERY_ENABLE_DHCP_FAILED;
             break;
+        case PrepareForAzureScript::E_AZURE_UNSUPPORTED_FS_FOR_CVM:
+            error_code = E_RECOVERY_FILE_SYSTEM_UNSUPPORTED;
+            break;
+        case PrepareForAzureScript::E_AZURE_ROOTFS_LABEL_FAILED:
+            error_code = E_RECOVERY_CVM_INTERNAL;
+            break;
+        case PrepareForAzureScript::E_RESOLV_CONF_COPY_FAILURE:
+            error_code = E_RECOVERY_CVM_INTERNAL;
+            break;
+        case PrepareForAzureScript::E_RESOLV_CONF_RESTORE_FAILURE:
+            error_code = E_RECOVERY_CVM_INTERNAL;
+            break;
+        case PrepareForAzureScript::E_AZURE_REPOSITORY_UPDATE_FAILED:
+            error_code = E_RECOVERY_CVM_INTERNAL;
+            break;
+        case PrepareForAzureScript::E_INSTALL_LINUX_AZURE_FDE_FAILED:
+            error_code = E_RECOVERY_CVM_INTERNAL;
+            break;
+        case PrepareForAzureScript::E_AZURE_UNSUPPORTED_FIRMWARE_FOR_CVM:
+            error_code = E_RECOVERY_UNSUPPORTED_FIRMWARE_FOR_CVM;
+            break;
+        case PrepareForAzureScript::E_AZURE_BOOTLOADER_CONFIGURATION_FAILED:
+            error_code = E_RECOVERY_CVM_INTERNAL;
+            break;
+        case PrepareForAzureScript::E_AZURE_UNSUPPORTED_DEVICE:
+            error_code = E_RECOVERY_UNSUPPORTED_DEVICE;
+            break;
         default:
             // Any other error code is an internal error.
             error_code = E_RECOVERY_INTERNAL;

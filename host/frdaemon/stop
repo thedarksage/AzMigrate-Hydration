@@ -1,0 +1,18 @@
+#!/bin/bash
+# Get list of processes related to svfrd 
+# and kill each of them
+PIDS=`ps -ef | grep svfrd | grep -v grep | awk '{print $2}'`
+for pid in $PIDS
+do
+CPIDS=`ps -wef | grep $pid | grep -v grep | awk '{print $2}'`
+for cpid in $CPIDS
+do
+if [ "$cpid" -ne "$pid" ]
+then
+echo "Killing child process $cpid"
+kill -9 $cpid
+fi
+done
+echo "Killing SVFRD process $pid"
+kill -9 $pid
+done

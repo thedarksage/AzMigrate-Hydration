@@ -1,0 +1,236 @@
+/*++
+
+Copyright (c) 2012  Microsoft Corporation
+
+Module Name:
+
+MTReplicationEndpointProvider.idl
+
+Abstract:
+
+This file contains the interface definitions for MT to Agent
+
+Author:
+
+srihanu 22-Apr-2015
+
+--*/
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+//
+// Definitions
+// 
+
+/*========================================================*/
+// Retryable Errors [0x80790100 - 0x807901FF]
+// Allows for immediate retry of the operaton.
+cpp_quote("#define MT_E_SERVICE_COMMUNICATION_ERROR       0x80790101ul")
+cpp_quote("#define MT_E_STORAGE_COMMUNICATION_ERROR       0x80790102ul")
+cpp_quote("#define MT_E_RPC_DISCONNECTED                  0x80790104ul")
+/*========================================================*/
+
+
+/*========================================================*/
+// Retryable Errors with Special Action [0x80790200 - 0x807902FF]
+// action to be performed for errors in this bucket will be specific for each error
+
+// MT_E_LOG_PARSING_ERROR – this error is expected only during IR/resync if MARS agent 
+// encounters an error while parsing the log. Retry after fetching the log again.
+//
+cpp_quote("#define MT_E_LOG_PARSING_ERROR                 0x80790200ul")
+
+// MT_E_RESTART_RESYNC – MARS agent may have crashed and lost the session metadata
+// Retry calling Start Resync API again with same job id. 
+//
+cpp_quote("#define MT_E_RESTART_RESYNC                    0x80790201ul")
+/*========================================================*/
+
+
+/*========================================================*/
+// Retry with exponential backoff allowing for the remedial steps. [0x80790300 - 0x807903FF]
+//
+cpp_quote("#define MT_E_SERVICE_AUTHENTICATION_ERROR      0x80790300ul")
+cpp_quote("#define MT_E_STORAGE_AUTHENTICATION_ERROR      0x80790301ul")
+cpp_quote("#define MT_E_STORAGE_QUOTA_EXCEEDED            0x80790302ul")
+cpp_quote("#define MT_E_SUBSCRIPTION_EXPIRED              0x80790303ul")
+cpp_quote("#define MT_E_INITIALIZATION_FAILED             0x80790304ul")
+cpp_quote("#define MT_E_REGISTRATION_FAILED               0x80790305ul")
+cpp_quote("#define MT_E_DOS_LIMIT_REACHED                 0x80790306ul")
+cpp_quote("#define MT_E_AZURE_RP_REQUESTS_THROTTLED       0x80790307ul")
+cpp_quote("#define MT_E_GENERIC_ERROR                     0x80790308ul")
+/*========================================================*/
+
+
+/*========================================================*/
+// Cancel Current Operation and Retry Errors [0x80790400 - 0x807904FF]
+
+// MT_E_RESYNC_REQUIRED – start a new resync session with new job id
+//
+cpp_quote("#define MT_E_RESYNC_REQUIRED                   0x80790400ul")
+/*========================================================*/
+
+
+/*========================================================*/
+// Invalid/Unexpected operation. Non-Retryable Errors [0x80790500 - 0x807905FF] 
+//
+cpp_quote("#define MT_E_DS_FAILED_OVER                    0x80790500ul")
+cpp_quote("#define MT_E_DS_NOT_PROTECTED                  0x80790501ul")
+cpp_quote("#define MT_E_STORAGE_NOT_FOUND                 0x80790502ul")
+cpp_quote("#define MT_E_REPLICATION_BLOCKED               0x80790503ul")
+cpp_quote("#define MT_E_INVALID_VHD_SIZE                  0x80790504ul")
+
+/*========================================================*/
+
+
+/*========================================================*/
+// Cancel Current Operation, Delete Payload and Resync Errors [0x80790600 - 0x807906FF]
+
+// MT_E_RESYNC_REQUIRED_ZERO_SIZE_FILE – MARS agent encountered a zero-sized file
+// to upload. Delete the file and call Start Resync API.
+//
+cpp_quote("#define MT_E_RESYNC_REQUIRED_ZERO_SIZED_FILE    0x80790600ul")
+
+// MT_E_RESYNC_REQUIRED_VDL_MISMATCH – MARS agent found a mismatch in the VDL SIZE
+// and the file size. Delete the file and call Start Resync API.
+//
+cpp_quote("#define MT_E_RESYNC_REQUIRED_VDL_MISMATCH       0x80790601ul")
+
+// MT_E_RESYNC_REQUIRED_CHECKSUM_MISMATCH – MARS agent found a mismatch in the
+// checksum. Delete the file and call Start Resync API.
+//
+cpp_quote("#define MT_E_RESYNC_REQUIRED_CHECKSUM_MISMATCH  0x80790602ul")
+
+// MT_E_RESYNC_REQUIRED_INVALID_HEADER – MARS agent found all-zeroes in the log file
+// header. Delete the file and call Start Resync API.
+//
+cpp_quote("#define MT_E_RESYNC_REQUIRED_INVALID_HEADER     0x80790603ul")
+/*========================================================*/
+
+
+[uuid(71109D5E-0424-4BF7-97B3-8A88ACEC39C1)]
+struct InMageDifferentialLogFileInfo
+{
+    [helpstring("end timestamp of last uploaded file")]
+    unsigned long long PrevEndTime;
+
+    [helpstring("end sequence of last uploaded file")]
+    unsigned long long PrevEndTimeSequenceNumber;
+
+    [helpstring("continuation id of last uploaded file")]
+    unsigned int PrevContinuationId;
+
+    [helpstring("end timestamp of file to be uploaded")]
+    unsigned long long EndTime;
+
+    [helpstring("end sequence of file to be uploaded")]
+    unsigned long long EndTimeSequenceNumber;
+
+    [helpstring("continuation id of file to be uploaded")]
+    unsigned int ContinuationId;
+
+    [helpstring("size in bytes of file to be uploaded")]
+    unsigned long long FileSize;
+
+    [helpstring("complete path of file to upload")]
+    BSTR FilePath;
+
+};
+
+
+[
+    object, oleautomation,
+    uuid(A8405013-E816-4594-A2FD-AEDE86AB452C),
+    pointer_default(unique)
+]
+interface IMTReplicationEndpointProvider : IUnknown
+{
+
+    HRESULT
+        StartResync(
+        [in]    BSTR                        VmName,
+        [in]    BSTR                        VmId,
+        [in]    BSTR                        DiskId,
+        [in]    unsigned __int64            DiskSize,
+        [in]    unsigned __int64            BlockSize,
+        [in]    BSTR                        JobId
+        );
+
+    HRESULT
+        GetChecksum(
+        [in]    BSTR                        VmName,
+        [in]    BSTR                        VmId,
+        [in]    BSTR                        DiskId,
+        [in]    BSTR                        JobId,
+        [in]    unsigned __int64            Offset,
+        [in]    unsigned __int64            Length,
+        [out, retval]    SAFEARRAY(byte)*    Checksums
+        );
+
+    HRESULT
+        ApplyLog(
+        [in]    BSTR                        VmName,
+        [in]    BSTR                        VmId,
+        [in]    BSTR                        DiskId,
+        [in]    BSTR                        JobId,
+        [in]    BSTR                        ResyncLogFilePath
+        );
+
+    HRESULT
+        CompleteResync(
+        [in]    BSTR                        VmName,
+        [in]    BSTR                        VmId,
+        [in]    BSTR                        DiskId,
+        [in]    BSTR                        JobId,
+        [in]    boolean                     IsSuccess
+        );
+
+    HRESULT
+        UploadLogs(
+        [in]    BSTR                        VmName,
+        [in]    BSTR                        VmId,
+        [in]    BSTR                        DiskId,
+        [in]    SAFEARRAY(struct InMageDifferentialLogFileInfo)  DiffLogInfos,
+        [in]    boolean                     IsRecoverable
+        );
+
+    HRESULT
+        UploadEvents(
+        [in]    SAFEARRAY(BSTR)             LogFilePaths
+        );
+
+    HRESULT
+        CheckAgentHealth();
+
+    HRESULT
+        StartResyncWithoutSignatureCalculations(
+            [in]    BSTR                        VmName,
+            [in]    BSTR                        VmId,
+            [in]    BSTR                        DiskId,
+            [in]    unsigned __int64            DiskSize,
+            [in]    unsigned __int64            BlockSize,
+            [in]    BSTR                        JobId
+        );
+};
+
+[
+    uuid("B7B4704C-EC9D-4A06-A910-3D0A20EF316D"),
+    helpstring("MT replication provider Type Library"),
+    version(1.0)
+]
+library MTReplicationProviderLib
+{
+
+    cpp_quote("EXTERN_C const CLSID CLSID_MTReplicationEndpointProvider;")
+
+        [
+            uuid(ACCB6C49-2180-42E4-88F9-5F74225C5C5B),
+            helpstring("MTReplicationEndpointProvider Class")
+        ]
+    coclass MTReplicationEndpointProvider
+    {
+        [default] interface IMTReplicationEndpointProvider;
+    };
+
+}

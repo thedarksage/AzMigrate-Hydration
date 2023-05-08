@@ -1,0 +1,8 @@
+{
+    "Windows": { 
+        "SupportedPreviousVersions": [
+            "9.52","9.51","9.50","9.49","9.48","9.47","9.46"
+        ],
+        "RebootRequired": false
+    }
+}

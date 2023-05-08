@@ -1,0 +1,232 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Vista Debug|Win32">
+      <Configuration>Vista Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Vista Release|Win32">
+      <Configuration>Vista Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Vista Debug|x64">
+      <Configuration>Vista Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Vista Release|x64">
+      <Configuration>Vista Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{10B76F7B-B0CE-450B-B92B-B26F24B297EC}</ProjectGuid>
+    <TemplateGuid>{dd38f7fc-d7bd-488b-9242-7d8754cde80d}</TemplateGuid>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
+    <Configuration>Win8 Debug</Configuration>
+    <Platform Condition="'$(Platform)' == ''">Win32</Platform>
+  </PropertyGroup>
+  <PropertyGroup Label="Globals">
+    <RootNamespace>DiskFlt</RootNamespace>
+    <VCTargetsPath Condition="'$(VCTargetsPath11)' != '' and '$(VisualStudioVersion)' == '11.0'">$(VCTargetsPath11)</VCTargetsPath>
+  </PropertyGroup>
+  <PropertyGroup Label="PropertySheets">
+    <PlatformToolset>WindowsKernelModeDriver8.0</PlatformToolset>
+    <ConfigurationType>Driver</ConfigurationType>
+    <DriverType>WDM</DriverType>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Vista Debug|Win32'" Label="Configuration">
+    <TargetVersion>Vista</TargetVersion>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Vista Release|Win32'" Label="Configuration">
+    <TargetVersion>Vista</TargetVersion>
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Vista Debug|x64'" Label="Configuration">
+    <TargetVersion>Vista</TargetVersion>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Vista Release|x64'" Label="Configuration">
+    <TargetVersion>Vista</TargetVersion>
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Vista Release|x64'">
+    <IncludePath>..\..\..\..\common\win32;..\..\..\..\common;..\..\..\Include\win32;..\diskflt;..\..\windows;..\Interface;$(ProjectDir);$(IncludePath)</IncludePath>
+    <TargetName>indskflt</TargetName>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Vista Release|Win32'">
+    <TargetName>indskflt</TargetName>
+    <IncludePath>..\..\..\..\common\win32;..\..\..\..\common;..\..\..\Include\win32;..\diskflt;..\..\windows;..\Interface;$(ProjectDir);$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Vista Debug|x64'">
+    <IncludePath>..\..\..\..\common\win32;..\..\..\..\common;..\..\..\Include\win32;..\diskflt;..\..\windows;..\Interface;$(ProjectDir);$(IncludePath)</IncludePath>
+    <TargetName>indskflt</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Vista Debug|Win32'">
+    <IncludePath>..\..\..\..\common\win32;..\..\..\..\common;..\..\..\Include\win32;..\diskflt;..\..\windows;..\Interface;$(ProjectDir);$(IncludePath)</IncludePath>
+    <TargetName>indskflt</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Vista Release|x64'">
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies);$(KernelBufferOverflowLib);$(DDK_LIB_PATH)\ntoskrnl.lib;$(DDK_LIB_PATH)\hal.lib;$(DDK_LIB_PATH)\wmilib.lib;$(DDK_LIB_PATH)\Ksecdd.lib;$(DDK_LIB_PATH)\ntstrsafe.lib;</AdditionalDependencies>
+    </Link>
+    <MessageCompile>
+      <GenerateKernelModeLoggingMacros>true</GenerateKernelModeLoggingMacros>
+    </MessageCompile>
+    <MessageCompile>
+      <SetCustomerbit>true</SetCustomerbit>
+    </MessageCompile>
+    <MessageCompile>
+      <UseBaseNameOfInput>true</UseBaseNameOfInput>
+    </MessageCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Vista Release|Win32'">
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies);$(KernelBufferOverflowLib);$(DDK_LIB_PATH)\ntoskrnl.lib;$(DDK_LIB_PATH)\hal.lib;$(DDK_LIB_PATH)\wmilib.lib;$(DDK_LIB_PATH)\Ksecdd.lib;$(DDK_LIB_PATH)\ntstrsafe.lib;</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Vista Debug|x64'">
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies);$(KernelBufferOverflowLib);$(DDK_LIB_PATH)\ntoskrnl.lib;$(DDK_LIB_PATH)\hal.lib;$(DDK_LIB_PATH)\wmilib.lib;$(DDK_LIB_PATH)\Ksecdd.lib;$(DDK_LIB_PATH)\ntstrsafe.lib;</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Vista Debug|Win32'">
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies);$(KernelBufferOverflowLib);$(DDK_LIB_PATH)\ntoskrnl.lib;$(DDK_LIB_PATH)\hal.lib;$(DDK_LIB_PATH)\wmilib.lib;$(DDK_LIB_PATH)\Ksecdd.lib;$(DDK_LIB_PATH)\ntstrsafe.lib;</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Inf Include="DiskFlt.inf" />
+  </ItemGroup>
+  <ItemGroup>
+    <FilesToPackage Include="$(TargetPath)" />
+    <FilesToPackage Include="@(Inf->'%(CopyOutput)')" Condition="'@(Inf)'!=''" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\AsyncIORequest.cpp" />
+    <ClCompile Include="..\BaseClass.cpp" />
+    <ClCompile Include="..\BitmapAPI.cpp" />
+    <ClCompile Include="..\BitmapOperations.cpp" />
+    <ClCompile Include="..\BitmapPersistentValues.cpp" />
+    <ClCompile Include="..\Bypass.cpp" />
+    <ClCompile Include="..\ChangeNode.cpp" />
+    <ClCompile Include="..\classes.cpp" />
+    <ClCompile Include="..\CrashConsistency.cpp" />
+    <ClCompile Include="..\DataFile.cpp" />
+    <ClCompile Include="..\DataFileWriter.cpp" />
+    <ClCompile Include="..\DataFileWriterMgr.cpp" />
+    <ClCompile Include="..\DataFlt.cpp" />
+    <ClCompile Include="..\DirtyBlock.cpp" />
+    <ClCompile Include="..\DriverContext.cpp" />
+    <ClCompile Include="..\FileRawIOWrapper.cpp" />
+    <ClCompile Include="..\FileStream.cpp" />
+    <ClCompile Include="..\FileStreamSegmentMapper.cpp" />
+    <ClCompile Include="..\FltFunc.cpp" />
+    <ClCompile Include="..\HelperFunctions.cpp" />
+    <ClCompile Include="..\IOBuffer.cpp" />
+    <ClCompile Include="..\IoctlInfo.cpp" />
+    <ClCompile Include="..\ListNode.cpp" />
+    <ClCompile Include="..\md5.cpp" />
+    <ClCompile Include="..\MemoryHandler.cpp" />
+    <ClCompile Include="..\MetaDataMode.cpp" />
+    <ClCompile Include="..\misc.cpp" />
+    <ClCompile Include="..\Profiler.cpp" />
+    <ClCompile Include="..\Registry.cpp" />
+    <ClCompile Include="..\RemovedCode.cpp" />
+    <ClCompile Include="..\SegmentedBitmap.cpp" />
+    <ClCompile Include="..\TagNode.cpp" />
+    <ClCompile Include="..\VBitmap.cpp" />
+    <ClCompile Include="..\VContext.cpp" />
+    <ClCompile Include="..\WorkQueue.cpp" />
+    <ClCompile Include="AppConsistentTags.cpp" />
+    <ClCompile Include="CxSession.cpp" />
+    <ClCompile Include="DiskFlt.cpp" />
+    <ClCompile Include="FlushVolumeCache.cpp" />
+    <ClCompile Include="NoHydrationWF.cpp" />
+    <ClCompile Include="NoReboot.cpp" />
+    <ClCompile Include="SanPolicyFunctions.cpp" />
+    <ClCompile Include="TagCommitNotify.cpp" />
+    <ClCompile Include="Telemetry.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\AsyncIORequest.h" />
+    <ClInclude Include="..\BaseClass.h" />
+    <ClInclude Include="..\BitmapAPI.h" />
+    <ClInclude Include="..\BitmapOperations.h" />
+    <ClInclude Include="..\BitmapPersistentValues.h" />
+    <ClInclude Include="..\Bypass.h" />
+    <ClInclude Include="..\ChangeNode.h" />
+    <ClInclude Include="..\Common.h" />
+    <ClInclude Include="..\CPP-RunTimeSupport.h" />
+    <ClInclude Include="..\DataFile.h" />
+    <ClInclude Include="..\DataFileWriter.h" />
+    <ClInclude Include="..\DataFileWriterMgr.h" />
+    <ClInclude Include="..\DataFlt.h" />
+    <ClInclude Include="..\DirtyBlock.h" />
+    <ClInclude Include="..\DriverContext.h" />
+    <ClInclude Include="..\FileStream.h" />
+    <ClInclude Include="..\FileStreamSegmentMapper.h" />
+    <ClInclude Include="..\FltContext.h" />
+    <ClInclude Include="..\FltFunc.h" />
+    <ClInclude Include="..\global.h" />
+    <ClInclude Include="..\HelperFunctions.h" />
+    <ClInclude Include="..\InMageDebug.h" />
+    <ClInclude Include="..\IOBuffer.h" />
+    <ClInclude Include="..\IoctlInfo.h" />
+    <ClInclude Include="..\ListNode.h" />
+    <ClInclude Include="..\MetaDataMode.h" />
+    <ClInclude Include="..\misc.h" />
+    <ClInclude Include="..\OSDevice.h" />
+    <ClInclude Include="..\Platform.h" />
+    <ClInclude Include="..\Profiler.h" />
+    <ClInclude Include="..\Registry.h" />
+    <ClInclude Include="..\ScopeTrace.h" />
+    <ClInclude Include="..\SegmentedBitmap.h" />
+    <ClInclude Include="..\SegmentMapper.h" />
+    <ClInclude Include="..\TagNode.h" />
+    <ClInclude Include="..\VBitmap.h" />
+    <ClInclude Include="..\VContext.h" />
+    <ClInclude Include="..\WinSvdParse.h" />
+    <ClInclude Include="..\WorkQueue.h" />
+    <ClInclude Include="..\WriteMetaData.h" />
+    <ClInclude Include="TagCommitNotify.h" />
+    <ClInclude Include="CxSession.h" />
+    <ClInclude Include="DevContext.h" />
+    <ClInclude Include="InmConfig.h" />
+    <ClInclude Include="NoReboot.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <MessageCompile Include="DiskFltEvents.man">
+      <GenerateKernelModeLoggingMacros Condition="'$(Configuration)|$(Platform)'=='Vista Release|x64'">true</GenerateKernelModeLoggingMacros>
+      <SetCustomerbit Condition="'$(Configuration)|$(Platform)'=='Vista Release|x64'">true</SetCustomerbit>
+      <UseBaseNameOfInput Condition="'$(Configuration)|$(Platform)'=='Vista Release|x64'">true</UseBaseNameOfInput>
+      <GenerateKernelModeLoggingMacros Condition="'$(Configuration)|$(Platform)'=='Vista Release|Win32'">true</GenerateKernelModeLoggingMacros>
+      <SetCustomerbit Condition="'$(Configuration)|$(Platform)'=='Vista Release|Win32'">true</SetCustomerbit>
+      <UseBaseNameOfInput Condition="'$(Configuration)|$(Platform)'=='Vista Release|Win32'">true</UseBaseNameOfInput>
+      <GenerateKernelModeLoggingMacros Condition="'$(Configuration)|$(Platform)'=='Vista Debug|x64'">true</GenerateKernelModeLoggingMacros>
+      <SetCustomerbit Condition="'$(Configuration)|$(Platform)'=='Vista Debug|x64'">true</SetCustomerbit>
+      <UseBaseNameOfInput Condition="'$(Configuration)|$(Platform)'=='Vista Debug|x64'">true</UseBaseNameOfInput>
+      <GenerateKernelModeLoggingMacros Condition="'$(Configuration)|$(Platform)'=='Vista Debug|Win32'">true</GenerateKernelModeLoggingMacros>
+      <SetCustomerbit Condition="'$(Configuration)|$(Platform)'=='Vista Debug|Win32'">true</SetCustomerbit>
+      <UseBaseNameOfInput Condition="'$(Configuration)|$(Platform)'=='Vista Debug|Win32'">true</UseBaseNameOfInput>
+    </MessageCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="DiskFlt.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -1,0 +1,22 @@
+#  systemd config for ASR
+
+[Unit]
+Description=Azure Site Recovery
+DefaultDependencies=no
+Requires=umount.target shutdown.target final.target
+After=umount.target shutdown.target final.target
+Before=systemd-halt.service systemd-poweroff.service systemd-reboot.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStart=/bin/sh -c "export PATH=$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin; unclean=0; logdir=/etc/vxagent/logs; mkdir -p $logdir; log=$logdir/fltreboot.`date`; type fsfreeze || { echo 'fsfreeze not found, Aborting' >> $log; exit 1; }; lsofnotfound=0; killallnotfound=0; type lsof || { echo 'lsof not found' >> $log; lsofnotfound=1; }; type killall5 || { echo 'killall5 not found' >> $log; killallnotfound=1; }; type /etc/vxagent/hotplug_utils/inmshutnotify || { echo 'inmshutnotify not found, Aborting' >> $log; exit 1; }; service NetworkManager stop; systemctl list-units >> $log; systemctl stop systemd-journald.socket; systemctl stop systemd-journald.service; df >> $log; if [ $lsofnotfound -eq 0 ]; then df | awk '/^\/dev/ { print $NF }' | while read fs; do lsof -F pa $fs | awk '/^p/ {pid = substr($0, 2)} /^a.*w/ {print pid}' | while read pid; do kill -9 $pid; done; done; else if [ $killallnotfound -eq 0 ]; then killall5 -9; fi; fi; ps -eaf >> $log; df | awk '/^\/dev/ { print $NF }' | while read fs; do if [ $fs != / ]; then mount -o remount,ro $fs || unclean=1; fi; done; mount >> $log; fsfreeze -f /; fsfreeze -u /; /etc/vxagent/hotplug_utils/inmshutnotify || echo ASR_Shutdown_Failed; sync; fsfreeze -f /; fsfreeze -u /; if [ $unclean -eq 0 ]; then mount -n -o remount,ro /; fi;" 
+ExecStop=/bin/true
+TimeoutSec=0
+StandardOutput=syslog+console
+StandardError=syslog+console
+KillMode=none
+
+[Install]
+WantedBy=final.target
+

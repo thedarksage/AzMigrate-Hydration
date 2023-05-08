@@ -26,7 +26,7 @@ ZLIB_ROOT := ../thirdparty/zlib-1.2.12
 LIBSSH2_ROOT := ../thirdparty/libssh2-1.10.0
 LIB_ROOT := ../thirdparty/lib
 BIN_ROOT := ../thirdparty/bin
-LIBXML2_ROOT := ../thirdparty/libxml2/libxml2-2.9.13
+LIBXML2_ROOT := ../thirdparty/libxml2/libxml2-2.10.3
 INM_MD5_ROOT := ../thirdparty/inm_md5
 SIGSLOT_ROOT := ../thirdparty/sigslot
 XENDETECT_ROOT := ../thirdparty/xendetect
@@ -110,7 +110,7 @@ OPENSSL_DIR_DEPS := $(shell ./find-dir-deps $(OPENSSL_ROOT); cat $(OPENSSL_ROOT)
 SQLITE_DIR_DEPS := $(shell ./find-dir-deps $(SQLITE_ROOT) ; cat $(SQLITE_ROOT)/dir_deps)
 SQLITE3X_DIR_DEPS := $(shell ./find-dir-deps $(SQLITE3X_ROOT); cat $(SQLITE3X_ROOT)/dir_deps)
 ZLIB_DIR_DEPS := $(shell ./find-dir-deps $(ZLIB_ROOT); cat $(ZLIB_ROOT)/dir_deps)
-#LIBSSH2_DIR_DEPS := $(shell ./find-dir-deps $(LIBSSH2_ROOT); cat $(LIBSSH2_ROOT)/dir_deps)
+LIBSSH2_DIR_DEPS := $(shell ./find-dir-deps $(LIBSSH2_ROOT); cat $(LIBSSH2_ROOT)/dir_deps)
 LIBXML2_DIR_DEPS := $(shell ./find-dir-deps $(LIBXML2_ROOT); cat $(LIBXML2_ROOT)/dir_deps)
 INM_MD5_DIR_DEPS := $(shell ./find-dir-deps $(INM_MD5_ROOT); cat $(INM_MD5_ROOT)/dir_deps)
 
@@ -129,9 +129,8 @@ INM_MD5_DIR_DEPS := $(shell ./find-dir-deps $(INM_MD5_ROOT); cat $(INM_MD5_ROOT)
 # allows one to slightly customize output library names.
 #
 # ----------------------------------------------------------------------
-REQUIRED_GCC_VERSION = "4.6"
 GCC_VERSION := "`gcc -dumpversion`"
-IS_GCC_SUPPORTED := $(shell expr "$(GCC_VERSION)" ">=" "$(REQUIRED_GCC_VERSION)")
+IS_GCC_SUPPORTED := $(shell expr `gcc -dumpfullversion -dumpversion | sed -e 's/\.\([0-9][0-9]\)/\1/g' -e 's/\.\([0-9]\)/0\1/g' -e 's/^[0-9]\{3,4\}$$/&00/'` \>= 40600)
 ifeq "$(IS_GCC_SUPPORTED)" "1"
 BOOST_VERSION := 1_78_0
 else
@@ -160,15 +159,15 @@ endif
 
 # if new libraries are added to the boost\inmage_config_build script
 # they will need to be added here too
-BOOST_LIBS := $(BOOST_LIB_DIR)/libboost_date_time-mt-x64$(BOOST_ABI).a \
-	$(BOOST_LIB_DIR)/libboost_filesystem-mt-x64$(BOOST_ABI).a \
-	$(BOOST_LIB_DIR)/libboost_program_options-mt-x64$(BOOST_ABI).a \
-	$(BOOST_LIB_DIR)/libboost_regex-mt-x64$(BOOST_ABI).a \
-	$(BOOST_LIB_DIR)/libboost_serialization-mt-x64$(BOOST_ABI).a \
-	$(BOOST_LIB_DIR)/libboost_system-mt-x64$(BOOST_ABI).a \
-	$(BOOST_LIB_DIR)/libboost_thread-mt-x64$(BOOST_ABI).a \
-	$(BOOST_LIB_DIR)/libboost_random-mt-x64$(BOOST_ABI).a \
-	$(BOOST_LIB_DIR)/libboost_chrono-mt-x64$(BOOST_ABI).a
+BOOST_LIBS := $(BOOST_LIB_DIR)/libboost_date_time-mt$(BOOST_ABI)-x64.a \
+	$(BOOST_LIB_DIR)/libboost_filesystem-mt$(BOOST_ABI)-x64.a \
+	$(BOOST_LIB_DIR)/libboost_program_options-mt$(BOOST_ABI)-x64.a \
+	$(BOOST_LIB_DIR)/libboost_regex-mt$(BOOST_ABI)-x64.a \
+	$(BOOST_LIB_DIR)/libboost_serialization-mt$(BOOST_ABI)-x64.a \
+	$(BOOST_LIB_DIR)/libboost_system-mt$(BOOST_ABI)-x64.a \
+	$(BOOST_LIB_DIR)/libboost_thread-mt$(BOOST_ABI)-x64.a \
+	$(BOOST_LIB_DIR)/libboost_random-mt$(BOOST_ABI)-x64.a \
+	$(BOOST_LIB_DIR)/libboost_chrono-mt$(BOOST_ABI)-x64.a
 
 BOOST_SCRIPT := ../thirdparty/boost/inmage_config_build
 BOOST_DIR_DEPS := $(shell ./find-dir-deps $(BOOST_ROOT)/boost; cat $(BOOST_ROOT)/boost/dir_deps)
@@ -176,7 +175,7 @@ BOOST_DIR_DEPS := $(shell ./find-dir-deps $(BOOST_ROOT)/boost; cat $(BOOST_ROOT)
 # ----------------------------------------------------------------------
 # make sure all thirdparty packages are built
 # ----------------------------------------------------------------------
-thirdparty_build: $(THIRDPARTY_MAK) $(ZLIB_ROOT)/build_zlib $(OPENSSL_ROOT)/build_openssl $(BOOST_ROOT)/build_boost_$(X_CONFIGURATION) $(CDK_ROOT)/build_cdk $(CURL_ROOT)/build_curl $(ACE_ROOT)/build_ace $(LIBXML2_ROOT)/build_libxml2 $(INM_MD5_ROOT)/build_inm_md5 thirdparty_links
+thirdparty_build: $(THIRDPARTY_MAK) $(ZLIB_ROOT)/build_zlib $(OPENSSL_ROOT)/build_openssl $(BOOST_ROOT)/build_boost_$(X_CONFIGURATION) $(SQLITE_ROOT)/build_sqlite $(SQLITE3X_ROOT)/build_sqlite3x $(CDK_ROOT)/build_cdk $(CURL_ROOT)/build_curl $(ACE_ROOT)/build_ace $(LIBSSH2_ROOT)/build_libssh2 $(LIBXML2_ROOT)/build_libxml2 $(INM_MD5_ROOT)/build_inm_md5 thirdparty_links
 	$(VERBOSE)touch $@
 	$(RULE_SEPARATOR)
 
@@ -224,15 +223,15 @@ $(CURL_ROOT)/build_curl: $(CURL_ROOT)/config_curl $(CURL_ROOT) $(CURL_DIR_DEPS) 
 	$(VERBOSE)touch $@
 	$(RULE_SEPARATOR)
 
-#$(LIBSSH2_ROOT)/config_libssh2: $(LIBSSH2_SCRIPT)
-#	$(VERBOSE)$(LIBSSH2_SCRIPT) --clean
-#	$(VERBOSE)touch $@
-#	$(RULE_SEPARATOR)
+$(LIBSSH2_ROOT)/config_libssh2: $(LIBSSH2_SCRIPT)
+	$(VERBOSE)$(LIBSSH2_SCRIPT) --clean
+	$(VERBOSE)touch $@
+	$(RULE_SEPARATOR)
 
-#$(LIBSSH2_ROOT)/build_libssh2: $(LIBSSH2_ROOT)/config_libssh2 $(LIBSSH2_ROOT) $(LIBSSH2_DIR_DEPS) $(THIRDPARTY_MAK)
-#	$(VERBOSE)$(LIBSSH2_SCRIPT)
-#	$(VERBOSE)touch $@
-#	$(RULE_SEPARATOR)
+$(LIBSSH2_ROOT)/build_libssh2: $(LIBSSH2_ROOT)/config_libssh2 $(LIBSSH2_ROOT) $(LIBSSH2_DIR_DEPS) $(THIRDPARTY_MAK)
+	$(VERBOSE)$(LIBSSH2_SCRIPT)
+	$(VERBOSE)touch $@
+	$(RULE_SEPARATOR)
 
 $(LIBXML2_ROOT)/config_libxml2: $(LIBXML2_SCRIPT)
 	$(VERBOSE)$(LIBXML2_SCRIPT) --clean
@@ -254,27 +253,27 @@ $(OPENSSL_ROOT)/build_openssl: $(OPENSSL_ROOT)/config_openssl $(OPENSSL_ROOT) $(
 	$(VERBOSE)touch $@
 	$(RULE_SEPARATOR)
 
-#$(SQLITE_ROOT)/config_sqlite: $(SQLITE_SCRIPT)
-#	$(VERBOSE) chmod +x $(SQLITE_SCRIPT)
-#	$(VERBOSE)$(SQLITE_SCRIPT)  --clean
-#	$(VERBOSE)touch $@
-#	$(RULE_SEPARATOR)
-
-#$(SQLITE_ROOT)/build_sqlite: $(SQLITE_ROOT)/config_sqlite $(SQLITE_ROOT) $(SQLITE_DIR_DEPS) #$(THIRDPARTY_MAK)
-#	$(VERBOSE) chmod +x $(SQLITE_SCRIPT)
-#	$(VERBOSE)$(SQLITE_SCRIPT)
-#	$(VERBOSE)touch $@
+$(SQLITE_ROOT)/config_sqlite: $(SQLITE_SCRIPT)
+	$(VERBOSE) chmod +x $(SQLITE_SCRIPT)
+	$(VERBOSE)$(SQLITE_SCRIPT)  --clean
+	$(VERBOSE)touch $@
 	$(RULE_SEPARATOR)
 
-#$(SQLITE3X_ROOT)/config_sqlite3x: $(SQLITE3X_SCRIPT)
-#	$(VERBOSE)$(SQLITE3X_SCRIPT)  --clean
-#	$(VERBOSE)touch $@
-#	$(RULE_SEPARATOR)
+$(SQLITE_ROOT)/build_sqlite: $(SQLITE_ROOT)/config_sqlite $(SQLITE_ROOT) $(SQLITE_DIR_DEPS) $(THIRDPARTY_MAK)
+	$(VERBOSE) chmod +x $(SQLITE_SCRIPT)
+	$(VERBOSE)$(SQLITE_SCRIPT)
+	$(VERBOSE)touch $@
+	$(RULE_SEPARATOR)
 
-#$(SQLITE3X_ROOT)/build_sqlite3x: $(SQLITE3X_ROOT)/config_sqlite3x $(SQLITE3X_ROOT) $(SQLITE3X_DIR_DEPS) #$(THIRDPARTY_MAK)
-#	$(VERBOSE)$(SQLITE3X_SCRIPT)
-#	$(VERBOSE)touch $@
-#	$(RULE_SEPARATOR)
+$(SQLITE3X_ROOT)/config_sqlite3x: $(SQLITE3X_SCRIPT)
+	$(VERBOSE)$(SQLITE3X_SCRIPT)  --clean
+	$(VERBOSE)touch $@
+	$(RULE_SEPARATOR)
+
+$(SQLITE3X_ROOT)/build_sqlite3x: $(SQLITE3X_ROOT)/config_sqlite3x $(SQLITE3X_ROOT) $(SQLITE3X_DIR_DEPS) $(THIRDPARTY_MAK)
+	$(VERBOSE)$(SQLITE3X_SCRIPT)
+	$(VERBOSE)touch $@
+	$(RULE_SEPARATOR)
 
 $(ZLIB_ROOT)/config_zlib: $(ZLIB_SCRIPT)
 	$(VERBOSE)$(ZLIB_SCRIPT) --clean
@@ -306,7 +305,7 @@ thirdparty_links: thirdparty_links.sh
 # ----------------------------------------------------------------------
 # clean all thirdparty packages
 # ----------------------------------------------------------------------
-clean_thirdparty: clean_ace clean_boost clean_cdk clean_curl clean_openssl clean_zlib clean_libxml2 clean_inm_md5 clean_thirdparty_links
+clean_thirdparty: clean_ace clean_boost clean_cdk clean_curl clean_openssl clean_sqlite clean_sqlite3x clean_zlib clean_libssh2 clean_libxml2 clean_inm_md5 clean_thirdparty_links
 	$(VERBOSE)rm -f $@
 	$(RULE_SEPARATOR)
 
@@ -347,13 +346,13 @@ clean_curl:
 	$(VERBOSE)rm -f $(CURL_ROOT)/../c-ares-1.18.1/release/ran_config
 	$(RULE_SEPARATOR)
 
-#.PHONY: clean_libssh2
-#clean_libssh2:
-#	$(VERBOSE)$(LIBSSH2_SCRIPT) --clean
-#	$(VERBOSE)rm -f $(LIBSSH2_ROOT)/dep_dirs
-#	$(VERBOSE)rm -f $(LIBSSH2_ROOT)/build_libssh2
-#	$(VERBOSE)rm -f $(LIBSSH2_ROOT)/config_libssh2
-#	$(RULE_SEPARATOR)
+.PHONY: clean_libssh2
+clean_libssh2:
+	$(VERBOSE)$(LIBSSH2_SCRIPT) --clean
+	$(VERBOSE)rm -f $(LIBSSH2_ROOT)/dep_dirs
+	$(VERBOSE)rm -f $(LIBSSH2_ROOT)/build_libssh2
+	$(VERBOSE)rm -f $(LIBSSH2_ROOT)/config_libssh2
+	$(RULE_SEPARATOR)
 
 .PHONY: clean_libxml2
 clean_libxml2:
@@ -371,21 +370,21 @@ clean_openssl:
 	$(VERBOSE)rm -f $(OPENSSL_ROOT)/config_openssl
 	$(RULE_SEPARATOR)
 
-#.PHONY: clean_sqlite
-#clean_sqlite:
-#	$(VERBOSE)$(SQLITE_SCRIPT) --clean
-#	$(VERBOSE)rm -f $(SQLITE_ROOT)/dep_dirs
-#	$(VERBOSE)rm -f $(SQLITE_ROOT)/build_sqlite
-#	$(VERBOSE)rm -f $(SQLITE_ROOT)/config_sqlite
-#	$(RULE_SEPARATOR)
+.PHONY: clean_sqlite
+clean_sqlite:
+	$(VERBOSE)$(SQLITE_SCRIPT) --clean
+	$(VERBOSE)rm -f $(SQLITE_ROOT)/dep_dirs
+	$(VERBOSE)rm -f $(SQLITE_ROOT)/build_sqlite
+	$(VERBOSE)rm -f $(SQLITE_ROOT)/config_sqlite
+	$(RULE_SEPARATOR)
 
-#.PHONY: clean_sqlite3x
-#clean_sqlite3x:
-#	$(VERBOSE)$(SQLITE3X_SCRIPT) --clean
-#	$(VERBOSE)rm -f $(SQLITE3X_ROOT)/dep_dirs
-#	$(VERBOSE)rm -f $(SQLITE3X_ROOT)/build_sqlite3x
-#	$(VERBOSE)rm -f $(SQLITE3X_ROOT)/config_sqlite3x
-#	$(RULE_SEPARATOR)
+.PHONY: clean_sqlite3x
+clean_sqlite3x:
+	$(VERBOSE)$(SQLITE3X_SCRIPT) --clean
+	$(VERBOSE)rm -f $(SQLITE3X_ROOT)/dep_dirs
+	$(VERBOSE)rm -f $(SQLITE3X_ROOT)/build_sqlite3x
+	$(VERBOSE)rm -f $(SQLITE3X_ROOT)/config_sqlite3x
+	$(RULE_SEPARATOR)
 
 .PHONY: clean_zlib
 clean_zlib:

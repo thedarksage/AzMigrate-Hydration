@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Pages>
+  <!--Configuration Flow-->
+  <Page Id ="LaunchPage" Implementation="UnifiedAgentConfigurator.LaunchPage">
+    <PreviousPage delegateId="UnifiedAgentConfigurator.CustomDelegates.NullPageHandler"></PreviousPage>
+    <NextPage delegateId="UnifiedAgentConfigurator.CustomDelegates.NextFromLaunchPage">ConfigureForCSPage,ConfigureForRCMPage,ProxyConfigurationPage,ConfigureForCSPrimePage</NextPage>
+    <SetupStage></SetupStage>
+    <HelpPage>{D035D6FD-0E32-463B-8C45-34502ECBC611}</HelpPage>
+  </Page>
+  <Page Id ="ProxyConfigurationPage" Implementation="UnifiedAgentConfigurator.ProxyConfigurationPage">
+    <PreviousPage delegateId="UnifiedAgentConfigurator.CustomDelegates.NullPageHandler"></PreviousPage>
+    <NextPage delegateId="UnifiedAgentConfigurator.CustomDelegates.NextFromProxyPage">ConfigureForCSPage,ConfigureForRCMPage,ConfigureForCSPrimePage</NextPage>
+    <SetupStage>proxy_settings</SetupStage>
+    <HelpPage>{D035D6FD-0E32-463B-8C45-34502ECBC611}</HelpPage>
+  </Page>
+  <Page Id ="ConfigureForCSPage" Implementation="UnifiedAgentConfigurator.ConfigureForCSPage">
+    <PreviousPage delegateId="UnifiedAgentConfigurator.CustomDelegates.NullPageHandler"></PreviousPage>
+    <NextPage delegateId="UnifiedAgentConfigurator.CustomDelegates.NullPageHandler"></NextPage>
+    <SetupStage>csconfiguration</SetupStage>
+    <HelpPage>{D035D6FD-0E32-463B-8C45-34502ECBC611}</HelpPage>
+  </Page>
+  <Page Id ="ConfigureForRCMPage" Implementation="UnifiedAgentConfigurator.ConfigureForRCMPage">
+    <PreviousPage delegateId="UnifiedAgentConfigurator.CustomDelegates.DefaultPreviousPage">ProxyConfigurationPage</PreviousPage>
+    <NextPage delegateId="UnifiedAgentConfigurator.CustomDelegates.NullPageHandler"></NextPage>
+    <SetupStage>rcmconfiguration</SetupStage>
+    <HelpPage>{D035D6FD-0E32-463B-8C45-34502ECBC611}</HelpPage>
+  </Page>
+  <Page Id ="ConfigureForCSPrimePage" Implementation="UnifiedAgentConfigurator.ConfigureForCSPrimePage">
+    <PreviousPage delegateId="UnifiedAgentConfigurator.CustomDelegates.NullPageHandler"></PreviousPage>
+    <NextPage delegateId="UnifiedAgentConfigurator.CustomDelegates.NullPageHandler"></NextPage>
+    <SetupStage>csprimeconfiguration</SetupStage>
+    <HelpPage>{D035D6FD-0E32-463B-8C45-34502ECBC611}</HelpPage>
+  </Page>
+</Pages>
+

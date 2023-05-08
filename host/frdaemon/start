@@ -1,0 +1,4 @@
+#!/bin/sh
+
+./svfrd /usr/local/ashish/sv1.log /usr/local/ashish/config/config.ini
+

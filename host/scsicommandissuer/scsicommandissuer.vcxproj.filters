@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\aix">
+      <UniqueIdentifier>{3e67e13d-2cc1-4d8c-9a63-ad4e4ac7b0a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\linux">
+      <UniqueIdentifier>{0fa383a7-bb48-4d1f-ab63-03f666109f32}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\sun">
+      <UniqueIdentifier>{9ab26294-0c14-408f-9a95-f76517cec0f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\win">
+      <UniqueIdentifier>{673ff769-03ef-40e6-a4a5-280a21f9494e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\aix">
+      <UniqueIdentifier>{c87ffbf1-d5bf-41c2-b575-197a05de741a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\linux">
+      <UniqueIdentifier>{0262bf97-8a1d-430d-b679-3aa5265f8dee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\sun">
+      <UniqueIdentifier>{a2c48512-aef8-4cd4-8fc0-ff9064b41d45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\win">
+      <UniqueIdentifier>{1fe6333c-7948-423b-a16e-1fb7354fe1d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="scsicommandissuer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="aix\platformbasedscsicommandissuer.cpp">
+      <Filter>Source Files\aix</Filter>
+    </ClCompile>
+    <ClCompile Include="linux\platformbasedscsicommandissuer.cpp">
+      <Filter>Source Files\linux</Filter>
+    </ClCompile>
+    <ClCompile Include="sun\platformbasedscsicommandissuer.cpp">
+      <Filter>Source Files\sun</Filter>
+    </ClCompile>
+    <ClCompile Include="win\platformbasedscsicommandissuer.cpp">
+      <Filter>Source Files\win</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="scsicmd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scsicommandissuer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="win\platformbasedscsicommandissuer.h">
+      <Filter>Header Files\win</Filter>
+    </ClInclude>
+    <ClInclude Include="win\platformscsicmd.h">
+      <Filter>Header Files\win</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="aix\platformbasedscsicommandissuer.h">
+      <Filter>Header Files\aix</Filter>
+    </CustomBuild>
+    <CustomBuild Include="aix\platformscsicmd.h">
+      <Filter>Header Files\aix</Filter>
+    </CustomBuild>
+    <CustomBuild Include="linux\platformbasedscsicommandissuer.h">
+      <Filter>Header Files\linux</Filter>
+    </CustomBuild>
+    <CustomBuild Include="linux\platformscsicmd.h">
+      <Filter>Header Files\linux</Filter>
+    </CustomBuild>
+    <CustomBuild Include="sun\platformbasedscsicommandissuer.h">
+      <Filter>Header Files\sun</Filter>
+    </CustomBuild>
+    <CustomBuild Include="sun\platformscsicmd.h">
+      <Filter>Header Files\sun</Filter>
+    </CustomBuild>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,213 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{4008E995-D123-4385-A57C-E1D4A4F6A875}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>azureagentapi</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+    <SpectreMitigation>Spectre</SpectreMitigation>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="..\win-rules.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="..\win-rules.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="..\win-rules-files\x64\win-rules.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="..\win-rules-files\x64\win-rules.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>12.0.21005.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>Debug\</OutDir>
+    <IntDir>Debug\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>Release\</OutDir>
+    <IntDir>Release\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\vacplibs;.\;.\win;..\comconversion;..\volumeinfocollector;..\volumeinfocollector\win32;..\common;..\inmsafeint;..\inmsafeint\win;..\inmsafecapis;..\inmsafecapis\win;..\securitylib;..\securitylib\win;..\common\win32;..\;.\common;.\foundation;.\foundation\win32;.\streams;.\thread;..\config;..\tal;$(ZLIB_INCLUDES);$(CURL_INCLUDES)\curl;$(CURL_INCLUDES);..\drivers\InVolFlt\win32;..\drivers\Include\win32;$(BOOST_INCLUDES);$(ACE_INCLUDES);..\log;..\config\win;..\cdplibs;..\cdplibs\v1;..\cdplibs\v3;..\cxpslib;..\fio;..\fio\win;..\cxtransportlib;..\npwwn;..\listfile;..\listfile\win;..\simplelogger;..\simplelogger\win;..\zflate;..\scopeguard;..\errorexception;..\errorexception\win;$(ZLIB_INCLUDES);..\cdpapplylib;$(SQLITE3X_INCLUDES);..\dplibs;..\s2libs;..\localdirectsynclib;..\s2libs\foundation\win32;..\conversionlib;$(INM_MD5_INCLUDES);$(SIGSLOT_INCLUDES);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;WIN32_LEAN_AND_MEAN;_DEBUG;_LIB;SV_WINDOWS=1;_WIN32_WINNT=0x0502;_LARGEFILE_SOURCE=1;_LARGEFILE64_SOURCE=1;_FILE_OFFSET_BITS=64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader />
+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
+      <BrowseInformation>true</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>.\;.\win;..\comconversion;..\volumeinfocollector;..\volumeinfocollector\win32;..\common;..\inmsafeint;..\inmsafeint\win;..\inmsafecapis;..\inmsafecapis\win;..\securitylib;..\securitylib\win;..\common\win32;..\;.\common;.\foundation;.\foundation\win32;.\streams;.\thread;..\config;..\tal;$(ZLIB_INCLUDES);$(CURL_INCLUDES)\curl;$(CURL_INCLUDES);..\drivers\InVolFlt\win32;..\drivers\Include\win32;$(BOOST_INCLUDES);$(ACE_INCLUDES);..\log;..\config\win;..\cdplibs;..\cdplibs\v1;..\cdplibs\v3;..\cxpslib;..\fio;..\fio\win;..\cxtransportlib;..\npwwn;..\listfile;..\listfile\win;..\simplelogger;..\simplelogger\win;..\zflate;..\scopeguard;..\errorexception;..\errorexception\win;$(ZLIB_INCLUDES);..\cdpapplylib;$(SQLITE3X_INCLUDES);..\dplibs;..\s2libs;..\localdirectsynclib;..\s2libs\foundation\win32;..\conversionlib;$(INM_MD5_INCLUDES);$(SIGSLOT_INCLUDES);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;WIN32_LEAN_AND_MEAN;_DEBUG;_LIB;SV_WINDOWS=1;_WIN32_WINNT=0x0502;_LARGEFILE_SOURCE=1;_LARGEFILE64_SOURCE=1;_FILE_OFFSET_BITS=64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader />
+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
+      <BrowseInformation>true</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>..\vacplibs;.\;.\win;..\comconversion;..\volumeinfocollector;..\volumeinfocollector\win32;..\common;..\inmsafeint;..\inmsafeint\win;..\inmsafecapis;..\inmsafecapis\win;..\securitylib;..\securitylib\win;..\common\win32;..\;.\common;.\foundation;.\foundation\win32;.\streams;.\thread;..\config;..\tal;$(ZLIB_INCLUDES);$(CURL_INCLUDES)\curl;$(CURL_INCLUDES);..\drivers\InVolFlt\win32;..\drivers\Include\win32;$(BOOST_INCLUDES);$(ACE_INCLUDES);..\log;..\config\win;..\cdplibs;..\cdplibs\v1;..\cdplibs\v3;..\cxpslib;..\fio;..\fio\win;..\cxtransportlib;..\npwwn;..\listfile;..\listfile\win;..\simplelogger;..\simplelogger\win;..\zflate;..\scopeguard;..\errorexception;..\errorexception\win;$(ZLIB_INCLUDES);..\cdpapplylib;$(SQLITE3X_INCLUDES);..\dplibs;..\s2libs;..\localdirectsynclib;..\s2libs\foundation\win32;..\conversionlib;$(INM_MD5_INCLUDES);$(SIGSLOT_INCLUDES);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;WIN32_LEAN_AND_MEAN;NDEBUG;_LIB;SV_WINDOWS=1;_WIN32_WINNT=0x0502;_LARGEFILE_SOURCE=1;_LARGEFILE64_SOURCE=1;_FILE_OFFSET_BITS=64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader />
+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>.\;.\win;..\comconversion;..\volumeinfocollector;..\volumeinfocollector\win32;..\common;..\inmsafeint;..\inmsafeint\win;..\inmsafecapis;..\inmsafecapis\win;..\securitylib;..\securitylib\win;..\common\win32;..\;.\common;.\foundation;.\foundation\win32;.\streams;.\thread;..\config;..\tal;$(ZLIB_INCLUDES);$(CURL_INCLUDES)\curl;$(CURL_INCLUDES);..\drivers\InVolFlt\win32;..\drivers\Include\win32;$(BOOST_INCLUDES);$(ACE_INCLUDES);..\log;..\config\win;..\cdplibs;..\cdplibs\v1;..\cdplibs\v3;..\cxpslib;..\fio;..\fio\win;..\cxtransportlib;..\npwwn;..\listfile;..\listfile\win;..\simplelogger;..\simplelogger\win;..\zflate;..\scopeguard;..\errorexception;..\errorexception\win;$(ZLIB_INCLUDES);..\cdpapplylib;$(SQLITE3X_INCLUDES);..\dplibs;..\s2libs;..\localdirectsynclib;..\s2libs\foundation\win32;..\conversionlib;$(INM_MD5_INCLUDES);$(SIGSLOT_INCLUDES);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;WIN32_LEAN_AND_MEAN;NDEBUG;_LIB;SV_WINDOWS=1;_WIN32_WINNT=0x0502;_LARGEFILE_SOURCE=1;_LARGEFILE64_SOURCE=1;_FILE_OFFSET_BITS=64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader />
+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="MTReplicationEndpointProvider_i.c" />
+    <ClCompile Include="win\azureagentcomimpl.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="azureagent.h" />
+    <ClInclude Include="azureagentdummyimpl.h" />
+    <ClInclude Include="azureagentimpl.h" />
+    <ClInclude Include="azureagentunsupportedimpl.h" />
+    <ClInclude Include="azurebadfileexception.h" />
+    <ClInclude Include="azurecanceloperationexception.h" />
+    <ClInclude Include="azureclientresyncrequiredoperationexception.h" />
+    <ClInclude Include="azureerrortypes.h" />
+    <ClInclude Include="azureinvalidopexception.h" />
+    <ClInclude Include="azuremissingfileexception.h" />
+    <ClInclude Include="azureresyncrequiredexception.h" />
+    <ClInclude Include="azurespecialexception.h" />
+    <ClInclude Include="MTReplicationEndpointProvider_h.h" />
+    <ClInclude Include="win\azureagentcomimpl.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="MTReplicationEndpointProvider.idl" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -1,0 +1,11 @@
+HKCR
+{
+	NoRemove AppID
+	{
+		'%APPID%' = s 'InMageVssProvider'
+		'InMageVssProvider.DLL'
+		{
+			val AppID = s '%APPID%'
+		}
+	}
+}

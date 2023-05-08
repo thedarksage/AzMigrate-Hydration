@@ -1,0 +1,21 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Volumes", "Volumes.vcproj", "{F5B7D405-3B96-47E5-93A4-C31956DF52CC}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{F5B7D405-3B96-47E5-93A4-C31956DF52CC}.Debug.ActiveCfg = Debug|Win32
+		{F5B7D405-3B96-47E5-93A4-C31956DF52CC}.Debug.Build.0 = Debug|Win32
+		{F5B7D405-3B96-47E5-93A4-C31956DF52CC}.Release.ActiveCfg = Release|Win32
+		{F5B7D405-3B96-47E5-93A4-C31956DF52CC}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

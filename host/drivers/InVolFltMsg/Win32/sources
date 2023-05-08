@@ -1,0 +1,42 @@
+!IF 0
+
+
+Module Name:
+
+    sources.
+
+!ENDIF
+
+TARGETNAME=involflt
+TARGETPATH=obj
+TARGETTYPE=DRIVER
+
+#VERIFIER_DDK_EXTENSIONS=1
+
+!if "$(DDK_TARGET_OS)"=="Win2K"
+C_DEFINES=$(C_DEFINES) -D_WIN2K_COMPAT_SLIST_USAGE -DNT_VER=500 -DTESTING -DSV_DRIVER
+!else
+C_DEFINES = $(C_DEFINES) -DNT_VER=500 -DTESTING -DSV_DRIVER
+!endif
+
+#USER_C_FLAGS = $(USER_C_FLAGS) /Zi
+# for asm listings use below
+#USER_C_FLAGS = $(USER_C_FLAGS) /Zi /FAs
+TARGETLIBS=$(DDK_LIB_PATH)\ntstrsafe.lib
+
+# get the message compiler to set the customer bit on every error value
+MC_FLAGS = -c
+
+MSC_WARNING_LEVEL=/W3 /WX
+
+#BROWSER_INFO=1
+#USE_MAPSYM=1
+
+LINKER_FLAGS=$(LINKER_FLAGS) -merge:PAGECONST=PAGE
+
+INCLUDES=..\..\Include\win32;..\..\..\Common;..\..\..\common\win32;
+
+SOURCES=InVolFltMsg.cpp				\
+		InVolFlt.rc                 \
+        InVolFltLog.mc				
+		

@@ -1,0 +1,127 @@
+﻿<ns0:BasePageForWpfControls 
+    x:Class="UnifiedAgentConfigurator.ProxyConfigurationPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+    xmlns:ns0="clr-namespace:ASRSetupFramework;assembly=ASRSetupFramework"
+    xmlns:resx="clr-namespace:ASRResources;assembly=ASRResources"
+    x:Uid="ns0:BasePageForWpfControls_1"
+    Height="415"
+    Width="685">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="10" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="15" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="27" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="32" />
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Grid.Row="1" Grid.Column="1" Text="{x:Static resx:StringResources.ProxyUnifiedAgentHeader}" />
+
+        <GroupBox x:Name="grpBox" Grid.Row="3" Grid.Column="1" BorderThickness="0" Margin="-6,0,0,0">
+            <StackPanel x:Name="stcPanel">
+                <Grid x:Uid="Grid_radioButton">
+                    <Grid.RowDefinitions>
+                        <RowDefinition x:Uid="RowDefinition_5" Height="20" />
+                        <RowDefinition x:Uid="RowDefinition_5" Height="10" />
+                        <RowDefinition x:Uid="RowDefinition_8" Height="20" />
+                        <RowDefinition x:Uid="RowDefinition_9" Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <RadioButton
+                            x:Name="DefaultProxyRadio"
+                            x:Uid="DefaultProxyRadio"
+                            IsChecked="True"
+                            Grid.Row="0"
+                            FontWeight="Bold"
+                            Content="{x:Static resx:StringResources.ProxyConfigurationPageUseExisting}">
+                    </RadioButton>
+                    <RadioButton
+                            x:Name="CustomProxyRadio"
+                            x:Uid="CustomProxyRadio"
+                            IsChecked="False"
+                            Grid.Row="2"
+                            FontWeight="Bold"
+                            Content="{x:Static resx:StringResources.ProxyConfigurationPageUseCustom}">
+                    </RadioButton>
+                    <Grid 
+                        x:Name="grdCustomProxy" 
+                        x:Uid="grdCustomProxy" 
+                        Grid.Column="1" 
+                        Grid.Row="3" 
+                        IsEnabled="{Binding ElementName=CustomProxyRadio, Path=IsChecked}"
+                        Margin="20,0,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="120" />
+                            <ColumnDefinition Width="200" />
+                            <ColumnDefinition Width="16" />
+                        </Grid.ColumnDefinitions>
+                        
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="20" />
+                            <RowDefinition Height="10" />
+                            <RowDefinition Height="20" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="{x:Static resx:StringResources.ProxyAddressUnifiedAgent}" Grid.Row="0"/>
+                        <TextBox Name="txtProxyAddress" 
+                                 Grid.Column="1"
+                                 Grid.Row="0" 
+                                 Width="200" 
+                                 HorizontalAlignment="Left"
+                                 TextChanged="txtProxyAddress_TextChanged">
+                            <TextBox.Resources>
+                                <VisualBrush x:Key="HelpBrush" TileMode="None" Opacity="0.4" Stretch="None" AlignmentX="Left">
+                                    <VisualBrush.Visual>
+                                        <TextBlock FontStyle="Italic" Text="e.g. http://192.168.1.1" />
+                                    </VisualBrush.Visual>
+                                </VisualBrush>
+                            </TextBox.Resources>
+                            <TextBox.Style>
+                                <Style TargetType="TextBox">
+                                    <Style.Triggers>
+                                        <Trigger Property="Text" Value="{x:Null}">
+                                            <Setter Property="Background" Value="{StaticResource HelpBrush}"/>
+                                        </Trigger>
+                                        <Trigger Property="Text" Value="">
+                                            <Setter Property="Background" Value="{StaticResource HelpBrush}"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
+                        <Image Name="imgProxyAddress" Grid.Column="2" Grid.Row="0"/>
+                        <TextBlock Text="{x:Static resx:StringResources.ProxyPortUnifiedAgent}" Grid.Row="2"/>
+                        <TextBox Name="txtProxyPort" Grid.Column="1" Grid.Row="2" Width="200" HorizontalAlignment="Left" TextChanged="txtProxyPort_TextChanged">
+                            <TextBox.Resources>
+                                <VisualBrush x:Key="HelpBrush" TileMode="None" Opacity="0.4" Stretch="None" AlignmentX="Left">
+                                    <VisualBrush.Visual>
+                                        <TextBlock FontStyle="Italic" Text="e.g. 80" />
+                                    </VisualBrush.Visual>
+                                </VisualBrush>
+                            </TextBox.Resources>
+                            <TextBox.Style>
+                                <Style TargetType="TextBox">
+                                    <Style.Triggers>
+                                        <Trigger Property="Text" Value="{x:Null}">
+                                            <Setter Property="Background" Value="{StaticResource HelpBrush}"/>
+                                        </Trigger>
+                                        <Trigger Property="Text" Value="">
+                                            <Setter Property="Background" Value="{StaticResource HelpBrush}"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
+                        <Image Name="imgProxyPort" Grid.Column="2" Grid.Row="2"/>
+                    </Grid>
+                </Grid>
+            </StackPanel>
+        </GroupBox>
+    </Grid>
+</ns0:BasePageForWpfControls>

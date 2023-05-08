@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{874EA58A-A5AA-4362-BFCF-5DFA77C7072C}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>AzureRcmTest</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>NotSet</CharacterSet>
+    <SpectreMitigation>Spectre</SpectreMitigation>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\win-rules.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\win-rules.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>SV_WINDOWS;NOMINMAX;WIN32;_DEBUG;_CONSOLE;_WIN32_WINNT=0x0502;ACE_AS_STATIC_LIBS;CURL_STATICLIB;WIN32_LEAN_AND_MEAN;ATL_NO_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\AzureRcmLib;..\log;..\errorexception;..\config;..\common;..\common\win32;..\securitylib;..\securitylib\win;..\scopeguard;$(ACE_INCLUDES);$(BOOST_INCLUDES);$(CURL_INCLUDES);$(OPENSSL_INCLUDES);..\inmsafecapis;..\inmsafecapis\win;..\AzureRecoveryLib;..\AzureRecoveryLib\resthelper;$(ESJSON_INCLUDES);$(LIBXML2_INCLUDES);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\AzureRcmLib\$(Configuration);..\common\$(Configuration);..\s2libs\$(Configuration);..\tal\$(Configuration);..\log\$(Configuration);..\vsnaplib\$(Configuration);..\vacplibs\$(Configuration);..\cdplibs\$(Configuration);\$(Configuration);..\virtualvolumelib\$(Configuration);..\config\$(Configuration);..\common\$(Configuration);$(SQLITE_LIB_DIR_DEBUG);$(CURL_LIB_DIR_DEBUG);$(BOOST_LIB_DIR);$(ACE_LIB_DIR);$(OPENSSL_LIB_DIR_DEBUG);$(SQLITE3X_LIB_DIR_DEBUG);$(LIBXML2_LIB_DIR_DEBUG);$(ZLIB_LIB_DIR);$(INM_MD5_LIB_DIR_DEBUG);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Crypt32.lib;version.lib;clusapi.lib;libssl.lib;libcrypto.lib;gdi32.lib;ACEsd.lib;sqlite3x.lib;sqlite.lib;winmm.lib;wininet.lib;kernel32.lib;imagehlp.lib;Ws2_32.lib;psapi.lib;Resutils.lib;libxml2_a.lib;Iphlpapi.lib;zlibd.lib;inm_md5.lib;Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>SV_WINDOWS;NOMINMAX;WIN32;NDEBUG;_CONSOLE;_WIN32_WINNT=0x0502;ACE_AS_STATIC_LIBS;CURL_STATICLIB;WIN32_LEAN_AND_MEAN;ATL_NO_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\vacplibs;..\AzureRcmLib;..\log;..\errorexception;..\config;..\common;..\common\win32;..\securitylib\;..\securitylib\win;..\scopeguard;$(ACE_INCLUDES);$(BOOST_INCLUDES);$(CURL_INCLUDES);$(OPENSSL_INCLUDES);..\inmsafecapis;..\inmsafecapis\win;..\AzureRecoveryLib;..\AzureRecoveryLib\resthelper;$(ESJSON_INCLUDES);$(LIBXML2_INCLUDES)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\AzureRcmLib\$(Configuration);..\common\$(Configuration);..\s2libs\$(Configuration);..\tal\$(Configuration);..\log\$(Configuration);..\vsnaplib\$(Configuration);..\vacplibs\$(Configuration);..\cdplibs\$(Configuration);\$(Configuration);..\virtualvolumelib\$(Configuration);..\config\$(Configuration);..\common\$(Configuration);$(SQLITE_LIB_DIR_RELEASE);$(CURL_LIB_DIR_RELEASE);$(BOOST_LIB_DIR);$(ACE_LIB_DIR);$(OPENSSL_LIB_DIR_RELEASE);$(SQLITE3X_LIB_DIR_RELEASE);$(LIBXML2_LIB_DIR_RELEASE);$(ZLIB_LIB_DIR);$(INM_MD5_LIB_DIR_RELEASE);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Crypt32.lib;version.lib;clusapi.lib;libssl.lib;libcrypto.lib;gdi32.lib;ACEs.lib;sqlite3x.lib;sqlite.lib;winmm.lib;wininet.lib;kernel32.lib;imagehlp.lib;Ws2_32.lib;psapi.lib;Resutils.lib;libxml2_a.lib;Iphlpapi.lib;zlibd.lib;inm_md5.lib;Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="RcmTestClient.cpp" />
+    <ClCompile Include="SimulatedTestMachine.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CmdArgs.h" />
+    <ClInclude Include="RcmTestClient.h" />
+    <ClInclude Include="SimulatedTestMachine.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\thirdparty\boost\boost-build-win\boost-build-win.vcxproj">
+      <Project>{43491c14-304a-4660-bc4c-df0cb18f6b87}</Project>
+    </ProjectReference>
+    <ProjectReference Include="$(CURL_PROJ_PATH)\libcurl.vcxproj">
+      <Project>{da6f56b4-06a4-441d-ad70-ac5a7d51fadb}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\AzureRcmLib\AzureRcmLib.vcxproj">
+      <Project>{1b31c199-948a-4e49-8be0-67d4ae3e5eb0}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\AzureRecoveryLib\AzureRecoveryLib.vcxproj">
+      <Project>{3844ec72-39a9-427f-8759-15b735791aae}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\common\hostagenthelpers.vcxproj">
+      <Project>{1c2786b8-492f-4c58-bec6-a57cfb95adbb}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\config\config.vcxproj">
+      <Project>{48330794-e280-45a0-9f16-69010ef753bb}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\curlwrapperlib\curlwrapperlib.vcxproj">
+      <Project>{92ba00c2-ef73-42d0-8e73-41013842520b}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\cxtransportlib\cxtransportlib.vcxproj">
+      <Project>{9e0ca837-3319-4025-b77f-a63401298aa5}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\disklayoutmgr\disklayoutmgr.vcxproj">
+      <Project>{3ff792f6-0390-4415-9757-a98bfa3ef0ac}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\diskpartwrapper\diskpartwrapper.vcxproj">
+      <Project>{3710ab83-8a71-4cb5-891a-9aef44a79558}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\log\Log.vcxproj">
+      <Project>{da7e75ec-e026-42d5-9315-7e52e8f5b34b}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\npwwn\npwwn.vcxproj">
+      <Project>{fa3d7d03-d8ba-4a16-9a90-e049673a43df}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\s2libs\s2libs.vcxproj">
+      <Project>{aae78f4c-6c2c-4cbc-bbe8-d3df90adcbf9}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\securitylib\securitylib.vcxproj">
+      <Project>{620e652a-08c3-4514-baaa-8b9558d5942e}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

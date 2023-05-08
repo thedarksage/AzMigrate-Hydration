@@ -1,0 +1,102 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>UnlockDrives</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>UnlockDrives</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>354</width>
+            <height>167</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>UnlockDrives</string>
+    </property>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>okPushButton</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>30</x>
+                <y>120</y>
+                <width>95</width>
+                <height>31</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>OK</string>
+        </property>
+    </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>cancelPushButton</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>210</x>
+                <y>120</y>
+                <width>95</width>
+                <height>31</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Cancel</string>
+        </property>
+    </widget>
+    <widget class="QListBox">
+        <property name="name">
+            <cstring>volumesListBox</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>100</x>
+                <y>20</y>
+                <width>140</width>
+                <height>70</height>
+            </rect>
+        </property>
+    </widget>
+</widget>
+<connections>
+    <connection>
+        <sender>cancelPushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>UnlockDrives</receiver>
+        <slot>close()</slot>
+    </connection>
+    <connection>
+        <sender>okPushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>UnlockDrives</receiver>
+        <slot>unlock()</slot>
+    </connection>
+</connections>
+<tabstops>
+    <tabstop>volumesListBox</tabstop>
+    <tabstop>okPushButton</tabstop>
+    <tabstop>cancelPushButton</tabstop>
+</tabstops>
+<includes>
+    <include location="global" impldecl="in declaration">iostream</include>
+    <include location="global" impldecl="in declaration">string</include>
+    <include location="global" impldecl="in declaration">vector</include>
+    <include location="global" impldecl="in implementation">iostream</include>
+    <include location="global" impldecl="in implementation">string</include>
+    <include location="global" impldecl="in implementation">vector</include>
+    <include location="local" impldecl="in implementation">unlockvolumes.ui.h</include>
+</includes>
+<slots>
+    <slot specifier="non virtual">unlock()</slot>
+</slots>
+<functions>
+    <function access="private" specifier="non virtual">init()</function>
+    <function specifier="non virtual" returnType="std::vector&lt;std::string&gt;">getLockedDrives()</function>
+    <function specifier="non virtual" returnType="bool">noLockedDrives()</function>
+</functions>
+<pixmapinproject/>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

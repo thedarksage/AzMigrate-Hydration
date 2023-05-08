@@ -1,0 +1,8 @@
+<Include>
+<?define BuildVersion = "9.29.5324.1" ?>
+<?define ProductVersion = "9.29.0.0" ?>
+<?define BuildPhase = "GA" ?>
+<?define BuildTag = "RELEASE_9.29.0.0_GA_5324_Jul_31_2019" ?>
+<?define BuildNumber = "5324" ?>
+<?define CompanyName = "Microsoft Corporation" ?>
+</Include>

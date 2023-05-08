@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{53576672-B8AC-4B9C-918C-DD5C467B64B8}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>UnifiedAgentCustomActions</RootNamespace>
+    <AssemblyName>UnifiedAgentCustomActions</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <WixCATargetsPath Condition=" '$(WixCATargetsPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\WiX\v3.x\Wix.CA.targets</WixCATargetsPath>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\..\common\MSSharedLibSN1024.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DelaySign>false</DelaySign>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ESRPExePath>C:\esrpclient.1.2.25\tools\EsrpClient.exe</ESRPExePath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="ASRResources">
+      <HintPath>..\ASRResources\bin\$(Configuration)\ASRResources.dll</HintPath>
+    </Reference>
+    <Reference Include="ASRSetupFramework">
+      <HintPath>..\SetupFramework\bin\$(Configuration)\ASRSetupFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.Deployment.WindowsInstaller">
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CustomAction.cs" />
+    <Compile Include="ExtensionMethods.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RcmUninstallationCustomActions.cs" />
+    <Content Include="CustomAction.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(WixCATargetsPath)" />
+  <Target Name="StopBuild" BeforeTargets="PackCustomAction" Condition=" '$(Phase)' == 'Initial' ">
+    <!-- Fail the build inorder to sign UnifiedAgentCustomActions.dll -->
+    <Error Text="Failing before packaging inorder to sign UnifiedAgentCustomActions.dll" />
+  </Target>
+  <Target Name="TriggerDLLSign" BeforeTargets="PackCustomAction" Condition=" '$(Signing)' == 'True' ">
+    <!-- Sign UnifiedAgentCustomActions.dll -->
+    <Message Text="Triggering signing" />
+    <Exec Command="$(ProjectDir)CASign.bat $(Configuration) $(ESRPExePath) $(ProjectDir)" />
+  </Target>
+  <Target Name="TriggerCASign" AfterTargets="AfterBuild" Condition=" '$(Signing)' == 'True' ">
+    <!-- Sign UnifiedAgentCustomActions.CA.dll here -->
+    <Message Text="Triggering signing" />
+    <Exec Command="$(ProjectDir)CAWSign.bat $(Configuration) $(ESRPExePath) $(ProjectDir)" />
+  </Target>
+</Project>
