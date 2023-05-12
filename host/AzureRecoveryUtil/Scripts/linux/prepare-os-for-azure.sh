@@ -23,6 +23,16 @@ _E_AZURE_SMS_INITRD_IMAGE_GENERATION_FAILED=7
 _E_AZURE_SMS_HV_DRIVERS_MISSING=8
 _E_AZURE_GA_INSTALLATION_FAILED=9
 _E_AZURE_ENABLE_DHCP_FAILED=10
+_E_AZURE_UNSUPPORTED_FS_FOR_CVM=11
+_E_AZURE_ROOTFS_LABEL_FAILED=12
+_E_RESOLV_CONF_COPY_FAILURE=13
+_E_RESOLV_CONF_RESTORE_FAILURE=14
+_E_AZURE_REPOSITORY_UPDATE_FAILED=15
+_E_INSTALL_LINUX_AZURE_FDE_FAILED=16
+_E_AZURE_UNSUPPORTED_FIRMWARE_FOR_CVM=17
+_E_AZURE_BOOTLOADER_CONFIGURATION_FAILED=18
+_E_AZURE_UNSUPPORTED_DEVICE=19
+_E_AZURE_BOOTLOADER_INSTALLATION_FAILED=20
 
 ###End: Script error codes.
 
@@ -32,6 +42,7 @@ _AM_STARTUP_="azure-migrate-startup"
 _STARTUP_SCRIPT_="${_AM_STARTUP_}.sh"
 _AM_SCRIPT_DIR_="/usr/local/azure-migrate"
 _AM_SCRIPT_LOG_FILE_="/var/log/${_AM_STARTUP_}.log"
+_AM_SCRIPT_CVM_LOG_FILE_="/usr/local/AzureRecovery/AzureCvmMigration.log"
 _AM_INSTALLGA_="asr-installga"
 _AM_HYDRATION_LOG_="/var/log/am-hydration-log"
 ###End: Constants
@@ -49,7 +60,26 @@ throw_error()
     echo "[Sms-Scrip-Error-Data]:${error_data}"
     echo "[Sms-Telemetry-Data]:${telemetry_data}"
 
+    confidential_migration_enabled=$(is_confidential_vm_migration_enabled)
+
+    if [[ "$confidential_migration_enabled" == "Confidential VM migration is enabled." ]]; then
+        adding_cvm_installation_logs
+    fi
+
     exit $error_code
+}
+
+adding_cvm_installation_logs()
+{
+    echo -e "\n---CVM Installation Logs during Hydration for Azure Migrate Begin---"
+    
+    if [ -f "${_AM_SCRIPT_CVM_LOG_FILE_}" ]; then
+        cat "${_AM_SCRIPT_CVM_LOG_FILE_}"
+    else
+        echo "No CVM Installation Logs found."
+    fi
+
+    echo -e "---CVM Installation Logs during Hydration End---\n"
 }
 
 # Usage: Add telemetries about utilities absent on source VM.
@@ -204,6 +234,26 @@ backup_file()
     return $?
 }
 
+#@1 - Final file name
+restore_file()
+{
+    local _final_file_=$1
+    local _backup_file_="${_final_file_}${_BCK_EXT_}"
+
+    trace "Restoring the file $_final_file_ from backup file at location $_backup_file_";
+    
+    [[ -f $_final_file_ ]] && {
+        trace "$_final_file_ already exists. Replacing the file with backup file.";
+    }
+    
+    [[ -f $_backup_file_ ]] || {
+        trace "$_backup_file_ file not found.";
+        return 1;
+    }
+    
+    mv -f $_backup_file_ $_final_file_
+}
+
 #@1 - File path
 move_to_backup()
 {
@@ -221,6 +271,28 @@ move_to_backup()
     }
     
     mv -f $_source_ $_target_
+    return $?
+}
+
+# Copy a directory to a backup location
+copy_dir_to_backup()
+{
+    local _source_="$1"
+    local _target_="${_source_}${_BCK_EXT_}"
+    
+    # Check if the source directory is already a backup directory
+    [[ $_source_ =~ .*${_BCK_EXT_}$ ]] && {
+        trace "$_source_ is already a backup directory."
+        return 1;
+    }
+    
+    # Check if the source directory exists
+    [[ -d $_source_ ]] || { 
+        trace "$_source_ directory not found."
+        return 1;
+    }
+    
+    cp -rf $_source_ $_target_
     return $?
 }
 
@@ -751,6 +823,7 @@ generate_initrd_image()
 
 #@1 - grub options to add
 #@2 - grub options to remove
+unset global_grub_path
 modify_grub_config()
 {
     local _grub_path="$chroot_path/boot/grub/menu.lst"
@@ -780,11 +853,14 @@ modify_grub_config()
         append_config_line_parameter "serial --unit=0 --speed=115200 --parity=no" $_grub_path
         append_config_line_parameter "terminal --timeout=15 serial console" $_grub_path
     fi
+    
+    global_grub_path="$_grub_path"
 }
 
 #@1 - grub options to add
 #@2 - grub config setting name
 #@3 - grub options to remove
+unset global_grub_path
 modify_grub2_config()
 {
     local _grub2_path="$chroot_path/boot/grub2/grub.cfg"
@@ -813,6 +889,8 @@ modify_grub2_config()
     if [[ -f "$chroot_path/boot/grub/grub.cfg" && $_grub2_path != "$chroot_path/boot/grub/grub.cfg" ]]; then
         modify_grub2_config_helper "$1" "$2" "$3" "$chroot_path/boot/grub/grub.cfg"
     fi
+    
+    global_grub_path="$_grub2_path"
 }
 
 #@1 - grub options to add
@@ -896,7 +974,7 @@ update_vm_repositories()
         UBUNTU*)
             # https://docs.microsoft.com/en-us/azure/virtual-machines/linux/create-upload-ubuntu#manual-steps
             sources_list_file="$chroot_path/etc/apt/sources.list"
-            copy_file "$sources_list_file" "$(sources_list_file)_azr_sms_bak"
+            copy_file "$sources_list_file" "${sources_list_file}_azr_sms_bak"
             sed -i 's/http:\/\/archive\.ubuntu\.com\/ubuntu\//http:\/\/azure\.archive\.ubuntu\.com\/ubuntu\//g' "$sources_list_file"
             sed -i 's/http:\/\/[a-z][a-z]\.archive\.ubuntu\.com\/ubuntu\//http:\/\/azure\.archive\.ubuntu\.com\/ubuntu\//g' "$sources_list_file"
         ;;
@@ -908,12 +986,12 @@ install_linux_guest_agent()
 {
     ga_uuid=$(uuidgen)
     base_linuxga_path="var/ASRLinuxGA-$ga_uuid"
-	
-	if [[ ! -d $chroot_path/$base_linuxga_path ]]; then
+    
+    if [[ ! -d $chroot_path/$base_linuxga_path ]]; then
         trace "Base linux guest agent packages directory doesn't exist'. Creating $chroot_path/$base_linuxga_path"
         mkdir $chroot_path/$base_linuxga_path
     fi
-	
+    
     validate_guestagent_prereqs
     update_vm_repositories
 
@@ -926,7 +1004,7 @@ install_linux_guest_agent()
     else
         enable_installga_chkconfig
     fi
-	
+    
     enable_postlogin_installga
 
     add_am_hydration_log "Guest agent installation logs location" "/$base_linuxga_path/ASRLinuxGA.log"
@@ -963,6 +1041,46 @@ install_linux_guest_agent()
     fi
 
     chmod +x $chroot_path/$base_linuxga_path/*
+}
+
+install_guest_agent_package()
+{
+    local package="Azure Linux Agent (the guest extensions handler) package."
+    trace "Installing $package in ${chroot_path}."
+    echo -e "\nInstalling $package in ${chroot_path}." >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+
+
+    case "${src_distro}" in
+        "UBUNTU"*)
+            chroot "${chroot_path}" apt-get install -y walinuxagent >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+            ;;
+        *)
+            throw_error $_E_AZURE_SMS_OS_UNSUPPORTED $src_distro
+            ;;
+    esac
+}
+
+enable_linux_agent_and_cloud_init()
+{
+    echo -e "\nEnabling the linux agent service in ${chroot_path}." >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+    chroot "${chroot_path}" systemctl enable walinuxagent.service >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+}
+
+install_guest_agent_pre_boot()
+{
+    install_guest_agent_package
+    if [ $? -eq 0 ]; then
+        trace "Successfully installed guest agent package in ${chroot_path}."
+    else
+        trace "Error: Failed to install guest package in ${chroot_path}."
+    fi
+
+    enable_linux_agent_and_cloud_init
+    if [ $? -eq 0 ]; then
+        trace "Successfully enabled the linux agent in ${chroot_path}."
+    else
+        trace "Error: Failed to enable the linux agent in ${chroot_path}."
+    fi
 }
 
 configure_dhcp_rhel()
@@ -1046,6 +1164,7 @@ create_dhcp_netplan_config_and_apply()
     echo "# This is generated for Azure SMS to make NICs DHCP in Azure." > $dhcp_netplan_file
     echo "network:" >> $dhcp_netplan_file
     echo "    version: 2" >> $dhcp_netplan_file
+    echo "    renderer: networkd" >> $dhcp_netplan_file
     echo "    ethernets:" >> $dhcp_netplan_file
     echo "        ephemeral:" >> $dhcp_netplan_file
     echo "            dhcp4: true" >> $dhcp_netplan_file
@@ -1195,7 +1314,6 @@ verify_uefi_bootloader_files()
     else
         trace "Boot folder verification not required for BIOS."
     fi
-
 }
 
 #@1 - Kernel version
@@ -1318,6 +1436,131 @@ verify_generate_initrd_images()
     done
 }
 
+function determine_grub_version() 
+{
+    local grub_version=""
+
+    if [ -x "$chroot_path/usr/sbin/grub2-mkconfig" ]; then
+        grub_version="2"
+    elif [ -x "$chroot_path/usr/sbin/grub-mkconfig" ]; then
+        grub_version="1"
+    else
+        trace "Error: GRUB version could not be determined."
+        return 1
+    fi
+
+    echo "$grub_version"
+}
+
+function regenerate_grub_config() 
+{
+    local grub_version=""
+    local grub_file_location=$1;
+
+    grub_version="$(determine_grub_version)"
+    if [ $? -ne 0 ]; then
+        trace "Error: GRUB version could not be determined."
+        return 1
+    fi
+
+    trace "Firmware type: $firmware_type"
+    trace "GRUB version: $grub_version"
+    
+    if [[ $global_grub_file_location == *"menu.lst" ]] || [[ $global_grub_file_location == *"grub.conf" ]]; then
+        trace "The global GRUB path end with menu.lst or grub.conf. Not regenerating the grub."
+        return 1
+    fi
+
+    if [ "$grub_version" = "2" ]; then
+        trace "GRUB config path: $grub_file_location"
+        if [ -f "$grub_file_location" ]; then
+            # backup the original grub config file
+            backup_file "$grub_file_location"
+            if [ $? -ne 0 ]; then
+                trace "Error: Failed to backup GRUB config file."
+                return 1
+            fi
+            
+            if [[ $grub_file_location == $chroot_path* ]]; then
+                grub_file_location="${grub_file_location#$chroot_path}"
+            else
+                trace "Grub file location is not within the specified mounted volume. Regeneration of grub will not proceed."
+                return 1
+            fi
+
+            
+            trace "Modified grub path: $grub_file_location"
+
+            if [ "$firmware_type" = "UEFI" ]; then
+                chroot "$chroot_path" timeout 300 grub2-mkconfig -o "$grub_file_location" 
+                if [ $? -ne 0 ]; then
+                    if [ $? -eq 124 ]; then
+                        trace "Error: GRUB regeneration timed out after 5 minutes."
+                    fi
+                    trace "Error: Failed to regenerate GRUB config for UEFI firmware."
+                    # restore the backup
+                    restore_file "$chroot_path$grub_file_location"
+                    return 1
+                fi
+            else 
+                chroot "$chroot_path" timeout 300 grub2-mkconfig -o "$grub_file_location" 
+                if [ $? -ne 0 ]; then
+                    if [ $? -eq 124 ]; then
+                        trace "Error: GRUB regeneration timed out after 5 minutes."
+                    fi
+                    trace "Error: Failed to regenerate GRUB config for BIOS firmware."
+                    # restore the backup
+                    restore_file "$chroot_path$grub_file_location"
+                    return 1
+                fi
+            fi
+        fi
+    elif [ "$grub_version" = "1" ]; then
+        trace "GRUB config path: $grub_file_location"
+        if [ -f "$grub_file_location" ]; then
+            # backup the original grub config file
+            backup_file "$grub_file_location"
+            if [ $? -ne 0 ]; then
+                trace "Error: Failed to backup GRUB config file."
+                return 1
+            fi
+            
+            if [[ $grub_file_location == $chroot_path* ]]; then
+                grub_file_location="${grub_file_location#$chroot_path}"
+            else
+                trace "Grub file location is not within the specified mounted volume. Regeneration of grub will not proceed."
+                return 1
+            fi
+            
+            trace "Modified grub path: $grub_file_location"
+
+            if [ "$firmware_type" = "UEFI" ]; then
+                chroot "$chroot_path" timeout 300 grub-mkconfig -o "$grub_file_location"
+                if [ $? -ne 0 ]; then
+                    if [ $? -eq 124 ]; then
+                        trace "Error: GRUB regeneration timed out after 5 minutes."
+                    fi
+                    trace "Error: Failed to regenerate GRUB config for UEFI firmware."
+                    # restore the backup
+                    restore_file "$chroot_path$grub_file_location"
+                    return 1
+                fi
+            else 
+                chroot "$chroot_path" timeout 300 grub-mkconfig -o "$grub_file_location"
+                if [ $? -ne 0 ]; then
+                    if [ $? -eq 124 ]; then
+                        trace "Error: GRUB regeneration timed out after 5 minutes."
+                    fi
+                    trace "Error: Failed to regenerate GRUB config for BIOS firmware."
+                    # restore the backup
+                    restore_file "$chroot_path$grub_file_location"
+                    return 1
+                fi
+            fi
+        fi
+    fi
+}
+
 #@1 - Config value
 #@2 - File name
 # Appends an entire line to the file if absent
@@ -1344,7 +1587,7 @@ set_serial_console_grub_options()
     trace "Updating boot grub options to redirect serial console logs ..."
     
     local opts_to_remove="rhgb quiet crashkernel=auto acpi=0"
-    local opts_to_add="rootdelay=300 earlyprintk=ttyS0 console=ttyS0 numa=off"
+    local opts_to_add="rootdelay=150 earlyprintk=ttyS0 console=ttyS0 numa=off"
     case $src_distro in
     RHEL6*|CENTOS6*|OL6*)
         modify_grub_config "$opts_to_add" "$opts_to_remove"
@@ -1354,7 +1597,7 @@ set_serial_console_grub_options()
         set_sles11_inittab
         ;;
     UBUNTU14*|UBUNTU16*|UBUNTU18*|UBUNTU19|UBUNTU20*|UBUNTU21*|UBUNTU22*)
-        opts_to_add="splash quiet rootdelay=300 earlyprintk=ttyS0,115200 console=ttyS0,115200n8 console=tty1"
+        opts_to_add="splash quiet rootdelay=150 earlyprintk=ttyS0,115200 console=ttyS0,115200n8 console=tty1"
         modify_grub2_config "$opts_to_add" "GRUB_CMDLINE_LINUX_DEFAULT" "$opts_to_remove"
         modify_grub2_config "$opts_to_add" "GRUB_CMDLINE_LINUX" "$opts_to_remove"
         modify_grub2_config "console serial" "GRUB_TERMINAL_OUTPUT" ""
@@ -1362,7 +1605,7 @@ set_serial_console_grub_options()
         modify_grub2_config "console serial" "GRUB_TERMINAL" ""
         ;;
     DEBIAN*|KALI-ROLLING*)
-        opts_to_add="splash quiet rootdelay=300 earlyprintk=ttyS0,115200 console=ttyS0,115200n8 console=tty1"
+        opts_to_add="splash quiet rootdelay=150 earlyprintk=ttyS0,115200 console=ttyS0,115200n8 console=tty1"
         modify_grub2_config "$opts_to_add" "GRUB_CMDLINE_LINUX_DEFAULT" "$opts_to_remove"
         modify_grub2_config "$opts_to_add" "GRUB_CMDLINE_LINUX" "$opts_to_remove"
         modify_grub2_config "console serial" "GRUB_TERMINAL_OUTPUT" ""
@@ -1370,7 +1613,7 @@ set_serial_console_grub_options()
         modify_grub2_config "console serial" "GRUB_TERMINAL" ""
         ;;
     SLES12*|SLES15*)
-        opts_to_add="rootdelay=300 earlyprintk=ttyS0 console=ttyS0"
+        opts_to_add="rootdelay=150 earlyprintk=ttyS0 console=ttyS0"
         modify_grub2_config "$opts_to_add" "GRUB_CMDLINE_LINUX"
         modify_grub2_config "console serial" "GRUB_TERMINAL_OUTPUT" ""
         modify_grub2_config "console serial" "GRUB_TERMINAL" ""
@@ -1380,7 +1623,7 @@ set_serial_console_grub_options()
         #https://docs.microsoft.com/en-us/azure/virtual-machines/troubleshooting/serial-console-grub-single-user-mode#grub-access-in-rhel
         #and 
         #https://docs.microsoft.com/en-us/azure/virtual-machines/troubleshooting/serial-console-grub-proactive-configuration
-        opts_to_add="rootdelay=300 console=tty1 console=ttyS0,115200n8 earlyprintk=ttyS0,115200 earlyprintk=ttyS0 net.ifnames=0"
+        opts_to_add="rootdelay=150 console=tty1 console=ttyS0,115200n8 earlyprintk=ttyS0,115200 earlyprintk=ttyS0 net.ifnames=0"
         modify_grub2_config "$opts_to_add" "GRUB_CMDLINE_LINUX" "$opts_to_remove"
         modify_grub2_config "console serial" "GRUB_TERMINAL_OUTPUT" ""
         modify_grub2_config "--stop=1 --parity=no --word=8 --unit=0 --speed=115200 serial" "GRUB_SERIAL_COMMAND" ""
@@ -1392,7 +1635,16 @@ set_serial_console_grub_options()
         throw_error $_E_AZURE_SMS_OS_UNSUPPORTED $src_distro
         ;;
     esac
+    
     trace "Successfully updated boot grub options!"
+    #trace "Regenerating the grub configuration file."
+
+    #regenerate_grub_config "$global_grub_path"
+    #if [ $? -ne 0 ]; then
+    #    trace "Error: Failed to regenerate GRUB config."
+    #else
+    #    trace "Success: GRUB configuration file regenerated successfully."
+    #fi
 }
 
 enable_systemd_on_startupscipt()
@@ -1626,7 +1878,7 @@ enable_postlogin_installga()
         echo "echo \"Installation process completed. Proceed with Login.\"" >> $target_profiled_file
         echo "rm -f \"/etc/profile.d/ASRLinuxGAStartup.sh\"" >> $target_profiled_file
 
-        trace "/etc/profile.d post login startup file created."	
+        trace "/etc/profile.d post login startup file created."    
     fi
 }
 
@@ -1719,7 +1971,7 @@ check_valid_python_version()
     else
         pythonver=3
         add_am_hydration_log "Python Version" "python3"
-		return
+        return
     fi
 
     # Check for Major version 2 and Minor Version >= 6 for Python.
@@ -1727,7 +1979,7 @@ check_valid_python_version()
     if [[ $? -ne 0 ]] ; then
         trace "Python is not installed on the target VM.\n"
         pythonver=1
-		return
+        return
     else
         vermajor=$(chroot $chroot_path python -c"import platform; major, minor, patch = platform.python_version_tuple(); print(major)")
         verminor=$(chroot $chroot_path python -c"import platform; major, minor, patch = platform.python_version_tuple(); print(minor)")
@@ -1981,32 +2233,370 @@ update_root_device_uuid_in_boot_cmd()
     4<&-
 }
 
+is_confidential_vm_migration_enabled()
+{
+    is_confidential_vm_migration="IsConfidentialVmMigration:true"
+
+    if [[ $hydration_config_settings =~ .*$is_confidential_vm_migration.* ]]; then
+        if [[ "$src_distro" == "UBUNTU20"* || "$src_distro" == "UBUNTU22"* ]]; then
+            echo "Confidential VM migration is enabled."
+        else
+            echo "Error: Unsupported OS - $src_distro"
+            throw_error $_E_AZURE_SMS_OS_UNSUPPORTED $src_distro
+        fi
+    else
+        echo "Confidential VM migration is not enabled."
+    fi
+}
+
+verfiy_firmware_type_for_cvm()
+{
+    if [ "$firmware_type" = "UEFI" ]; then
+        trace "Firmware type: $firmware_type"
+    else
+        trace "Firmware type: $firmware_type"
+        throw_error  $_E_AZURE_UNSUPPORTED_FIRMWARE_FOR_CVM "Firmware type: $firmware_type"
+    fi
+}
+
+label_rootfs()
+{
+    
+    trace "Labelling root file system in ${chroot_path}."    
+
+    # Find all root file systems in the chroot environment
+    root_info=$(findmnt -n -o SOURCE,FSTYPE --target "${chroot_path}/")
+    root_count=$(echo "${root_info}" | wc -l)
+
+    # Check if there is more than one root file system
+    if [ "${root_count}" -gt 1 ]; then
+        trace "Error: Multiple root file systems found in chroot ${chroot_path}."
+        throw_error  $_E_AZURE_UNSUPPORTED_FS_FOR_CVM "Multiple root file systems found in chroot ${chroot_path}."
+    fi
+
+    # Find the device name and type of the root file system
+    if [ -z "${root_info}" ]; then
+        trace "Error: Unable to find root file system in chroot ${chroot_path}."
+        throw_error  $_E_AZURE_UNSUPPORTED_FS_FOR_CVM "Unable to find root file system in chroot ${chroot_path}."
+    fi
+
+    root_device=$(echo "${root_info}" | awk '{print $1}')
+    root_type=$(echo "${root_info}" | awk '{print $2}')
+    device_type=$(lsblk -n -o TYPE "${root_device}")
+    
+    if [ "$device_type" != "disk" ] && [ "$device_type" != "part" ]; then
+        trace "Warning: Device Type is not supported. Unable to label root file system."
+        throw_error $_E_AZURE_UNSUPPORTED_DEVICE "Unsupported Device Type: ${device_type}."
+    fi
+
+    # Trace the root device and file system type
+    trace "Found root file system device: ${root_device}"
+    trace "Root file system type: ${root_type}"
+    trace "Root device type: ${device_type}"
+
+    if [ "${root_type}" != "ext4" ]; then
+        trace "Error: File system type not supported by e2label."
+        throw_error $_E_AZURE_UNSUPPORTED_FS_FOR_CVM "Unsupported File System Type: ${root_type}."
+    fi
+
+    # Label the root file system using e2label
+    e2label "${root_device}" cloudimg-rootfs
+    if [ $? -eq 0 ]; then
+        trace "Successfully labeled root file system." 
+    else
+        trace "Error: Failed to label root file system." 
+        throw_error $_E_AZURE_ROOTFS_LABEL_FAILED "Failed to label root file system with root device: ${root_device} and type ${root_type}."
+    fi
+}
+
+unset current_target
+unset is_symlink
+copy_resolv_conf()
+{
+    if [ -L "${chroot_path}/etc/resolv.conf" ]; then
+        is_symlink=true
+        trace "${chroot_path}/etc/resolv.conf is a symlink. Trying to store its target path."
+        current_target=$(readlink "${chroot_path}/etc/resolv.conf") # store the current target of the symlink
+        if [ $? -eq 0 ]; then
+            trace "Current target of ${chroot_path}/etc/resolv.conf : ${current_target}"
+            rm -f "${chroot_path}/etc/resolv.conf"
+            if [ $? -ne 0 ]; then
+                trace "Error: Failed to remove ${chroot_path}/etc/resolv.conf symlink"
+                throw_error $_E_RESOLV_CONF_COPY_FAILURE "Unable to remove ${chroot_path}/etc/resolv.conf symlink."
+            fi
+        else
+            trace "Error: Failed to read the target of ${chroot_path}/etc/resolv.conf symlink"
+            throw_error $_E_RESOLV_CONF_COPY_FAILURE "Unable to read the target of ${chroot_path}/etc/resolv.conf symlink."
+        fi
+    else
+        move_to_backup "${chroot_path}/etc/resolv.conf"
+        if [ $? -eq 0 ]; then
+            trace "Successfully backed up /etc/resolv.conf to ${chroot_path}/etc/resolv.conf.bak"
+        else
+            trace "Error: Failed to back up /etc/resolv.conf to ${chroot_path}/etc/resolv.conf.bak"
+            throw_error $_E_RESOLV_CONF_COPY_FAILURE "Unable to backup ${chroot_path}/etc/resolv.conf file."
+        fi
+    fi
+
+    trace "Copying /etc/resolv.conf to ${chroot_path}/etc/resolv.conf"
+    cp /etc/resolv.conf "${chroot_path}/etc/resolv.conf"
+    if [ $? -eq 0 ]; then
+        trace "Successfully copied /etc/resolv.conf to ${chroot_path}/etc/resolv.conf"
+    else
+        trace "Error: Failed to copy /etc/resolv.conf to ${chroot_path}/etc/resolv.conf"
+        throw_error $_E_RESOLV_CONF_COPY_FAILURE "Unable to copy /etc/resolv.conf to ${chroot_path}/etc/resolv.conf"
+    fi
+}
+
+restore_resolv_conf()
+{
+    if [ $is_symlink ]; then
+        rm -f "${chroot_path}/etc/resolv.conf"
+        if [ $? -ne 0 ]; then
+            trace "Error: Failed to remove ${chroot_path}/etc/resolv.conf"
+            throw_error $_E_RESOLV_CONF_RESTORE_FAILURE "Unable to remove ${chroot_path}/etc/resolv.conf file."
+        elif [ -n "$current_target" ]; then # if the symlink was pointing somewhere else, restore it
+            ln -sf "$current_target" "${chroot_path}/etc/resolv.conf"
+            if [ $? -ne 0 ]; then
+                trace "Error: Failed to restore original target of ${chroot_path}/etc/resolv.conf"
+                throw_error $_E_RESOLV_CONF_RESTORE_FAILURE "Unable to restore original target of ${chroot_path}/etc/resolv.conf"
+            else
+                trace "Successfully restored original target of ${chroot_path}/etc/resolv.conf: ${current_target}"
+            fi
+        fi
+    else 
+        restore_file "${chroot_path}/etc/resolv.conf"
+        if [ $? -ne 0 ]; then
+            trace "Error: Failed to restore ${chroot_path}/etc/resolv.conf from backup"
+            throw_error $_E_RESOLV_CONF_RESTORE_FAILURE "Unable to restore ${chroot_path}/etc/resolv.conf from backup."
+        else
+            trace "Successfully restored ${chroot_path}/etc/resolv.conf from backup"
+        fi
+    fi
+}
+
+
+update_repositories_and_packages() 
+{
+    trace "Updating repositories in ${chroot_path}."
+
+    update_vm_repositories
+    if [ $? -eq 0 ]; then
+        trace "Successfully updated repositories in ${chroot_path}."
+    else 
+        trace "Error: Failed to update repositories in ${chroot_path}." 
+        throw_error $_E_AZURE_REPOSITORY_UPDATE_FAILED "Failed to update repositories in ${chroot_path}."
+    fi
+
+    trace "Updating available packages in ${chroot_path}."
+    echo -e "\nUpdating available packages in ${chroot_path}." > ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+
+    chroot "${chroot_path}" apt-get update -y >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+    if [ $? -eq 0 ]; then
+        trace "Successfully updated packages in ${chroot_path}."
+    else 
+        trace "Error: Failed to update packages in ${chroot_path}." 
+        throw_error $_E_AZURE_REPOSITORY_UPDATE_FAILED "Failed to update packages in ${chroot_path}."
+    fi
+}
+
+purge_grub_shim_and_kernel_packages() 
+{
+    trace "Purging grub,shim and kernel related packages in ${chroot_path}."
+    chroot "${chroot_path}" apt-get -y purge --allow-remove-essential grub* shim* *linux-*  &> /dev/null
+    if [ $? -eq 0 ]; then
+        trace "Successfully purged the packages in ${chroot_path}."
+
+        copy_dir_to_backup "${chroot_path}/boot/efi"
+        if [ $? -eq 0 ]; then
+            trace "Successfully backed up ${chroot_path}/boot/efi folder to ${chroot_path}/boot/efi${_BCK_EXT_}"
+        else
+            trace "Error: Failed to back up ${chroot_path}/boot/efi to ${chroot_path}/boot/efi${_BCK_EXT_}"
+        fi
+
+        chroot "${chroot_path}" rm -rf /boot/efi/* >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+        if [ $? -eq 0 ]; then
+            trace "Successfully removed the files in /boot/efi directory in ${chroot_path}."
+        else 
+            trace "Error: Failed to remove the files in /boot/efi directory in ${chroot_path}."
+        fi
+    else 
+        trace "Error: Failed in purging packages in ${chroot_path}." 
+    fi
+}
+
+install_linux_azure_fde()
+{
+    trace "Installing linux-azure-fde kernel in ${chroot_path}."
+    echo -e "\nInstalling linux-azure-fde kernel in ${chroot_path} ." >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+
+    chroot "${chroot_path}" apt-get install -y linux-azure-fde >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+    if [ $? -eq 0 ]; then
+        trace "Successfully installed linux-azure-fde kernel in ${chroot_path}."
+    else 
+        trace "Error: Failed to install linux-azure-fde kernel in ${chroot_path}."
+        throw_error $_E_INSTALL_LINUX_AZURE_FDE_FAILED "Failed to install linux-azure-fde kernel in ${chroot_path}."
+    fi
+}
+
+create_efi_directory() {
+    trace "Creating /boot/efi/EFI/ubuntu directory inside chroot at ${chroot_path}"
+    
+    chroot "${chroot_path}" mkdir -p "/boot/efi/EFI/ubuntu"
+    if [ $? -ne 0 ]; then
+        trace "Error: Failed to create /boot/efi/EFI/ubuntu directory inside chroot at ${chroot_path}"
+    else
+        trace "Successfully created /boot/efi/EFI/ubuntu directory inside chroot at ${chroot_path}"
+    fi
+}
+
+install_and_configure_nullboot()
+{
+    trace "Installing and configuring in nullboot in ${chroot_path}."
+    echo -e "\nInstalling and configuring in nullboot in ${chroot_path}." >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+
+    chroot "${chroot_path}" apt-get install -y nullboot >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+    # Check for errors
+    if [ $? -eq 0 ]; then
+        trace "Successfully installed nullboot in ${chroot_path}."
+    else
+        trace "Error: Failed to install nullboot in ${chroot_path}."
+        throw_error $_E_AZURE_BOOTLOADER_INSTALLATION_FAILED "Failed to install nullboot in ${chroot_path}."
+    fi
+
+    create_efi_directory
+
+    # Execute nullbootctl with no TPM and no EFIVars
+    chroot "${chroot_path}" nullbootctl --no-tpm --no-efivars >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+        # Check for errors
+    if [ $? -eq 0 ]; then
+        trace "Successfully executed the command nullbootctl --no-tpm --no-efivars in ${chroot_path}."
+    else
+        trace "Error: Failed to execute the command nullbootctl --no-tpm --no-efivars in ${chroot_path}."
+        throw_error $_E_AZURE_BOOTLOADER_CONFIGURATION_FAILED "Failed to configure nullboot in ${chroot_path}."
+    fi
+}
+
+configure_azure_linux_agent_for_waagent()
+{
+    chroot "${chroot_path}" sed -i 's/Provisioning.Enabled=n/Provisioning.Enabled=y/g' /etc/waagent.conf &> /dev/null
+    chroot "${chroot_path}" sed -i 's/Provisioning.UseCloudInit=y/Provisioning.UseCloudInit=n/g' /etc/waagent.conf &> /dev/null
+    chroot "${chroot_path}" sed -i 's/ResourceDisk.Format=y/ResourceDisk.Format=n/g' /etc/waagent.conf &> /dev/null
+    chroot "${chroot_path}" sed -i 's/ResourceDisk.EnableSwap=y/ResourceDisk.EnableSwap=n/g' /etc/waagent.conf &> /dev/null
+    cat >> "${chroot_path}/etc/waagent.conf" << EOF
+# For Azure Linux agent version >= 2.2.45, this is the option to configure,
+# enable, or disable the provisioning behavior of the Linux agent.
+# Accepted values are auto (default), waagent, cloud-init, or disabled.
+# A value of auto means that the agent will rely on cloud-init to handle
+# provisioning if it is installed and enabled.
+Provisioning.Agent=waagent
+EOF
+}
+
+configure_waagent_for_provisioning() {
+    trace "Configuring the waagent provisioning in the system."
+    case "${src_distro}" in
+        "UBUNTU"*)
+            trace "Configuring the Azure Linux agent to rely on waagent to perform provisioning."
+            configure_azure_linux_agent_for_waagent
+            trace "Successfully configured the Azure Linux agent to rely on waagent to perform provisioning."
+            ;;
+        *)
+            trace "Error: Distribution provided: ${src_distro} is currently not supported for these changes."
+            ;;
+    esac
+    trace "Successfully configured the waagent provisioning in the system."
+}
+
+clean_agent_runtime_artifacts_logs()
+{
+    trace "Cleaning cloud-init and Azure Linux agent runtime artifacts and logs."
+    echo -e "\nCleaning cloud-init and Azure Linux agent runtime artifacts and logs." >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+    case "${src_distro}" in
+        "UBUNTU"*)
+            chroot "${chroot_path}" cloud-init clean --logs --seed &> /dev/null
+            chroot "${chroot_path}" rm -rf /var/lib/cloud/ &> /dev/null
+            chroot "${chroot_path}" rm -rf /var/lib/waagent/ &> /dev/null
+            chroot "${chroot_path}" rm -f /var/log/waagent.log &> /dev/null
+            chroot "${chroot_path}" waagent -force -deprovision+user >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+            trace "Successfully cleaned the cloud-init and Azure Linux agent runtime artifacts and logs, and deprovisioning the VM."
+            ;;
+        *)
+            trace "Error: Distribution provided: ${src_distro} is currently not supported for these changes."
+            ;;
+    esac
+}
+
 main()
 {
     local error_in_generate_initrd_image=0
     validate_script_input "$@"
-    
+
     verify_src_os_version
 
-    get_firmware_type
+    confidential_migration_enabled=$(is_confidential_vm_migration_enabled)
 
-    mount_runtime_partitions
+    if [[ "$confidential_migration_enabled" == "Confidential VM migration is enabled." ]]; then
 
-    verify_requited_tools
+        get_firmware_type
 
-    verify_generate_initrd_images
+        verfiy_firmware_type_for_cvm
+
+        mount_runtime_partitions
+
+        label_rootfs
+
+        copy_resolv_conf
+
+        update_repositories_and_packages
+
+        set_serial_console_grub_options
+
+        install_guest_agent_pre_boot
+
+        configure_waagent_for_provisioning
+
+        clean_agent_runtime_artifacts_logs
+
+        purge_grub_shim_and_kernel_packages
+
+        install_linux_azure_fde
+
+        install_and_configure_nullboot
+
+        fix_network_config
     
-    set_serial_console_grub_options
+        update_lvm_conf_to_allow_all_device_types
 
-    verify_uefi_bootloader_files
+        install_linux_guest_agent
 
-    update_root_device_uuid_in_boot_cmd
+        restore_resolv_conf
+
+        adding_cvm_installation_logs
+
+    else
+
+        get_firmware_type
+
+        mount_runtime_partitions    
+
+        verify_requited_tools
+
+        verify_generate_initrd_images
+        
+        set_serial_console_grub_options
+
+        verify_uefi_bootloader_files
+
+        update_root_device_uuid_in_boot_cmd
+
+        fix_network_config
     
-    fix_network_config
-    
-    update_lvm_conf_to_allow_all_device_types
+        update_lvm_conf_to_allow_all_device_types
 
-    install_linux_guest_agent
+        install_linux_guest_agent
+
+    fi
 
     # Most Hard failures will be immediately thrown.
     # Return Soft Failures, call failure checks in increasing order of priority
