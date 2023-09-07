@@ -5,6 +5,7 @@
 #include "Failoverclusterinfocollector.h"
 
 #ifndef VACP_CONTEXT
+#include "stdafx.h"
 #include "volumeinfocollector.h"
 #endif
 
@@ -31,6 +32,55 @@ bool FailoverClusterInfo::IsClusterNode()
     DebugPrintf(SV_LOG_DEBUG, "EXITED %s\n", FUNCTION_NAME);
 
     return bRet;
+}
+
+SVSTATUS FailoverClusterInfo::CheckClusterHealth(const std::string& clusterName, bool& isClusterUp)
+{
+    DebugPrintf(SV_LOG_DEBUG, "ENTERED %s\n", FUNCTION_NAME);
+
+    SVSTATUS status = SVS_OK;
+    isClusterUp = true;
+
+    do
+    {
+        if (clusterName.empty())
+        {
+            status = SVE_ABORT;
+            DebugPrintf(SV_LOG_ERROR, "%s: cluster name is empty. skipping cluster connection.\n", FUNCTION_NAME);
+            break;
+        }
+
+        wstring tmp = wstring(clusterName.begin(), clusterName.end());
+        LPCWSTR lpcClusterName = tmp.c_str();
+        
+        HCLUSTER hcluster = OpenCluster(
+            lpcClusterName
+        );
+
+        if (!hcluster)
+        {
+            DWORD errorCode = GetLastError();
+            if (errorCode == EPT_S_NOT_REGISTERED)
+            {
+                isClusterUp = false;
+            }
+            else
+            {
+                status = SVE_ABORT;
+            }
+
+            std::stringstream err_msg; 
+            err_msg << "Failed to open a handle to cluster" << clusterName << " with error code : " << errorCode;
+            m_ErroMessage = err_msg.str();
+
+            DebugPrintf(SV_LOG_ERROR, "%s: %s\n", FUNCTION_NAME, m_ErroMessage.c_str());
+
+        }
+
+    } while (false);
+
+    DebugPrintf(SV_LOG_DEBUG, "EXITED %s, Status %d\n", FUNCTION_NAME, status);
+    return status;
 }
 
 bool FailoverClusterInfo::GetClusSvcStatusOnCurrentNode(FailoverCluster::ClusterServiceStatus& status)
@@ -267,7 +317,6 @@ SVSTATUS FailoverClusterInfo::GetFailoverClusterName()
 
     return status;
 }
-
 
 SVSTATUS FailoverClusterInfo::GetFailoverClusterNodesInfo()
 {
@@ -793,8 +842,7 @@ void FailoverClusterInfo::GetClusterUpNodesMap(std::map<std::string, NodeEntity>
             downNodes += nodeName;
             continue;
         }
-            
-        boost::to_upper(nodeName);
+
         clusterNodesMap.insert(std::pair<std::string, NodeEntity>(nodeName, (*itr)));
     }
 
@@ -832,3 +880,126 @@ void FailoverClusterInfo::dumpInfo()
 
     DebugPrintf(SV_LOG_DEBUG, "EXITED %s\n", FUNCTION_NAME);
 }
+
+#ifdef VACP_CONTEXT
+SVSTATUS FailoverClusterTagProvider::GetClusterTag(
+    std::map<std::string, std::string> startUpClusterHostMapping,
+    std::set<std::string> protectedMachines, 
+    std::string& clusterTag,
+    std::string& errMsg)
+{
+    DebugPrintf("\nENTERED %s\n", FUNCTION_NAME);
+    SVSTATUS status = SVS_OK;
+   
+    FailoverClusterInfo clusInfo;
+    std::stringstream err_msg;
+
+    do
+    {
+        if (!clusInfo.IsClusterNode())
+        {
+            err_msg << "cluster node is down or evicted, will generate local tag\n";
+            status = SVE_FAIL;
+            break;
+        }
+
+        if (SVS_OK != clusInfo.CollectFailoverClusterProperties(false))
+        {
+            err_msg << "cluster node is down or evicted, will generate local tag\n";
+            status = SVE_FAIL;
+            break;
+        }
+
+        std::string clusterId = clusInfo.GetFailoverClusterProperty(FailoverCluster::FAILOVER_CLUSTER_ID);
+        if (clusterId.empty())
+        {
+            err_msg << "cluster node id not present, will generate local tag\n";
+            status = SVE_FAIL;
+            break;
+        }
+
+        std::string clusTag;
+        std::set<NodeEntity> clusNodes = clusInfo.GetClusterNodeSet();
+        
+        std::string hostId;
+        std::string nodeName;
+        int upNodesCount = 0;
+        bool allClusterNodeProtected = true;
+        bool IsCurrClusterNodePresentInStartUpConfig = true;
+
+        for (auto currClusterNodesItr = clusNodes.begin();
+            currClusterNodesItr != clusNodes.end();
+            currClusterNodesItr++)
+        {
+            nodeName = (*currClusterNodesItr).nodeName;
+            if ((*currClusterNodesItr).nodeState != FailoverCluster::ClusterNodeUp)
+            {
+                DebugPrintf("cluster node=%s is not up. skipping node for cluster tag\n", nodeName.c_str());
+                continue;
+            }
+
+            allClusterNodeProtected = allClusterNodeProtected
+                && protectedMachines.find(nodeName) != protectedMachines.end();
+
+            if (!allClusterNodeProtected)
+            {
+                DebugPrintf("cluster node=%s is not protected. will be skipping cluster tag till the node is protected.\n", nodeName.c_str());
+                break;
+            }
+
+            IsCurrClusterNodePresentInStartUpConfig = IsCurrClusterNodePresentInStartUpConfig
+                && startUpClusterHostMapping.find(nodeName) != startUpClusterHostMapping.end();
+
+            if (!IsCurrClusterNodePresentInStartUpConfig)
+            {
+                DebugPrintf("ERROR: cluster node = %s is not present in the startup config.\n", nodeName.c_str());
+                continue;
+            }
+
+            hostId = (*startUpClusterHostMapping.find(nodeName)).second;
+            
+            clusTag += hostId;  
+            clusTag += ",";
+            upNodesCount++;
+        }
+
+        if (!allClusterNodeProtected)
+        {
+            err_msg << "cluster has an unprotected machine";
+            status = SVE_FAIL;
+            break;
+        }
+
+        if (!IsCurrClusterNodePresentInStartUpConfig || upNodesCount != startUpClusterHostMapping.size())
+        {
+            err_msg << "startup cluster config changed";
+            status = SVE_INVALIDARG;
+            break;
+        }
+
+        if (clusTag.empty())
+        {
+            err_msg << "no node in up state, possibly cluster not in functioning state";
+            status = SVE_FAIL;
+            break;
+        }
+
+        clusTag += clusterId;
+        clusTag += ";";
+        clusterTag = "_clusterinfo:nodes=";
+        clusterTag += clusTag;
+
+        DebugPrintf("%s clustertag = %s\n", FUNCTION_NAME, clusterTag.c_str());
+
+    } while (false);
+
+    if (status != SVS_OK)
+    {
+        errMsg = err_msg.str();
+        DebugPrintf("%s Cluster Tag generation failed with error=%s\n", FUNCTION_NAME, errMsg.c_str());
+    }
+
+    DebugPrintf("\nEXITED %s, status=%d\n", FUNCTION_NAME, status);
+    return status;
+}
+#endif

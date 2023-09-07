@@ -54,9 +54,13 @@ elif [ -f $mntpath/etc/redhat-release ]; then
 			OS="RHEL8-64"
 	elif grep -q 'Red Hat Enterprise Linux release 9.*' $mntpath/etc/redhat-release; then
             OS="RHEL9-64"
+    elif grep -q 'Rocky Linux release 9.*' $mntpath/etc/redhat-release; then
+           OS="ROCKY9-64"
 	elif grep -q 'CentOS Linux release 8.*' $mntpath/etc/redhat-release ||
          grep -q 'CentOS Stream release 8.*' $mntpath/etc/redhat-release; then
            OS="CENTOS8-64"
+    elif grep -q 'Rocky Linux release 8.*' $mntpath/etc/redhat-release; then
+           OS="ROCKY8-64"
 	elif grep -q 'CentOS Linux release 9.*' $mntpath/etc/redhat-release ||
          grep -q 'CentOS Stream release 9.*' $mntpath/etc/redhat-release; then
            OS="CENTOS9-64"

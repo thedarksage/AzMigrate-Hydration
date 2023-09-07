@@ -758,7 +758,7 @@ class AgentPeakChurnAlert : public InmErrorAlertImp
 public:
     AgentPeakChurnAlert(const std::string &timestamp,
         const std::string &device,
-        const std::string &value,
+        const std::string &peakChurn,
         const std::string &count,
         const std::string &failedNodes)
     {
@@ -769,7 +769,7 @@ public:
         msg << "Disk churn more than supported peak churn observed.";
         msg << " Timestamp : " << timestamp;
         msg << " Device : " << device;
-        msg << " Churn : " << value << " bytes";
+        msg << " PeakChurn : " << peakChurn;
         msg << " Accumulated Churn : " << count << " bytes.";
 
         SetDetails(E_DISK_CHURN_PEAK_ALERT, p, msg.str());
@@ -845,6 +845,24 @@ public:
             << " seconds detected at " << timeJumpedAt;
 
         SetDetails(E_TIME_JUMPED_BACKWARD_ALERT, p, msg.str());
+    }
+};
+
+class ProtectedMachinesNotInClusterAlert : public InmErrorAlertImp
+{
+public:
+    ProtectedMachinesNotInClusterAlert(const std::string &protectedMachineNotInCluster,
+        const std::string &clusterName)
+    {
+        Parameters_t p;
+        p["ProtectedMachineNotInCluster"] = protectedMachineNotInCluster;
+        p["ClusterName"] = clusterName;
+
+        std::stringstream msg;
+        msg << "The protected machines " << protectedMachineNotInCluster
+            << " are not in up state in the cluster " << clusterName;
+
+        SetDetails(E_SHARED_DISK_PROTECTED_NODE_NOT_IN_CLUSTER, p, msg.str());
     }
 };
 

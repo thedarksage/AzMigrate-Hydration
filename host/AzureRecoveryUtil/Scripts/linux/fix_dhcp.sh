@@ -54,9 +54,13 @@ elif [ -f /etc/redhat-release ]; then
     elif grep -q 'CentOS Linux release 8.*' /etc/redhat-release ||
          grep -q 'CentOS Stream release 8.*' /etc/redhat-release; then
             _DISTRO_="CENTOS8"
+    elif grep -q 'Rocky Linux release 9.*' /etc/redhat-release; then
+            _DISTRO_="ROCKY9"        
     elif grep -q 'CentOS Linux release 9.*' /etc/redhat-release ||
          grep -q 'CentOS Stream release 9.*' /etc/redhat-release; then
             _DISTRO_="CENTOS9"
+    elif grep -q 'Rocky Linux release 8.*' /etc/redhat-release; then
+            _DISTRO_="ROCKY8"
     fi
 elif ( [ -f /etc/SuSE-release ] && ( grep -q 'VERSION = 11' /etc/SuSE-release ||  grep -q 'VERSION = 12' /etc/SuSE-release )); then
     if grep -q 'VERSION = 11' /etc/SuSE-release; then
@@ -293,7 +297,7 @@ remove_startup_script()
         RHEL6|CENTOS6|OL6|SLES11|UBUNTU14|DEBIAN7)
             remove_chkconfig_startup_script
             ;;
-        RHEL7|CENTOS7|OL7|SLES12|DEBIAN8|UBUNTU16|KALI*|RHEL8|RHEL9|OL8|OL9|CENTOS8|CENTOS9|DEBIAN9|DEBIAN10|DEBIAN11)
+        RHEL7|CENTOS7|OL7|SLES12|DEBIAN8|UBUNTU16|KALI*|RHEL8|RHEL9|OL8|OL9|CENTOS8|CENTOS9|ROCKY9|DEBIAN9|DEBIAN10|DEBIAN11|ROCKY8)
             remove_systemd_startup_script
             ;;
         *)

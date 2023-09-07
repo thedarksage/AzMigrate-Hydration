@@ -99,13 +99,15 @@ typedef std::set<std::string> strset_t;
 
 const std::string external_ip_address = "external_ip_address";
 const char HTTPS[] = "https://";
-const char IMDS_URL[]						= "http://169.254.169.254/metadata/instance?api-version=2021-02-01";
+const char IMDS_URL[]						= "http://169.254.169.254/metadata/instance?api-version=2021-12-13";
+const char IMDS_ENDPOINT[]                  = "http://169.254.169.254/metadata/instance/";
 const char IMDS_HEADERS[]					= "Metadata: true";
 const char IMDS_COMPUTE_ENV[]				= "compute.azEnvironment";
 const char IMDS_AZURESTACK_NAME[]			= "AzureStack";
 const char IMDS_COMPUTE_TAGSLIST[]			= "compute.tagsList";
 const char IMDS_FAILOVER_TAG_PREFIX[]		= "ASR-Failover";
 const char IMDS_FAILOVER_TAG_SUFFIX[]		= "Failed-over by Azure Site Recovery.";
+
 const long HTTP_OK = 200L;
 
 /******************************************************************************/
@@ -635,6 +637,8 @@ uint64_t GetTimeInSecSinceEpoch1970();
 
 uint64_t GetTimeInSecSinceEpoch1601();
 
+std::string WindowsEpochTimeToUTC(const uint64_t& secSince1Jan1601UTC);
+
 uint64_t GetTimeInSecSinceAd0001();
 
 uint64_t GetSecsBetweenEpoch1970AndEpoch1601();
@@ -645,7 +649,9 @@ int GetDeviceNameTypeToReport(const std::string& hypervisorName = std::string(),
 
 bool IsAzureVirtualMachine();
 
-std::string GetImdsMetadata();
+//std::string GetImdsMetadata();
+
+std::string GetImdsMetadata(const std::string& pathStr = std::string(), const std::string& apiVersion = std::string());
 
 bool IsAzureStackVirtualMachine();
 

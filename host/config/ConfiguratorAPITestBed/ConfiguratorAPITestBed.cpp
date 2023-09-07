@@ -77,8 +77,8 @@ void PopulatePeakChurn(SourceAgentProtectionPairHealthIssues & sapphl,std::vecto
 		int nTotalChurn = 60 + nChurn;
 		std::string strPeakChurn = boost::lexical_cast<std::string>(nTotalChurn);
 		//peakChurnParams.insert({ AgentHealthIssueCodes::DiskLevelHealthIssues::PeakChurn::HealthCode,"SourceAgentPeakChurnObserved" });
-		peakChurnParams.insert({ AgentHealthIssueCodes::DiskLevelHealthIssues::PeakChurn::ChurnRate,strPeakChurn });
-		peakChurnParams.insert({ AgentHealthIssueCodes::DiskLevelHealthIssues::PeakChurn::UploadPending,"200 MB" });
+		peakChurnParams.insert({ AgentHealthIssueCodes::DiskLevelHealthIssues::PeakChurn::PeakChurn,strPeakChurn });
+		peakChurnParams.insert({ AgentHealthIssueCodes::DiskLevelHealthIssues::PeakChurn::AccumulatedChurnHigherThanThroughput,"200 MB" });
 		peakChurnParams.insert({ AgentHealthIssueCodes::DiskLevelHealthIssues::PeakChurn::ObservationTime,"2019-Jul-15 18:41:00 UTC" });
 		AgentDiskLevelHealthIssue hiPeakChurn(vDiskIds[i], AgentHealthIssueCodes::DiskLevelHealthIssues::PeakChurn::HealthCode, peakChurnParams);
 		dlHealthIssues.push_back(hiPeakChurn);
@@ -101,7 +101,7 @@ void PopulateHighLatency(SourceAgentProtectionPairHealthIssues & sapphl, std::ve
 		int nTotalLatencyChurn = 60 + nLatencyChurn;
 		std::string strHighLatencyChurn = boost::lexical_cast<std::string>(nTotalLatencyChurn);
 		//highLatencyParams.insert({ AgentHealthIssueCodes::DiskLevelHealthIssues::HighLatency::HealthCode,"SourceAgentHighLatencyObserved" });
-		highLatencyParams.insert({ AgentHealthIssueCodes::DiskLevelHealthIssues::HighLatency::UploadPending,strHighLatencyChurn });
+		highLatencyParams.insert({ AgentHealthIssueCodes::DiskLevelHealthIssues::HighLatency::AccumulatedChurnHigherThanThroughput,strHighLatencyChurn });
 		highLatencyParams.insert({ AgentHealthIssueCodes::DiskLevelHealthIssues::HighLatency::ObservationTime,"2019-Jun-18 19:21:00 UTC" });
 		AgentDiskLevelHealthIssue hiHighLatency(vDiskIds[i], AgentHealthIssueCodes::DiskLevelHealthIssues::HighLatency::HealthCode, highLatencyParams);
 		dlHealthIssues.push_back(hiHighLatency);
@@ -514,8 +514,8 @@ void run(int argc, char *argv[])
             std::vector<AgentDiskLevelHealthIssue> dlHealthIssues;//disk level health issues
             std::map<std::string, std::string>peakChurnParams;
             peakChurnParams.insert({ AgentHealthIssueCodes::DiskLevelHealthIssues::PeakChurn::HealthCode,"SourceAgentPeakChurnObserved" });
-            peakChurnParams.insert({ AgentHealthIssueCodes::DiskLevelHealthIssues::PeakChurn::ChurnRate,"60 MBPS" });
-            peakChurnParams.insert({ AgentHealthIssueCodes::DiskLevelHealthIssues::PeakChurn::UploadPending,"200 MB" });
+            peakChurnParams.insert({ AgentHealthIssueCodes::DiskLevelHealthIssues::PeakChurn::PeakChurn,"60 MBPS" });
+            peakChurnParams.insert({ AgentHealthIssueCodes::DiskLevelHealthIssues::PeakChurn::AccumulatedChurnHigherThanThroughput,"200 MB" });
             peakChurnParams.insert({ AgentHealthIssueCodes::DiskLevelHealthIssues::PeakChurn::ObservationTime,"2019-Jul-15 18:41:00" });
             AgentDiskLevelHealthIssue hiPeakChurn(std::string("{4087759736}"), AgentHealthIssueCodes::DiskLevelHealthIssues::PeakChurn::HealthCode, peakChurnParams);
             dlHealthIssues.push_back(hiPeakChurn);

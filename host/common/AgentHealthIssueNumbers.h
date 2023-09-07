@@ -56,15 +56,15 @@ namespace AgentHealthIssueCodes
         namespace PeakChurn
         {
             const std::string HealthCode = "SourceAgentPeakChurnObserved";
-            const std::string ChurnRate = "ChurnRate";
-            const std::string UploadPending = "DataPendingForUpload";
+            const std::string PeakChurn = "PeakChurn";
+            const std::string AccumulatedChurnHigherThanThroughput = "Data pending for upload due to churn higher than the supported limits";
             const std::string ObservationTime = "ObservationTime";
         };
 
         namespace HighLatency
         {
             const std::string HealthCode = "SourceAgentHighLatencyObserved";
-            const std::string UploadPending = "DataPendingForUpload";
+            const std::string AccumulatedChurnHigherThanThroughput = "Data pending for upload due to churn higher than the supported limits";
             const std::string ObservationTime = "ObservationTime";
         };
 
@@ -137,6 +137,26 @@ namespace AgentHealthIssueCodes
     }; // DiskLevelHealthIssues
 
 }; // AgentHealthIssueCodes
+
+namespace SharedDiskClusterHealthIssueCodes
+{
+    namespace ClusterLevelHealthIssues
+    {
+        namespace SharedDiskClusterDown
+        {
+            const std::string HealthCode = "SourceAgentSharedDiskClusterIsUnavailable";
+            const std::string ClusterName = "ClusterName";
+        };
+
+        namespace SharedDiskClusterUnProtectedMachinesInCluster
+        {
+            const std::string Healthcode = "SourceAgentSharedDiskClusterUnProtectedMachinesInCluster";
+            const std::string UnProtectedMachines = "UnProtectedMachinesNames";
+        };
+
+    }; // ClusterLevelHealthIssues
+
+}; // SharedDiskClusterHealthIssueCodes
 
 const std::string g_IRissueCodes[] = {
     AgentHealthIssueCodes::DiskLevelHealthIssues::IRThrottle::HealthCode,

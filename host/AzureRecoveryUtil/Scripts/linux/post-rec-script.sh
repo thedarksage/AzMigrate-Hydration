@@ -238,6 +238,16 @@ function UpdateVMRepositories()
             BackupFile $sources_list_file
             copy_file "/usr/local/AzureRecovery/CentOS7-Base.repo" "$sources_list_file"
         ;;
+        ROCKY8*)
+            sources_list_file="$mntpath/etc/yum.repos.d/Rocky-Sources.repo"
+            BackupFile $sources_list_file
+            copy_file "/usr/local/AzureRecovery/ROCKY8.repo" "$sources_list_file"
+        ;;
+        ROCKY9*)
+            sources_list_file="$mntpath/etc/yum.repos.d/rocky.repo"
+            BackupFile $sources_list_file
+            copy_file "/usr/local/AzureRecovery/ROCKY9.repo" "$sources_list_file"
+        ;;
         OL6*)
             sources_list_file="$mntpath/etc/yum.repos.d/public-yum-ol6.repo"
             BackupFile $sources_list_file
@@ -1293,7 +1303,7 @@ case "$os_name" in
     OL7*|RHEL6*|RHEL7*|RHEL8*|RHEL9*)
         _grub2_efi_path="${_grub2_efi_path}redhat"
         ;;
-    CENTOS6*|CENTOS7*)
+    CENTOS6*|CENTOS7*|CENTOS8*)
         _grub2_efi_path="${_grub2_efi_path}centos"
         ;;
     SLES12*|SLES15*)
@@ -1304,6 +1314,9 @@ case "$os_name" in
         ;;
     DEBIAN*)
         _grub2_efi_path="${_grub2_efi_path}debian"
+        ;;
+     ROCKY8*|ROCKY9*)
+        _grub2_efi_path="${_grub2_efi_path}rocky"
         ;;
     *)
         echo "Unidentified OS version - $os_name "
@@ -1363,7 +1376,7 @@ case $os_name in
             exit 1
         fi
     ;;
-    RHEL8* | CENTOS8* | OL8* | RHEL9* | OL9*)
+    RHEL8* | CENTOS8* | OL8* | RHEL9* | OL9* | ROCKY8* | ROCKY9*)
         _grub_config_options="console=tty1 console=ttyS0 earlyprintk=ttyS0 rootdelay=300"
         ModifyGrub_BLS "$_grub_config_options"
         if [ $? -ne $_SUCCESS_ ]; then
@@ -1527,7 +1540,7 @@ case $os_name in
         
         # TODO: Use UBUNTU case block for DEBIAN as well, as the changes are same.
     ;;
-    RHEL7*|RHEL8*|CENTOS8*|OL8*|RHEL9*|OL9*)
+    RHEL7*|RHEL8*|CENTOS8*|OL8*|RHEL9*|OL9*|ROCKY8*|ROCKY9*)
         touch $mntpath/etc/vxagent/setazureip
         touch $mntpath/etc/vxagent/prepareforazure
         

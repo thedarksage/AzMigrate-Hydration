@@ -134,7 +134,11 @@ void RequestHandler::process(HttpTraits::reply_t::ptr reply)
         request_t::iterator action(m_requests.find(m_requestInfo.m_request));
         if (m_requests.end() == action) {
             m_requestTelemetryData.SetRequestFailure(RequestFailure_UnknownRequest);
-            badRequest(AT_LOC, m_requestInfo.m_request.c_str());
+            CXPS_LOG_ERROR(AT_LOC << "(sid: " << m_sessionId << ") "
+                << m_connection->endpointInfoAsString() << ": "
+                << m_requestInfo.m_request);
+            // to avoid cross site scripting, don't include the request path in the reply
+            badRequest(AT_LOC, "bad request");
         } else {
             logRequestReceived();
             checkCfsNonSecureRequest(m_requestInfo.m_request);  // make sure request is actually allowed

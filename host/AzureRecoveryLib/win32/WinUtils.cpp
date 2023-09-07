@@ -442,6 +442,7 @@ namespace AzureRecovery
         HANDLE hVolume = INVALID_HANDLE_VALUE;
         TCHAR volumeName[MAX_PATH] = { 0 };
         bool bFoundVolume = false;
+        bool isVolCorrupted = false;
 
         if (osVolExtents.empty())
         {
@@ -461,6 +462,12 @@ namespace AzureRecovery
         do
         {
             TRACE_INFO("Verifying disk extents for the volume %s\n", volumeName);
+
+            if (!ValidateVolumeIntegrity(volumeName))
+            {
+                TRACE_WARNING("Volume %s might not be intact.\n", volumeName);
+                isVolCorrupted = true;
+            }
 
             //Get volume disk extents and compare
             disk_extents_t volExtents;
@@ -537,10 +544,95 @@ namespace AzureRecovery
 
         if (!bFoundVolume &&
             (dwRet == ERROR_NO_MORE_FILES || dwRet == ERROR_SUCCESS))
+        {
             dwRet = ERROR_FILE_NOT_FOUND;
+            if (isVolCorrupted)
+            {
+                dwRet = ERROR_FILE_CORRUPT;
+            }
+        }
 
         TRACE_FUNC_END;
         return dwRet;
+    }
+
+
+    /*
+    Method      : ValidateVolumeIntegrity
+
+    Description : Validated whether the volume is accessible and has valid file system.
+
+    Parameters  : [in] volumeUNC: volume UNC path.
+
+    Return      : true -> on valid structure
+                  false -> on corrupted volume structure.
+    */
+    bool ValidateVolumeIntegrity(const std::string& volumeUNC)
+    {
+        TRACE_FUNC_BEGIN;
+
+        try
+        {
+            DWORD serialNumber;
+            DWORD maxComponentLen;
+            DWORD fileSystemFlags;
+            std::vector<TCHAR> volumeName(MAX_PATH + 1, 0 );
+            std::vector<TCHAR> fileSystemName(MAX_PATH + 1, 0 );
+            const TCHAR* rootPathName = _T(volumeUNC.c_str());
+
+            BOOL result = GetVolumeInformation(
+                rootPathName,
+                &volumeName[0],
+                MAX_PATH,
+                &serialNumber,
+                &maxComponentLen,
+                &fileSystemFlags,
+                &fileSystemName[0],
+                MAX_PATH
+            );
+
+            std::stringstream strOut("");
+
+            if (result)
+            {
+                strOut << L"The volume information for " << rootPathName << L" is:\n"
+                    << L"Volume name: " << &volumeName[0] << L"\n"
+                    << L"Serial number: " << serialNumber << L"\n"
+                    << L"Maximum component length: " << maxComponentLen << L"\n"
+                    << L"File system flags: " << fileSystemFlags << L"\n"
+                    << L"File system name: " << &fileSystemName[0] << L"\n";
+
+                TRACE_INFO(strOut.str().c_str());
+            }
+            else
+            {
+                DWORD error = GetLastError();
+                strOut << "GetVolumeInformation failed with error {0}." << error << L"\n";
+
+                if (error == ERROR_FILE_CORRUPT)
+                {
+                    strOut << L"The specified volume is corrupted and can not be mounted.\n";
+                }
+
+                TRACE_ERROR(strOut.str().c_str());
+                return false;
+            }
+        }
+        catch (const std::exception& e)
+        {
+            TRACE_ERROR("Exception occurred while validating volume integrity. Error: %s\n", e.what());
+            TRACE_FUNC_END;
+            return false;
+        }
+        catch (...)
+        {
+            TRACE_ERROR("Unknown exception occurred while validating volume integrity.\n");
+            TRACE_FUNC_END;
+            return false;
+        }
+
+        TRACE_FUNC_END;
+        return true;
     }
 
     /*
@@ -1078,6 +1170,41 @@ namespace AzureRecovery
         TRACE_FUNC_END;
     }
 
+    /// <summary>
+    /// Enables optional Bitlocker features for the VMs.
+    /// </summary>
+    /// <param name="srcOsVol">OS Volume for the Windows VM.</param>
+    /// <returns>ERROR_SUCCESS if successful, error code otherwise.</returns>
+    /// <remarks> https://learn.microsoft.com/en-us/powershell/module/dism/enable-windowsoptionalfeature?view=windowsserver2022-ps </remarks>
+    DWORD EnableBitlocker(const std::string& srcOsVol)
+    {
+        TRACE_FUNC_BEGIN;
+        DWORD dwRet = ERROR_SUCCESS;
+
+        std::stringstream enable_bitlocker_ps_cmd;
+        enable_bitlocker_ps_cmd
+            << SysConstants::POWERSHELL_EXE_NAME
+            << " Enable-WindowsOptionalFeature -Path "
+            << boost::trim_right_copy_if(srcOsVol, boost::is_any_of(DIRECOTRY_SEPERATOR))
+            << std::string(DIRECOTRY_SEPERATOR)
+            << " -FeatureName Bitlocker -All";
+
+        std::stringstream cmd_output;
+        dwRet = RunCommand(enable_bitlocker_ps_cmd.str(), "", cmd_output);
+
+        TRACE_INFO("Output:\n%s\n", cmd_output.str().c_str());
+
+        if (ERROR_SUCCESS != dwRet)
+        {
+            TRACE_ERROR("Command %s exited with exit code: %d\n",
+                enable_bitlocker_ps_cmd.str().c_str(),
+                dwRet);
+        }
+
+        TRACE_FUNC_END;
+        return dwRet;
+    }
+
     /*
     Method      : EnableSerialConsole
 
@@ -1201,7 +1328,6 @@ namespace AzureRecovery
         * bcdedit.exe /set "{bootmgr}" displaybootmenu yes
         * bcdedit.exe /set "{bootmgr}" timeout 5
         * bcdedit.exe /set "{bootmgr}" bootems yes
-        * bcdedit.exe /ems "{current}" ON
         * bcdedit.exe /emssettings EMSPORT:1 EMSBAUDRATE:115200
         */
 
@@ -1212,16 +1338,15 @@ namespace AzureRecovery
             << BCD_TOOLS::BCDEDIT_EXE
             << " /store " << bcd_file;
 
-        std::string serial_console_cmd_arr[5] =
+        std::string serial_console_cmd_arr[4] =
         {
             serialconsole_cmd_prefix.str() + " /set \"{bootmgr}\" displaybootmenu yes",
             serialconsole_cmd_prefix.str() + " /set \"{bootmgr}\" timeout 5",
             serialconsole_cmd_prefix.str() + " /set \"{bootmgr}\" bootems yes",
-            serialconsole_cmd_prefix.str() + " /ems \"{current}\" ON",
             serialconsole_cmd_prefix.str() + " /emssettings EMSPORT:1 EMSBAUDRATE:115200"
         };
 
-        for (int sc_cmd_itr = 0; sc_cmd_itr < 5; sc_cmd_itr++)
+        for (int sc_cmd_itr = 0; sc_cmd_itr < 4; sc_cmd_itr++)
         {
             std::stringstream cmd_output;
             dwRet = RunCommand(serial_console_cmd_arr[sc_cmd_itr], "", cmd_output);
@@ -1406,6 +1531,7 @@ namespace AzureRecovery
         HANDLE hVolume = INVALID_HANDLE_VALUE;
         std::vector<TCHAR> volumeNameBuff(MAX_PATH, 0);
         bool bFoundVolume = false;
+        bool isVolCorrupted = false;
         volumes.clear();
 
         hVolume = FindFirstVolume(&volumeNameBuff[0], volumeNameBuff.size());
@@ -1429,6 +1555,12 @@ namespace AzureRecovery
 
             TRACE_INFO("Verifying disk extents for the volume %s.\n",
                 volumeName.c_str());
+
+            if (!ValidateVolumeIntegrity(volumeName))
+            {
+                TRACE_WARNING("Volume %s is not in valid state.\n", volumeName.c_str());
+                isVolCorrupted = true;
+            }
 
             // Get volume disk extents.
             disk_extents_t volExtents;
@@ -1516,6 +1648,12 @@ namespace AzureRecovery
         {
             TRACE_ERROR("Could not enumerating all the volumes. Error %d.\n",
                 dwRet);
+        }
+
+        if (dwRet != ERROR_SUCCESS && isVolCorrupted)
+        {
+            TRACE_ERROR("OS Volume not found. One or more volumes found to be in corrupted state.\n");
+            dwRet = ERROR_FILE_CORRUPT;
         }
 
         // Close volume enumeration handle.

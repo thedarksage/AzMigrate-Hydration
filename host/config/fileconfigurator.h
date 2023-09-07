@@ -673,6 +673,8 @@ public:
     /* churn-throughput CX session definitions start */
     SV_ULONGLONG getMaxDiskChurnSupportedMBps() const;
     SV_ULONGLONG getMaxVMChurnSupportedMBps() const;
+    SV_ULONGLONG getMaxDiskHighChurnSupportedMBps() const;
+    SV_ULONGLONG getMaxVMHighChurnSupportedMBps() const;
     SV_ULONGLONG getMaximumTimeJumpForwardAcceptableInMs() const;
     SV_ULONGLONG getMaximumTimeJumpBackwardAcceptableInMs() const;
     SV_ULONGLONG getMinConsecutiveTagFailures() const;
@@ -701,8 +703,10 @@ public:
 
     /*windows failover cluster configurations*/
     void setClusterId(const std::string& hostId) const;
+    void setClusterName(const std::string& clusterName) const;
 
     std::string getClusterId() const;
+    std::string getClusterName() const;
 
 public:
     //

@@ -197,6 +197,8 @@ int StartMigration()
         {
             errStream << "Error mounting source system partitions. "
                 << RecoveryStatus::Instance().GetLastErrorMessge();
+
+            // We have set the error code internally, it won't be overwritten.
             retcode = E_RECOVERY_COULD_NOT_MOUNT_SYS_VOL;
             break;
         }
@@ -1438,6 +1440,7 @@ bool MountSourceSystemPartitions()
 
     BOOST_FOREACH(const fs_tree_entry& sft_entry, sft_entries)
     {
+        bool isSupportedFS = true;
         // root (/) is already mounted, ignore it
         // and continue with rest.
         if (boost::equals(sft_entry.mountpoint, "/"))
@@ -1452,6 +1455,15 @@ bool MountSourceSystemPartitions()
             }
 
             continue;
+        }
+
+        if (sft_entry.src_fstab_entry.IsUFSVolume() ||
+            sft_entry.src_fstab_entry.IsDazukoFSVolume() ||
+            sft_entry.src_fstab_entry.IsZFSMember())
+        {
+            TRACE_WARNING("%s has an unsupported FileSystem.\n",
+                sft_entry.mountpoint.c_str());
+            isSupportedFS = false;
         }
 
         std::stringstream mnt;
@@ -1481,9 +1493,21 @@ bool MountSourceSystemPartitions()
             TRACE_ERROR("Could not mount partition on hydration VM for: %s.\n",
                 sft_entry.src_fstab_entry.ToString().c_str());
 
-            RecoveryStatus::Instance().SetStatusErrorCode(
-                E_RECOVERY_COULD_NOT_MOUNT_SYS_VOL,
-                sft_entry.src_fstab_entry.mountpoint);
+            if (!isSupportedFS)
+            {
+                RecoveryStatus::Instance().SetStatusErrorCode(
+                    E_RECOVERY_FILE_SYSTEM_UNSUPPORTED,
+                    sft_entry.src_fstab_entry.mountpoint);
+
+                RecoveryStatus::Instance().SetCustomErrorData(
+                    sft_entry.src_fstab_entry.fstype);
+            }
+            else
+            {
+                RecoveryStatus::Instance().SetStatusErrorCode(
+                    E_RECOVERY_COULD_NOT_MOUNT_SYS_VOL,
+                    sft_entry.src_fstab_entry.mountpoint);
+            }
 
             bSuccess = false;
             break;
@@ -1681,6 +1705,27 @@ bool PrepareSourceOSForAzure()
             break;
         case PrepareForAzureScript::E_ENABLE_DHCP_FAILED:
             error_code = E_RECOVERY_ENABLE_DHCP_FAILED;
+            break;
+        case PrepareForAzureScript::E_AZURE_UNSUPPORTED_FS_FOR_CVM:
+            error_code = E_RECOVERY_FILE_SYSTEM_UNSUPPORTED;
+            break;
+        case PrepareForAzureScript::E_AZURE_ROOTFS_LABEL_FAILED:
+            error_code = E_RECOVERY_CVM_INTERNAL;
+            break;
+        case PrepareForAzureScript::E_INSTALL_LINUX_AZURE_FDE_FAILED:
+            error_code = E_RECOVERY_CVM_INTERNAL;
+            break;
+        case PrepareForAzureScript::E_AZURE_UNSUPPORTED_FIRMWARE_FOR_CVM:
+            error_code = E_RECOVERY_UNSUPPORTED_FIRMWARE_FOR_CVM;
+            break;
+        case PrepareForAzureScript::E_AZURE_UNSUPPORTED_DEVICE:
+            error_code = E_RECOVERY_UNSUPPORTED_DEVICE;
+            break;
+        case PrepareForAzureScript::E_AZURE_BOOTLOADER_CONFIGURATION_FAILED:
+            error_code = E_RECOVERY_CVM_INTERNAL;
+            break;
+        case PrepareForAzureScript::E_AZURE_BOOTLOADER_INSTALLATION_FAILED:
+            error_code = E_RECOVERY_CVM_INTERNAL;
             break;
         default:
             // Any other error code is an internal error.

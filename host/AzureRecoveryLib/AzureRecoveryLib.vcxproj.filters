@@ -102,6 +102,9 @@
     <ClCompile Include="resthelper\EventHub.cpp">
       <Filter>Source Files\resthelper</Filter>
     </ClCompile>
+    <ClCompile Include="resthelper\CloudBlockBlob.cpp">
+      <Filter>Source Files\resthelper</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Config\HostInfoConfig.h">
@@ -183,6 +186,9 @@
       <Filter>Header Files\resthelper</Filter>
     </ClInclude>
     <ClInclude Include="resthelper\EventHub.h">
+      <Filter>Header Files\resthelper</Filter>
+    </ClInclude>
+    <ClInclude Include="resthelper\CloudBlockBlob.h">
       <Filter>Header Files\resthelper</Filter>
     </ClInclude>
   </ItemGroup>

@@ -32,6 +32,11 @@
 #include <sstream>
 #include <fstream>
 #include <iostream>
+
+#ifdef SV_UNIX
+#include <inmuuid.h>
+#endif
+
 #include <cstdio>
 #include <cstring>
 #include <string>
@@ -3899,10 +3904,20 @@ std::string GenerateUuid()
     {
         DebugPrintf(SV_LOG_ERROR, "Could not generate UUID. Unkown exception\n");
     }
+    
+    std:: string uuid = suuid.str();
+
+#ifdef SV_UNIX
+    if (uuid.empty())
+    {
+        DebugPrintf(SV_LOG_DEBUG, "%s : Using getuuid to generate uuid\n", __FUNCTION__);
+        uuid = GetUuid();
+    }
+#endif
 
     DebugPrintf(SV_LOG_DEBUG, "Exiting %s\n", __FUNCTION__);
-    
-    return suuid.str();
+
+    return uuid;
 }
 
 uint64_t GetTimeInMilliSecSinceEpoch1970()
@@ -3938,6 +3953,27 @@ uint64_t GetTimeInSecSinceEpoch1601()
     uint64_t secSinceEpoch = GetTimeInSecSinceEpoch1970();
     secSinceEpoch += GetSecsBetweenEpoch1970AndEpoch1601();
     return secSinceEpoch;
+}
+std::string WindowsEpochTimeToUTC(const uint64_t &windowsEpochTime)
+{
+    uint64_t secSince1Jan1970UTC;
+    INM_SAFE_ARITHMETIC(secSince1Jan1970UTC = (InmSafeInt<uint64_t>::Type(windowsEpochTime) / 10000000) - GetSecsBetweenEpoch1970AndEpoch1601(), INMAGE_EX(windowsEpochTime)(10000000))
+
+    time_t now(secSince1Jan1970UTC);
+    char* dt = ctime(&now);
+
+    tm* gmtm = gmtime(&now);
+    dt = asctime(gmtm);
+
+    std::stringstream ss;
+    ss << dt;
+    std::string rets(ss.str());
+    if (rets.length())
+    {
+        if (rets[rets.length() - 1] == '\n')
+            rets.erase(rets.length() - 1);
+    }
+    return rets;
 }
 
 void GetHypervisorInfo(HypervisorInfo_t &hypervinfo)
@@ -4042,16 +4078,27 @@ bool PersistPlatformTypeForDriver()
 }
 #endif
 
-std::string GetImdsMetadata()
+std::string GetImdsMetadata(const std::string& pathStr, const std::string& apiVersion)
 {
     DebugPrintf(SV_LOG_DEBUG, "ENTERED %s\n", FUNCTION_NAME);
+
+    std::string imdsUrl;
+    if (!pathStr.empty() && !apiVersion.empty()) {
+        imdsUrl = IMDS_ENDPOINT + pathStr + "?" + apiVersion;        
+    }
+    else {
+        imdsUrl = IMDS_URL;
+    }
+
+    DebugPrintf(SV_LOG_DEBUG, "Imds url is %s\n", imdsUrl.c_str());
+    
     MemoryStruct chunk = {0};
     CURL *curl = curl_easy_init();
     try
     {
         chunk.size = 0;
         chunk.memory = NULL;
-        if(CURLE_OK != curl_easy_setopt(curl, CURLOPT_URL, IMDS_URL)) {
+        if(CURLE_OK != curl_easy_setopt(curl, CURLOPT_URL, imdsUrl.c_str())) {
             throw ERROR_EXCEPTION << FUNCTION_NAME << ": Failed to set curl options IMDS_URL.\n";
         }
 
@@ -4395,7 +4442,7 @@ std::string  InmGetFormattedSize(unsigned long long ullSize)
 {
     std::stringstream   ssFormattedSize;
 
-    std::string     aformats[] = { "GB", "MB", "KB", "Bytes" };
+    std::string     aformats[] = { " GB", " MB", " KB", " Bytes" };
     std::vector<std::string>     formats(aformats, aformats + INM_ARRAY_SIZE(aformats));
 
     unsigned long long ullFormatShifter = 30;

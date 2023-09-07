@@ -26,14 +26,10 @@ X_THIRDPARTY_LIBS = \
 	$(BOOST_LIBS) \
 	$(LIBXML2_LIBS)
 
-ifeq ($(X_OS), RHEL7-64)
-	X_SYSTEM_LIBS = -llzma
-else
-ifeq ($(X_OS), SLES11-SP4-64)
+ifeq ($(X_OS),$(filter $(X_OS), RHEL8-64 RHEL7-64 RHEL9-64 SLES11-SP4-64 SLES15-64 DEBIAN11-64 UBUNTU-22.04-64 OL8-64 OL9-64))
         X_SYSTEM_LIBS = -llzma
 else
-	X_SYSTEM_LIBS = -llzma
-endif
+        X_SYSTEM_LIBS =
 endif
 
 X_LDFLAGS =

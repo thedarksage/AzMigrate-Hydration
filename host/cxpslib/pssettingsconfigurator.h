@@ -367,6 +367,9 @@ namespace PSSettings
         /// \brief flag to detect if access control feature is enabled or not
         bool IsAccessControlEnabled;
 
+        /// \brief flag to detect if messaging through Event Hub is supported or not
+        bool SupportEventHubMessaging;
+
         /// \brief server provided values to override hardcoded settings in
         /// the PS components. Note that, these values don't supersede
         /// a value explicitly set in the corresponding conf file
@@ -397,6 +400,7 @@ namespace PSSettings
             JSON_P(node, MessageContext);
             JSON_P(node, IsPrivateEndpointEnabled);
             JSON_P(node, IsAccessControlEnabled);
+            JSON_P(node, SupportEventHubMessaging);
 
             StringMap tunables;
             JSON_KV_P_KEYNAME(node, "Tunables", tunables);
@@ -437,7 +441,8 @@ namespace PSSettings
                 lhs.TelemetryChannelUriRenewalTimeUtc == rhs.TelemetryChannelUriRenewalTimeUtc &&
                 lhs.MessageContext == rhs.MessageContext &&
                 lhs.IsPrivateEndpointEnabled == rhs.IsPrivateEndpointEnabled &&
-                lhs.IsAccessControlEnabled == rhs.IsAccessControlEnabled;
+                lhs.IsAccessControlEnabled == rhs.IsAccessControlEnabled &&
+                lhs.SupportEventHubMessaging == rhs.SupportEventHubMessaging;
         }
 
         bool leanNotEquals(const PSSettings& rhs)

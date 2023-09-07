@@ -311,14 +311,16 @@ int StartRecovery(int argc, char* argv[], const std::string& operationScenario, 
         int retryCount = 3;
         while (retryCount-- > 0)
         {
-            UpdateMetadataStatus(operationScenario);
+            if (UpdateMetadataStatus(operationScenario))
+            {
+                break;
+            }
 
             if (retryCount == 0)
             {
                 return 1;
             }
         }
-
     } while (false);
 
     return 0;
@@ -516,7 +518,10 @@ int StartMigration(int argc, char* argv[], const std::string& operationScenario,
         int retryCount = 3;
         while (retryCount-- > 0)
         {
-            UpdateMetadataStatus(operationScenario);
+            if (UpdateMetadataStatus(operationScenario))
+            {
+                break;
+            }
 
             if (retryCount == 0)
             {
@@ -645,7 +650,10 @@ int StartGenConversion(int argc, char* argv[], const std::string& operationScena
         int retryCount = 3;
         while (retryCount-- > 0)
         {
-            UpdateMetadataStatus(operationScenario);
+            if (UpdateMetadataStatus(operationScenario))
+            {
+                break;
+            }
 
             if (retryCount == 0)
             {

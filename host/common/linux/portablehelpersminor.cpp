@@ -1779,23 +1779,23 @@ SVERROR getLinuxReleaseValue( std::string & linuxetcReleaseValue, LINUX_TYPE& li
 		linuxetcReleaseValue = SuSE_release_Value;
 		linuxFlavourType = SUSE_RELEASE;
 	}
-	else if( getFileContent( "/etc/lsb-release", ubuntu_release_Value ) == SVS_OK )
+	else if(( getFileContent( "/etc/os-release", release_Value ) == SVS_OK ) && ( release_Value.find("Debian") != std::string::npos || release_Value.find("SLES") != std::string::npos))
+	{
+		linuxetcReleaseValue = release_Value;
+		if( release_Value.find("Debian") != std::string::npos )
+		{
+			linuxFlavourType = DEBAIN_RELEASE;
+		}
+		else if( release_Value.find("SLES") != std::string::npos )
+		{
+			linuxFlavourType = SUSE_RELEASE;
+		}
+	}
+    else if( getFileContent( "/etc/lsb-release", ubuntu_release_Value ) == SVS_OK )
 	{
 		linuxetcReleaseValue = ubuntu_release_Value;
 		linuxFlavourType = UBUNTU_RELEASE;
 	}
-	else if( getFileContent( "/etc/os-release", release_Value ) == SVS_OK )
-	{
-		linuxetcReleaseValue = release_Value;
-		if( release_Value.find("SLES") == std::string::npos )
-		{
-			linuxFlavourType = DEBAIN_RELEASE;
-		}
-		else
-		{
-			linuxFlavourType = SUSE_RELEASE;
-		}
-	}	
 	else
 	{
 		bRet = SVS_FALSE;

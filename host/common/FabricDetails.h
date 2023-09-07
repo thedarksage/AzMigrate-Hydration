@@ -112,5 +112,47 @@ namespace AzureInstanceMetadata
             JSON_VCL(node, dataDisks);
         }
     };
+
+    // the particular API version 2021-12-13 has trustedlaunch
+    const std::string AzureImdSecProfileUri("http://169.254.169.254/metadata/instance/compute/securityProfile?api-version=2021-12-13");
+    const std::string SecProfilePathStr = "compute/securityProfile";
+    const std::string SecProfileApiVersion = "api-version=2021-12-13";
+
+    class SecurityProfile {
+    public:
+        std::string secureBootEnabled;
+        std::string virtualTpmEnabled;
+        std::string encryptionAtHost;
+        std::string securityType;
+
+        void serialize(JSON::Adapter& adapter)
+        {
+            JSON::Class root(adapter, "SecurityProfile", false);
+
+            JSON_E(adapter, secureBootEnabled);
+            JSON_E(adapter, virtualTpmEnabled);
+            JSON_E(adapter, encryptionAtHost);
+            JSON_T(adapter, securityType);
+        }
+
+        void serialize(ptree& node)
+        {
+            JSON_P(node, secureBootEnabled);
+            JSON_P(node, virtualTpmEnabled);
+            JSON_P(node, encryptionAtHost);
+            JSON_P(node, securityType);
+        }
+    };
+
+    namespace VMSecurityTypes {
+        const std::string TRUSTED_LAUNCH = "TrustedLaunch";
+
+        // @TODO - find out the exact string used by CVM
+        const std::string CONFIDENTIAL_VM = "TBD";
+
+        // gen2 has it as an empty string
+        const std::string GEN2_VM = "";
+    };
+
 }
 #endif

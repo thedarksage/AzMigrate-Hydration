@@ -824,6 +824,12 @@ static const SV_ULONGLONG DEFAULT_MAX_DISK_CHURN_SUPPORTED_MBPS = 25; // in MBps
 static const char KEY_MAX_VM_CHURN_SUPPORTED_MBPS[] = "MaxVMChurnSupportedMBps";
 static const SV_ULONGLONG DEFAULT_MAX_VM_CHURN_SUPPORTED_MBPS = 50; // in MBps
 
+static const char KEY_MAX_DISK_HIGH_CHURN_SUPPORTED_MBPS[] = "MaxDiskHighChurnSupportedMBps";
+static const SV_ULONGLONG DEFAULT_MAX_DISK_HIGH_CHURN_SUPPORTED_MBPS = 50; // in MBps
+
+static const char KEY_MAX_VM_HIGH_CHURN_SUPPORTED_MBPS[] = "MaxVMHighChurnSupportedMBps";
+static const SV_ULONGLONG DEFAULT_MAX_VM_HIGH_CHURN_SUPPORTED_MBPS = 100; // in MBps
+
 static const char KEY_MAX_TIMEJUMP_FWD_ACCEPTABLE_IN_MS[] = "MaximumTimeJumpForwardAcceptableInMs";
 static const SV_ULONGLONG DEFAULT_MAX_TIMEJUMP_FWD_ACCEPTABLE_IN_MS = 3 * 60 * 1000; // 3 min, in ms
 
@@ -905,6 +911,7 @@ static const char KEY_HEALTHCOLLATOR_PATH[] = "HealthCollatorPath";
 static const char KEY_ADDITIONAL_INSTALL_PATHS[] = "AdditionalInstallPaths";
 
 static const char KEY_CLUSTER_ID[] = "ClusterId";
+static const char KEY_CLUSTER_NAME[] = "ClusterName";
 
 FileConfiguratorMode FileConfigurator::s_initmode = FILE_CONFIGURATOR_MODE_VX_AGENT;
 
@@ -4771,6 +4778,20 @@ SV_ULONGLONG FileConfigurator::getMaxVMChurnSupportedMBps() const
     return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MAX_VM_CHURN_SUPPORTED_MBPS,
         DEFAULT_MAX_VM_CHURN_SUPPORTED_MBPS));
 }
+
+/* churn-throughput CX session definitions start */
+SV_ULONGLONG FileConfigurator::getMaxDiskHighChurnSupportedMBps() const
+{
+    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MAX_DISK_HIGH_CHURN_SUPPORTED_MBPS,
+        DEFAULT_MAX_DISK_HIGH_CHURN_SUPPORTED_MBPS));
+}
+
+SV_ULONGLONG FileConfigurator::getMaxVMHighChurnSupportedMBps() const
+{
+    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MAX_VM_HIGH_CHURN_SUPPORTED_MBPS,
+        DEFAULT_MAX_VM_HIGH_CHURN_SUPPORTED_MBPS));
+}
+
 SV_ULONGLONG FileConfigurator::getMaximumTimeJumpForwardAcceptableInMs() const
 {
     return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MAX_TIMEJUMP_FWD_ACCEPTABLE_IN_MS,
@@ -5053,4 +5074,14 @@ void FileConfigurator::setClusterId(const std::string& clusterId) const
 std::string FileConfigurator::getClusterId() const 
 {
     return get(SECTION_VXAGENT, KEY_CLUSTER_ID, std::string());
+}
+
+void FileConfigurator::setClusterName(const std::string& clusterName) const
+{
+    set(SECTION_VXAGENT, KEY_CLUSTER_NAME, clusterName);
+}
+
+std::string FileConfigurator::getClusterName() const
+{
+    return get(SECTION_VXAGENT, KEY_CLUSTER_NAME, std::string());
 }
