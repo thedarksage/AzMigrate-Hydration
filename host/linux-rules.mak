@@ -4,6 +4,9 @@
 # ----------------------------------------------------------------------
 X_MINOR_RULES_MAK=linux-rules.mak
 
+OPENSSL_OS_LIST := $(shell cat openssl_dynamic_distros_list.txt)
+$(info    linux-rules.mak: OPENSSL_OS_LIST = $(OPENSSL_OS_LIST))
+
 X_OS:=$(shell ../build/scripts/general/OS_details.sh 1)
 X_KERVER:=$(shell uname -r)
 ifeq ($(X_OS), RHEL6-64)
@@ -15,6 +18,8 @@ else
 	endif
 endif
 endif
+
+$(info    linux-rules.mak: X_OS = $(X_OS))
 
 # ----------------------------------------------------------------------
 # compilers, linkers, lib creation, etc. commands
@@ -148,6 +153,10 @@ ifeq (SLES11-64, $(X_OS))
 	CFLAGS += -DINMAGE_ALLOW_UNSUPPORTED
 endif
 
+ifeq ($(X_OS),$(filter $(X_OS), RHEL9-64  UBUNTU-22.04-64 OL9-64))
+	CFLAGS += -DBOOST_ASIO_DISABLE_STD_FUTURE
+endif
+
 ifeq (XenServer,$(X_XENOS))
 # get gcc to do garbage collection before it runs out of memory
 # can increase compile times, but these seem to work and improve 
@@ -191,6 +200,7 @@ DIR_LIBS :=
 SYSTEM_LIBS := -lpthread \
 	-ldl \
 	-lrt \
+	-luuid \
 
 ifeq (RHEL6-32, $(X_OS))
     SYSTEM_LIBS += -lacl
@@ -203,6 +213,12 @@ endif
 ifeq (RHEL6U4-64, $(X_OS))
     SYSTEM_LIBS += -lacl
 endif
+
+ifeq ($(findstring $(X_OS),$(OPENSSL_OS_LIST)),$(X_OS))
+    SYSTEM_LIBS += -lssl -lcrypto
+endif
+
+$(info    linux-rules.mak: SYSTEM_LIBS = $(SYSTEM_LIBS))
 
 # ----------------------------------------------------------------------
 # LDFLAGS that apply to all modues

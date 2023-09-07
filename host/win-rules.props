@@ -7,36 +7,40 @@
     <ACE_LIB_DIR>..\packages\ace.6.4.6\ACE_wrappers\lib</ACE_LIB_DIR>
     <BOOST_INCLUDES>..\..\thirdparty\boost\boost_1_78_0</BOOST_INCLUDES>
     <BOOST_LIB_DIR>..\..\thirdparty\boost\boost_1_78_0\stage\win\Win32\lib</BOOST_LIB_DIR>
-    <CURL_PATH>..\..\thirdparty\curl-7.80.0</CURL_PATH>
+    <CURL_PATH>..\..\thirdparty\curl-8.2.1</CURL_PATH>
     <CURL_INCLUDES>$(CURL_PATH)\include</CURL_INCLUDES>
     <CURL_HEADERS>$(CURL_PATH)\include\curl</CURL_HEADERS>
-    <CURL_LIB_DIR_DEBUG>$(CURL_PATH)\build\Win32\VC15\LIB Debug - LIB OpenSSL</CURL_LIB_DIR_DEBUG>
-    <CURL_LIB_DIR_RELEASE>$(CURL_PATH)\build\Win32\VC15\LIB Release - LIB OpenSSL</CURL_LIB_DIR_RELEASE>
-    <CURL_PROJ_PATH>$(CURL_PATH)\projects\Windows\VC15\lib</CURL_PROJ_PATH>
-    <OPENSSL_INCLUDES>..\..\thirdparty\openssl-1.1.1n\include</OPENSSL_INCLUDES>
-    <OPENSSL_LIB_DIR_DEBUG>..\packages\openssl.1.1.1-n-1\out64.dbg</OPENSSL_LIB_DIR_DEBUG>
-    <OPENSSL_LIB_DIR_RELEASE>..\packages\openssl.1.1.1-n-1\out32</OPENSSL_LIB_DIR_RELEASE>
+    <CURL_LIB_DIR_DEBUG>$(CURL_PATH)\build\Win32\VC14.30\LIB Debug - LIB OpenSSL</CURL_LIB_DIR_DEBUG>
+    <CURL_LIB_DIR_RELEASE>$(CURL_PATH)\build\Win32\VC14.30\LIB Release - LIB OpenSSL</CURL_LIB_DIR_RELEASE>
+    <CURL_PROJ_PATH>$(CURL_PATH)\projects\Windows\VC14.30\lib</CURL_PROJ_PATH>
+    <OPENSSL_INCLUDES>..\..\thirdparty\openssl-3.1.2\include</OPENSSL_INCLUDES>
+    <OPENSSL_LIB_DIR_DEBUG>..\packages\openssl.3.1.2\out32.dbg</OPENSSL_LIB_DIR_DEBUG>
+    <OPENSSL_LIB_DIR_RELEASE>..\packages\openssl.3.1.2\out32</OPENSSL_LIB_DIR_RELEASE>
     <LIBSSH_INCLUDES>..\..\thirdparty\libssh2-1.10.0\include</LIBSSH_INCLUDES>
-    <LIBXML2_INCLUDES>..\..\thirdparty\libxml2\libxml2-2.9.13\include</LIBXML2_INCLUDES>
-    <LIBXML2_LIB_DIR_RELEASE>..\packages\libxml2.2.9.13\win32\lib\release\static</LIBXML2_LIB_DIR_RELEASE>
-    <LIBXML2_LIB_DIR_DEBUG>..\..packages\libxml2.2.9.13\win32\lib\debug\static</LIBXML2_LIB_DIR_DEBUG>
+    <LIBSSH_LIB_DIR_DEBUG>..\packages\libssh2.1.10.0-3\win32\Debug_lib</LIBSSH_LIB_DIR_DEBUG>
+    <LIBSSH_LIB_DIR_RELEASE>..\packages\libssh2.1.10.0-3\win32\Release_lib</LIBSSH_LIB_DIR_RELEASE>
+    <LIBXML2_INCLUDES>..\..\thirdparty\libxml2\libxml2-2.11.1\include</LIBXML2_INCLUDES>
+    <LIBXML2_LIB_DIR_RELEASE>..\packages\libxml2.2.11.1-1\win32\lib\release\static</LIBXML2_LIB_DIR_RELEASE>
+    <LIBXML2_LIB_DIR_DEBUG>..\packages\libxml2.2.11.1-1\win32\lib\debug\static</LIBXML2_LIB_DIR_DEBUG>
     <SQLITE3X_INCLUDES>..\..\thirdparty\sqlite3x\sqlite3x</SQLITE3X_INCLUDES>
-    <SQLITE3X_LIB_DIR_DEBUG>..\packages\sqlite3x.0.0.6\lib\x64\debug</SQLITE3X_LIB_DIR_DEBUG>
-    <SQLITE3X_LIB_DIR_RELEASE>..\packages\sqlite3x.0.0.6\lib\x64\release</SQLITE3X_LIB_DIR_RELEASE>
-    <SQLITE_LIB_DIR_DEBUG>..\packages\sqlite.3.36.0-1\lib\x64\debug</SQLITE_LIB_DIR_DEBUG>
-    <SQLITE_LIB_DIR_RELEASE>..\packages\sqlite.3.36.0-1\lib\x64\release</SQLITE_LIB_DIR_RELEASE>
+    <SQLITE3X_LIB_DIR_DEBUG>..\packages\sqlite3x.0.0.6\lib\win32\debug</SQLITE3X_LIB_DIR_DEBUG>
+    <SQLITE3X_LIB_DIR_RELEASE>..\packages\sqlite3x\lib\win32\release</SQLITE3X_LIB_DIR_RELEASE>
+    <SQLITE_LIB_DIR_DEBUG>..\packages\sqlite.3.36.0-1\lib\win32\debug</SQLITE_LIB_DIR_DEBUG>
+    <SQLITE_LIB_DIR_RELEASE>..\packages\sqlite.3.36.0-1\lib\win32\release</SQLITE_LIB_DIR_RELEASE>
     <ZLIB_INCLUDES>..\..\thirdparty\zlib-1.2.12\bin\windows\include</ZLIB_INCLUDES>
-    <ZLIB_LIB_DIR>..\packages\zlib.1.2.12\bin\windows\lib\x64</ZLIB_LIB_DIR>
+    <ZLIB_LIB_DIR>..\packages\zlib.1.2.12\bin\windows\lib</ZLIB_LIB_DIR>
     <OFFREG_INCLUDES>..\..\thirdparty\wdk-offline-reg</OFFREG_INCLUDES>
-    <OFFREG_LIB_DIR>..\..\thirdparty\wdk-offline-reg\x64</OFFREG_LIB_DIR>
+    <OFFREG_LIB_DIR>..\..\thirdparty\wdk-offline-reg\x86</OFFREG_LIB_DIR>
     <INM_MD5_ROOT>..\..\thirdparty\inm_md5</INM_MD5_ROOT>
     <INM_MD5_INCLUDES>$(INM_MD5_ROOT)</INM_MD5_INCLUDES>
-    <INM_MD5_LIB_DIR_DEBUG>..\packages\inmmd5.0.0.1-1\x64\Debug\lib</INM_MD5_LIB_DIR_DEBUG>
-    <INM_MD5_LIB_DIR_RELEASE>..\packages\inmmd5.0.0.1-1\x64\Release\lib</INM_MD5_LIB_DIR_RELEASE>
+    <INM_MD5_LIB_DIR_DEBUG>..\packages\inmmd5.0.0.1-1\Win32\Debug\lib</INM_MD5_LIB_DIR_DEBUG>
+    <INM_MD5_LIB_DIR_RELEASE>..\packages\inmmd5.0.0.1-1\Win32\Release\lib</INM_MD5_LIB_DIR_RELEASE>
     <SIGSLOT_ROOT>..\..\thirdparty\sigslot</SIGSLOT_ROOT>
     <SIGSLOT_INCLUDES>$(SIGSLOT_ROOT)</SIGSLOT_INCLUDES>
     <XENDETECT_INCLUDES>..\..\thirdparty\xendetect</XENDETECT_INCLUDES>
-	<ESJSON_INCLUDES>..\..\thirdparty\g40-esj-1.05</ESJSON_INCLUDES>
+    <EXCHANGESDK_INCLUDES>$(ProgramFiles)\Exchange SDK\SDK\Include</EXCHANGESDK_INCLUDES>
+    <ESJSON_INCLUDES>..\..\thirdparty\g40-esj-1.05</ESJSON_INCLUDES>
+    <SETUPTOOLS_PATH>..\packages\SetupTools.0.0.10</SETUPTOOLS_PATH>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>12.0.21005.1</_ProjectFileVersion>
@@ -148,5 +152,5 @@
     <BuildMacro Include="ESJSON_INCLUDES">
       <Value>$(ESJSON_INCLUDES)</Value>
     </BuildMacro>
-  </ItemGroup>
+	</ItemGroup>
 </Project>
