@@ -36,7 +36,7 @@ chmod +x ./thirdparty_links.sh
 
 chmod +x ../thirdparty/zlib-1.2.12/inmage_config_build
 
-chmod +x ../thirdparty/openssl-1.1.1n/inmage_config_build
+chmod +x ../thirdparty/openssl-3.1.2/inmage_config_build
 
 chmod +x ../thirdparty/boost/inmage_config_build
 
@@ -54,9 +54,9 @@ chmod +x ../thirdparty/sqlite3x/sqlite3x/inmage_config_build
 
 chmod +x ../thirdparty/sqlite-3.36.0/inmage_config_build
 
-chmod +x ../thirdparty/openssl-1.1.1n/inmage_config_build
+chmod +x ../thirdparty/openssl-3.1.2/inmage_config_build
 
-chmod +x ../thirdparty/libxml2/libxml2-2.9.13/inmage_config_build
+chmod +x ../thirdparty/libxml2/libxml2-2.11.1/inmage_config_build
 
 chmod +x ../thirdparty/inm_md5/inmage_config_build
 
