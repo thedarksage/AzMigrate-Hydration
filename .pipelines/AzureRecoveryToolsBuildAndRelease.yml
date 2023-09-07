@@ -24,8 +24,8 @@ stages:
       demands:
       - msbuild
       - visualstudio
-      vmImage: windows-latest
-      type: windows-latest
+      vmImage: windows-2019
+      type: windows-2019
 
     variables:
       WindowsContainerImage: 'cdpxwin1809.azurecr.io/global/vse2019:latest'
