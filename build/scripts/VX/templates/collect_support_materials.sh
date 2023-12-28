@@ -42,7 +42,7 @@ filename="support-materials-$hostname-`date +'%b_%d_%H_%M_%S'`"
 vx_dir=`grep INSTALLATION_DIR /usr/local/.vx_version | awk -F'=' '{print $2 }'`
 inm_dmit=$vx_dir/bin/inm_dmit
 inmage_logs="/var/log/s2* /var/log/svagent*  /var/log/cdpcli* /var/log/CDPMgr* /var/log/CacheMgr* /var/log/appservice* /var/log/involflt* /var/log/linvsnap* /var/log/InMage_Old_Logs $vx_dir/resync $vx_dir/AppliedInfo  /var/log/Scouttunning* /var/log/failovecommandutil* /var/log/cxpsclient* /var/log/vacps* /var/log/customdevicecli* 
-/var/log/fabricagent* /var/log/oradisc* /var/log/db2out* /var/log/ua_uninstall* /var/log/InMage_drivers* /var/log/ua_install* /var/log/svagents*"
+/var/log/fabricagent* /var/log/oradisc* /var/log/db2out* /var/log/ua_uninstall* /var/log/InMage_drivers* /var/log/ua_install* /var/log/svagents* /var/log/AzureRcmCli* /var/log/syslog*"
 get_scsid_cmd=/etc/vxagent/bin/inm_scsi_id
 os=`uname -s`
 script_path=/etc/init.d/
@@ -105,6 +105,28 @@ consistency_log()
     fi
 }
 
+check_openssl()
+{
+  # Check if OpenSSL is installed
+  if ! command -v openssl > /dev/null 2>&1; then
+    echo "Error: OpenSSL not found"
+    return 1
+  fi
+
+  # Check OpenSSL version
+  openssl_version=$(openssl version)
+  if [ $? -ne 0 ]
+  then
+    echo "Error: Failed to detect OpenSSL version"
+    return 1
+  fi
+
+  # Check if OpenSSL supports TLS 1.2
+  openssl_supports_tls12=$(openssl ciphers -v | grep -q TLSv1.2 && echo "yes" || echo "no")
+
+  # Print output
+  echo "OpenSSL [ Version - $openssl_version, TLS 1.2 - $openssl_supports_tls12 ]"
+}
 
 mds_log()
 {
@@ -156,6 +178,8 @@ mds_log()
     cat /var/log/InMage_drivers.log
     cat /var/log/InMage_drivers.log >> /var/log/InMage_drivers.old.log
     rm -f /var/log/InMage_drivers.log
+
+    check_openssl
 
 }
 
@@ -460,6 +484,9 @@ case "${os}" in
 			cp -R /home/svsystems/var/ApplicationPolicyLogs  $supportstore/ 2>&1 > /dev/null
 		fi	
 		
+        if [ -d /var/log/ArchivedLogs ]; then
+           cp -R /var/log/ArchivedLogs $supportstore/ 2>&1 > /dev/null
+        fi
 		
        ;;
    AIX)
@@ -637,6 +664,20 @@ do
 	mkdir -p $supportstore/$retpath;
 	cp $retdbname $supportstore/$retpath
 done < "$filename"
+
+# Call stack_of_all_process.sh to capture the stack of all the processes, capturing its exit code
+echo "Calling stack_of_all_process.sh with arg : $supportstore"
+./stack_of_all_process.sh "${supportstore}"
+exit_code=$?
+
+# Check the exit code of stack_of_all_process.sh
+if [ $exit_code -ne 0 ]; then
+    echo "stack_of_all_process.sh failed with exit code $exit_code"
+else
+    echo "stack_of_all_process.sh executed successfully"
+fi
+
+journalctl > "$supportstore/journalctl.log"
 
 #tar -cvf ${supportstore}/bitmap_files.tar /root/InMage*.VolumeLog  > /dev/null 2>&1
 tar -cvf $supportstore.tar $supportstore > /dev/null 2>&1

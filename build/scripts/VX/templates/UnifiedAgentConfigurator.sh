@@ -1622,6 +1622,32 @@ unconfigure_rcmproxy() {
     exit_with_retcode $ret
 }
 
+configure_operation() {
+    trace_log_message -q "ENTERED $FUNCNAME"
+    local ret=0
+
+    if [ "$OPERATION" = "DiagnoseAndFix" ]; then
+        trace_log_message "Diagnose and fix configuration."
+        stop_agent_service || exit_with_retcode $?
+        local params=("--diagnoseandfix")
+        rcm_exec_with_common_params "${params[@]}"
+        ret=$?
+        trace_log_message -q "AzureRcmCli $params exit code : $ret"
+	    local cs_type=$(grep ^CSType $DRSCOUT_CONF | cut -d"=" -f2 | tr -d " ")
+        if [ "$cs_type" = "CSLegacy" ]; then
+            cs_agent_registration "Vx"
+            ret=$?
+            trace_log_message -q "CSLegacy agent registration failed with return value: $ret"
+        fi
+        start_agent_service || exit_with_retcode $?
+    else
+        trace_log_message -q "Invalid operation : $OPERATION passed"
+    fi
+
+    trace_log_message -q "EXITED $FUNCNAME"
+    exit_with_retcode $ret
+}
+
 #
 # Function Name: usage
 #
@@ -1645,6 +1671,7 @@ usage() {
     trace_log_message "  -C <RCM credential file path(absolute path)>"
     trace_log_message "  -D <Credential Less Discovery(true/false)>"
     trace_log_message "  -U <Unconfigure appliance>"
+    trace_log_message "  -O <Perform specified operation>"
     trace_log_message "  -c <CSType (CSLegacy/CSPrime)>"
     trace_log_message "  -h <help> "
     exit 0
@@ -1656,7 +1683,7 @@ main()
     SetOP "GetCmdArgs"
 
     if [ $# -ge 1 ] && $(echo $1 | grep -q ^- ); then
-        while getopts :i:e:l:C:P:S:D:U:m:j:c:p:r:f:qh opt
+        while getopts :i:e:l:C:P:S:D:U:O:m:j:c:p:r:f:qh opt
         do
             case $opt in
                 i) CS_IP_ADDRESS="$OPTARG" ;;
@@ -1667,6 +1694,7 @@ main()
                 C) RCM_CREDS_FILE="$OPTARG" ;;
                 D) IS_CREDENTIAL_LESS_DISCOVERY="$OPTARG" ;;
                 U) UNCONFIGURE="$OPTARG" ;;
+                O) OPERATION="$OPTARG" ;;
                 m) INVOKER="$OPTARG" ;;
                 j) json_file="$OPTARG" ;;
                 c) CS_TYPE="$OPTARG"
@@ -1691,7 +1719,11 @@ main()
     fi
 
     if [ -z "$CS_TYPE" ]; then
-        CS_TYPE="CSLegacy"
+        CS_TYPE="CSPrime"
+        local dr_conf_cs_type=`grep ^CSType $DRSCOUT_CONF | cut -d"=" -f2 | tr -d " "`
+        if [ ! -z "$dr_conf_cs_type" ]; then
+            CS_TYPE="$dr_conf_cs_type"
+        fi
     fi
 
     echo "Value of cstype is $CS_TYPE"
@@ -1736,6 +1768,11 @@ main()
         if [ ! -z "$UNCONFIGURE" ]; then
             unconfigure_rcmproxy
         fi
+
+        if [ ! -z "$OPERATION" ]; then
+            configure_operation
+        fi
+
         if [ "$SILENT_ACTION" = "true" ]; then
             trace_log_message -q "Silent agent configuration."
             if [ "$VM_PLATFORM" = "Azure" ] ; then

@@ -2782,6 +2782,15 @@ std::string GetChassisAssetTag()
 	return assetTag;
 }
 
+bool GetOSDiskId(const VolumeSummaries_t & volumeSummaries, std::string & osDiskId, std::string & errormsg)
+{
+    DebugPrintf( SV_LOG_DEBUG, "ENTERED %s\n", FUNCTION_NAME ) ;
+	throw std::string("GetOSDiskId not implemented");
+	
+    DebugPrintf( SV_LOG_DEBUG, "EXITED %s\n", FUNCTION_NAME ) ;
+    return true;
+}
+
 bool IsSystemAndBootDiskSame(const VolumeSummaries_t & volumeSummaries, std::string & errormsg)
 {
     DebugPrintf( SV_LOG_DEBUG, "ENTERED %s\n", FUNCTION_NAME ) ;

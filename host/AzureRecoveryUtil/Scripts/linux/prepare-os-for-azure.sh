@@ -57,7 +57,7 @@ throw_error()
     echo "[Sms-Scrip-Error-Data]:${error_data}"
     echo "[Sms-Telemetry-Data]:${telemetry_data}"
 
-    if $confidential_migration_flag || $enable_inline_ga_installation_flag; then
+    if $confidential_migration_flag || $enable_inline_ga_installation_flag || $enable_inline_ga_installation_flag_centos; then
         if ! $installation_logs_added_flag; then
             add_installation_logs
         fi
@@ -368,6 +368,26 @@ execute_chroot_command()
             fi
         fi
     }
+
+    return $error_code
+}
+
+backup_and_clean_repo() {
+    local repo_directory="$1"
+    local error_code=0
+
+    if copy_dir_to_backup "$repo_directory"; then
+        trace "Successfully backed up $repo_directory to ${repo_directory}${_BCK_EXT_}"
+        if find "${repo_directory}" -name '*.repo' -delete ; then
+            trace "Successfully cleaned the repository in $repo_directory."
+        else
+            trace "Error: Failed to clean the repository in $repo_directory."
+            error_code=2
+        fi
+    else
+        trace "Error: Failed to back up $repo_directory to ${repo_directory}${_BCK_EXT_}"
+        error_code=1
+    fi
 
     return $error_code
 }
@@ -961,6 +981,8 @@ modify_grub2_config_helper()
 
 update_vm_repositories()
 {
+    trace "Updating repositories in ${chroot_path}."
+
     case $src_distro in
         CENTOS6*)
             # Bullet 8 - https://docs.microsoft.com/en-us/azure/virtual-machines/linux/create-upload-centos#centos-6x
@@ -996,13 +1018,26 @@ update_vm_repositories()
         OL7*)
             # https://public-yum.oracle.com/public-yum-ol7.repo
             # https://docs.microsoft.com/en-us/azure/virtual-machines/linux/oracle-create-upload-vhd#oracle-linux-installation-notes
-            sources_list_file="$chroot_path/etc/yum.repos.d/public-yum-ol7.repo"
-            backup_file $sources_list_file
-            copy_file "/usr/local/AzureRecovery/public-yum-ol6.repo" "$sources_list_file"
+            sources_list_dir="$chroot_path/etc/yum.repos.d"
+            sources_list_file="${sources_list_dir}/public-yum-ol7.repo"
+            
+            echo -e "\nList of the repository configuration files in the /etc/yum.repos.d directory:" >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+            execute_chroot_command "ls /etc/yum.repos.d"
+
+            if backup_and_clean_repo "$sources_list_dir"; then
+                copy_file "/usr/local/AzureRecovery/public-yum-ol7.repo" "$sources_list_file"
+            else
+                execute_chroot_command "yum install yum-utils"
+                execute_chroot_command "yum-config-manager --enable ol7_addons"
+            fi
         ;;
         OL8*)
             # Not documented. Replicated from VM created through platform image.
-            sources_list_file="$chroot_path/etc/yum.repos.d/public-yum-ol8.repo"
+            sources_list_file="$chroot_path/etc/yum.repos.d/oracle-linux-ol8.repo"
+
+            echo -e "\nList of the repository configuration files in the /etc/yum.repos.d directory:" >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+            execute_chroot_command "ls /etc/yum.repos.d"
+
             backup_file $sources_list_file
             copy_file "/usr/local/AzureRecovery/public-yum-ol8.repo" "$sources_list_file"
         ;;
@@ -1034,7 +1069,10 @@ install_guest_agent_post_boot()
     fi
     
     validate_guestagent_prereqs
-    update_vm_repositories
+
+    if ! $confidential_migration_flag && ! $enable_inline_ga_installation_flag && ! $enable_inline_ga_installation_flag_centos; then
+        update_vm_repositories
+    fi
 
     echo "Hydration Being Performed on the VM. $(date)" >> "$chroot_path/$base_linuxga_path/ASRLinuxGA.log"
 
@@ -1096,6 +1134,14 @@ install_guest_agent_package()
         "UBUNTU"*)
             execute_chroot_command "apt-get install -y cloud-init gdisk netplan.io walinuxagent" || error_code=$?
             ;;
+        "CENTOS7"*|"OL7"*)
+            execute_chroot_command "yum install -y python-pyasn1 WALinuxAgent" || error_code=$?
+            execute_chroot_command "yum install -y cloud-init cloud-utils-growpart gdisk hyperv-daemons" || error_code=$?
+            ;;
+        "OL8"*)
+            execute_chroot_command "dnf install -y python3-pyasn1 WALinuxAgent" || error_code=$?
+            execute_chroot_command "dnf install -y cloud-init cloud-utils-growpart gdisk hyperv-daemons" || error_code=$?
+            ;;
         *)
             local function_name="${FUNCNAME[0]}"
             trace "Warning: ${src_distro} is not supported for '${function_name}' capability."
@@ -1114,6 +1160,10 @@ enable_linux_guest_agent()
     case "${src_distro}" in
         "UBUNTU"*)
             execute_chroot_command "systemctl enable walinuxagent.service" || error_code=$?
+            execute_chroot_command "systemctl enable cloud-init.service" || error_code=$?
+            ;;
+        "CENTOS"*|"OL"*)
+            execute_chroot_command "systemctl enable waagent.service" || error_code=$?
             execute_chroot_command "systemctl enable cloud-init.service" || error_code=$?
             ;;
         *)
@@ -1154,6 +1204,38 @@ EOF" || error_code=$?
     return $error_code
 }
 
+setup_cloud_init_provision_using_azure_centos()
+{
+    local error_code=0
+
+    trace "Adding mounts and disk_setup to init stage."
+
+    execute_chroot_command "sed -i '/ - mounts/d' /etc/cloud/cloud.cfg" || error_code=$?
+    execute_chroot_command "sed -i '/ - disk_setup/d' /etc/cloud/cloud.cfg" || error_code=$?
+    execute_chroot_command "sed -i '/cloud_init_modules/a\\ - mounts' /etc/cloud/cloud.cfg" || error_code=$?
+    execute_chroot_command "sed -i '/cloud_init_modules/a\\ - disk_setup' /etc/cloud/cloud.cfg" || error_code=$?
+
+    trace "Allow only Azure datasource, disable fetching network setting via IMDS."
+
+    execute_chroot_command "cat > /etc/cloud/cloud.cfg.d/91-azure_datasource.cfg << EOF
+datasource_list: [ Azure ]
+datasource:
+    Azure:
+        apply_network_config: False
+EOF" || error_code=$?
+
+    trace "Add console log file."
+
+    execute_chroot_command "cat > /etc/cloud/cloud.cfg.d/05_logging.cfg << EOF
+# This tells cloud-init to redirect its stdout and stderr to
+# 'tee -a /var/log/cloud-init-output.log' so the user can see output
+# there without needing to look on the console.
+output: {all: '| tee -a /var/log/cloud-init-output.log'}
+EOF" || error_code=$?
+
+    return $error_code
+}
+
 configure_azure_linux_agent_for_cloud_init()
 {
     local error_code=0
@@ -1170,6 +1252,26 @@ configure_azure_linux_agent_for_cloud_init()
 # A value of auto means that the agent will rely on cloud-init to handle
 # provisioning if it is installed and enabled.
 Provisioning.Agent=auto
+EOF" || error_code=$?
+    else
+        trace "Error: The configuration file /etc/waagent.conf is not present."
+        error_code=1
+    fi
+
+    return $error_code
+}
+
+configure_azure_linux_agent_for_cloud_init_v2()
+{
+    local error_code=0
+
+    if [ -f "${chroot_path}/etc/waagent.conf" ]; then
+        execute_chroot_command "sed -i 's/Provisioning.Enabled=y/Provisioning.Enabled=n/g' /etc/waagent.conf" || error_code=$?
+        execute_chroot_command "sed -i 's/Provisioning.UseCloudInit=y/Provisioning.UseCloudInit=n/g' /etc/waagent.conf" || error_code=$?
+        execute_chroot_command "sed -i 's/ResourceDisk.Format=y/ResourceDisk.Format=n/g' /etc/waagent.conf" || error_code=$?
+        execute_chroot_command "sed -i 's/ResourceDisk.EnableSwap=y/ResourceDisk.EnableSwap=n/g' /etc/waagent.conf" || error_code=$?
+        execute_chroot_command "cat >> /etc/waagent.conf << EOF
+Provisioning.Agent=disabled
 EOF" || error_code=$?
     else
         trace "Error: The configuration file /etc/waagent.conf is not present."
@@ -1210,6 +1312,22 @@ configure_cloud_init_for_provisioning()
     return $error_code
 }
 
+configure_cloud_init_for_provisioning_centos()
+{
+    trace "Configuring cloud-init to provision the system."
+    echo -e "\nConfiguring cloud-init to provision the system." >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+
+    local error_code=0
+
+    trace "Configuring cloud-init to provision the system using the Azure datasource."
+    execute_and_trace_function "setup_cloud_init_provision_using_azure_centos" || error_code=$?
+
+    trace "Configuring the Azure Linux agent to rely on cloud-init to perform provisioning."
+    execute_and_trace_function "configure_azure_linux_agent_for_cloud_init_v2" || error_code=$?
+
+    return $error_code
+}
+
 clean_agent_runtime_artifacts_logs()
 {
     local error_code=0
@@ -1235,17 +1353,23 @@ install_guest_agent_pre_boot()
             execute_and_trace_function "enable_linux_guest_agent" || error_code=$?
             execute_and_trace_function "configure_cloud_init_for_provisioning" || error_code=$?
             execute_and_trace_function "clean_agent_runtime_artifacts_logs" || error_code=$?
-
-            if [[ $error_code -ne 0 ]]; then
-                trace "Error: One or more commands/functions failed in install_guest_agent_pre_boot."
-                add_telemetry_data "guest_agent"
-            fi
+            ;;
+        "CENTOS7"*|"OL7"*|"OL8"*)
+            execute_and_trace_function "install_guest_agent_package" || error_code=$?
+            execute_and_trace_function "enable_linux_guest_agent" || error_code=$?
+            execute_and_trace_function "configure_cloud_init_for_provisioning_centos" || error_code=$?
+            execute_and_trace_function "clean_agent_runtime_artifacts_logs" || error_code=$?
             ;;
         *)
             local function_name="${FUNCNAME[0]}"
             trace "Warning: ${src_distro} is not supported for '${function_name}' capability."
             ;;
     esac
+
+    if [[ $error_code -ne 0 ]]; then
+        trace "Error: One or more commands/functions failed in install_guest_agent_pre_boot."
+        add_telemetry_data "guest_agent"
+    fi
 }
 
 configure_dhcp_rhel()
@@ -1399,8 +1523,17 @@ enable_network_service()
         RHEL6*|CENTOS6*|OL6*)
             chroot $chroot_path chkconfig network on
             ;;
-        RHEL7*|CENTOS7*|RHEL8*|RHEL9*|CENTOS8*|CENTOS9*|OL7*|OL8*|OL9*)
+        RHEL7*|CENTOS7*|RHEL8*|RHEL9*|OL7*)
             chroot $chroot_path systemctl enable network
+            ;;
+        CENTOS8*|CENTOS9*|OL8*|OL9*)
+            if ! chroot "$chroot_path" systemctl enable network; then 
+                trace "WARNING: Failed to enable network service; enabling NetworkManager service."
+                if ! chroot "$chroot_path" systemctl enable NetworkManager.service; then 
+                    trace "WARNING: Failed to enable NetworkManager service."
+                    add_telemetry_data "no-networkservices"
+                fi
+            fi
             ;;
         *)
             # For rest no operation.
@@ -1429,7 +1562,7 @@ verify_src_os_version()
     throw_error $_E_AZURE_SMS_OS_UNSUPPORTED $src_distro
 }
 
-verify_requited_tools()
+verify_required_tools()
 {
     # Prereqs:
     # Kernel image update with hyper-V drivers: dracut/mkinitrd, lsinitrd, modinfo
@@ -2208,6 +2341,7 @@ fix_network_config()
     CENTOS7*|OL7*|OL8*|OL9*|CENTOS8*|CENTOS9*)
         reset_persistent_net_gen_rules
         update_network_file
+        enable_network_service
         configure_dhcp_rhel
         add_startup_script_for_dhcp
     ;;
@@ -2311,7 +2445,11 @@ update_root_device_uuid_in_boot_cmd()
 set_global_flags_based_on_configuration()
 {
     local confidential_migration_string="IsConfidentialVmMigration:true"
-    local enable_guest_installation_string="IsInlineGAInstallationEnabled:true"
+    local enable_ga_installation_string="IsInlineGAInstallationEnabled:true"
+    local enable_centos_ga_installation_string="IsCentosInlineGAInstallationEnabled:true"
+
+    determine_selinux_state
+    add_telemetry_data "$selinux_state"
 
     if [[ $hydration_config_settings =~ $confidential_migration_string ]]; then
         if [[ $src_distro =~ ^(UBUNTU20|UBUNTU22) ]]; then
@@ -2324,10 +2462,17 @@ set_global_flags_based_on_configuration()
         trace "Confidential VM migration is not enabled."
     fi
 
-    if [[ $hydration_config_settings =~ $enable_guest_installation_string && $src_distro =~ ^(UBUNTU18|UBUNTU19|UBUNTU20|UBUNTU21|UBUNTU22) ]]; then
-      trace "Guest agent installation during hydration is enabled."
-      enable_inline_ga_installation_flag=true
+    if [[ $hydration_config_settings =~ $enable_ga_installation_string && $src_distro =~ ^(UBUNTU18|UBUNTU19|UBUNTU20|UBUNTU21|UBUNTU22) ]]; then
+        trace "Guest agent installation during hydration is enabled."
+        enable_inline_ga_installation_flag=true
     fi
+
+    if [[ $hydration_config_settings =~ $enable_centos_ga_installation_string && $src_distro =~ ^(CENTOS7|OL7|OL8) ]]; then
+        if [ "$selinux_state" != "enforcing" ]; then
+            trace "Guest agent installation during hydration is enabled."
+            enable_inline_ga_installation_flag_centos=true
+        fi
+    fi  
 }
 
 verfiy_firmware_type_for_cvm()
@@ -2395,7 +2540,7 @@ mount_resolv_conf()
     echo -e "Mounting /etc/resolv.conf from the host to ${chroot_path}/etc/resolv.conf" > ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
 
     case "${src_distro}" in
-        "UBUNTU"*)
+        "UBUNTU"*|"CENTOS"*|"OL"*)
             if [ ! -e "${chroot_path}/etc/resolv.conf" ]; then
                 trace "Error: ${chroot_path}/etc/resolv.conf does not exist"
                 return
@@ -2415,12 +2560,64 @@ mount_resolv_conf()
     esac
 }
 
+determine_selinux_state()
+{
+    local selinux_config="${chroot_path}/etc/selinux/config"
+
+    if [ -f "$selinux_config" ]; then
+        local selinux_status=$(awk -F'=' '/^SELINUX=/ {print $2}' "$selinux_config" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
+
+        case $selinux_status in
+            enforcing|permissive|disabled)
+                selinux_state="$selinux_status"
+                trace "SELinux is in '$selinux_state' mode."
+                ;;
+            *)
+                selinux_state="unknown"
+                trace "Warning: Unknown SELinux status: $selinux_status."
+                ;;
+        esac
+    else
+        trace "SELinux configuration file is not found at $selinux_config. SELinux may not be installed or configured."
+    fi
+}
+
+recover_modular_yum_configuration()
+{
+    local package_name=$1
+    local script_path=$2
+
+    if execute_chroot_command "yum list installed ${package_name}"; then 
+        execute_chroot_command "yum -y reinstall ${package_name}"
+        if [[ -f "${chroot_path}/${script_path}" ]]; then
+            trace "${script_path} script is present in ${chroot_path}."
+            execute_chroot_command "${script_path}"
+        else
+            trace "Error: ${script_path} script is not present."
+        fi
+    else
+        trace "Package ${package_name} is not installed."
+    fi
+}
+
 update_package_manager()
 {
     local error_code=0
     case $src_distro in
         UBUNTU*)
             execute_chroot_command "apt-get update -y" || error_code=$?
+            ;;
+        CENTOS*)
+            execute_chroot_command "yum clean all" || error_code=$?
+            ;;
+        OL7*)
+            local package_name="oraclelinux-release-el7"
+            local script_path="/usr/bin/ol_yum_configure.sh"
+            execute_chroot_command "yum clean all" || error_code=$?
+            recover_modular_yum_configuration "${package_name}" "${script_path}"
+            ;;
+        OL8*)
+            execute_chroot_command "dnf clean all" || error_code=$?
             ;;
         *)
             local function_name="${FUNCNAME[0]}"
@@ -2433,9 +2630,7 @@ update_package_manager()
 }
 
 update_repositories_and_packages() 
-{
-    trace "Updating repositories in ${chroot_path}."
-    
+{   
     if update_vm_repositories; then
         trace "Successfully updated repositories in ${chroot_path}."
     else 
@@ -2508,6 +2703,8 @@ install_and_configure_nullboot()
 confidential_migration_flag=false
 installation_logs_added_flag=false
 enable_inline_ga_installation_flag=false
+enable_inline_ga_installation_flag_centos=false
+selinux_state="absent"
 
 ###End: Global variable
 
@@ -2550,7 +2747,7 @@ main()
 
         add_installation_logs
     
-    elif $enable_inline_ga_installation_flag; then
+    elif $enable_inline_ga_installation_flag || $enable_inline_ga_installation_flag_centos; then
 
         get_firmware_type
 
@@ -2560,7 +2757,7 @@ main()
 
         update_repositories_and_packages
 
-        verify_requited_tools
+        verify_required_tools
 
         verify_generate_initrd_images
         
@@ -2584,9 +2781,9 @@ main()
 
         get_firmware_type
 
-        mount_runtime_partitions    
+        mount_runtime_partitions 
 
-        verify_requited_tools
+        verify_required_tools
 
         verify_generate_initrd_images
         

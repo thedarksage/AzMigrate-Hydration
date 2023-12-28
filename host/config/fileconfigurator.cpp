@@ -2374,6 +2374,9 @@ std::string FileConfigurator::getResyncBatchCachePath() const
     return resyncBatchCachePath;
 }
 
+
+
+
 bool FileConfigurator::GetConfigDir(std::string &configDir) const
 {
     DebugPrintf(SV_LOG_DEBUG, "ENTERED %s\n", FUNCTION_NAME);

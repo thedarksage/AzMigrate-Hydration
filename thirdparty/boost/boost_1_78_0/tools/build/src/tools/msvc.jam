@@ -1915,8 +1915,8 @@ local rule register-toolset-really ( )
     # Declare flags for compilation.
     #
 
-    toolset.flags msvc.compile CFLAGS <specter>on : /Qspectre ;
-	toolset.flags msvc.compile CFLAGS <specter>off : "" ;
+    toolset.flags msvc.compile OPTIONS <specter>on : /Qspectre ;
+	toolset.flags msvc.compile OPTIONS <specter>off : "" ;
 	
 	toolset.flags msvc.compile OPTIONS <optimization>speed : /O2 ;
     toolset.flags msvc.compile OPTIONS <optimization>space : /O1 ;

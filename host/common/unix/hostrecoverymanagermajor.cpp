@@ -34,6 +34,9 @@ void HostRecoveryManager::ResetReplicationState()
 	//
 	// Call drvutil to stop filtering & delete bitmap files
 	//
+
+	int exitCode = 0;
+	std::string strCmdOut, strCmdError;
 	LocalConfigurator lConfig;
 	std::string strInmDmitCmd = lConfig.getInstallPath();
 	BOOST_ASSERT(!strInmDmitCmd.empty());
@@ -42,57 +45,30 @@ void HostRecoveryManager::ResetReplicationState()
 		strInmDmitCmd += ACE_DIRECTORY_SEPARATOR_STR_A;
 	strInmDmitCmd += "/bin/inm_dmit";
 
+    std::string stopFltCmd = strInmDmitCmd + " --op=stop_flt_all";
 
-    std::string listVolumesCmd = strInmDmitCmd + " --get_protected_volume_list";
-	DebugPrintf(SV_LOG_ERROR, "Running the command: %s\n", 
-		listVolumesCmd.c_str());
+    DebugPrintf(SV_LOG_ERROR, "Running the command: %s\n", stopFltCmd.c_str());
 
-	int exitCode = 0;
-	std::string strCmdOut, strCmdError;
-	if (!RunInmCommand(listVolumesCmd, strCmdOut, strCmdError, exitCode))
-	{
-		DebugPrintf(SV_LOG_ERROR, "Command execution error.\n");
-		DebugPrintf(SV_LOG_ERROR, "Exit code: %d\n", exitCode);
-		DebugPrintf(SV_LOG_ERROR, "-----stderror----\n%s\n", 
-			strCmdError.c_str());
+    if (!RunInmCommand(stopFltCmd, strCmdOut, strCmdError, exitCode))
+    {
+        DebugPrintf(SV_LOG_ERROR, "Command execution error.\n");
+        DebugPrintf(SV_LOG_ERROR, "Exit code: %d\n", exitCode);
+        DebugPrintf(SV_LOG_ERROR, "-----stderror----\n%s\n", strCmdError.c_str());
 
         THROW_HOST_REC_EXCEPTION(
             "Replication state cleanup failed. Manual intervention is required."
             );
-	}
-	DebugPrintf(SV_LOG_ERROR, "-----stdout----\n%s\n", strCmdOut.c_str());
+    }
+    DebugPrintf(SV_LOG_ERROR, "-----stdout----\n%s\n", strCmdOut.c_str());
 
-    std::istringstream ssOutput(strCmdOut);
-    std::string device;
-    while(std::getline(ssOutput, device))
+    //
+    // Clear chache settings files.
+    //
+    if (!DeleteProtectedDeviceDetails())
     {
-        boost::trim(device);
-        if (!boost::starts_with(device, "/dev/"))
-            continue;
-
-        std::string stopFltCmd = strInmDmitCmd + " --op=stop_flt --src_vol=";
-            stopFltCmd += device;
-
-        DebugPrintf(SV_LOG_ERROR, "Running the command: %s\n", 
-            stopFltCmd.c_str());
-
-        if (!RunInmCommand(stopFltCmd, strCmdOut, strCmdError, exitCode))
-        {
-            DebugPrintf(SV_LOG_ERROR, "Command execution error.\n");
-            DebugPrintf(SV_LOG_ERROR, "Exit code: %d\n", exitCode);
-            DebugPrintf(SV_LOG_ERROR, "-----stderror----\n%s\n", 
-                strCmdError.c_str());
-
-            THROW_HOST_REC_EXCEPTION(
-                "Replication state cleanup failed. Manual intervention is required."
-                );
-        }
-        DebugPrintf(SV_LOG_ERROR, "-----stdout----\n%s\n", strCmdOut.c_str());
+        THROW_HOST_REC_EXCEPTION("Failed to clear protected device details file.");
     }
 
-	//
-	// Clear chache settings files.
-	//
     std::list<std::string> lstFilesToRemove;
     std::string configFilesPath;
     if (LocalConfigurator::getConfigDirname(configFilesPath))
@@ -126,7 +102,7 @@ void HostRecoveryManager::ResetReplicationState()
 		boost::filesystem::path cache_file(*iterFile);
 		if (boost::filesystem::exists(cache_file))
 		{
-			DebugPrintf(SV_LOG_INFO, "Removing the file %s\n", iterFile->c_str());
+			DebugPrintf(SV_LOG_ALWAYS, "Removing the file %s\n", iterFile->c_str());
 			boost::filesystem::remove(cache_file);
 		}
 		else

@@ -66,7 +66,8 @@ namespace TagTelemetry
         TAG_TABLE_AGENT_LOG_KEY_ABSENT_VACP_START_TIME_KEY, // not used
         TAG_TABLE_AGENT_LOG_KEY_ABSENT_VACP_EXIT_STATUS, // not used
         TAG_TABLE_AGENT_LOG_REQUIRED_KEYS_NOT_FOUND = 9,
-        TAG_TABLE_AGENT_LOG_APP_RETRY_ON_REBOOT
+        TAG_TABLE_AGENT_LOG_APP_RETRY_ON_REBOOT,
+        TAG_TABLE_AGENT_LOG_TAG_RETRY_ON_POSTVALID_FAIL
     };
 
     const std::string IPADDR("IpAddr");
@@ -111,6 +112,9 @@ namespace TagTelemetry
     // Azure to Azure replication specific
     const std::string APPCONSINTERVAL("AppConsistencyInterval");
     const std::string CRASHCONSINTERVAL("CrashConsistencyInterval");
+
+    const std::string CUSTOMJSON("CustomJson");
+    const std::string EXTENDEDPROPS("ExtendedProperties");
 
     class TagStatus
     {
@@ -172,7 +176,7 @@ namespace TagTelemetry
         }
     }
 
-    static void GetValueForPropertyKey(tokenizer_t& inputLines, const::std::string& key, std::string &value)
+    static void GetValueForPropertyKey(const tokenizer_t& inputLines, const::std::string& key, std::string &value)
     {
         tokenizer_t::iterator lineIter(inputLines.begin());
         tokenizer_t::iterator lineIterEnd(inputLines.end());

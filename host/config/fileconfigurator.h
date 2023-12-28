@@ -170,6 +170,8 @@ public:
     static bool getVxProtectedDeviceDetailCachePathname(std::string & cachePath);
     static bool getDeprecatedVxProtectedDeviceDetailCachePathname(std::string & cachePath);
     static bool getVxPlatformTypeForDriverPersistentFile(std::string &filePath);
+    //static bool getImdsCachePathname(std::string& imdsSecurityCachePath, std::string& imdsStorageCachePath);
+
 public:
     //
     // ConfigureLocalVxAgent interface
@@ -503,7 +505,7 @@ public:
     std::string getNotAllowedMountPointFileName()const;
     std::string getConsistencySettingsCachePath() const;
     std::string getResyncBatchCachePath() const;
-
+   
     SV_UINT getManualResyncStartThresholdInSecs() const;
     SV_UINT getInitialReplicationStartThresholdInSecs() const;
     SV_UINT getAutoResyncStartThresholdInSecs() const;

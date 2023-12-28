@@ -303,7 +303,7 @@ stop_agent_service() {
                 ${fx_instdir}/stop >> ${INSTALL_LOGFILE} 2>&1
                 return_value=$?
             fi
-            
+
             if [ $return_value -eq 2 ]; then
                 trace_log_message -q "Could not stop Fx agent service. Please re-try after sometime. Aborting..."
                 stopsrv_retval=116
@@ -371,6 +371,38 @@ get_vx_version_params()
     tele_existing_version=$(awk -F. -v OFS=. '/^VERSION=/{$3 = "BLDNO"}{ print }' $VX_FILE | grep -w "^VERSION" | sed -e "s/BLDNO/$setup_bldnumber/g;"|cut -d= -f2)
 
     trace_log_message -q "EXITED $FUNCNAME"
+}
+
+check_openssl()
+{
+    trace_log_message -q "ENTERED $FUNCNAME"
+	local ret=1;
+	
+	local OPENSSL_OS_LIST="DEBIAN9-64 DEBIAN10-64 DEBIAN11-64 OL8-64 OL9-64 RHEL8-64 RHEL9-64 SLES15-64 UBUNTU-20.04-64 UBUNTU-22.04-64"
+	if [ `echo $OPENSSL_OS_LIST | grep -c "$OS" ` -gt 0 ] ; then
+	
+		trace_log_message -q "openssl check for "$OS""
+
+		local ciphers=`openssl ciphers -v 'ALL:eNULL'`
+		if [ `echo $ciphers | grep -c "TLSv1.2" ` -gt 0 ] ; then
+				trace_log_message -q "openssl found on VM and TLSv1.2 present in the list of available openssl ciphers"
+				ret=0
+		fi
+
+		if [ "$ret" = "1" ]; then
+				if [ -z "$ciphers" ]; then
+						trace_log_message -q "openssl not found on VM"
+				else
+						trace_log_message -q "openssl found on VM but TLSv1.2 not present in the list of available openssl ciphers, available ciphers=\"$ciphers\""
+				fi
+		fi
+	else
+		ret=0
+		trace_log_message -q "Skipping openssl check for "$OS""
+	fi
+				
+    trace_log_message -q "EXITED $FUNCNAME"
+    return $ret
 }
 
 check_faulty_driver()
@@ -481,10 +513,10 @@ cert_generation()
 {
     local return_value=0
     SetOP "GenerateCertificate"
-    
+
     trace_log_message "Generating the certificate."
     $($PWD/gencert -n ps --dh >> $INSTALL_LOGFILE 2>&1) || return_value=110
-    
+
     trace_log_message -q "Certificate generation return value : $return_value"
     if [ $return_value -eq 0 ]; then
         RecordOP 0 ""
@@ -700,7 +732,7 @@ install_prerequisites() {
             break
         fi
         RecordOP 0 ""
-        
+
         # Make sure partition containing the installation directory has at least 250 MB of free space. Abort if it fails.
         SetOP "PreReqFreeSpaceOnDeployPartition"
         [ -d "$custom_deploy_path" ] || mkdir -p "$custom_deploy_path" > /dev/null 2>&1
@@ -718,7 +750,7 @@ install_prerequisites() {
 
         break
     done
-    
+
     trace_log_message -q "Agent installation pre-requisite checks return value : $return_value"
     return $return_value  
 }
@@ -890,9 +922,21 @@ setup_prerequisites() {
             break
         fi
         RecordOP 0 ""
-        
+
         # Make sure operating system is compatible with agent build
         SetOP "CheckOSandAgentCompatibility"
+
+        # Check the architecture and allow 64-bit only
+        architecture=$(uname -m)
+        if [ "$architecture" == "i686" ] || [ "$architecture" == "i386" ]; then
+            trace_log_message -q "Machine architecture is 32-bit, which is not supported."
+            trace_log_message "Agent you are trying to install/upgrade is not built for $OS, can not be installed on this Operating System. Aborting..."
+            return_value=149
+            RecordOP $return_value \
+                    "Agent not built for running OS $OS"
+            break
+        fi
+
         if [ -z "$OS" ] || ! $(grep -qw $OS$ $PWD/.vx_version); then
             trace_log_message -q "Current Operating System version: $OS"
             trace_log_message "Agent you are trying to install/upgrade is not built for $OS, can not be installed on this Operating System. Aborting..."
@@ -913,7 +957,7 @@ setup_prerequisites() {
             break
         fi
         RecordOP 0 ""
-        
+
         # Check for rpm command availability.
         SetOP "CheckForRPMcmdOnRHELorSLESorOL"
         if $(echo "$OS" | egrep -q "RHEL|SLES|OL") ; then
@@ -928,7 +972,7 @@ setup_prerequisites() {
 
         # Check whether rpm database is in consistent state.
             SetOP "CheckRpmDatabaseState"
-         trace_log_message -q "Verifying rpm database state."    
+         trace_log_message -q "Verifying rpm database state."
 
         "$RPM_COMMAND" --verifydb >> ${INSTALL_LOGFILE} 2>&1
         if [ $? -eq 0 ]; then
@@ -940,7 +984,7 @@ setup_prerequisites() {
             "$RPM_COMMAND" -vv --verifydb >> ${INSTALL_LOGFILE} 2>&1
             trace_log_message -q "The listing of __db* files from /var/lib/rpm"
             ls /var/lib/rpm/__db* >> ${INSTALL_LOGFILE} 2>&1
-	    trace_log_message -q "Building the RPM database"
+        trace_log_message -q "Building the RPM database"
             "$RPM_COMMAND" -vv --rebuilddb >> ${INSTALL_LOGFILE} 2>&1
 
             "$RPM_COMMAND" --verifydb >> ${INSTALL_LOGFILE} 2>&1
@@ -957,7 +1001,7 @@ setup_prerequisites() {
             fi
         fi
             fi
-        fi        
+        fi
 
         # Disable Lvm2-lvmetad Service.
     Agent_Role=$(tr [a-z] [A-Z] <<<$AGENT_ROLE)
@@ -971,9 +1015,9 @@ setup_prerequisites() {
             fi
         fi
  
-        break;        
+        break;
     done
-    
+
     trace_log_message -q "Agent installation common pre-requisite checks return value : $return_value"
     return $return_value
 }
@@ -1009,11 +1053,11 @@ validate_silent_options() {
                 break
             else
                 [ "$VM_PLATFORM" = "vmware" ] && VM_PLATFORM="VmWare"
-                [ "$VM_PLATFORM" = "azure" ] && VM_PLATFORM="Azure"            
+                [ "$VM_PLATFORM" = "azure" ] && VM_PLATFORM="Azure"
             fi
         fi
-        
-        if [ -n "$AGENT_ROLE" ]; then            
+
+        if [ -n "$AGENT_ROLE" ]; then
             AGENT_ROLE=$(tr [A-Z] [a-z] <<<$AGENT_ROLE)
             AGENT_ROLE=`echo $AGENT_ROLE | tr -d " "`
             if [ "$AGENT_ROLE" != "ms" -a "$AGENT_ROLE" != "mt" ] ; then
@@ -1031,7 +1075,7 @@ validate_silent_options() {
             errmessage="Agent Role cannot be null"
             break
         fi
-        
+
         if [ -n "$INSTALL_LOGFILE" ]; then
             if [ ! -e "$INSTALL_LOGFILE" ]; then
                 logfile_path=${INSTALL_LOGFILE%/*}
@@ -1039,13 +1083,13 @@ validate_silent_options() {
                 mkdir -p $logfile_path >/dev/null 2>&1
             fi
         fi
-        
+
         if [ -n "$CHOSEN_DEPLOY_DIR" ]; then
             if [ ! -d "$CHOSEN_DEPLOY_DIR" ]; then
                 mkdir -p $CHOSEN_DEPLOY_DIR >/dev/null 2>&1
-            fi                
+            fi
         fi
-        
+
         trace_log_message -q "Command line validation checks return value : $return_value"
         break
     done
@@ -1122,13 +1166,13 @@ trace_log_message()
     if [ $# -gt 0 ]
     then
         DATE_TIME=`date '+%m/%d/%Y %H:%M:%S'`
-        
+
         if [ "${QUIET_MODE}" = "TRUE" ]
         then
             echo "${DATE_TIME}: $*" >> ${INSTALL_LOGFILE}
-        else            
+        else
             echo -e "$@"
-            echo "${DATE_TIME} : $@ " >> ${INSTALL_LOGFILE} 2>&1            
+            echo "${DATE_TIME} : $@ " >> ${INSTALL_LOGFILE} 2>&1
         fi
     else
         if [ "${QUIET_MODE}" = "TRUE" ]
@@ -1157,9 +1201,9 @@ check_input() {
     local message=$1
     local validate=$2
     local default=$3
-    local return_value=0    
+    local return_value=0
     INPUTTEXT=""
-    
+
     while [ $? -ne 1 ]
     do
         trace_log_message -q "$message "
@@ -1194,11 +1238,11 @@ check_input() {
 get_installation_dir() {
     local return_value=0
 
-    while true; do        
+    while true; do
         echo -en "\nProvide an agent installation location ? [Default: /usr/local/ASR] : "
         read installation_dir
         [ -z "$installation_dir" ] && installation_dir=/usr/local/ASR
-        if [ "$(echo $installation_dir | cut -c1)" != "/" ]; then                        
+        if [ "$(echo $installation_dir | cut -c1)" != "/" ]; then
             trace_log_message -q "Installation directory must be an absolute path (i.e. beginning with a \"/\")."
             trace_log_message "Invalid input. Please try again."
             continue
@@ -1207,7 +1251,7 @@ get_installation_dir() {
             break;
         fi
     done
-    
+
     trace_log_message -q "get installation directory output $CHOSEN_DEPLOY_DIR and return value: $return_value"
     return $return_value
 }
@@ -1267,6 +1311,7 @@ InstallAgent() {
     set_scenario "Install"
     SetOP "InstallVxAgent"
 
+    [ "$IsAzureStackHub" -eq 1 ] && VM_PLATFORM="AzureStackHub"
     # Initiating Vx agent installation.
     trace_log_message -q "$PWD/install_vx -A $ACTION_TO_BE_PERFORMED -d $CHOSEN_DEPLOY_DIR -r $AGENT_ROLE -v $VM_PLATFORM -l $INSTALL_LOGFILE -c $CS_TYPE -e $INSTALL_ERRORS_JSON"
     $PWD/install_vx -A $ACTION_TO_BE_PERFORMED -d $CHOSEN_DEPLOY_DIR -r $AGENT_ROLE -v $VM_PLATFORM -l $INSTALL_LOGFILE -c $CS_TYPE -e $INSTALL_ERRORS_JSON
@@ -1276,6 +1321,7 @@ InstallAgent() {
         RecordOP $vx_return_code "VxAgent installation failed"
         return_exit_code $vx_return_code
     fi
+    [ "$IsAzureStackHub" -eq 1 ] && VM_PLATFORM="VmWare"
 
     RecordOP 0 ""
     return_exit_code $vx_return_code
@@ -1433,7 +1479,7 @@ UpgradeAgent() {
             return_exit_code 15
         else
             trace_log_message "Found ${vx_version} Vx Agent."
-       
+
             if [ "$SILENT_ACTION" != "true" ]; then 
                 check_input "Do you want to upgrade ? (yes/no) [Default: no]" "yes|no" "no"
                 if [ "$INPUTTEXT" = "yes" ]; then
@@ -1522,15 +1568,15 @@ UpgradeAgent() {
 usage() {
     trace_log_message -q   "Usage of the install program."
     trace_log_message "install [options]"
-    trace_log_message "Options:"    
+    trace_log_message "Options:"
     trace_log_message "  -d <Installation Directory>"
     trace_log_message "  -r <Role of agent MT|MS (MT:MasterTarget, MS:MobilityService> "
-    trace_log_message "  -v <Virtual Machine Platform VmWare|Azure> "
+    trace_log_message "  -v <Virtual Machine Platform VmWare|Azure|AzureStackHub> "
     trace_log_message "  -l <Install Log Name (absolute path)> "
     trace_log_message "  -e <Install errors json file path (absolute path)> "
     trace_log_message "  -q <Quiet> "
-	trace_log_message "  -a <Installation action - Install/Upgrade> "
-	trace_log_message "  -c <CSType - CSLegacy/CSPrime> "
+    trace_log_message "  -a <Installation action - Install/Upgrade> "
+    trace_log_message "  -c <CSType - CSLegacy/CSPrime> "
     exit 0
 }
 
@@ -1561,43 +1607,48 @@ main() {
         while getopts :d:r:l:v:m:j:e:a:c:qh  opt
         do
             case $opt in
-	    		a) ACTION="$OPTARG"
-				if [ "$ACTION" != "Install" -a "$ACTION" != "Upgrade" ]; then
-					trace_log_message -q "Specify correct installation action in command line parameter"
-					usage && exit 96
-				fi ;;
-                    d) CHOSEN_DEPLOY_DIR="$OPTARG" ;;
-                    r) AGENT_ROLE="$OPTARG" ;;
-                    l) CUSTOM_LOGFILE="$OPTARG" ;;
-                    v) VM_PLATFORM="$OPTARG" ;;
-                    q) SILENT_ACTION=true ;;
-                    m) INVOKER="$OPTARG" ;;
-                    j) json_file="$OPTARG" ;;
-		    c) CS_TYPE="$OPTARG"
-		    	if [ "$CS_TYPE" != "CSLegacy" -a "$CS_TYPE" != "CSPrime" ]; then
-				echo "Incorrect CSType passed. CSType should be either CSLegacy or CSPrime"
-				usage && exit 96
-			fi;;
-             e) INSTALL_ERRORS_JSON="$OPTARG" ;;
-                    h|-*|*)
-                        trace_log_message -q "Specify the installation or upgrade or configuration options to the command-line!"
+                a) ACTION="$OPTARG"
+                    if [ "$ACTION" != "Install" -a "$ACTION" != "Upgrade" ]; then
+                        trace_log_message -q "Specify correct installation action in command line parameter"
                         usage && exit 96
-                    ;;
-            esac
+                    fi ;;
+                d) CHOSEN_DEPLOY_DIR="$OPTARG" ;;
+                r) AGENT_ROLE="$OPTARG" ;;
+                l) CUSTOM_LOGFILE="$OPTARG" ;;
+                v) VM_PLATFORM="$OPTARG" ;;
+                q) SILENT_ACTION=true ;;
+                m) INVOKER="$OPTARG" ;;
+                j) json_file="$OPTARG" ;;
+                c) CS_TYPE="$OPTARG"
+                    if [ "$CS_TYPE" != "CSLegacy" -a "$CS_TYPE" != "CSPrime" ]; then
+                    echo "Incorrect CSType passed. CSType should be either CSLegacy or CSPrime"
+                    usage && exit 96
+                    fi ;;
+                e) INSTALL_ERRORS_JSON="$OPTARG" ;;
+                h|-*|*)
+                   trace_log_message -q "Specify the installation or upgrade or configuration options to the command-line!"
+                   usage && exit 96
+                ;;
+                esac
         done
     fi
-	
-	echo "$VM_PLATFORM" | grep -qi "vmware" && VM_PLATFORM="VmWare"
-    	echo "$VM_PLATFORM" | grep -qi "azure" && VM_PLATFORM="Azure"
-	if [ -z "$CS_TYPE" ]; then
-		CS_TYPE="CSLegacy"
-	fi
-        
+
+    echo "$VM_PLATFORM" | grep -qi "vmware" && VM_PLATFORM="VmWare" && IsAzureStackHub=0
+    echo "$VM_PLATFORM" | grep -qi "azurestackhub" && VM_PLATFORM="VmWare" && IsAzureStackHub=1
+    echo "$VM_PLATFORM" | grep -qi "azure" && VM_PLATFORM="Azure" && IsAzureStackHub=0
+    if [ -z "$CS_TYPE" ]; then
+        if [ ! -z "$AGENT_ROLE" -a "$AGENT_ROLE" = "MT" ]; then
+            CS_TYPE="CSLegacy"
+        else
+            CS_TYPE="CSPrime"
+        fi
+    fi
+
     if [ -z "$ACTION" ]; then
-		ACTION="Install"
-	fi
-	
-	 # Populate INSTALL_ERRORS_JSON with default value when it is not passed.
+        ACTION="Install"
+    fi
+
+     # Populate INSTALL_ERRORS_JSON with default value when it is not passed.
     if [ -z "$INSTALL_ERRORS_JSON" ]; then
         INSTALL_ERRORS_JSON=$DEFAULT_INSTALL_ERRORS_JSON
     fi
@@ -1616,11 +1667,11 @@ main() {
         RecordOP $return_value "Install errors json file must be an absolute path"
         exit $return_value
     fi
-	
-	json_errors_file=$INSTALL_ERRORS_JSON
-	if [ -e "${json_errors_file}" ]; then
-		rm -f ${json_errors_file}
-	fi
+
+    json_errors_file=$INSTALL_ERRORS_JSON
+    if [ -e "${json_errors_file}" ]; then
+        rm -f ${json_errors_file}
+    fi
 
     if [ -f libcommon.sh ]; then
     . ./libcommon.sh
@@ -1631,13 +1682,12 @@ main() {
         exit $return_value
     fi
 
-	if [ $# -ge 1 ] && [ -z "$ACTION" ] && [ "$AGENT_ROLE" = "MS" ]; then
-		#Throw error that mandatory parameter Instalaltion type is not passed
-		arg="InstallationType"
-		log_to_json_file ASRMobilityServiceInstallerCommandLineParametersMissingFailure "Following command line params are missing : ${arg}" MissingCmdArguments ${arg}
-		exit 97
-	fi
-
+    if [ $# -ge 1 ] && [ -z "$ACTION" ] && [ "$AGENT_ROLE" = "MS" ]; then
+        #Throw error that mandatory parameter Instalaltion type is not passed
+        arg="InstallationType"
+        log_to_json_file ASRMobilityServiceInstallerCommandLineParametersMissingFailure "Following command line params are missing : ${arg}" MissingCmdArguments ${arg}
+        exit 97
+    fi
     if [ ! -z "$CUSTOM_LOGFILE" ] && [ "$INSTALL_LOGFILE" != "$CUSTOM_LOGFILE" ]; then
         # Till this point we written log to INSTALL_LOGFILE, but now
         # user input log file name CUSTOM_LOGFILE, copy log so far
@@ -1672,7 +1722,13 @@ main() {
             log_to_json_file ASRMobilityServiceUninstallationInternalError  "ASR incompatible agent is installed on the system. Uninstallation failed." UninstallCommand "$uninstall_cmd"
             return_exit_code $FailedWithErrors
         fi
-    fi
+    fi    
+
+    check_openssl
+    if [ "$?" -ne "0" ]; then
+		log_to_json_file ASRMobiityServiceInstallerPreReqOpenSSLMissing "Either openssl not found on VM or TLSv1.2 not present in the list of available openssl ciphers. Installation failed."
+        return_exit_code $FailedWithErrors
+    fi   
 
     # Read conf values from vx_version file (needed upfront for telemetry)
     is_agent_installed "Vx"
@@ -1685,20 +1741,20 @@ main() {
     # Make sure all setup pre-requisite checks are met
     setup_prerequisites || return_exit_code $?
 
-    # Make sure there are no multiple instances running. 
+    # Make sure there are no multiple instances running.
     check_instance || return_exit_code $?
 
     Assign_Platform
- 
-	if is_agent_installed "Vx" ; then
-		DRSCOUT_CSTYPE=$(grep ^CSType ${vx_instdir}/etc/drscout.conf | cut -d"=" -f2 | tr -d " ")
-		if [ ! $? ] || [ -z "$DRSCOUT_CSTYPE" ] || [ "$DRSCOUT_CSTYPE" != "CSLegacy" -a "$DRSCOUT_CSTYPE" != "CSPrime" ]; then
-			DRSCOUT_CSTYPE="CSLegacy"
-		fi
-	else
-		DRSCOUT_CSTYPE="CSLegacy"
-	fi
-	
+
+    if is_agent_installed "Vx" ; then
+        DRSCOUT_CSTYPE=$(grep ^CSType ${vx_instdir}/etc/drscout.conf | cut -d"=" -f2 | tr -d " ")
+        if [ ! $? ] || [ -z "$DRSCOUT_CSTYPE" ] || [ "$DRSCOUT_CSTYPE" != "CSLegacy" -a "$DRSCOUT_CSTYPE" != "CSPrime" ]; then
+            DRSCOUT_CSTYPE="CSPrime"
+        fi
+    else
+        DRSCOUT_CSTYPE="CSPrime"
+    fi
+
     # If SILENT_ACTION is "true" then invoking silent actions else interactive actions
     if [ "$SILENT_ACTION" = "true" ]; then
         # Silent installation/upgrade
@@ -1758,12 +1814,12 @@ main() {
         trace_log_message -q "Interactive installation begin"
 
         if is_agent_installed "Vx" ; then
-			CS_TYPE=$DRSCOUT_CSTYPE
-			UpgradeAgent
+            CS_TYPE=$DRSCOUT_CSTYPE
+            UpgradeAgent
         else
             # Fresh Agent installation
             ACTION_TO_BE_PERFORMED="I"
-            
+
             # Don't allow interactive installation on Azure VMs.
             Vm_Platform=$(tr [a-z] [A-Z] <<<$VM_PLATFORM)
             if [ "$Vm_Platform" = "AZURE" ]; then
@@ -1780,9 +1836,9 @@ main() {
                 get_agent_role || return_exit_code $?
             fi
 
-        Agent_Role=$(tr [a-z] [A-Z] <<<$AGENT_ROLE)
-        trace_log_message -q "Agent_Role=${Agent_Role} and OS=$OS"
-        if [ "${Agent_Role}" = "MT" -o "${Agent_Role}" = "MASTERTARGET" ] && [ "$OS" = "UBUNTU-16.04-64" -o "$OS" = "RHEL7-64" ]; then
+            Agent_Role=$(tr [a-z] [A-Z] <<<$AGENT_ROLE)
+            trace_log_message -q "Agent_Role=${Agent_Role} and OS=$OS"
+            if [ "${Agent_Role}" = "MT" -o "${Agent_Role}" = "MASTERTARGET" ] && [ "$OS" = "UBUNTU-16.04-64" -o "$OS" = "RHEL7-64" ]; then
                 Disable_Lvm2_lvmetad_Service || return_exit_code $?
             fi
 

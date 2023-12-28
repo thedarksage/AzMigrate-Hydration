@@ -17,6 +17,7 @@ PREREQ_CONF_FILE="${THIS_SCRIPT_DIR}/prereq_check_installer.json"
 Supported_Kernels="${THIS_SCRIPT_DIR}/supported_kernels"
 LOG_FILE="/var/log/ua_install.log"
 TEMP_FILE="${THIS_SCRIPT_DIR}/prereq_check_temp_file"
+VX_VERSION_FILE="${THIS_SCRIPT_DIR}/.vx_version"
 MIN_ROOT_FREESPACE_KB=1048576
 RETURN_VALUE=0
 json_errors_file=
@@ -462,7 +463,12 @@ check_current_kernel_supported()
                esac
             fi
             ;;
-
+        
+	    "RHEL9-64")
+            echo ${CURR_KERNEL} | grep -q ".el9.*"
+            ret=$?
+            ;;    
+    
         "OL7-64")
             echo ${CURR_KERNEL} | egrep -q ".el7.x86_64$|.el7uek.x86_64"
             ret=$?
@@ -476,30 +482,32 @@ check_current_kernel_supported()
                 echo ${CURR_KERNEL} | grep -q ".el8.*"
                 if [ $? -eq "0" ]; then
                     minor_version=`echo ${CURR_KERNEL} | awk -F"-" '{print $2}' | awk -F"." '{print $1}'`
-                    if [ ${minor_version} -ge "80" -a ${minor_version} -le "348" ]; then
-                        case ${minor_version} in
-                            "305")
-                                is_supported_rhel8_kernel ${CURR_KERNEL} 30 1
-                                if [ $? -eq "0" ]; then
-                                    ret=0
-                                fi
-                                ;;
-
-                            "348")
-                                is_supported_rhel8_kernel ${CURR_KERNEL} 5 1
-                                if [ $? -eq "0" ]; then
-                                    ret=0
-                                fi
-                                ;;
-
-                            *)
+                    case ${minor_version} in
+                        "305")
+                            is_supported_rhel8_kernel ${CURR_KERNEL} 30 1
+                            if [ $? -eq "0" ]; then
                                 ret=0
-                                ;;
-                        esac
-                    fi
+                            fi
+                            ;;
+
+                        "348")
+                            is_supported_rhel8_kernel ${CURR_KERNEL} 5 1
+                            if [ $? -eq "0" ]; then
+                                ret=0
+                            fi
+                            ;;
+
+                        *)
+                            ret=0
+                            ;;
+                    esac
                 fi
             fi
 
+            ;;
+        "OL9-64")
+            echo ${CURR_KERNEL} | egrep -q ".el9uek.x86_64|.el9.*"
+            ret=$?
             ;;
 
         "SLES11-SP3-64"|"SLES11-SP4-64")
@@ -551,9 +559,11 @@ check_current_kernel_supported()
 
     if [ ${ret} -ne "0" ]; then
         RETURN_VALUE=1
-        LOG "This version of mobility service doesn't support the operating system kernel version (${CURR_KERNEL}) running on the source machine. Please refer the list of operating systems supported by Azure Site Recovery : https://aka.ms/asr-os-support"
-        log_to_json_file ASRMobilityServiceKernelNotSupported "This version of mobility service doesn't support the operating system kernel version (${CURR_KERNEL}) running on the source machine. Please refer the list of operating systems supported by Azure Site Recovery : https://aka.ms/asr-os-support" KernelVersion ${CURR_KERNEL}
-        RecordOP 99 "This version of mobility service doesn't support the operating system kernel version (${CURR_KERNEL}) running on the source machine."
+        local build_line=$(grep '^BUILD_TAG=' $VX_VERSION_FILE)
+        local build_version=$(echo "$build_line" | awk -F_ '{split($3, v, "."); print v[1]"."v[2]"."$5".1"}')
+        LOG "(${build_version}) version of mobility service doesn't support the operating system kernel version (${CURR_KERNEL}) running on the source machine. Please refer the list of operating systems supported by Azure Site Recovery : https://aka.ms/asr-os-support"
+        log_to_json_file ASRMobilityServiceKernelNotSupportedV2 "(${build_version}) version of mobility service doesn't support the operating system kernel version (${CURR_KERNEL}) running on the source machine. Please refer the list of operating systems supported by Azure Site Recovery : https://aka.ms/asr-os-support" KernelVersion ${CURR_KERNEL} BuildVersion ${build_version}
+        RecordOP 99 "(${build_version}) version of mobility service doesn't support the operating system kernel version (${CURR_KERNEL}) running on the source machine."
         return
     fi
 

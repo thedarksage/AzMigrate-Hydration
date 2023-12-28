@@ -49,6 +49,17 @@ namespace AgentHealthIssueCodes
             const std::string HealthCode = "AppConsistentReplicationExceeded";
             const std::string ReplicationInterval = "AppConsistentReplicationInterval";
         };
+
+        namespace VMTypeUnsupported
+        {
+            const std::string HealthCode = "UnSupportedVMSecurityType";
+            const std::string SecurityProfile = "VMSecurityType";
+        };
+
+        namespace VMTypeConversionRequired
+        {
+          const std::string HealthCode = "VMSecurityTypeConversionRequired";
+        };
     }; // VMLevelHealthIssues
 
     namespace DiskLevelHealthIssues
@@ -135,6 +146,33 @@ namespace AgentHealthIssueCodes
         };
 
     }; // DiskLevelHealthIssues
+
+    namespace AgentToAzureServicesHealthIssues
+    {
+        namespace AgentToAzureGatewayConnectionNotHealthy
+        {
+            const std::string HealthCode = "SourceAgentToAzureGatewayConnectionNotHealthy";
+            const std::string GatewayEndpointURI = "SourceAgentGatewayEndpointURI";
+            const std::string GatewayErrorCode = "SourceAgentGatewayErrorCode";
+            const std::string GatewayLatency = "SourceAgentGatewayLatency";
+        };
+
+        namespace AgentToAzureIMDSConnectionNotHealthy
+        {
+            const std::string HealthCode = "SourceAgentToAzureIMDSConnectionNotHealthy";
+            const std::string IMDSEndpointURI = "SourceAgentIMDSEndpointURI";
+            const std::string IMDSErrorCode = "SourceAgentIMDSErrorCode";
+        };
+    }; // AgentToAzureServicesHealthIssues
+
+    namespace DriverHealthIssues
+    {
+        namespace DriverDrainBlockUnsupported
+        {
+            const std::string HealthCode = "DriverDrainBlockUnsupported";
+            const std::string DriverVersion = "DriverVersion";
+        };
+    }; // DriverHealthIssues
 
 }; // AgentHealthIssueCodes
 

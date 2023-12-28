@@ -33,10 +33,6 @@ OLD_LOGS_PATH="/var/log/InMage_Old_Logs"
 HOSTID_FILE='/usr/local/.vx_host_id'
 
 IS_SLES=false
-if [ -f /etc/os-release ] && grep -q 'SLES' /etc/os-release || [ -f /etc/SuSE-release ]; then
-    IS_SLES=true
-fi
-
 
 #
 # Function Name: trace_log_message()
@@ -286,7 +282,7 @@ Delete_Symbolic_Links()
         update-rc.d -f uarespawnd remove >> $UNINST_LOG 2>&1
         update-rc.d -f vxagent remove >> $UNINST_LOG 2>&1
         update-rc.d -f vConService_linux remove >> $UNINST_LOG 2>&1
-	systemctl daemon-reload
+        systemctl daemon-reload
     elif [ "$OS" = "DEBIAN7-64" ]; then
         trace_log_message "Removing service scripts on DEBIAN7-64 server."
         update-rc.d -f boottimemirroring_phase2 remove >> $UNINST_LOG 2>&1
@@ -296,7 +292,7 @@ Delete_Symbolic_Links()
         update-rc.d -f vConService_linux remove >> $UNINST_LOG 2>&1
         update-rc.d -f involflt remove >> $UNINST_LOG 2>&1
         update-rc.d -f involflt_start remove >> $UNINST_LOG 2>&1
-	elif [ "$OS" = "SLES15-64" -o "$OS" = "OL8-64" -o "$OS" = "UBUNTU-20.04-64" -o "$OS" = "DEBIAN9-64" -o "$OS" = "DEBIAN10-64" ]; then
+    elif list_contains "$SYSTEMCTL_DISTRO" "$OS"; then
         trace_log_message "Disabling and removing service scripts."
         systemctl disable vxagent >> $UNINST_LOG 2>&1
         systemctl disable vConService_linux >> $UNINST_LOG 2>&1
@@ -356,12 +352,18 @@ Delete_Symbolic_Links()
     find /etc/rc*.d -name "*cxpsctl" -exec rm -f {} \; >> $UNINST_LOG 2>&1
     find /etc/rc*.d -name "*vConService_linux" -exec rm -f {} \; >> $UNINST_LOG 2>&1
 
-    # Disable involflt_start and involflt_stop services
-    if [ "$OS" = "RHEL7-64" -o "$OS" = "RHEL8-64" -o "$OS" = "UBUNTU-16.04-64" -o "$OS" = "DEBIAN8-64" -o "$OS" = "SLES12-64" -o "$OS" = "SLES15-64" -o "$OS" = "OL7-64" -o "$OS" = "OL8-64" -o "$OS" =  "UBUNTU-20.04-64" -o "$OS" = "DEBIAN9-64" -o "$OS" = "DEBIAN10-64" ]; then
-        trace_log_message -q "Disabling involflt_start and involflt_stop services."
-        systemctl disable involflt_start  >> $UNINST_LOG 2>&1
-        systemctl disable involflt_stop >> $UNINST_LOG 2>&1
-        rm -f /etc/systemd/system/{involflt_start.service,involflt_stop.service} >> $UNINST_LOG 2>&1
+     # Disable involflt_start and involflt_stop services
+    if [ "$OS" = "RHEL7-64" -o "$OS" = "RHEL8-64" -o "$OS" = "RHEL9-64" -o "$OS" = "UBUNTU-16.04-64" -o "$OS" = "DEBIAN8-64" -o "$OS" = "SLES12-64" -o "$OS" = "SLES15-64" -o "$OS" = "OL7-64" -o "$OS" = "OL8-64" -o "$OS" = "OL9-64" -o "$OS" =  "UBUNTU-20.04-64" -o "$OS" = "UBUNTU-22.04-64" -o "$OS" = "DEBIAN9-64" -o "$OS" = "DEBIAN10-64" -o "$OS" = "DEBIAN11-64" ]; then
+	    if [ "$OS" != "RHEL7-64" ]; then    
+            trace_log_message -q "Disabling involflt_start and involflt_stop services."
+            systemctl disable involflt_start  >> $UNINST_LOG 2>&1
+            systemctl disable involflt_stop >> $UNINST_LOG 2>&1
+            rm -f /etc/systemd/system/{involflt_start.service,involflt_stop.service} >> $UNINST_LOG 2>&1
+        else
+            trace_log_message -q "Disabling involflt_stop services."
+            systemctl disable involflt_stop >> $UNINST_LOG 2>&1
+            rm -f /etc/systemd/system/involflt_stop.service >> $UNINST_LOG 2>&1
+        fi    
     fi
 
     # Inovke systemctl daemon-reload command if systemctl exists on the system.
@@ -611,7 +613,7 @@ stop_services() {
     do
         # Abort the un-installation if UA Respawn daemon could not be stopped
         trace_log_message "Stopping the UA Respawn daemon..."
-        if [ "$OS" = "SLES15-64" -o "$OS" = "OL8-64" -o "$OS" = "UBUNTU-20.04-64" -o "$OS" = "DEBIAN9-64" -o "$OS" = "DEBIAN10-64" ]; then
+        if [ "$OS" = "SLES15-64" -o "$OS" = "OL8-64" -o "$OS" = "OL9-64" -o "$OS" = "UBUNTU-20.04-64" -o "$OS" = "UBUNTU-22.04-64" -o "$OS" = "DEBIAN9-64" -o "$OS" = "DEBIAN10-64" -o "$OS" = "DEBIAN11-64" ]; then
             systemctl stop uarespawnd >> $UNINST_LOG 2>&1
             uarespawnd_exit_value=$?
             if [ $uarespawnd_exit_value -ne 0 ]; then
@@ -716,6 +718,11 @@ check_requisites() {
         else
             source ${REF_DIR}/${INST_VERSION_FILE}
             OS=$OS_BUILT_FOR
+
+            if [[ $OS == SLES* ]]; then
+                IS_SLES=true
+            fi
+
             # If INSTALLATION_DIR is null, get installation directory from $PWD
             if [ -z "$INSTALLATION_DIR" ]
             then
@@ -778,6 +785,13 @@ main() {
                     ;;
             esac
         done
+    fi
+
+    if [ -f ${INSTALLATION_DIR}/bin/libcommon.sh ]; then
+        . ${INSTALLATION_DIR}/bin/libcommon.sh
+    else
+        trace_log_message "File not found : libcommon.sh"
+        see_log 1
     fi
 
     # stop agent services

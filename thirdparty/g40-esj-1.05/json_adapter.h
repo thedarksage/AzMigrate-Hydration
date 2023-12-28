@@ -464,6 +464,96 @@ inline void stream(Adapter& adapter, const std::string& key, std::map<std::strin
 }
 
 //-----------------------------------------------------------------------------
+// this is the serializer for dictionary of vector of class T objects
+template <typename T>
+inline void stream(Adapter& adapter, const std::string& key, std::map<std::string, std::vector<T> >& value, bool more)
+{
+    typedef typename::std::map < std::string, std::vector<T> > ::iterator iterator_t;
+    if (adapter.storing())
+    {
+        adapter.serialize(key);
+        adapter.serialize(T_COLON);
+        adapter.serialize(T_OBJ_BEGIN);
+        iterator_t it = value.begin();
+        if (it != value.end())
+        {
+            // VC2012 cannot disambiguate the type of T when a vector of bool is used.
+            std::string t1 = it->first;
+            std::vector<T> t2 = it->second;
+            stream_classes(adapter, t1, t2, false);
+
+            for (++it; it != value.end(); ++it)
+            {
+                adapter.serialize(T_COMMA);
+                t1 = it->first;
+                t2 = it->second;
+                stream_classes(adapter, t1, t2, false);
+            }
+        }
+        adapter.serialize(T_OBJ_END);
+        if (more)
+        {
+            adapter.serialize(T_COMMA);
+        }
+    }
+    else
+    {
+        // expecting "name" ':'
+        adapter.serialize(key);
+        //
+        adapter.serialize(T_COLON);
+        // '['
+        adapter.serialize(T_OBJ_BEGIN);
+        // cope with empty arrays so we need look-ahead here
+        if (adapter.peek(T_OBJ_END))
+        {
+            // '}'
+            adapter.serialize(T_OBJ_END);
+        }
+        else
+        {
+            do
+            {
+                // create a new instance
+                std::string t1;
+                std::vector<T> t2;
+                adapter.serialize(t1);
+                adapter.serialize(T_COLON);
+                adapter.serialize(T_ARRAY_BEGIN);
+
+                if (adapter.peek(T_ARRAY_END))
+                {
+                    // ']'
+                    adapter.serialize(T_ARRAY_END);
+                }
+                else
+                {
+                    do
+                    {
+                        T t;
+                        adapter.serialize(T_OBJ_BEGIN);
+                        // read off adapter
+                        stream(adapter, t);
+                        adapter.serialize(T_OBJ_END);
+                        // push back into vector
+                        t2.push_back(t);
+                    } while (adapter.more(T_ARRAY_END));
+                }  
+                // push back into map
+                value.insert(std::make_pair(t1, t2));
+                // keep going if we have a ',', end if '}'
+            } while (adapter.more(T_OBJ_END));
+        }
+        // 
+        if (more)
+        {
+            // there will be more ...
+            adapter.serialize(T_COMMA);
+        }
+    }
+}
+
+//-----------------------------------------------------------------------------
 // this is the serializer for dictionary of class T objects
 template <typename T>
 inline void stream(Adapter& adapter, const std::string& key, std::map<std::string, T>& value, bool more)
@@ -870,6 +960,20 @@ inline void stream_kv_class(ptree& node, const std::string& key, std::map < std:
     {
         T cls;
         cls.serialize(v.second);
+        value.insert(std::make_pair(v.first, cls));
+    }
+}
+
+template <typename T>
+inline void stream_kv_class(ptree& node, const std::string& key, std::map < std::string, std::vector<T> >& value)
+{
+    boost::optional<ptree&> opChild;
+    CONT_IF_CHILD_PRESENT(node, key, opChild);
+
+    BOOST_FOREACH(ptree::value_type & v, opChild.get())
+    {
+        std::vector<T> cls;
+        stream_classes(opChild.get(), v.first, cls);
         value.insert(std::make_pair(v.first, cls));
     }
 }

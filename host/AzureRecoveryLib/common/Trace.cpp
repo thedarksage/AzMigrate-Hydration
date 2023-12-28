@@ -262,7 +262,7 @@ void Trace::TraceMsg(const char* format, ...)
     std::string msg = GetFormatedMsg(LogLevelTxtMsg::Trace, format, args);
 
     if (s_logCallback)
-        s_logCallback(LogLevelAlways, msg.c_str());
+        s_logCallback(LogLevelTrace, msg.c_str());
     else
         s_trace.WriteToLog(msg);
     

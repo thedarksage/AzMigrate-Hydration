@@ -26,6 +26,11 @@ namespace TagTelemetry
         const std::string LocalTagKey = "Issued a LOCAL TAG";
         const std::string MultivmTagKey = "Issued a DISTRIBUTED TAG on this Node.";
 
+        const std::string VMSecurityTypeKey = "VMSecurityType";
+        const std::string VMChangeTrackingIdKey = "VMChangeTrackingId";
+        const std::string VMSecurityProfileSecureBootFlagKey = "VMSecurityProfileSecureBootFlag";
+        const std::string VMSecurityProfileVTPMEnabledFlagKey = "VMSecurityProfileVTPMEnabledFlag";
+
         const std::string TagInsertTimeKey = "TagInsertTime: ";
         const std::string IoBarrierKey = "Elapsed Time for IoBarrier is";
         const std::string AppQuiesceKey = "Elapsed Time for AppQuiesce is";

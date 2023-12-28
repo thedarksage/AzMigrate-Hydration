@@ -30,8 +30,8 @@ Copy-Item "\\$BuildMachine\DailyBuilds\Daily_Builds\$Version\HOST\$Date\UnifiedA
 Copy-Item "\\$BuildMachine\DailyBuilds\Daily_Builds\$Version\HOST\$Date\UnifiedAgent_Builds\$Config\Microsoft-ASR_UA_*_UBUNTU-16.04-*_$Date1_$Config.tar.gz"  I:\SRC\$BranchName\InMage-Azure-SiteRecovery\host\setup\Linux_Agents -passthru >> $Log_File
 Copy-Item "\\$BuildMachine\DailyBuilds\Daily_Builds\$Version\HOST\$Date\UnifiedAgent_Builds\$Config\Microsoft-ASR_UA_*_UBUNTU-18.04-*_$Date1_$Config.tar.gz"  I:\SRC\$BranchName\InMage-Azure-SiteRecovery\host\setup\Linux_Agents -passthru >> $Log_File
 Copy-Item "\\$BuildMachine\DailyBuilds\Daily_Builds\$Version\HOST\$Date\UnifiedAgent_Builds\$Config\Microsoft-ASR_UA_*_UBUNTU-20.04-*_$Date1_$Config.tar.gz"  I:\SRC\$BranchName\InMage-Azure-SiteRecovery\host\setup\Linux_Agents -passthru >> $Log_File
-Copy-Item "\\$BuildMachine\DailyBuilds\Daily_Builds\$Version\HOST\$Date\UnifiedAgent_Builds\$Config\Microsoft-ASR_UA_*_DEBIAN9-*_$Date1_$Config.tar.gz"  I:\SRC\$BranchName\InMage-Azure-SiteRecovery\host\setup\Linux_Agents -passthru >> $Log_File
 Copy-Item "\\$BuildMachine\DailyBuilds\Daily_Builds\$Version\HOST\$Date\UnifiedAgent_Builds\$Config\Microsoft-ASR_UA_*_DEBIAN10-*_$Date1_$Config.tar.gz"  I:\SRC\$BranchName\InMage-Azure-SiteRecovery\host\setup\Linux_Agents -passthru >> $Log_File
+Copy-Item "\\$BuildMachine\DailyBuilds\Daily_Builds\$Version\HOST\$Date\UnifiedAgent_Builds\$Config\Microsoft-ASR_UA_*_DEBIAN11-*_$Date1_$Config.tar.gz"  I:\SRC\$BranchName\InMage-Azure-SiteRecovery\host\setup\Linux_Agents -passthru >> $Log_File
 
 Copy-Item "\\$BuildMachine\DailyBuilds\Daily_Builds\$Version\HOST\$Date\PushInstallClients\RHEL5-*_pushinstallclient.tar.gz"  I:\SRC\$BranchName\InMage-Azure-SiteRecovery\host\setup\Linux_Agents -passthru >> $Log_File
 Copy-Item "\\$BuildMachine\DailyBuilds\Daily_Builds\$Version\HOST\$Date\PushInstallClients\RHEL6-*_pushinstallclient.tar.gz"  I:\SRC\$BranchName\InMage-Azure-SiteRecovery\host\setup\Linux_Agents -passthru >> $Log_File
@@ -52,6 +52,7 @@ Copy-Item "\\$BuildMachine\DailyBuilds\Daily_Builds\$Version\HOST\$Date\PushInst
 Copy-Item "\\$BuildMachine\DailyBuilds\Daily_Builds\$Version\HOST\$Date\PushInstallClients\DEBIAN8-*_pushinstallclient.tar.gz"  I:\SRC\$BranchName\InMage-Azure-SiteRecovery\host\setup\Linux_Agents -passthru >> $Log_File
 Copy-Item "\\$BuildMachine\DailyBuilds\Daily_Builds\$Version\HOST\$Date\PushInstallClients\DEBIAN9-*_pushinstallclient.tar.gz"  I:\SRC\$BranchName\InMage-Azure-SiteRecovery\host\setup\Linux_Agents -passthru >> $Log_File
 Copy-Item "\\$BuildMachine\DailyBuilds\Daily_Builds\$Version\HOST\$Date\PushInstallClients\DEBIAN10-*_pushinstallclient.tar.gz"  I:\SRC\$BranchName\InMage-Azure-SiteRecovery\host\setup\Linux_Agents -passthru >> $Log_File
+Copy-Item "\\$BuildMachine\DailyBuilds\Daily_Builds\$Version\HOST\$Date\PushInstallClients\DEBIAN11-*_pushinstallclient.tar.gz"  I:\SRC\$BranchName\InMage-Azure-SiteRecovery\host\setup\Linux_Agents -passthru >> $Log_File
 
 #Declaring the variables for log name.
 $DRALog_Name = "DRABuildDetails_"+$(Get-Date -Format dd_MMM_yyyy_hh_mm_tt)+".txt"

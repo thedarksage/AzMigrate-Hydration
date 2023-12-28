@@ -72,7 +72,7 @@ log_to_json_errors_file()
 
 }
 
-SYSTEMCTL_DISTRO="SLES15-64 OL8-64 UBUNTU-20.04-64 DEBIAN9-64 DEBIAN10-64"
+SYSTEMCTL_DISTRO="SLES15-64 OL8-64 OL9-64 UBUNTU-20.04-64 UBUNTU-22.04-64 DEBIAN9-64 DEBIAN10-64 DEBIAN11-64 RHEL9-64"
 
 #FUNCTION : check if list contains the element, 0->contains, 1->doesn't contain
 list_contains()

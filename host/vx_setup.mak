@@ -139,29 +139,29 @@ endif
 # The assumption is that the dir time stamp changes only when some checkins are done. Else there will not be any
 # change in the timestamp.
 
-$(involflt_overall_list_redhat): drivers/InVolFlt/linux
+$(involflt_overall_list_redhat): drivers/InVolFlt/InMage-ASRDFD/src
 	@echo $@
-	cd drivers/InVolFlt/linux && mkdir -p drivers_dbg && make -f involflt.mak KDIR=/lib/modules/$@/build clean && make -f involflt.mak KDIR=/lib/modules/$@/build debug=$(debug) && mv bld_involflt/involflt.ko drivers_dbg/involflt.ko.$@.dbg && strip -g drivers_dbg/involflt.ko.$@.dbg -o involflt.ko.$@
+	cd drivers/InVolFlt/InMage-ASRDFD/src && mkdir -p drivers_dbg && make -f involflt.mak KDIR=/lib/modules/$@/build clean && make -f involflt.mak KDIR=/lib/modules/$@/build debug=$(debug) TELEMETRY=yes VERSION_MAJOR=$(X_VERSION_MAJOR) VERSION_MINOR=$(X_VERSION_MINOR) VERSION_PRIVATE=1 VERSION_BUILDNUM=$(X_VERSION_BUILD_NUM) && mv bld_involflt/involflt.ko drivers_dbg/involflt.ko.$@.dbg && strip -g drivers_dbg/involflt.ko.$@.dbg -o involflt.ko.$@
 
-$(involflt_overall_list_sles): drivers/InVolFlt/linux
+$(involflt_overall_list_sles): drivers/InVolFlt/InMage-ASRDFD/src
 	@echo $@
-	cd drivers/InVolFlt/linux && mkdir -p drivers_dbg && make -f involflt.mak KDIR=/lib/modules/$@/build clean && make -f involflt.mak KDIR=/lib/modules/$@/build debug=$(debug) && mv bld_involflt/involflt.ko drivers_dbg/involflt.ko.$@.dbg && strip -g drivers_dbg/involflt.ko.$@.dbg -o involflt.ko.$@
+	cd drivers/InVolFlt/InMage-ASRDFD/src && mkdir -p drivers_dbg && make -f involflt.mak KDIR=/lib/modules/$@/build clean && make -f involflt.mak KDIR=/lib/modules/$@/build debug=$(debug) TELEMETRY=yes VERSION_MAJOR=$(X_VERSION_MAJOR) VERSION_MINOR=$(X_VERSION_MINOR) VERSION_PRIVATE=1 VERSION_BUILDNUM=$(X_VERSION_BUILD_NUM) && mv bld_involflt/involflt.ko drivers_dbg/involflt.ko.$@.dbg && strip -g drivers_dbg/involflt.ko.$@.dbg -o involflt.ko.$@
 
-ol8_drv: drivers/InVolFlt/linux
+ol8_drv: drivers/InVolFlt/InMage-ASRDFD/src
 	@echo "Building $(X_OS) Drivers"
-	cd drivers/InVolFlt/linux && user_space/build/ol8.sh
+	cd drivers/InVolFlt/InMage-ASRDFD/src && ../../linux/user_space/build/ol8.sh $(X_VERSION_MAJOR) $(X_VERSION_MINOR) 1 $(X_VERSION_BUILD_NUM)
 
-ol9_drv: drivers/InVolFlt/linux
+ol9_drv: drivers/InVolFlt/InMage-ASRDFD/src
 	@echo "Building $(X_OS) Drivers"
-	cd drivers/InVolFlt/linux && user_space/build/ol9.sh
+	cd drivers/InVolFlt/InMage-ASRDFD/src && ../../linux/user_space/build/ol9.sh $(X_VERSION_MAJOR) $(X_VERSION_MINOR) 1 $(X_VERSION_BUILD_NUM)
 
-ubuntu_drv: drivers/InVolFlt/linux
+ubuntu_drv: drivers/InVolFlt/InMage-ASRDFD/src
 	@echo "Building $(X_OS) Drivers"
-	cd drivers/InVolFlt/linux && user_space/build/ubuntu.sh build
+	cd drivers/InVolFlt/InMage-ASRDFD/src && ../../linux/user_space/build/ubuntu.sh build $(X_VERSION_MAJOR) $(X_VERSION_MINOR) 1 $(X_VERSION_BUILD_NUM)
 
-sles_drv: drivers/InVolFlt/linux
+sles_drv: drivers/InVolFlt/InMage-ASRDFD/src
 	@echo "Building $(X_OS) Drivers"
-	cd drivers/InVolFlt/linux && user_space/build/sles.sh
+	cd drivers/InVolFlt/InMage-ASRDFD/src && ../../linux/user_space/build/sles.sh `pwd` $(X_VERSION_MAJOR) $(X_VERSION_MINOR) 1 $(X_VERSION_BUILD_NUM)
 
 non_driver_build: inmshutnotify_build inmstkops_build jq_build cvt_build
 
@@ -567,26 +567,26 @@ $(X_ARCH)/setup_vx/$(X_CONFIGURATION)/$(COMPANY)Vx-$(X_VERSION_MAJOR).$(X_VERSIO
 endif
 
 ifeq ($(X_OS),$(filter $(X_OS), UBUNTU-14.04-64 UBUNTU-16.04-64 UBUNTU-18.04-64 UBUNTU-20.04-64 UBUNTU-22.04-64 DEBIAN7-64 DEBIAN8-64 DEBIAN9-64 DEBIAN10-64 DEBIAN11-64))
-copy_filter_driver: drivers/InVolFlt/linux/ubuntu_drivers
+copy_filter_driver: drivers/InVolFlt/InMage-ASRDFD/src/ubuntu_drivers
 	$(VERBOSE)mkdir -p $(VX_BUILD_PATH)/bin/drivers
 	$(VERBOSE)cp $</involflt.ko* $(VX_BUILD_PATH)/bin/drivers
 	$(RULE_SEPARATOR)
 else
     ifeq ($(X_OS),$(filter $(X_OS), SLES12-64 SLES15-64))
-        copy_filter_driver: drivers/InVolFlt/linux/sles_drivers
+        copy_filter_driver: drivers/InVolFlt/InMage-ASRDFD/src/sles_drivers
 	    $(VERBOSE)mkdir -p $(VX_BUILD_PATH)/bin/drivers
 	    $(VERBOSE)cp $</involflt.ko* $</supported_kernels $(VX_BUILD_PATH)/bin/drivers
 	    $(RULE_SEPARATOR)
 else
     ifeq ($(X_OS),$(filter $(X_OS), OL7-64 OL8-64  OL9-64)) 
 # For new distros, ship in drivers directory
-        copy_filter_driver: drivers/InVolFlt/linux
+        copy_filter_driver: drivers/InVolFlt/InMage-ASRDFD/src
 	    $(VERBOSE)mkdir -p $(VX_BUILD_PATH)/bin/drivers
 	    $(VERBOSE)cp $</involflt.ko* $(VX_BUILD_PATH)/bin/drivers
 	    $(RULE_SEPARATOR)
     else
 # For old distros, ship in drivers directory
-        copy_filter_driver: drivers/InVolFlt/linux
+        copy_filter_driver: drivers/InVolFlt/InMage-ASRDFD/src
 	    $(VERBOSE)cp $</involflt.ko* $(VX_BUILD_PATH)/bin
 	    $(RULE_SEPARATOR)
     endif
@@ -594,8 +594,8 @@ endif
 endif
 
 ifeq ($(X_OS), RHEL6-64)
-copy_centosplus_64_bit_drivers: drivers/InVolFlt/linux
-	$(VERBOSE)cp drivers/InVolFlt/linux/involflt.ko* $(VX_BUILD_PATH)/bin/involflt.ko.2.6.32-71.el6.centos.plus.x86_64
+copy_centosplus_64_bit_drivers: drivers/InVolFlt/InMage-ASRDFD/src
+	$(VERBOSE)cp drivers/InVolFlt/InMage-ASRDFD/src/involflt.ko* $(VX_BUILD_PATH)/bin/involflt.ko.2.6.32-71.el6.centos.plus.x86_64
 	$(RULE_SEPARATOR)
 endif
 

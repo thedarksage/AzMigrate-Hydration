@@ -97,18 +97,7 @@ typedef std::set<std::string> strset_t;
 
 #define INM_ARRAY_SIZE(a)       (sizeof(a)/sizeof(a[0]))
 
-const std::string external_ip_address = "external_ip_address";
-const char HTTPS[] = "https://";
-const char IMDS_URL[]						= "http://169.254.169.254/metadata/instance?api-version=2021-12-13";
-const char IMDS_ENDPOINT[]                  = "http://169.254.169.254/metadata/instance/";
-const char IMDS_HEADERS[]					= "Metadata: true";
-const char IMDS_COMPUTE_ENV[]				= "compute.azEnvironment";
-const char IMDS_AZURESTACK_NAME[]			= "AzureStack";
-const char IMDS_COMPUTE_TAGSLIST[]			= "compute.tagsList";
-const char IMDS_FAILOVER_TAG_PREFIX[]		= "ASR-Failover";
-const char IMDS_FAILOVER_TAG_SUFFIX[]		= "Failed-over by Azure Site Recovery.";
 
-const long HTTP_OK = 200L;
 
 /******************************************************************************/
 enum FILESYSTEM_TYPE
@@ -648,10 +637,6 @@ bool PersistPlatformTypeForDriver();
 int GetDeviceNameTypeToReport(const std::string& hypervisorName = std::string(), const bool isMigrateToRcm = false);
 
 bool IsAzureVirtualMachine();
-
-//std::string GetImdsMetadata();
-
-std::string GetImdsMetadata(const std::string& pathStr = std::string(), const std::string& apiVersion = std::string());
 
 bool IsAzureStackVirtualMachine();
 

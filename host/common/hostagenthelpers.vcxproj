@@ -303,6 +303,7 @@
     <ClCompile Include="appcommand.cpp" />
     <ClCompile Include="autoFS.cpp" />
     <ClCompile Include="ErrorLogger.cpp" />
+    <ClCompile Include="imdshelpers.cpp" />
     <ClCompile Include="win32\portablehelpersmajorex.cpp" />
     <ClCompile Include="ServiceHelper.cpp" />
     <ClCompile Include="HealthCollator.cpp" />
@@ -349,6 +350,7 @@
     <ClInclude Include="inmcertutil.h" />
     <ClInclude Include="proxysettings.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="VMSecurityTypes.h" />
     <ClInclude Include="win32\dbgbreak.h" />
     <ClInclude Include="defines.h" />
     <ClInclude Include="win32\DiskHelpers.h" />
@@ -388,24 +390,6 @@
     <ClInclude Include="win32\wmiconnect.h" />
     <ClInclude Include="win32\wmiusers.h" />
     <ClInclude Include="win32\Failoverclusterinfocollector.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\deviceidinformer\deviceidinformer.vcxproj">
-      <Project>{001ca622-5f73-4817-9e65-4284507d46c8}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="..\log\Log.vcxproj">
-      <Project>{da7e75ec-e026-42d5-9315-7e52e8f5b34b}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="..\scsicommandissuer\scsicommandissuer.vcxproj">
-      <Project>{23184c97-9448-42fc-adbf-98151c633a08}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="..\volumeinfocollector\volumeinfocollector.vcxproj">
-      <Project>{91b8db14-468e-4f21-8036-db87a6b7d9bf}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

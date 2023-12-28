@@ -17,7 +17,7 @@ get_fs_opt()
 	local pat="Filesystem table"
 	
 	sed -n "/^[=]* $pat - START [=]*/,/^[=]* $pat - END [=]*/p" $2 |\
-	grep "$1\s" | awk '{print $4}'
+	grep "\s$1\s" | awk '{print $4}'
 }
 
 is_root_mnt()

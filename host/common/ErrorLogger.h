@@ -87,11 +87,13 @@ namespace ExtendedErrorLogger
 
         static void Init(const std::string & filepath);
 
-        static void Init(const std::string & filepath, boost::function<void(unsigned int, std::string)> callback);
+        static void Init(const std::string & filepath, boost::function<void(unsigned int, const char *)> callback);
 
         static bool LogExtendedError(const ExtendedError & extendedError);
 
         static bool LogExtendedErrorList(const ExtendedErrors &extendedErrorList);
+
+        static ExtendedErrors GetExtendedErrorList() { return s_errorList; }
 
     private:
 
@@ -99,7 +101,7 @@ namespace ExtendedErrorLogger
 
         static ExtendedErrors s_errorList;
 
-        static boost::function<void(unsigned int logLevel, std::string)> s_logCallback;
+        static boost::function<void(unsigned int logLevel, const char *)> s_logCallback;
 
         static void ReadErrorsFromFile(ExtendedErrors &errorList);
 

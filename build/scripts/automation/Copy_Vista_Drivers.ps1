@@ -14,7 +14,13 @@ mkdir "I:\SRC\$BranchName\InMage-Azure-SiteRecovery\host\drivers\InVolFlt\window
 mkdir "I:\SRC\$BranchName\InMage-Azure-SiteRecovery\host\drivers\InVolFlt\windows\DiskFlt\x64\Vista$Config"
 
 # Copy x86 and x64 indskflt.sys and indskflt.pdb files from InMstagingsvr.
-Copy-Item "\\$BuildMachine\DailyBuilds\Daily_Builds\$BuildVersion\HOST\$Date\UnifiedAgent_Builds\$Config\InDskFlt\VistaRelease\x86\indskflt.sys" "I:\SRC\$BranchName\InMage-Azure-SiteRecovery\host\drivers\InVolFlt\windows\DiskFlt\x86\Vista$Config" >> $Log_File
-Copy-Item "\\$BuildMachine\DailyBuilds\Daily_Builds\$BuildVersion\HOST\$Date\UnifiedAgent_Builds\$Config\InDskFlt\VistaRelease\x86\indskflt.pdb" "I:\SRC\$BranchName\InMage-Azure-SiteRecovery\host\drivers\InVolFlt\windows\DiskFlt\x86\Vista$Config" >> $Log_File
-Copy-Item "\\$BuildMachine\DailyBuilds\Daily_Builds\$BuildVersion\HOST\$Date\UnifiedAgent_Builds\$Config\InDskFlt\VistaRelease\x64\indskflt.sys" "I:\SRC\$BranchName\InMage-Azure-SiteRecovery\host\drivers\InVolFlt\windows\DiskFlt\x64\Vista$Config" >> $Log_File
-Copy-Item "\\$BuildMachine\DailyBuilds\Daily_Builds\$BuildVersion\HOST\$Date\UnifiedAgent_Builds\$Config\InDskFlt\VistaRelease\x64\indskflt.pdb" "I:\SRC\$BranchName\InMage-Azure-SiteRecovery\host\drivers\InVolFlt\windows\DiskFlt\x64\Vista$Config" >> $Log_File
+#Copy-Item "\\$BuildMachine\DailyBuilds\Daily_Builds\$BuildVersion\HOST\$Date\UnifiedAgent_Builds\$Config\InDskFlt\VistaRelease\x86\indskflt.sys" "I:\SRC\$BranchName\InMage-Azure-SiteRecovery\host\drivers\InVolFlt\windows\DiskFlt\x86\Vista$Config" >> $Log_File
+#Copy-Item "\\$BuildMachine\DailyBuilds\Daily_Builds\$BuildVersion\HOST\$Date\UnifiedAgent_Builds\$Config\InDskFlt\VistaRelease\x86\indskflt.pdb" "I:\SRC\$BranchName\InMage-Azure-SiteRecovery\host\drivers\InVolFlt\windows\DiskFlt\x86\Vista$Config" >> $Log_File
+#Copy-Item "\\$BuildMachine\DailyBuilds\Daily_Builds\$BuildVersion\HOST\$Date\UnifiedAgent_Builds\$Config\InDskFlt\VistaRelease\x64\indskflt.sys" "I:\SRC\$BranchName\InMage-Azure-SiteRecovery\host\drivers\InVolFlt\windows\DiskFlt\x64\Vista$Config" >> $Log_File
+#Copy-Item "\\$BuildMachine\DailyBuilds\Daily_Builds\$BuildVersion\HOST\$Date\UnifiedAgent_Builds\$Config\InDskFlt\VistaRelease\x64\indskflt.pdb" "I:\SRC\$BranchName\InMage-Azure-SiteRecovery\host\drivers\InVolFlt\windows\DiskFlt\x64\Vista$Config" >> $Log_File
+
+# Copy x86 and x64 indskflt.sys and indskflt.pdb files from InMstagingsvr.
+Copy-Item "\\$BuildMachine\ReleaseBuilds\9.50_2208\30_Jul_2022\UnifiedAgent_Builds\release\InDskFlt\VistaRelease\x86\indskflt.sys" "I:\SRC\$BranchName\InMage-Azure-SiteRecovery\host\drivers\InVolFlt\windows\DiskFlt\x86\Vista$Config" >> $Log_File
+Copy-Item "\\$BuildMachine\ReleaseBuilds\9.50_2208\30_Jul_2022\UnifiedAgent_Builds\release\InDskFlt\VistaRelease\x86\indskflt.pdb" "I:\SRC\$BranchName\InMage-Azure-SiteRecovery\host\drivers\InVolFlt\windows\DiskFlt\x86\Vista$Config" >> $Log_File
+Copy-Item "\\$BuildMachine\ReleaseBuilds\9.50_2208\30_Jul_2022\UnifiedAgent_Builds\release\InDskFlt\VistaRelease\x64\indskflt.sys" "I:\SRC\$BranchName\InMage-Azure-SiteRecovery\host\drivers\InVolFlt\windows\DiskFlt\x64\Vista$Config" >> $Log_File
+Copy-Item "\\$BuildMachine\ReleaseBuilds\9.50_2208\30_Jul_2022\UnifiedAgent_Builds\release\InDskFlt\VistaRelease\x64\indskflt.pdb" "I:\SRC\$BranchName\InMage-Azure-SiteRecovery\host\drivers\InVolFlt\windows\DiskFlt\x64\Vista$Config" >> $Log_File

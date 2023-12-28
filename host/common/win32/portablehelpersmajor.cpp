@@ -7081,6 +7081,56 @@ bool SystemDiskUEFICheck(std::string &errormsg)
     return true;
 }
 
+/// Fetch diskID of OS disk
+bool GetOSDiskId(const VolumeSummaries_t &volumeSummaries, std::string &osDiskId, std::string &errormsg)
+{
+    DebugPrintf(SV_LOG_DEBUG, "ENTERED %s\n", FUNCTION_NAME);
+    bool retval = false;
+    do
+    {
+
+        /*
+        - Check all devices with isSystemVolume set and collect their volumeGroup (disk signature here) in vector vSysVG
+        - Fail if no device found - bug
+        */
+        std::set<std::string> vSysVG;
+        std::string strSysVG;
+        ConstVolumeSummariesIter itrVS(volumeSummaries.begin());
+        for (/*empty*/; itrVS != volumeSummaries.end(); ++itrVS)
+        {
+            if (itrVS->isSystemVolume)
+            {
+                DebugPrintf(SV_LOG_DEBUG, "vSysVG: %s\n", itrVS->volumeGroup.c_str());
+                vSysVG.insert(itrVS->volumeGroup);
+                strSysVG += itrVS->volumeGroup;
+                strSysVG += ", ";
+            }
+        }
+
+        if (vSysVG.size() == 0)
+        {
+            /* Note: If we are here then its a bug in VIC */
+            errormsg = "No device found in volumeSummaries with System volume set.";
+            break;
+        }
+        if (vSysVG.size() > 1)
+        {
+            errormsg = "System/root volume identified on multiple disks (";
+            for (auto it : vSysVG) {
+                errormsg += (it + ",");
+            }
+            errormsg += ").";
+            break;
+        }
+
+        osDiskId = *(vSysVG.begin());
+        retval = true;
+    } while (0);
+
+    DebugPrintf(SV_LOG_DEBUG, "EXITED %s\n", FUNCTION_NAME);
+    return retval;
+}
+
 bool IsSystemAndBootDiskSame(const VolumeSummaries_t &volumeSummaries, std::string &errormsg)
 {
     DebugPrintf(SV_LOG_DEBUG, "ENTERED %s\n", FUNCTION_NAME);

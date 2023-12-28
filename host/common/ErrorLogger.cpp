@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 //define NOMINMAX to avoid ambiguous definitions for min and max
 #define NOMINMAX 
 #include "ErrorLogger.h"
@@ -6,7 +8,7 @@ using namespace ExtendedErrorLogger;
 
 boost::filesystem::path ErrorLogger::s_filepath;
 ExtendedErrors ErrorLogger::s_errorList;
-boost::function<void(unsigned int logLevel, std::string)> ErrorLogger::s_logCallback;
+boost::function<void(unsigned int logLevel, const char*)> ErrorLogger::s_logCallback;
 
 /// Initializes the json error file name.
 /// Should be called once at the start of the program.
@@ -23,7 +25,7 @@ void ErrorLogger::Init(const std::string & filepath)
 /// Initializes the json error file name and log callback.
 /// Should be called once at the start of the program.
 void ErrorLogger::Init(const std::string & filepath,
-    boost::function<void(unsigned int, std::string)> callback)
+    boost::function<void(unsigned int, const char *)> callback)
 {
     Init(filepath);
     s_logCallback = callback;
@@ -92,7 +94,8 @@ void ErrorLogger::ReadErrorsFromFile(ExtendedErrors &errorList)
         }
         std::string errorFileContents((std::istreambuf_iterator<char>(errorFileIStream)),
             std::istreambuf_iterator<char>());
-        errorList = JSON::consumer<ExtendedErrors>::convert(errorFileContents, true);
+        if (!errorFileContents.empty())
+            errorList = JSON::consumer<ExtendedErrors>::convert(errorFileContents, true);
         errorFileIStream.close();
     }
 }
@@ -123,5 +126,5 @@ void ErrorLogger::WriteErrorsToFile(ExtendedErrors &errorList)
 void ErrorLogger::Trace(EELogLevel logLevel, const std::string & msg)
 {
     if (s_logCallback)
-        s_logCallback(logLevel, msg);
+        s_logCallback(logLevel, msg.c_str());
 }

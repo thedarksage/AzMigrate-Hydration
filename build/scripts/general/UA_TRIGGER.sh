@@ -9,7 +9,7 @@ GIT_TAG=${4:-develop}
 BUILD_QUALITY=${5:-RELEASE}
 BUILD_PHASE=${6:-GA}
 MAJOR_VERSION=${7:-9}
-MINOR_VERSION=${8:-50}
+MINOR_VERSION=${8:-58}
 PATCH_SET_VERSION=${9:-0}
 shift
 PATCH_VERSION=${9:-0}
@@ -67,6 +67,25 @@ Before_Build_Tasks()
                 	exit 1
         	fi
 	fi
+
+	cd host/drivers/InVolFlt
+	if [ -d InMage-ASRDFD ]; then
+		rm -rf InMage-ASRDFD
+	fi
+
+	git clone -b ${GIT_BRANCH} --single-branch msazure@vs-ssh.visualstudio.com:v3/msazure/One/InMage-ASRDFD
+	if [ $? -eq 0 ]; then
+		rm -f common/*.[ch]
+		rm -f linux/*.[ch]
+		rm -rf ../lib
+		rm -f linux/Makefile
+		touch InMage-ASRDFD/src/supported_kernels
+		echo "Successfully checked out code from InMage-ASRDFD repo"
+	else
+		echo "Failed to check out code from InMage-ASRDFD repo"
+		exit 1
+	fi
+	cd -
 
 	. ./build/scripts/general/OS_details.sh
 
@@ -209,17 +228,17 @@ DATA
     echo -n ${AGENT_VERSION} > ${TOP_BLD_DIR}/${GIT_BRANCH}/BINARIES/UNIFIED/AgentVersion_${AGENT_VERSION}_${OS}.txt
 
     # Copy supported_kernels file if it has some content.
-    if [ -s ${TOP_BLD_DIR}/${GIT_BRANCH}/daily_unified_build/source/InMage-Azure-SiteRecovery/host/drivers/InVolFlt/linux/supported_kernels ] ; then
-        cp -f ${TOP_BLD_DIR}/${GIT_BRANCH}/daily_unified_build/source/InMage-Azure-SiteRecovery/host/drivers/InVolFlt/linux/supported_kernels /BUILDS/${GIT_TAG}/BINARIES/UNIFIED/${OS}_supported_kernels.txt
-    elif [ -s ${TOP_BLD_DIR}/${GIT_BRANCH}/daily_unified_build/source/InMage-Azure-SiteRecovery/host/drivers/InVolFlt/linux/sles_drivers/supported_kernels ] ; then 
-        cp -f ${TOP_BLD_DIR}/${GIT_BRANCH}/daily_unified_build/source/InMage-Azure-SiteRecovery/host/drivers/InVolFlt/linux/sles_drivers/supported_kernels /BUILDS/${GIT_TAG}/BINARIES/UNIFIED/${OS}_supported_kernels.txt
+    if [ -s ${TOP_BLD_DIR}/${GIT_BRANCH}/daily_unified_build/source/InMage-Azure-SiteRecovery/host/drivers/InVolFlt/InMage-ASRDFD/src/supported_kernels ] ; then
+        cp -f ${TOP_BLD_DIR}/${GIT_BRANCH}/daily_unified_build/source/InMage-Azure-SiteRecovery/host/drivers/InVolFlt/InMage-ASRDFD/src/supported_kernels /BUILDS/${GIT_TAG}/BINARIES/UNIFIED/${OS}_supported_kernels.txt
+    elif [ -s ${TOP_BLD_DIR}/${GIT_BRANCH}/daily_unified_build/source/InMage-Azure-SiteRecovery/host/drivers/InVolFlt/InMage-ASRDFD/src/sles_drivers/supported_kernels ] ; then 
+        cp -f ${TOP_BLD_DIR}/${GIT_BRANCH}/daily_unified_build/source/InMage-Azure-SiteRecovery/host/drivers/InVolFlt/InMage-ASRDFD/src/sles_drivers/supported_kernels /BUILDS/${GIT_TAG}/BINARIES/UNIFIED/${OS}_supported_kernels.txt
     fi
 
     # Copy AgentVersion.txt and copy OS_details.sh which will be used by A2A extenstion. Also, copy supported_kernels file.
     if [ "$OS" = "SLES12-64" ]; then
         echo -n ${AGENT_VERSION} > ${TOP_BLD_DIR}/${GIT_BRANCH}/BINARIES/UNIFIED/AgentVersion.txt
         cp -f ${TOP_BLD_DIR}/${GIT_BRANCH}/daily_unified_build/source/InMage-Azure-SiteRecovery/build/scripts/general/OS_details.sh ${TOP_BLD_DIR}/${GIT_BRANCH}/BINARIES/UNIFIED/
-        cp -f ${TOP_BLD_DIR}/${GIT_BRANCH}/daily_unified_build/source/InMage-Azure-SiteRecovery/host/drivers/InVolFlt/linux/sles_drivers/supported_kernels /BUILDS/${GIT_TAG}/BINARIES/UNIFIED/${OS}_supported_kernels.txt
+        cp -f ${TOP_BLD_DIR}/${GIT_BRANCH}/daily_unified_build/source/InMage-Azure-SiteRecovery/host/drivers/InVolFlt/InMage-ASRDFD/src/sles_drivers/supported_kernels /BUILDS/${GIT_TAG}/BINARIES/UNIFIED/${OS}_supported_kernels.txt
     fi
 
 }
@@ -301,6 +320,7 @@ Scp_Release()
     MakeDir_Remote "${FTP_PATH}/HOST/${DATE_FOLDER}/PushInstallClients/symbol_tars"
     MakeDir_Remote "${FTP_PATH}/HOST/${DATE_FOLDER}/PushInstallClientsRcm"
     MakeDir_Remote "${FTP_PATH}/HOST/${DATE_FOLDER}/release/AzureRecoveryTools/Symbols"
+    MakeDir_Remote "${FTP_PATH}/HOST/${DATE_FOLDER}/LinuxCVT"
 
     Copy_To_Remote ${TOP_BLD_DIR}/${GIT_BRANCH}/BINARIES/UNIFIED/*UA*release.tar.gz ${FTP_PATH}/HOST/${DATE_FOLDER}/UnifiedAgent_Builds/release/
     Copy_To_Remote ${TOP_BLD_DIR}/${GIT_BRANCH}/BINARIES/UNIFIED/*UA*release_symbols.tar.gz ${FTP_PATH}/HOST/${DATE_FOLDER}/UnifiedAgent_Builds/release/symbol_tars/
@@ -316,6 +336,7 @@ Scp_Release()
     Copy_To_Remote ${TOP_BLD_DIR}/${GIT_BRANCH}/BINARIES/PUSH/*pushinstallclient.tar.gz ${FTP_PATH}/HOST/${DATE_FOLDER}/PushInstallClients/
     Copy_To_Remote ${TOP_BLD_DIR}/${GIT_BRANCH}/BINARIES/PUSH/SYMBOLS/*.tar.gz ${FTP_PATH}/HOST/${DATE_FOLDER}/PushInstallClients/symbol_tars/
     Copy_To_Remote ${TOP_BLD_DIR}/${GIT_BRANCH}/BINARIES/PUSH/*pushinstallclient_${MAJOR_VERSION}.${MINOR_VERSION}.tar.gz ${FTP_PATH}/HOST/${DATE_FOLDER}/PushInstallClientsRcm/
+    Copy_To_Remote ${TOP_BLD_DIR}/${GIT_BRANCH}/daily_unified_build/source/InMage-Azure-SiteRecovery/host/Linux_x86_64/tests_test_agent/release/indskflt_ct  ${FTP_PATH}/HOST/${DATE_FOLDER}/LinuxCVT/indskflt_ct_${OS}
 
     if [ "$OS" = "UBUNTU-16.04-64" ]; then
         Copy_To_Remote "${TOP_BLD_DIR}/${GIT_BRANCH}/BINARIES/AzureRecoveryTools/*.sh" ${FTP_PATH}/HOST/${DATE_FOLDER}/release/AzureRecoveryTools/

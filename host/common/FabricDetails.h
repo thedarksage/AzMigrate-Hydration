@@ -14,6 +14,15 @@ namespace AzureInstanceMetadata
 {
     const std::string AzureImdUri("http://169.254.169.254/metadata/instance/compute/storageProfile?api-version=2021-02-01");
 
+    // the particular API version 2021-12-13 has trustedlaunch
+    const std::string AzureImdSecProfileUri("http://169.254.169.254/metadata/instance/compute/securityProfile?api-version=2021-12-13");
+    const std::string SecProfilePathStr = "compute/securityProfile";
+    const std::string SecProfileApiVersion = "api-version=2021-12-13";
+
+    // the particular API version 2021-02-01 used by storage profile 
+    const std::string StorageProfilePathStr = "compute/storageProfile";
+    const std::string StorageProfileApiVersion = "api-version=2021-02-01";
+
     class ManagedDisk {
     public:
         std::string id;
@@ -112,12 +121,7 @@ namespace AzureInstanceMetadata
             JSON_VCL(node, dataDisks);
         }
     };
-
-    // the particular API version 2021-12-13 has trustedlaunch
-    const std::string AzureImdSecProfileUri("http://169.254.169.254/metadata/instance/compute/securityProfile?api-version=2021-12-13");
-    const std::string SecProfilePathStr = "compute/securityProfile";
-    const std::string SecProfileApiVersion = "api-version=2021-12-13";
-
+    
     class SecurityProfile {
     public:
         std::string secureBootEnabled;
@@ -143,16 +147,5 @@ namespace AzureInstanceMetadata
             JSON_P(node, securityType);
         }
     };
-
-    namespace VMSecurityTypes {
-        const std::string TRUSTED_LAUNCH = "TrustedLaunch";
-
-        // @TODO - find out the exact string used by CVM
-        const std::string CONFIDENTIAL_VM = "TBD";
-
-        // gen2 has it as an empty string
-        const std::string GEN2_VM = "";
-    };
-
 }
 #endif

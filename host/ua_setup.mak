@@ -11,7 +11,7 @@ X_OS:=$(shell ../build/scripts/general/OS_details.sh 1)
 
 ifeq ($(NON_RPM), YES)
 UA_TAR_NAME := Microsoft-ASR_UA_$(X_VERSION_DOTTED)_$(X_OS)_$(X_VERSION_PHASE)_$(shell date "+%d%h%Y")_$(X_CONFIGURATION).tar.gz
-ifeq ($(X_OS),$(filter $(X_OS), DEBIAN7-64 DEBIAN8-64 DEBIAN9-64 DEBIAN10-64))
+ifeq ($(X_OS),$(filter $(X_OS), DEBIAN7-64 DEBIAN8-64 DEBIAN9-64 DEBIAN10-64 DEBIAN11-64))
 	TAR_OPT := czvf
 else
 	TAR_OPT := --lzma -cvf
@@ -51,7 +51,8 @@ $(X_ARCH)/setup_ua/$(X_CONFIGURATION)/$(UA_TAR_NAME):\
 	$(X_ARCH)/setup_ua/$(X_CONFIGURATION)/supported_kernels \
 	$(X_ARCH)/setup_ua/$(X_CONFIGURATION)/inm_list_part \
 	$(X_ARCH)/setup_ua/$(X_CONFIGURATION)/spv.json \
-	$(X_ARCH)/setup_ua/$(X_CONFIGURATION)/AgentUpgrade.sh
+	$(X_ARCH)/setup_ua/$(X_CONFIGURATION)/AgentUpgrade.sh \
+	$(X_ARCH)/setup_ua/$(X_CONFIGURATION)/Notice.txt
 
 	$(VERBOSE)cd $(dir $<);tar $(TAR_OPT) $(notdir $@) $(notdir $^)
 	$(RULE_SEPARATOR)
@@ -77,7 +78,8 @@ $(X_ARCH)/setup_ua/$(X_CONFIGURATION)/$(UA_TAR_NAME):\
 	$(X_ARCH)/setup_ua/$(X_CONFIGURATION)/supported_kernels \
 	$(X_ARCH)/setup_ua/$(X_CONFIGURATION)/inm_list_part \
 	$(X_ARCH)/setup_ua/$(X_CONFIGURATION)/spv.json \
-	$(X_ARCH)/setup_ua/$(X_CONFIGURATION)/AgentUpgrade.sh
+	$(X_ARCH)/setup_ua/$(X_CONFIGURATION)/AgentUpgrade.sh \
+	$(X_ARCH)/setup_ua/$(X_CONFIGURATION)/Notice.txt
 
 	$(VERBOSE)cd $(dir $<);tar cvzf $(notdir $@) $(notdir $^)
 	$(RULE_SEPARATOR)
@@ -114,18 +116,19 @@ $(X_ARCH)/setup_ua/$(X_CONFIGURATION)/prereq_check_install.sh: ../build/scripts/
 $(X_ARCH)/setup_ua/$(X_CONFIGURATION)/prereq_check_installer.json: ../build/scripts/unifiedagent/templates/prereq_check_installer.json
 $(X_ARCH)/setup_ua/$(X_CONFIGURATION)/libcommon.sh: ../build/scripts/unifiedagent/templates/libcommon.sh
 $(X_ARCH)/setup_ua/$(X_CONFIGURATION)/AgentUpgrade.sh: ../build/scripts/unifiedagent/templates/AgentUpgrade.sh
+$(X_ARCH)/setup_ua/$(X_CONFIGURATION)/Notice.txt: ./Notices/Notice.txt
 $(X_ARCH)/setup_ua/$(X_CONFIGURATION)/spv.json:
 	$(VERBOSE)mkdir -p $(dir $@)
 	$(VERBOSE)cat ../build/scripts/general/spv.json | $(JQ_ROOT)/jq '."$(X_OS)"' > $@
 	$(RULE_SEPARATOR)
 
 ifeq ($(NON_RPM), YES)
-    $(X_ARCH)/setup_ua/$(X_CONFIGURATION)/supported_kernels: ./drivers/InVolFlt/linux/supported_kernels
+    $(X_ARCH)/setup_ua/$(X_CONFIGURATION)/supported_kernels: ./drivers/InVolFlt/InMage-ASRDFD/src/supported_kernels
 else
     ifeq ($(X_OS),$(filter $(X_OS), SLES12-64 SLES15-64))
-        $(X_ARCH)/setup_ua/$(X_CONFIGURATION)/supported_kernels: ./drivers/InVolFlt/linux/sles_drivers/supported_kernels
+        $(X_ARCH)/setup_ua/$(X_CONFIGURATION)/supported_kernels: ./drivers/InVolFlt/InMage-ASRDFD/src/sles_drivers/supported_kernels
     else
-        $(X_ARCH)/setup_ua/$(X_CONFIGURATION)/supported_kernels: ./drivers/InVolFlt/linux/supported_kernels
+        $(X_ARCH)/setup_ua/$(X_CONFIGURATION)/supported_kernels: ./drivers/InVolFlt/InMage-ASRDFD/src/supported_kernels
     endif
 endif
 $(X_ARCH)/setup_ua/$(X_CONFIGURATION)/inm_list_part: $(X_ARCH)/gfdisk/$(X_CONFIGURATION)/inm_list_part
@@ -160,6 +163,7 @@ $(X_ARCH)/setup_ua/$(X_CONFIGURATION)/prereq_check_install.sh \
 $(X_ARCH)/setup_ua/$(X_CONFIGURATION)/prereq_check_installer.json \
 $(X_ARCH)/setup_ua/$(X_CONFIGURATION)/libcommon.sh \
 $(X_ARCH)/setup_ua/$(X_CONFIGURATION)/AgentUpgrade.sh \
+$(X_ARCH)/setup_ua/$(X_CONFIGURATION)/Notice.txt \
 $(X_ARCH)/setup_ua/$(X_CONFIGURATION)/supported_kernels \
 $(X_ARCH)/setup_ua/$(X_CONFIGURATION)/inm_list_part \
 $(X_ARCH)/setup_ua/$(X_CONFIGURATION)/OS_details.sh:

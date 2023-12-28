@@ -28,6 +28,7 @@
 #include "fingerprintmgr.h"
 #include "csgetfingerprint.h"
 #include "errorexception.h"
+#include "imdshelpers.h"
 
 #include <sstream>
 #include <fstream>
@@ -61,13 +62,6 @@ using std::max;
 
 const std::string AZURE_ASSET_TAG("7783-7084-3265-9085-8269-3286-77");
 const long IMDS_RETRY_INTERVAL_IN_SECS = 5;
-
-typedef struct tagMemoryStruct 
-{
-    char *memory;
-    size_t insize;
-    size_t size;
-} MemoryStruct;
 
 SVERROR MakeReadOnly(const char *drive, void *VolumeGuid, etBitOperation Op);
 SVERROR MakeVirtualVolumeReadOnly(const char *mountpoint, void * volumeGuid, etBitOperation ReadOnlyBitFlag);
@@ -2723,26 +2717,6 @@ bool RestoreNtfsOrFatSignature(const std::string & volumename)
     return rv;
 }
 
-size_t WriteMemoryCallbackFileReplication(void *ptr, size_t size, size_t nmemb, void *data)
-{
-    DebugPrintf(SV_LOG_DEBUG, "Entering %s\n", __FUNCTION__);
-    size_t realsize;
-    INM_SAFE_ARITHMETIC(realsize = InmSafeInt<size_t>::Type(size) * nmemb, INMAGE_EX(size)(nmemb))
-    MemoryStruct *mem = (MemoryStruct *)data;
-
-    size_t memorylen;
-    INM_SAFE_ARITHMETIC(memorylen = InmSafeInt<size_t>::Type(mem->size) + realsize + 1, INMAGE_EX(mem->size)(realsize))
-    mem->memory = (char *)realloc(mem->memory, memorylen);
-
-    if (mem->memory) {
-        inm_memcpy_s(&(mem->memory[mem->size]), realsize + 1, ptr, realsize);
-        mem->size += realsize;
-        mem->memory[mem->size] = 0;
-    }
-    DebugPrintf(SV_LOG_DEBUG, "Exiting %s\n", __FUNCTION__);
-    return realsize;
-}
-
 SVERROR postToCx(const char* pszHost, 
                  SV_INT Port, 
                  const char* pszUrl, 
@@ -4078,86 +4052,7 @@ bool PersistPlatformTypeForDriver()
 }
 #endif
 
-std::string GetImdsMetadata(const std::string& pathStr, const std::string& apiVersion)
-{
-    DebugPrintf(SV_LOG_DEBUG, "ENTERED %s\n", FUNCTION_NAME);
 
-    std::string imdsUrl;
-    if (!pathStr.empty() && !apiVersion.empty()) {
-        imdsUrl = IMDS_ENDPOINT + pathStr + "?" + apiVersion;        
-    }
-    else {
-        imdsUrl = IMDS_URL;
-    }
-
-    DebugPrintf(SV_LOG_DEBUG, "Imds url is %s\n", imdsUrl.c_str());
-    
-    MemoryStruct chunk = {0};
-    CURL *curl = curl_easy_init();
-    try
-    {
-        chunk.size = 0;
-        chunk.memory = NULL;
-        if(CURLE_OK != curl_easy_setopt(curl, CURLOPT_URL, imdsUrl.c_str())) {
-            throw ERROR_EXCEPTION << FUNCTION_NAME << ": Failed to set curl options IMDS_URL.\n";
-        }
-
-        if(CURLE_OK != curl_easy_setopt(curl, CURLOPT_NOPROXY, "*")) {
-            throw ERROR_EXCEPTION << FUNCTION_NAME << ": Failed to set curl options CURLOPT_NOPROXY.\n";
-        }
-
-        struct curl_slist * pheaders = curl_slist_append(NULL, IMDS_HEADERS);
-        if (CURLE_OK != curl_easy_setopt(curl, CURLOPT_HTTPHEADER, pheaders)) {
-            throw ERROR_EXCEPTION << FUNCTION_NAME << ": Failed to set curl options CURLOPT_HEADERDATA.\n";
-        }
-        
-        if(CURLE_OK != curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallbackFileReplication)) {
-            throw ERROR_EXCEPTION << FUNCTION_NAME << ": Failed to set curl options CURLOPT_WRITEFUNCTION.\n";
-        }
-
-        if(CURLE_OK != curl_easy_setopt(curl, CURLOPT_WRITEDATA, static_cast<void *>( &chunk ))) {
-            throw ERROR_EXCEPTION << FUNCTION_NAME << ": Failed to set curl options CURLOPT_WRITEDATA.\n";
-        }
-
-        CURLcode curl_code = curl_easy_perform(curl);
-
-        if (curl_code == CURLE_ABORTED_BY_CALLBACK)
-        {
-            throw ERROR_EXCEPTION << FUNCTION_NAME << ": Failed to perfvorm curl request, request aborted.\n";
-        }
-
-        long response_code = 0L;
-        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
-        if (response_code != HTTP_OK)
-        {
-            throw ERROR_EXCEPTION << FUNCTION_NAME << ": Failed to perform curl request, curl error "
-                << curl_code << ": " << curl_easy_strerror(curl_code)
-                << ", status code " << response_code
-                << ((chunk.memory != NULL) ? (std::string(", error ") + chunk.memory) : "") << ".\n";
-        }
-    }
-    catch (std::exception& e)
-    {
-        DebugPrintf(SV_LOG_ERROR, "%s: Failed  with exception: %s.\n", FUNCTION_NAME, e.what());
-    }
-    catch (...)
-    {
-        DebugPrintf(SV_LOG_ERROR, "%s: Failed  with exception.\n", FUNCTION_NAME);
-    }
-
-    std::string ret;
-    if (chunk.memory != NULL)
-    {
-        ret = std::string(chunk.memory, chunk.size);
-        free(chunk.memory);
-    }
-    curl_easy_cleanup(curl);
-
-    DebugPrintf(SV_LOG_DEBUG, "EXITED %s\n", FUNCTION_NAME);
-
-    return ret;
-
-}
 bool IsAzureStackVirtualMachine()
 {
     DebugPrintf(SV_LOG_DEBUG, "ENTERED %s\n", FUNCTION_NAME);
@@ -4196,7 +4091,7 @@ bool HasAzureStackHubFailoverTag(QuitFunction_t qf)
         try
         {
             // Get IMDS information. Always HTTP
-            std::string imdsMetadata = GetImdsMetadata();
+            std::string imdsMetadata = GetImdsMetadata(std::string(), IMDS_AZURESTACK_APIVERSION);
             std::istringstream stream(imdsMetadata);
             boost::property_tree::ptree pt;
             boost::property_tree::read_json(stream, pt);

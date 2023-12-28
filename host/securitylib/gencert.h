@@ -313,7 +313,9 @@ namespace securitylib {
         void writePfx(EVP_PKEY* pkey, X509* cert)
             {
                 REPORT_VERBOSE(m_verbose, "Writing certificate to " << m_pfxName);
-                PKCS12* p12 = PKCS12_create((char*)PFX_PASSPHRASE, (char*)m_pfxFriendlyName.c_str(), pkey, cert, 0, 0, 0, 0, 0, 0);
+                PKCS12* p12 = PKCS12_create(PFX_PASSPHRASE, m_pfxFriendlyName.c_str(), pkey, cert, 0,
+                    NID_pbe_WithSHA1And3_Key_TripleDES_CBC, NID_pbe_WithSHA1And3_Key_TripleDES_CBC,
+                    0, -1, 0);
                 if (0 == p12) {
                     throw ERROR_EXCEPTION << "GenCert::writePfx: Error creating PKCS12 structures" << '\n';
                 }

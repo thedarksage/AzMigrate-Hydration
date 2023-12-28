@@ -91,6 +91,7 @@ Function DownloadArtifacts() {
         @{name="IntegrityCheck.dll";   downloadFile="format=file&subPath=%2Fretail-amd64%2FASRAdapterFiles%2FIntegrityCheck.dll"; outFile="\IntegrityCheck.dll"},
         @{name="Microsoft.ApplicationInsights.dll";   downloadFile="format=file&subPath=%2Fretail-amd64%2FASRAdapterFiles%2FMicrosoft.ApplicationInsights.dll"; outFile="\Microsoft.ApplicationInsights.dll"},
         @{name="Microsoft.Identity.Client.dll";   downloadFile="format=file&subPath=%2Fretail-amd64%2FASRAdapterFiles%2FMicrosoft.Identity.Client.dll"; outFile="\Microsoft.Identity.Client.dll"},
+		@{name="Microsoft.IdentityModel.Abstractions.dll";   downloadFile="format=file&subPath=%2Fretail-amd64%2FASRAdapterFiles%2FMicrosoft.IdentityModel.Abstractions.dll"; outFile="\Microsoft.IdentityModel.Abstractions.dll"},
         @{name="Newtonsoft.Json.dll";   downloadFile="format=file&subPath=%2Fretail-amd64%2FASRAdapterFiles%2FNewtonsoft.Json.dll"; outFile="\Newtonsoft.Json.dll"},
         @{name="Polly.dll";   downloadFile="format=file&subPath=%2Fretail-amd64%2FASRAdapterFiles%2FPolly.dll"; outFile="\Polly.dll"},
         @{name="SetupFramework.dll";   downloadFile="format=file&subPath=%2Fretail-amd64%2FASRAdapterFiles%2FSetupFramework.dll"; outFile="\SetupFramework.dll"},
@@ -101,7 +102,6 @@ Function DownloadArtifacts() {
         @{name="VMware.Interfaces.dll";   downloadFile="format=file&subPath=%2Fretail-amd64%2FASRAdapterFiles%2FVMware.Interfaces.dll"; outFile="\VMware.Interfaces.dll"},
         @{name="VMware.VSphere.Management.dll";   downloadFile="format=file&subPath=%2Fretail-amd64%2FASRAdapterFiles%2FVMware.VSphere.Management.dll"; outFile="\VMware.VSphere.Management.dll"},
         @{name="Microsoft.IdentityModel.dll";   downloadFile="format=file&subPath=%2Fretail-amd64%2FInMageFabricExtension%2FMicrosoft.IdentityModel.dll"; outFile="\Microsoft.IdentityModel.dll"},
-        @{name="AzureSiteRecoveryConfigurationManager.msi";   downloadFile="format=file&subPath=%2Fretail-amd64%2FAzureSiteRecoveryConfigurationManager.msi"; outFile="\AzureSiteRecoveryConfigurationManager.msi"},
         @{name="AzureSiteRecoveryProvider.exe";   downloadFile="format=file&subPath=%2Fretail-amd64%2FAzureSiteRecoveryProvider.exe"; outFile="\AzureSiteRecoveryProvider.exe"}
     )
     

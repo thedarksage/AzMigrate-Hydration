@@ -38,6 +38,7 @@ chmod +x $CUR_W_D/OS_details.sh
 OS=$($CUR_W_D/OS_details.sh 1)
 RPM_COMMAND=$(which rpm)
 INIT_DIRECTORY="/etc"
+SCRIPT=`basename $0`
 THIS_SCRIPT_DIR=`dirname $0`
 source $THIS_SCRIPT_DIR/teleAPIs.sh
 VX_VERSION_FILE='/usr/local/.vx_version'
@@ -60,6 +61,7 @@ RHEL5_KVL="2.6.18"
 RHEL6_KVL="2.6.32"
 RHEL7_KVL="3.10.0"
 RHEL8_KVL="4.18.0"
+RHEL9_KVL="5.14.0"
 SLES11_SP3_KVL="3.0"
 
 DRIVERS="involflt"
@@ -71,17 +73,14 @@ ACTL_KERNEL_VER=""
 S_FILE_SUFFIX=""
 
 IS_SLES=false
-if [ -f /etc/SuSE-release ]; then
-    IS_SLES=true
-fi
-if [ -f /etc/os-release ] && grep -q 'SLES' /etc/os-release; then
+if [[ $OS == SLES* ]]; then
     IS_SLES=true
 fi
 
 if [ `uname` = "Linux" ]; then
-    if [ $IS_SLES = true ] || [ -f /etc/redhat-release ] ; then	
-	MAIN_RPM_FILE="BUILDTIME_MAIN_RPM_FILE"
-	MAIN_RPM_PACKAGE="BUILDTIME_MAIN_RPM_PACKAGE"
+    if [ $IS_SLES = true ] || [ -f /etc/redhat-release ] ; then 
+    MAIN_RPM_FILE="BUILDTIME_MAIN_RPM_FILE"
+    MAIN_RPM_PACKAGE="BUILDTIME_MAIN_RPM_PACKAGE"
     fi
     TOTAL_MEMORY=`cat /proc/meminfo | grep MemTotal | awk '{print $2}'`
 fi
@@ -103,17 +102,17 @@ mkdir -p /etc/vxagent/hotplug_utils /etc/vxagent/bin 2>/dev/null
 
 #
 # Function Name: trace_log_message()
-# 
-#  Description  Prints date and time followed by all arguments to 
-#               stdout and to INSTALL_LOGFILE.  If -q is used, only send 
-#               message to log file, not to stdout.  If no arguments 
-#               are given, a blank line is returned to stdout and to 
+#
+#  Description  Prints date and time followed by all arguments to
+#               stdout and to INSTALL_LOGFILE.  If -q is used, only send
+#               message to log file, not to stdout.  If no arguments
+#               are given, a blank line is returned to stdout and to
 #               INSTALL_LOGFILE.
-#       
+#
 #  Usage        trace_log_message [-q] "Message"
 #
 #  Notes        If -q is used, it must be the first argument.
-# 
+#
 trace_log_message()
 {
     QUIET_MODE=FALSE
@@ -130,13 +129,13 @@ trace_log_message()
     if [ $# -gt 0 ]
     then
         DATE_TIME=`date '+%m/%d/%Y %H:%M:%S'`
-        
+
         if [ "${QUIET_MODE}" = "TRUE" ]
         then
             echo "${DATE_TIME}: $*" >> ${INSTALL_LOGFILE}
-        else            
+        else
             echo -e "$@"
-            echo "${DATE_TIME} : $@ " >> ${INSTALL_LOGFILE} 2>&1            
+            echo "${DATE_TIME} : $@ " >> ${INSTALL_LOGFILE} 2>&1
         fi
     else
         if [ "${QUIET_MODE}" = "TRUE" ]
@@ -158,22 +157,22 @@ SEE_LOG()
 # FUNCTION : Change some files to reflect installation path
 edit_files()
 {
-    SetOP "EditConfig" 
+    SetOP "EditConfig"
 
     # Grab the deployment dir
     local DEPLOY_DIR=$1
     local INSTALL_MODE=$2
-    
+
     # Carry out these manipulations only on fresh install
-    if [ z"$INSTALL_MODE" = z"--install" ]; then       
+    if [ z"$INSTALL_MODE" = z"--install" ]; then
         trace_log_message -q
         trace_log_message -q "Replacing place holder RUNTIME_INSTALL_PATH with $DEPLOY_DIR in drscout.conf..."
         sed -i -e "s|RUNTIME_INSTALL_PATH|$DEPLOY_DIR|g" ${DEPLOY_DIR}/etc/drscout.conf
 
         mkdir -p /usr/local/InMage/config >> $INSTALL_LOGFILE 2>&1
         RET_VAL=$?
-	trace_log_message -q "RET_VAL=$RET_VAL"
-	if [ $RET_VAL -ne 0 ];then
+        trace_log_message -q "RET_VAL=$RET_VAL"
+        if [ $RET_VAL -ne 0 ];then
             trace_log_message "Failed to create /usr/local/InMage/config directory. Rolling back agent installation..."
             RecordOP 152 "Failed to create /usr/local/InMage/config directory"
             agent_rollback "152"
@@ -181,103 +180,112 @@ edit_files()
             trace_log_message -q "Successfully created /usr/local/InMage/config directory."
         fi
 
-	    # Copy RCMInfo.conf template file to /usr/local/InMage/config path
+        # Copy RCMInfo.conf template file to /usr/local/InMage/config path
         cp ${DEPLOY_DIR}/etc/RCMInfo.conf /usr/local/InMage/config >> $INSTALL_LOGFILE 2>&1
-	    RET_VAL=$?
-	    trace_log_message -q "RET_VAL=$RET_VAL"
-	    if [ $RET_VAL -ne 0 ];then
-	        trace_log_message "Failed to copy ${DEPLOY_DIR}/etc/RCMInfo.conf to /usr/local/InMage/config directory. Rolling back agent installation..."
+        RET_VAL=$?
+        trace_log_message -q "RET_VAL=$RET_VAL"
+        if [ $RET_VAL -ne 0 ];then
+            trace_log_message "Failed to copy ${DEPLOY_DIR}/etc/RCMInfo.conf to /usr/local/InMage/config directory. Rolling back agent installation..."
                 RecordOP 153 \
                          "Failed to copy ${DEPLOY_DIR}/etc/RCMInfo.conf to /usr/local/InMage/config"
-	        agent_rollback "153"
-	    else
-	        trace_log_message -q "Successfully copied ${DEPLOY_DIR}/etc/RCMInfo.conf to /usr/local/InMage/config directory."
-	    fi
-	
-        if [ "${AGENT_ROLE}" = "MasterTarget" ] ; then            
-            trace_log_message -q "Agent role is MasterTarget, setting RegisterHostInterval value to 180 in drscout.conf."            
+            agent_rollback "153"
+        else
+            trace_log_message -q "Successfully copied ${DEPLOY_DIR}/etc/RCMInfo.conf to /usr/local/InMage/config directory."
+        fi
+
+        if [ "${AGENT_ROLE}" = "MasterTarget" ] ; then
+            trace_log_message -q "Agent role is MasterTarget, setting RegisterHostInterval value to 180 in drscout.conf."
             sed -i -e "s|^RegisterHostInterval.*|RegisterHostInterval=180|g; s|^Role=.*|Role=MasterTarget|g" ${DEPLOY_DIR}/etc/drscout.conf
         fi
     fi
-   
+
     # Adding Platform information (VmWare/Azure) to drscout.conf.
     trace_log_message -q "Adding VmPlatform=$VM_PLATFORM entry in drscout.conf..."
     sed -i -e "s|^VmPlatform.*|VmPlatform=$VM_PLATFORM|g" ${DEPLOY_DIR}/etc/drscout.conf
-	
-	s2path="$DEPLOY_DIR/bin/s2A2A"
-	if [ "$CS_TYPE" = "CSLegacy" -a "$VM_PLATFORM" != "Azure" ] ; then
-		s2path="$DEPLOY_DIR/bin/s2V2A"
-	fi
-	trace_log_message -q "Adding s2 path in drscout.conf"
-	sed -i -e "s|^DiffSourceExePathname.*|DiffSourceExePathname=$s2path|g" ${DEPLOY_DIR}/etc/drscout.conf
-	
-	dppath="$DEPLOY_DIR/bin/dataprotection"
-	if [ "$CS_TYPE" = "CSPrime" ] ; then
-		dppath="$DEPLOY_DIR/bin/DataProtectionSyncRcm"
-	fi
-	trace_log_message -q "Adding dp path in drscout.conf"
-	sed -i -e "s|^OffloadSyncPathname.*|OffloadSyncPathname=$dppath|g; s|^FastSyncExePathname.*|FastSyncExePathname=$dppath|g; s|^DataProtectionExePathname.*|DataProtectionExePathname=$dppath|g; s|^DiffTargetExePathname.*|DiffTargetExePathname=$dppath|g" ${DEPLOY_DIR}/etc/drscout.conf
- 
+    trace_log_message -q "Adding CSType=$CS_TYPE entry in drscout.conf..."
+    sed -i -e "s|^CSType.*|CSType=$CS_TYPE|g" ${DEPLOY_DIR}/etc/drscout.conf
+
+    s2path="$DEPLOY_DIR/bin/s2A2A"
+    if [ "$CS_TYPE" = "CSLegacy" -a "$VM_PLATFORM" != "Azure" ] ; then
+        s2path="$DEPLOY_DIR/bin/s2V2A"
+    fi
+    trace_log_message -q "Adding s2 path in drscout.conf"
+    sed -i -e "s|^DiffSourceExePathname.*|DiffSourceExePathname=$s2path|g" ${DEPLOY_DIR}/etc/drscout.conf
+
+    dppath="$DEPLOY_DIR/bin/dataprotection"
+    if [ "$CS_TYPE" = "CSPrime" ] ; then
+        dppath="$DEPLOY_DIR/bin/DataProtectionSyncRcm"
+    fi
+    trace_log_message -q "Adding dp path in drscout.conf"
+    sed -i -e "s|^OffloadSyncPathname.*|OffloadSyncPathname=$dppath|g; s|^FastSyncExePathname.*|FastSyncExePathname=$dppath|g; s|^DataProtectionExePathname.*|DataProtectionExePathname=$dppath|g; s|^DiffTargetExePathname.*|DiffTargetExePathname=$dppath|g" ${DEPLOY_DIR}/etc/drscout.conf
+
+    # Is azure stack hub
+    if [ -z $IsAzureStackHub ] ; then
+        IsAzureStackHub=0
+    fi
+    trace_log_message -q "Replacing place holder IsAzureStackHubVm with $IsAzureStackHub in drscout.conf"
+    sed -i -e "s|^IsAzureStackHubVm=.*|IsAzureStackHubVm=$IsAzureStackHub|g" ${DEPLOY_DIR}/etc/drscout.conf
+
     # start
     trace_log_message -q "Replacing place holder RUNTIME_INSTALL_PATH with $DEPLOY_DIR in ${DEPLOY_DIR}/bin/start..."
     sed -i -e "s|RUNTIME_INSTALL_PATH|$DEPLOY_DIR|g" ${DEPLOY_DIR}/bin/start
-    
-    # stop    
+
+    # stop
     trace_log_message -q "Replacing place holder RUNTIME_INSTALL_PATH with $DEPLOY_DIR in ${DEPLOY_DIR}/bin/stop..."
     sed -i -e "s|RUNTIME_INSTALL_PATH|$DEPLOY_DIR|g" ${DEPLOY_DIR}/bin/stop
-    
-    # uarespawnd    
+
+    # uarespawnd
     trace_log_message -q "Replacing place holder RUNTIME_INSTALL_PATH with $DEPLOY_DIR in ${DEPLOY_DIR}/bin/uarespawnd..."
     sed -i -e "s|RUNTIME_INSTALL_PATH|$DEPLOY_DIR|g" ${DEPLOY_DIR}/bin/uarespawnd
-    
+
     case $OS in
-    UBUNTU-20.04-64|UBUNTU-18.04-64|UBUNTU-16.04-64|DEBIAN7-64|DEBIAN8-64|DEBIAN9-64|DEBIAN10-64)
-	trace_log_message -q "Replacing place holder RUNTIME_INSTALL_PATH with $DEPLOY_DIR in vxagent_ubuntu1604 and uarespawnd_ubuntu1604"
-	sed -i -e "s|RUNTIME_INSTALL_PATH|$DEPLOY_DIR|g" ${DEPLOY_DIR}/bin/vxagent_ubuntu1604
-	sed -i -e "s|RUNTIME_INSTALL_PATH|$DEPLOY_DIR|g" ${DEPLOY_DIR}/bin/uarespawnd_ubuntu1604
+    UBUNTU-22.04-64|UBUNTU-20.04-64|UBUNTU-18.04-64|UBUNTU-16.04-64|DEBIAN7-64|DEBIAN8-64|DEBIAN9-64|DEBIAN10-64|DEBIAN11-64)
+    trace_log_message -q "Replacing place holder RUNTIME_INSTALL_PATH with $DEPLOY_DIR in vxagent_ubuntu1604 and uarespawnd_ubuntu1604"
+    sed -i -e "s|RUNTIME_INSTALL_PATH|$DEPLOY_DIR|g" ${DEPLOY_DIR}/bin/vxagent_ubuntu1604
+    sed -i -e "s|RUNTIME_INSTALL_PATH|$DEPLOY_DIR|g" ${DEPLOY_DIR}/bin/uarespawnd_ubuntu1604
     ;;
     UBUNTU-14.04-64)
         trace_log_message -q "Replacing place holder RUNTIME_INSTALL_PATH with $DEPLOY_DIR in ${DEPLOY_DIR}/bin/vxagent..."
-        sed -i -e "s|1 2 3 5|1 2 3 4 5|g; s|RUNTIME_INSTALL_PATH|$DEPLOY_DIR|g" ${DEPLOY_DIR}/bin/vxagent 
+        sed -i -e "s|1 2 3 5|1 2 3 4 5|g; s|RUNTIME_INSTALL_PATH|$DEPLOY_DIR|g" ${DEPLOY_DIR}/bin/vxagent
         sed -i -e "s|Default-Start:.*|Default-Start: S|g; s|Required-Start:.*|Required-Start: glibc|g; /rc\.status/d; /sysconfig\/boot/d; \
-                /rc_exit/d; /rc_failed/d; /rc_status/d" ${DEPLOY_DIR}/bin/boot.inmage    
+                /rc_exit/d; /rc_failed/d; /rc_status/d" ${DEPLOY_DIR}/bin/boot.inmage
     ;;
     *)
         trace_log_message -q "Replacing place holder RUNTIME_INSTALL_PATH with $DEPLOY_DIR in ${DEPLOY_DIR}/bin/vxagent..."
         sed -i -e "s|RUNTIME_INSTALL_PATH|$DEPLOY_DIR|g" ${DEPLOY_DIR}/bin/vxagent
 
         case $OS in
-	RHEL5*|RHEL6*|OL6*)
+    RHEL5*|RHEL6*|OL6*)
             if [ "${AGENT_ROLE}" = "Agent" ]; then
                 # Remove ASR SHUTDOWN block from /sbin/halt.local file and then append
                 if [ -e /sbin/halt.local ]; then
                     sed -i -e '/^# START: ASR SHUTDOWN/,/^# END: ASR SHUTDOWN/d' /sbin/halt.local
                 fi
                 cat ${DEPLOY_DIR}/bin/halt.local.rh >> /sbin/halt.local 2>/dev/null
-        
+
                 # Apply execute permissions to /sbin/halt.local
                 chmod 755 /sbin/halt.local 2>/dev/null
             fi
         ;;
-        esac        
+        esac
     ;;
-    esac    
-    
+    esac
+
     # Incase of Linux agent installation set Https to 1 for secure communication
     sed -i -e '/^Https/d; /^Hostname/ a Https=1' ${DEPLOY_DIR}/etc/drscout.conf
 
     if [ z"$INSTALL_MODE" = z"--upgrade" ]; then
         trace_log_message -q "Hostname = ${VX_CSIP} during upgrade"
-	sed -i -e "s|^Hostname.*|Hostname = ${VX_CSIP}|g" ${DEPLOY_DIR}/etc/drscout.conf >> $INSTALL_LOGFILE 2>&1
+    sed -i -e "s|^Hostname.*|Hostname = ${VX_CSIP}|g" ${DEPLOY_DIR}/etc/drscout.conf >> $INSTALL_LOGFILE 2>&1
     fi
- 
-    # Incase of Linux agent installation set OracleDiscovery to 1 and ArrayDiscovery to 0.
-    sed -i -e "s|^OracleDiscovery=0|OracleDiscovery=1|g; s|^ArrayDiscovery=1|ArrayDiscovery=0|g" ${DEPLOY_DIR}/etc/drscout.conf   
 
-    # Create a symbolic link in /usr/local for drscout.conf as vx agent is hardcoded to look at this path        
+    # Incase of Linux agent installation set OracleDiscovery to 1 and ArrayDiscovery to 0.
+    sed -i -e "s|^OracleDiscovery=0|OracleDiscovery=1|g; s|^ArrayDiscovery=1|ArrayDiscovery=0|g" ${DEPLOY_DIR}/etc/drscout.conf
+
+    # Create a symbolic link in /usr/local for drscout.conf as vx agent is hardcoded to look at this path
     trace_log_message -q "Create a symbolic link in /usr/local for drscout.conf ..."
     ln -f -s ${DEPLOY_DIR}/etc/drscout.conf /usr/local/drscout.conf
-    
+
     # uninstall
     trace_log_message -q "Changing ${DEPLOY_DIR}/bin/uninstall ..."
     sed -i -e "s|RUNTIME_INSTALL_PATH|$DEPLOY_DIR|g; s|RUNTIME_VALUE_INST_MANIFEST_FILE_NAME|$INST_MANIFEST_FILE| ; \
@@ -365,20 +373,20 @@ create_soft_links()
         else
             trace_log_message -q "${exe} doesn't exist."
         fi
-		
+        
         # Create softlink based on the VM platform.
         if [ z"${VM_PLATFORM}" = z"VmWare" ]; then
-			if [ "$CS_TYPE" = "CSLegacy" ]; then
-				trace_log_message -q "Creating softlink for ${exe} for CS."
-				ln -f -s ${exe}V2A ${exe} >> $INSTALL_LOGFILE 2>&1
-				SLC_RET_VAL=$?
-			else
-				trace_log_message -q "Creating softlink for ${exe} for CSPrime."
-				ln -f -s ${exe}A2A ${exe} >> $INSTALL_LOGFILE 2>&1
-				SLC_RET_VAL=$?
-			fi
+            if [ "$CS_TYPE" = "CSLegacy" ]; then
+                trace_log_message -q "Creating softlink for ${exe} for CS."
+                ln -f -s ${exe}V2A ${exe} >> $INSTALL_LOGFILE 2>&1
+                SLC_RET_VAL=$?
+            else
+                trace_log_message -q "Creating softlink for ${exe} for CSPrime."
+                ln -f -s ${exe}A2A ${exe} >> $INSTALL_LOGFILE 2>&1
+                SLC_RET_VAL=$?
+            fi
         elif [ z"${VM_PLATFORM}" = z"Azure" ]; then
-			trace_log_message -q "Creating softlink for ${exe} for Azure."
+            trace_log_message -q "Creating softlink for ${exe} for Azure."
             ln -f -s ${exe}A2A ${exe} >> $INSTALL_LOGFILE 2>&1
             SLC_RET_VAL=$?
         else
@@ -458,7 +466,7 @@ install_into_deployment_dir()
                         RecordOP 159 "VX tar installation has failed."
                         SEE_LOG && return 159
                     fi
-		
+        
                     trace_log_message -q "Creating the required directories ..."
                     mkdir -p ${EXISTING_INST_DIR}/loginfo
                     chmod -R 770 ${EXISTING_INST_DIR}/ && cd "$CUR_W_D"
@@ -467,13 +475,19 @@ install_into_deployment_dir()
                 *)
                     trace_log_message "Installing the VX RPM package..."
                     rpm -Uvh --nomd5 --force --relocate /InMage/Vx=${DEPLOY_DIR} $MAIN_RPM_FILE >> $INSTALL_LOGFILE 2>&1
+                    if [ $? -ne 0 ]; then
+                        trace_log_message "VX RPM installation has failed. Aborting..."
+                        RecordOP 159 "VX RPM installation has failed."
+                        SEE_LOG && return 159
+                    fi
+                    
                     trace_log_message -q "Querying the rpm database for $MAIN_RPM_PACKAGE with : $RPM_COMMAND -q $MAIN_RPM_PACKAGE > /dev/null 2>&1"                    
                     if $($RPM_COMMAND -qa | grep -q "$MAIN_RPM_PACKAGE" ) ; then 
                         create_soft_links ${DEPLOY_DIR} ${VM_PLATFORM}
-			if [ $? -ne 0 ]; then
-			    trace_log_message "Failed to create softlinks for s2 and svagents. Aborting..."
+                        if [ $? -ne 0 ]; then
+                            trace_log_message "Failed to create softlinks for s2 and svagents. Aborting..."
                             RecordOP 56 "Failed to create softlinks for s2 and svagents."
-			    SEE_LOG && return 56
+                            SEE_LOG && return 56
                         else
                             trace_log_message -q "Created softlinks for s2 and svagents succsssfully."
                         fi
@@ -483,7 +497,7 @@ install_into_deployment_dir()
                         trace_log_message "VX RPM installation has failed. Aborting..."
                         RecordOP 159 "VX RPM installation has failed."
                         SEE_LOG && return 159
-                    fi           
+                    fi
                 ;;
             esac
 
@@ -528,6 +542,12 @@ install_into_deployment_dir()
                     #"Installing the VX RPM package..."
                     trace_log_message -q "Installing the VX RPM package..."
                     rpm -Uhv --nomd5 --force --relocate /InMage/Vx=${DEPLOY_DIR} $MAIN_RPM_FILE >> $INSTALL_LOGFILE 2>&1
+                    if [ $? -ne 0 ]; then
+                        trace_log_message "VX RPM installation has failed. Aborting..."
+                        RecordOP 159 "VX RPM installation has failed."
+                        SEE_LOG && return 159
+                    fi
+
                     trace_log_message -q "Querying the rpm database for $MAIN_RPM_PACKAGE with : $RPM_COMMAND -q $MAIN_RPM_PACKAGE > /dev/null 2>&1"
                     if $($RPM_COMMAND -qa | grep -q "$MAIN_RPM_PACKAGE" ) ; then 
                         create_soft_links ${DEPLOY_DIR} ${VM_PLATFORM}
@@ -557,8 +577,9 @@ install_into_deployment_dir()
         sed -i -e "s|SET_OS_PLACE_HOLER|$OS|g" ${DEPLOY_DIR}/../uninstall.sh
     fi
     
-    trace_log_message -q "Copying the Third-Party_Notices.txt file to the path : ${DEPLOY_DIR}/../ "
+    trace_log_message -q "Copying the Third-Party_Notices.txt and Notice.txt files to the path : ${DEPLOY_DIR}/../ "
     cp Third-Party_Notices.txt ${DEPLOY_DIR}/../
+    cp Notice.txt ${DEPLOY_DIR}/../
     
     # Remove the entries which are having qla* and scst* as
     # the scst and qla driver modules are for fabric based Installation Only.
@@ -596,6 +617,7 @@ merge_config_files() {
     REPLACEMENT_CMD=$(which sed)
     : > $REPLACEMENT_FILE
     newline_counter=0
+    local is_conf_updated=0
 
     SetOP "MergeConfig"
     
@@ -615,23 +637,45 @@ merge_config_files() {
     
                 if [ "$new_value" != "$old_value" ]; then
                     echo "$newline_counter $key $old_value" >> $REPLACEMENT_FILE
+                    is_conf_updated=1
                 fi
             fi
         fi
     done < $NEWFILE
+
+    if ! [ $is_conf_updated -eq 0 ]; then
+        while read line
+        do
+            line_num=`echo $line | cut -d' ' -f1`
+            key=`echo $line | cut -d' ' -f2`
+            value=`echo $line | cut -d' ' -f3`
+            REPLACEMENT_CMD="$REPLACEMENT_CMD -e \"$line_num s|.*|$key=$value|g\" "
+        done < $REPLACEMENT_FILE
     
-    while read line
+        eval $REPLACEMENT_CMD $NEWFILE > ${NEWFILE}.new
+        mv ${NEWFILE}.new ${NEWFILE}
+        rm -f $REPLACEMENT_FILE
+    fi
+
+    while read oldline
     do
-        line_num=`echo $line | cut -d' ' -f1`
-        key=`echo $line | cut -d' ' -f2`
-        value=`echo $line | cut -d' ' -f3`
-        REPLACEMENT_CMD="$REPLACEMENT_CMD -e \"$line_num s|.*|$key=$value|g\" "
-    done < $REPLACEMENT_FILE
-    
-    eval $REPLACEMENT_CMD $NEWFILE > ${NEWFILE}.new
-    mv ${NEWFILE}.new ${NEWFILE}
-    rm -f $REPLACEMENT_FILE
-    
+        if echo $oldline | grep -q "[[:space:]]*.\[*][[:space:]]*$" ; then
+            local  modified_section=`echo $oldline | sed -e 's/\[//g' -e 's/\]//g'`
+            trace_log_message -q "Section is $modified_section"
+        elif ! echo $oldline | grep -q "^[[:space:]]*.\+[[:space:]]*=[[:space:]]*.\+[[:space:]]*$" ; then
+            continue
+        else
+            local modified_oldline=`echo $oldline | sed 's/ //g'`
+            local old_key=`echo $modified_oldline | cut -d= -f1`
+            local old_value=`echo $modified_oldline | cut -d= -f2`
+
+            if ! grep -q "^[[:space:]]*$old_key[[:space:]]*=[[:space:]]*.\+[[:space:]]*$" $NEWFILE ; then
+                trace_log_message -q "$old_key exists in old configuration file but not in new file, hence adding $old_key=$old_value in new drscout.conf file"
+                sed -i -e " /^\[$modified_section\]/ a ${old_key}=$old_value" $NEWFILE
+            fi
+        fi
+    done < $OLDFILE
+
     RecordOP 0 ""
 
     return 0        
@@ -698,7 +742,7 @@ preserve_config()
         fi
 
         # Set VsnapDriverAvailable to 0
-        if $(grep -q 'VsnapDriverAvailable' ${DEPLOY_DIR}/etc/drscout.conf) ; then	
+        if $(grep -q 'VsnapDriverAvailable' ${DEPLOY_DIR}/etc/drscout.conf) ; then  
             trace_log_message -q "Changing the value of VsnapDriverAvailable to 0 in drscout.conf"
             sed -i -e "s|^VsnapDriverAvailable.*|VsnapDriverAvailable=0|g" ${DEPLOY_DIR}/etc/drscout.conf
         fi
@@ -772,7 +816,7 @@ create_symbolic_links()
  case `uname` in
     Linux)
         case $OS in            
-	    UBUNTU-18.04-64|UBUNTU-16.04-64|DEBIAN7-64|DEBIAN8-64)
+        UBUNTU-18.04-64|UBUNTU-16.04-64|DEBIAN7-64|DEBIAN8-64)
                     # Add vConService_linux as service and copy vconservice.sh to /etc/vxagent/bin
                     ln -f -s ${DEPLOY_DIR}/scripts/vCon/vConService_linux ${INIT_DIRECTORY}/init.d/vConService_linux
                     chmod +x ${INIT_DIRECTORY}/init.d/vConService_linux
@@ -793,7 +837,7 @@ create_symbolic_links()
                     trace_log_message -q "Creating uarespawnd daemon service."
                     chmod 755 ${INIT_DIRECTORY}/init.d/uarespawnd >> $INSTALL_LOGFILE 2>&1
                     update-rc.d uarespawnd defaults >> $INSTALL_LOGFILE 2>&1
-	    ;;
+        ;;
             UBUNTU-14.04-64)
                     # Add involflt as service and copying involflt.ubuntu to /etc/init.d
                     cp -f ${DEPLOY_DIR}/etc/involflt.ubuntu /etc/init.d/involflt
@@ -822,7 +866,7 @@ create_symbolic_links()
                     chmod 755 ${INIT_DIRECTORY}/init.d/uarespawnd >> $INSTALL_LOGFILE 2>&1
                     update-rc.d uarespawnd defaults 99 01 >> $INSTALL_LOGFILE 2>&1
         ;;
-            SLES15-64|OL8-64|UBUNTU-20.04-64|DEBIAN9-64|DEBIAN10-64)
+            SLES15-64|OL8-64|OL9-64|UBUNTU-22.04-64|UBUNTU-20.04-64|DEBIAN9-64|DEBIAN10-64|DEBIAN11-64|RHEL9-64)
                 # SLES15 do not have /sbin/insserv which fails the enable of service scripts
                 # systemctl looks for service files in both /etc/init.d as well as /etc/systemd/system
                 # systemctl enable fails due to files of same name in /etc/init.d and /etc/systemd/system
@@ -830,7 +874,7 @@ create_symbolic_links()
 
                 trace_log_message -q "Copying vxagent and vConService_linux scripts directly under /etc/vxagent/bin"
                 cp -f ${DEPLOY_DIR}/scripts/vCon/vConService_linux ${INIT_DIRECTORY}/vxagent/bin/vConService_linux >> $INSTALL_LOGFILE 2>&1
-                if [ "$OS" = "UBUNTU-20.04-64" -o "$OS" = "DEBIAN9-64" -o "$OS" = "DEBIAN10-64" ]; then
+                if [ "$OS" = "UBUNTU-22.04-64" -o "$OS" = "UBUNTU-20.04-64" -o "$OS" = "DEBIAN9-64" -o "$OS" = "DEBIAN10-64" -o "$OS" = "DEBIAN11-64" ]; then
                     cp -f ${DEPLOY_DIR}/bin/vxagent_ubuntu1604 ${INIT_DIRECTORY}/vxagent/bin/vxagent >> $INSTALL_LOGFILE 2>&1
                     cp -f ${DEPLOY_DIR}/bin/uarespawnd_ubuntu1604 ${INIT_DIRECTORY}/vxagent/bin/uarespawnd >> $INSTALL_LOGFILE 2>&1
                 else
@@ -904,7 +948,7 @@ create_symbolic_links()
                     chkconfig uarespawnd on >> $INSTALL_LOGFILE 2>&1
                 fi
 
-		if [ -f /etc/SuSE-release ] && grep -q 'VERSION = 11' /etc/SuSE-release  &&  grep -q 'PATCHLEVEL = 4' /etc/SuSE-release ; then
+        if [ -f /etc/SuSE-release ] && grep -q 'VERSION = 11' /etc/SuSE-release  &&  grep -q 'PATCHLEVEL = 4' /etc/SuSE-release ; then
                     insserv /etc/init.d/boot.inmage >> $INSTALL_LOGFILE 2>&1
                 elif [ -f /etc/SuSE-release ]; then
                     ln -s /etc/init.d/boot.inmage /etc/init.d/boot.d/K20boot.inmage >> $INSTALL_LOGFILE 2>&1
@@ -940,7 +984,7 @@ form_kversion_string()
         fi
 
         if [ "$OS" = "RHEL5-64" ]; then
-	    KERNEL_VER_SUFFIX="el5 el5xen"
+        KERNEL_VER_SUFFIX="el5 el5xen"
             ACTL_KERNEL_VER=$RHEL5_KVL
             S_FILE_SUFFIX=${ACTL_KERNEL_VER}
             trace_log_message -q "System is RHEL5.x ..."
@@ -967,6 +1011,13 @@ form_kversion_string()
             trace_log_message -q "System is RHEL8.x ..."
             cat /etc/redhat-release >> $INSTALL_LOGFILE 2>&1            
             GO_AHEAD=0
+    elif [ "$OS" = "RHEL9-64" ]; then
+        KERNEL_VER_SUFFIX="el9*.x86_64"
+            ACTL_KERNEL_VER=$RHEL9_KVL
+            S_FILE_SUFFIX=${ACTL_KERNEL_VER}
+            trace_log_message -q "System is RHEL9.x ..."
+            cat /etc/redhat-release >> $INSTALL_LOGFILE 2>&1
+            GO_AHEAD=0        
         elif [ "$OS" = "OL7-64" ]; then
             KERNEL_VER_SUFFIX="el7.x86_64"
             ACTL_KERNEL_VER=$RHEL7_KVL
@@ -981,6 +1032,13 @@ form_kversion_string()
             trace_log_message -q "System is OL8.x ..."
             cat /etc/oracle-release >> $INSTALL_LOGFILE 2>&1            
             GO_AHEAD=0
+        elif [ "$OS" = "OL9-64" ]; then
+            KERNEL_VER_SUFFIX="el9*.x86_64"
+            ACTL_KERNEL_VER=$RHEL9_KVL
+            S_FILE_SUFFIX=${ACTL_KERNEL_VER}
+            trace_log_message -q "System is OL9.x ..."
+            cat /etc/oracle-release >> $INSTALL_LOGFILE 2>&1
+            GO_AHEAD=0         
         elif [ "$OS" = "OL6-64" ]; then
             trace_log_message -q "System is OL6.x..."
             cat /etc/oracle-release >> $INSTALL_LOGFILE 2>&1            
@@ -997,17 +1055,11 @@ form_kversion_string()
         elif [ "$OS" = "UBUNTU-20.04-64" ]; then
             trace_log_message -q "System is UBUNTU-20.04-64 ..."
             GO_AHEAD=0
-        elif [ "$OS" = "DEBIAN7-64" ]; then
-            trace_log_message -q "System is DEBIAN7-64 ..."
+        elif [ "$OS" = "UBUNTU-22.04-64" ]; then
+            trace_log_message -q "System is UBUNTU-22.04-64 ..."
             GO_AHEAD=0
-        elif [ "$OS" = "DEBIAN8-64" ]; then
-            trace_log_message -q "System is DEBIAN8-64 ..."
-            GO_AHEAD=0
-        elif [ "$OS" = "DEBIAN9-64" ]; then
-            trace_log_message -q "System is DEBIAN9-64 ..."
-            GO_AHEAD=0
-        elif [ "$OS" = "DEBIAN10-64" ]; then
-            trace_log_message -q "System is DEBIAN10-64 ..."
+        elif [ "$OS" = "DEBIAN*-64" ]; then
+            trace_log_message -q "$OS ..."
             GO_AHEAD=0
         elif [ "$OS" = "SLES11-SP3-64" ]; then
             KERNEL_VER_SUFFIX="default xen"
@@ -1015,7 +1067,7 @@ form_kversion_string()
             S_FILE_SUFFIX=$SLES11_SP3_KVL
             trace_log_message -q "System is SLES11 SP3 ..."            
             GO_AHEAD=0
-	elif [ "$OS" = "SLES11-SP4-64" ]; then
+    elif [ "$OS" = "SLES11-SP4-64" ]; then
             KERNEL_VER_SUFFIX="default xen"
             ACTL_KERNEL_VER=$SLES11_SP4_KVL
             S_FILE_SUFFIX=$SLES11_SP4_KVL
@@ -1050,6 +1102,51 @@ form_kversion_string()
  RecordOP 0 ""
 
  return 0
+}
+
+load_rhel9_kernel_modules()
+{
+    local _suffix="$2"
+    local _drv_dir="$3"
+
+    trace_log_message "Kernel path = $1 ; suffix= $2 ; drv_dir =$3"
+
+    RHEL9_KMV_V0="70"
+    RHEL9_KMV_V0_1="13"
+    RHEL9_KMV_V0_2="36"
+    RHEL9_KMV_V1="162"
+    RHEL9_KMV_V2="284"
+
+    KERNEL_MINOR_VERSION=`echo "$1" | cut -d"-" -f2 | cut -d"." -f1`
+    KERNEL_COPY_VERSION=""
+    ret=1
+    case $KERNEL_MINOR_VERSION in
+        $RHEL9_KMV_V0)
+            local KERNEL_MINOR_VERSION_UPDATE=`echo "$1" | cut -d"-" -f2 | cut -d"." -f2`
+            if [ $KERNEL_MINOR_VERSION_UPDATE -lt $RHEL9_KMV_V0_2 ]; then
+                KERNEL_UPDATE_VERSION=$RHEL9_KMV_V0_1
+            else
+                KERNEL_UPDATE_VERSION=$RHEL9_KMV_V0_2
+            fi
+            KERNEL_COPY_VERSION="$RHEL9_KMV_V0.$KERNEL_UPDATE_VERSION"
+        ;;
+        $RHEL9_KMV_V1)
+            KERNEL_COPY_VERSION=$RHEL9_KMV_V1
+        ;;
+        *)
+            KERNEL_COPY_VERSION=$RHEL9_KMV_V2
+        ;;
+    esac
+
+    if [ -z $KERNEL_COPY_VERSION ]; then
+        trace_log_message "Not copying involflt driver to kernel $1"
+    else
+        trace_log_message "Copying ${_drv_dir}/involflt.ko.${S_FILE_SUFFIX}-${KERNEL_COPY_VERSION}*${SEP}${_suffix} to ${k_dir}"
+        cp -f ${_drv_dir}/involflt.ko.${S_FILE_SUFFIX}-${KERNEL_COPY_VERSION}*${SEP}${_suffix} ${k_dir}/involflt.ko
+        ret=$?
+    fi
+
+    return $ret
 }
 
 is_supported_rhel8_kernel()
@@ -1087,6 +1184,10 @@ load_rhel8_kernel_modules()
     RHEL8_KMV_V3="240"
     RHEL8_KMV_V4="305"
     RHEL8_KMV_V5="348"
+    RHEL8_KMV_V6="372"
+    RHEL8_KMV_V7="425"
+    RHEL8_KMV_V7_1="425.3.1"
+    RHEL8_KMV_V7_2="425.10.1"
 
     VER_DIR=$(dirname $(dirname $(dirname $k_dir)))
     K_VER=${VER_DIR##*/}
@@ -1102,19 +1203,30 @@ load_rhel8_kernel_modules()
             KERNEL_COPY_VERSION=$RHEL8_KMV_V1
         ;;
         $RHEL8_KMV_V4)
-	    is_supported_rhel8_kernel $K_VER 30 1
-	    if [ $? -eq "0" ]; then
+            is_supported_rhel8_kernel $K_VER 30 1
+            if [ $? -eq "0" ]; then
                 KERNEL_COPY_VERSION=$RHEL8_KMV_V4
             fi
         ;;
         $RHEL8_KMV_V5)
-	    is_supported_rhel8_kernel $K_VER 5 1
-	    if [ $? -eq "0" ]; then
+            is_supported_rhel8_kernel $K_VER 5 1
+            if [ $? -eq "0" ]; then
                 KERNEL_COPY_VERSION=$RHEL8_KMV_V5
             fi
         ;;
-        *)
+        $RHEL8_KMV_V6)
             KERNEL_COPY_VERSION=$RHEL8_KMV_V5
+        ;;
+        $RHEL8_KMV_V7)
+            local KERNEL_MINOR_VERSION_UPDATE=`echo "$1" | cut -d"-" -f2 | cut -d"." -f1,2,3`
+            if [ $KERNEL_MINOR_VERSION_UPDATE = $RHEL8_KMV_V7_1 ]; then
+                KERNEL_COPY_VERSION=$RHEL8_KMV_V7_1
+            else
+                KERNEL_COPY_VERSION=$RHEL8_KMV_V7_2
+            fi
+        ;;
+        *)
+            KERNEL_COPY_VERSION=$RHEL8_KMV_V7_2
         ;;
     esac
     if [ -z $KERNEL_COPY_VERSION ]; then
@@ -1122,7 +1234,7 @@ load_rhel8_kernel_modules()
     else
         trace_log_message "Copying ${_drv_dir}/involflt.ko.${S_FILE_SUFFIX}-${KERNEL_COPY_VERSION}*${SEP}${_suffix} to ${k_dir}"
         cp -f ${_drv_dir}/involflt.ko.${S_FILE_SUFFIX}-${KERNEL_COPY_VERSION}*${SEP}${_suffix} ${k_dir}/involflt.ko
-	ret=$?
+    ret=$?
     fi
 
     return $ret
@@ -1185,15 +1297,23 @@ is_sles_kernel_supported()
         return 0
     fi
 
-    if [ -f /etc/SuSE-release ] ; then
-        patch_level=`grep "PATCHLEVEL = " /etc/SuSE-release | awk '{print $3}'`
-        trace_log_message -q "Fetched patch level: $patch_level from SuSE-release file"
+    if [ "${OS}" = "SLES12-64" ]; then
+        if [ -f /etc/SuSE-release ]; then
+            patch_level=`grep "PATCHLEVEL = " /etc/SuSE-release | awk '{print $3}'`
+            trace_log_message -q "Fetched patch level: $patch_level from SuSE-release file"
+        else
+            trace_log_message -q " SuSE-release file does not exist"
+        fi
     else
-        patch_level=`grep "VERSION=" /etc/os-release | grep -o SP[0-9] | grep -o [0-9]`
-        trace_log_message -q "Fetched patch level: $patch_level from os-release file"
-        if [ -z "${patch_level}" ]; then
-            trace_log_message -q "No patch level info obtained from os-release file, marking it as SP0"
-            patch_level=0
+        if [ -f /etc/os-release ]; then
+            patch_level=`grep "VERSION=" /etc/os-release | grep -o SP[0-9] | grep -o [0-9]`
+            trace_log_message -q "Fetched patch level: $patch_level from os-release file"
+            if [ -z "${patch_level}" ]; then
+                trace_log_message -q "No patch level info obtained from os-release file, marking it as SP0"
+                patch_level=0
+            fi
+        else
+            trace_log_message -q "os-release file does not exist"
         fi
     fi
     if [ ! -z "${patch_level}" ]; then
@@ -1267,32 +1387,32 @@ load_kernel_modules()
             sed -i -e "s|SET_DEPLOY_DIR|${DEPLOY_DIR}|g" ${DEPLOY_DIR}/bin/check_drivers.sh
             sed -i -e "s|SET_OS|${OS}|g" ${DEPLOY_DIR}/bin/check_drivers.sh
             ;;
-	SLES12-64|SLES15-64)
-	    # Check whether current kernel is supported or not. Rollback in case of fresh installation and fail in case of upgrade.
-	    CURR_KER=`uname -r`
-	    vaild_ker=`is_sles_kernel_supported $CURR_KER $DEPLOY_DIR`
-	    ret=$?
-	    trace_log_message -q "The kernel returned from is_sles_kernel_supported is ${vaild_ker} and return value is ${ret}"
-	    if [ ${ret} = "0" -a -f ${DEPLOY_DIR}/bin/drivers/involflt.ko.${vaild_ker} ]; then
-		trace_log_message -q "Current kernel ${CURR_KER} is supported. Proceeding ahead."
-	    else
-		trace_log_message -q "Current kernel ${CURR_KER} is not supported."
-		trace_log_message -q "Installation mode is ${INSTALL_MODE}."
-		trace_log_message "This version of Mobility Service does not support the operating system kernel version running on the source machine."
+    SLES12-64|SLES15-64)
+        # Check whether current kernel is supported or not. Rollback in case of fresh installation and fail in case of upgrade.
+        CURR_KER=`uname -r`
+        vaild_ker=`is_sles_kernel_supported $CURR_KER $DEPLOY_DIR`
+        ret=$?
+        trace_log_message -q "The kernel returned from is_sles_kernel_supported is ${vaild_ker} and return value is ${ret}"
+        if [ ${ret} = "0" -a -f ${DEPLOY_DIR}/bin/drivers/involflt.ko.${vaild_ker} ]; then
+        trace_log_message -q "Current kernel ${CURR_KER} is supported. Proceeding ahead."
+        else
+        trace_log_message -q "Current kernel ${CURR_KER} is not supported."
+        trace_log_message -q "Installation mode is ${INSTALL_MODE}."
+        trace_log_message "This version of Mobility Service does not support the operating system kernel version running on the source machine."
                 if [ z"$INSTALL_MODE" = z"--upgrade" ]; then
-		    trace_log_message "Aborting upgrade."
-		else
-		    trace_log_message -q "Removing contents under ${DEPLOY_DIR} and /usr/local/drscout.conf"
-		    if [ "${DEPLOY_DIR}" != "/" ]; then
-			rm -f ${DEPLOY_DIR}/../Third-Party_Notices.txt ${DEPLOY_DIR}/../uninstall.sh
-			rm -rf ${DEPLOY_DIR} && rm -f /usr/local/drscout.conf
- 		    fi
-		fi
+            trace_log_message "Aborting upgrade."
+        else
+            trace_log_message -q "Removing contents under ${DEPLOY_DIR} and /usr/local/drscout.conf"
+            if [ "${DEPLOY_DIR}" != "/" ]; then
+            rm -f ${DEPLOY_DIR}/../Third-Party_Notices.txt ${DEPLOY_DIR}/../uninstall.sh
+            rm -rf ${DEPLOY_DIR} && rm -f /usr/local/drscout.conf
+            fi
+        fi
                 RecordOP 208 "Mobility Service does not support the OS kernel"
                 return 208
-	    fi
+        fi
 
-	    # Loop through all the available kernels and install driver if that kernel is supported.
+        # Loop through all the available kernels and install driver if that kernel is supported.
 
         for TOP_DIR in `echo /lib/modules/*`
         do
@@ -1300,14 +1420,14 @@ load_kernel_modules()
             test -f /boot/vmlinuz-$base_kdir || continue
             DRV_DIR=${TOP_DIR}/kernel/drivers/char
                 if [ -d ${DRV_DIR} ]; then
-        	    KER_DIR=$(dirname $(dirname $(dirname $DRV_DIR)))
-        	    KER_VER=${KER_DIR##*/}
-		    vaild_ker=`is_sles_kernel_supported $KER_VER $DEPLOY_DIR`
-		    ret=$?
-		    trace_log_message -q "The kernel returned from is_sles_kernel_supported is ${vaild_ker} and return value is ${ret}"
-		    if [ ${ret} -eq "0" -a -f ${DEPLOY_DIR}/bin/drivers/involflt.ko.${vaild_ker} ]; then
-			trace_log_message -q "Copying ${DEPLOY_DIR}/bin/drivers/involflt.ko.${vaild_ker} as ${DRV_DIR}/involflt.ko"
-			cp -f ${DEPLOY_DIR}/bin/drivers/involflt.ko.${vaild_ker} ${DRV_DIR}/involflt.ko
+                KER_DIR=$(dirname $(dirname $(dirname $DRV_DIR)))
+                KER_VER=${KER_DIR##*/}
+            vaild_ker=`is_sles_kernel_supported $KER_VER $DEPLOY_DIR`
+            ret=$?
+            trace_log_message -q "The kernel returned from is_sles_kernel_supported is ${vaild_ker} and return value is ${ret}"
+            if [ ${ret} -eq "0" -a -f ${DEPLOY_DIR}/bin/drivers/involflt.ko.${vaild_ker} ]; then
+            trace_log_message -q "Copying ${DEPLOY_DIR}/bin/drivers/involflt.ko.${vaild_ker} as ${DRV_DIR}/involflt.ko"
+            cp -f ${DEPLOY_DIR}/bin/drivers/involflt.ko.${vaild_ker} ${DRV_DIR}/involflt.ko
                         if [ $? -eq 0 ]; then
                             trace_log_message -q "Installed involflt.ko successfully under ${DRV_DIR}."
                             trace_log_message -q "Running depmod for kernel $KER_VER ..."
@@ -1322,43 +1442,43 @@ load_kernel_modules()
                             trace_log_message -q "---> Couldn't install involflt.ko under ${DRV_DIR}"
                             RecordOP 208 "Couldn't install involflt.ko under ${DRV_DIR}"
                         fi
-		    else
+            else
                         trace_log_message -q "Did not find driver for ${KER_VER}. It is not yet supported."
                         RecordOP 208 "Did not find driver for ${KER_VER}"
-		    fi
-		else
+            fi
+        else
                     trace_log_message -q "---> Directory $DRV_DIR could not be found on this system - skipping installation of driver involflt."
                     RecordOP 208 "Directory $DRV_DIR could not be found"
-		fi
-	    done
+        fi
+        done
 
             # Replace the placeholders with proper values in the file check_drivers.sh
             sed -i -e "s|SET_DEPLOY_DIR|${DEPLOY_DIR}|g" ${DEPLOY_DIR}/bin/check_drivers.sh
             sed -i -e "s|SET_OS|${OS}|g" ${DEPLOY_DIR}/bin/check_drivers.sh
-	    ;;
-	UBUNTU*|DEBIAN*)
-	    # Check whether current kernel is supported or not. Rollback in case of fresh installation and fail in case of upgrade.
-	    CURR_KER=`uname -r`
-	    if [ -f ${DEPLOY_DIR}/bin/drivers/involflt.ko.${CURR_KER} ]; then
-		trace_log_message -q "Current kernel ${CURR_KER} is supported. Proceeding ahead."
-	    else
-		trace_log_message -q "Current kernel ${CURR_KER} is not supported."
-		trace_log_message -q "Installation mode is ${INSTALL_MODE}."
-		trace_log_message "This version of Mobility Service does not support the operating system kernel version running on the source machine."
+        ;;
+    UBUNTU*|DEBIAN*)
+        # Check whether current kernel is supported or not. Rollback in case of fresh installation and fail in case of upgrade.
+        CURR_KER=`uname -r`
+        if [ -f ${DEPLOY_DIR}/bin/drivers/involflt.ko.${CURR_KER} ]; then
+        trace_log_message -q "Current kernel ${CURR_KER} is supported. Proceeding ahead."
+        else
+        trace_log_message -q "Current kernel ${CURR_KER} is not supported."
+        trace_log_message -q "Installation mode is ${INSTALL_MODE}."
+        trace_log_message "This version of Mobility Service does not support the operating system kernel version running on the source machine."
                 if [ z"$INSTALL_MODE" = z"--upgrade" ]; then
-		    trace_log_message "Aborting upgrade."
-		else
-		    trace_log_message -q "Removing contents under ${DEPLOY_DIR} and /usr/local/drscout.conf"
-		    if [ "${DEPLOY_DIR}" != "/" ]; then
-			rm -f ${DEPLOY_DIR}/../Third-Party_Notices.txt ${DEPLOY_DIR}/../uninstall.sh
-			rm -rf ${DEPLOY_DIR} && rm -f /usr/local/drscout.conf
- 		    fi
-		fi
+            trace_log_message "Aborting upgrade."
+        else
+            trace_log_message -q "Removing contents under ${DEPLOY_DIR} and /usr/local/drscout.conf"
+            if [ "${DEPLOY_DIR}" != "/" ]; then
+            rm -f ${DEPLOY_DIR}/../Third-Party_Notices.txt ${DEPLOY_DIR}/../uninstall.sh
+            rm -rf ${DEPLOY_DIR} && rm -f /usr/local/drscout.conf
+            fi
+        fi
                 RecordOP 208 "Mobility Service does not support the OS kernel"
                 return 208
-	    fi
+        fi
 
-	    # Loop through all the available kernels and install driver if that kernel is supported.
+        # Loop through all the available kernels and install driver if that kernel is supported.
         for TOP_DIR in `echo /lib/modules/*`
         do
             base_kdir=`basename $TOP_DIR`
@@ -1397,9 +1517,9 @@ load_kernel_modules()
         # Replace the placeholders with proper values in the file check_drivers.sh
         sed -i -e "s|SET_DEPLOY_DIR|${DEPLOY_DIR}|g" ${DEPLOY_DIR}/bin/check_drivers.sh
         sed -i -e "s|SET_OS|${OS}|g" ${DEPLOY_DIR}/bin/check_drivers.sh
-	    ;;
+        ;;
 
-        OL7*|OL8*)
+        OL7*|OL8*|OL9*)
             # Replace the placeholders with proper values in the file check_drivers.sh
             sed -i -e "s|SET_ACTL_KERNEL_VER|${ACTL_KERNEL_VER}|g; s|SET_S_FILE_SUFFIX|${S_FILE_SUFFIX}|g" ${DEPLOY_DIR}/bin/check_drivers.sh
             sed -i -e "s|SET_SEP|${SEP}|g; s|SET_KERNEL_VER_SUFFIX|${KERNEL_VER_SUFFIX}|g" ${DEPLOY_DIR}/bin/check_drivers.sh            
@@ -1413,8 +1533,10 @@ load_kernel_modules()
                 k_dir=$TOP_DIR/kernel/drivers/char
                 if [ "$OS" = "OL7-64" ]; then
                     load_rhel7_kernel_modules "$k_dir" "$KERNEL_VER_SUFFIX" "${DEPLOY_DIR}/bin/drivers"
-                else
+                elif [ "$OS" = "OL8-64" ]; then
                     load_rhel8_kernel_modules "$k_dir" "$KERNEL_VER_SUFFIX" "${DEPLOY_DIR}/bin/drivers"
+                else
+                    load_rhel9_kernel_modules "$k_dir" "$KERNEL_VER_SUFFIX" "${DEPLOY_DIR}/bin/drivers"
                 fi
                 RET_VAL=$?
                 if [ "$RET_VAL" = 0 ]; then
@@ -1492,6 +1614,8 @@ load_kernel_modules()
                                 load_rhel7_kernel_modules "$k_dir" "$suffix" "${DEPLOY_DIR}/bin"
                             elif [ "$OS" = "RHEL8-64" ]; then
                                 load_rhel8_kernel_modules "$k_dir" "$suffix" "${DEPLOY_DIR}/bin"
+                            elif [ "$OS" = "RHEL9-64" ]; then
+                                load_rhel9_kernel_modules "$k_dir" "$suffix" "${DEPLOY_DIR}/bin"    
                             else
                                 cp -f ${DEPLOY_DIR}/bin/involflt.ko.${S_FILE_SUFFIX}*${SEP}${suffix} ${k_dir}/involflt.ko
                             fi
@@ -1534,9 +1658,13 @@ load_kernel_modules()
         # Create dependency database for these kernel modules
         depmod
 
+        if [ "$OSN" = "SLES" ]; then
+            trace_log_message -q "SLES driver load options : $SLES_DRV_LD_OPTION"
+        fi
+
         # Call modprobe with special argument to load the kernel module on SLES platforms.
         [ "$OSN" = "SLES" ] && modprobe -vs involflt $SLES_DRV_LD_OPTION || modprobe -vs involflt > /dev/null 2>&1
-    
+
             # Check whether successfully installed or not and if yes, create filter device also
             if lsmod | grep -iq involflt; then
                 trace_log_message "Filter driver kernel module loaded successfully."
@@ -1554,9 +1682,9 @@ load_kernel_modules()
 
                 # Grab the major number of the character device involflt from /proc/devices
                 # Then, create that device here. Minor number is 0.
-    
+
                 [ -e /dev/involflt ] && rm -f /dev/involflt
-                
+
                 if [ ! -e /dev/involflt ]; then
                     INVOLFLT_MAJ_NUM=`cat /proc/devices | grep involflt | awk '{print $1}'`
                     mknod /dev/involflt c $INVOLFLT_MAJ_NUM 0
@@ -1694,7 +1822,7 @@ stop_agent_service() {
     if [ $return_value -eq 2 ]; then
         trace_log_message -q "Passing force argument to stop script."
         ${DEPLOY_DIR}/bin/stop force >> $INSTALL_LOGFILE 2>&1
-		return_value=$?
+        return_value=$?
         if [ $return_value -eq 2 ]; then
             trace_log_message "Could not stop VX agent service. Please re-try after sometime. Aborting..."
             return_value=115
@@ -1801,7 +1929,7 @@ boot_stack()
     # Checked that /etc/init.d (either as a directory or a symlink) exists on both Red Hat as well as SuSE systems
 
     cp ${DEPLOY_DIR}/bin/inm_dmit ${INIT_DIRECTORY}/vxagent/hotplug_utils
-    chmod a+x ${INIT_DIRECTORY}/vxagent/hotplug_utils/inm_dmit	
+    chmod a+x ${INIT_DIRECTORY}/vxagent/hotplug_utils/inm_dmit  
 
     if [ -f "/etc/init.d/inm_hotplug" ]; then
         trace_log_message -q "Deleting the file /etc/init.d/inm_hotplug."
@@ -1818,46 +1946,60 @@ boot_stack()
             cp ${DEPLOY_DIR}/bin/inmaged.modules /etc/sysconfig/modules/
             chmod a+x /etc/sysconfig/modules/inmaged.modules
             ;;
-        RHEL7*|RHEL8*|UBUNTU-20.04-64|UBUNTU-18.04-64|UBUNTU-16.04-64|DEBIAN8-64|DEBIAN9-64|DEBIAN10-64|SLES12-64|SLES15-64|OL7-64|OL8-64)
-            # Copy involflt_start.service.systemd and involflt_stop.service.systemd scripts to /etc/systemd/system without systemd suffix
-            cp -f ${DEPLOY_DIR}/bin/involflt_start.service.systemd /etc/systemd/system/involflt_start.service
-            cp -f ${DEPLOY_DIR}/bin/involflt_stop.service.systemd /etc/systemd/system/involflt_stop.service
-            chmod 644 /etc/systemd/system/involflt_start.service /etc/systemd/system/involflt_stop.service
 
-            # Enable involflt_start.service
-            systemctl enable involflt_start.service >> $INSTALL_LOGFILE 2>&1
-            if [ $? -eq 0 ]; then
-                trace_log_message -q "Enabled involflt_start.service successfully."
+        RHEL7*|RHEL8*|RHEL9*|UBUNTU-22.04-64|UBUNTU-20.04-64|UBUNTU-18.04-64|UBUNTU-16.04-64|DEBIAN8-64|DEBIAN9-64|DEBIAN10-64|DEBIAN11-64|SLES12-64|SLES15-64|OL7-64|OL8-64|OL9-64)
+            if [ "$OS" =  "RHEL7-64" ]; then 
+                # Copy involflt_stop.service.systemd scripts to /etc/systemd/system without systemd suffix
+                if [ -f "/etc/systemd/system/involflt_start.service" ]; then
+                    trace_log_message -q "Disabling involflt_sart services."
+                    systemctl stop involflt_start.service >> $INSTALL_LOGFILE 2>&1
+                    systemctl disable involflt_start.service >> $INSTALL_LOGFILE 2>&1
+                    rm -f /etc/systemd/system/involflt_start.service >> $INSTALL_LOGFILE 2>&1
+                fi
+                cp -f ${DEPLOY_DIR}/bin/involflt_stop.service.systemd /etc/systemd/system/involflt_stop.service
+                trace_log_message -q "Performing systemctl daemon-reload."
+                systemctl daemon-reload >> $INSTALL_LOGFILE 2>&1
             else
-		trace_log_message -q "Performing systemctl daemon-reload."
-		systemctl daemon-reload >> $INSTALL_LOGFILE 2>&1
+                # Copy involflt_start.service.systemd and involflt_stop.service.systemd scripts to /etc/systemd/system without systemd suffix
 
-		systemctl enable involflt_start.service >> $INSTALL_LOGFILE 2>&1
-		if [ $? -eq 0 ]; then
-		    trace_log_message -q "Enabled involflt_start.service successfully."
-		else
-                    trace_log_message "Failed to enable involflt_start.service. Rolling back agent installation..."
-                    RecordOP 160 "Failed to enable involflt_start.service"
-                    [ z"$INSTALL_MODE" != z"--upgrade" ] && agent_rollback "160"
-		fi
+                cp -f ${DEPLOY_DIR}/bin/involflt_start.service.systemd /etc/systemd/system/involflt_start.service
+                cp -f ${DEPLOY_DIR}/bin/involflt_stop.service.systemd /etc/systemd/system/involflt_stop.service
+                chmod 644 /etc/systemd/system/involflt_start.service /etc/systemd/system/involflt_stop.service
+                # Enable involflt_start.service
+                systemctl enable involflt_start.service >> $INSTALL_LOGFILE 2>&1
+                if [ $? -eq 0 ]; then
+                    trace_log_message -q "Enabled involflt_start.service successfully."
+                else
+                    trace_log_message -q "Performing systemctl daemon-reload."
+                    systemctl daemon-reload >> $INSTALL_LOGFILE 2>&1
+                    systemctl enable involflt_start.service >> $INSTALL_LOGFILE 2>&1
+                    if [ $? -eq 0 ]; then
+                        trace_log_message -q "Enabled involflt_start.service successfully."
+                    else
+                        trace_log_message "Failed to enable involflt_start.service. Rolling back agent installation..."
+                        RecordOP 160 "Failed to enable involflt_start.service"
+                        [ z"$INSTALL_MODE" != z"--upgrade" ] && agent_rollback "160"
+                    fi
+                fi
             fi
+
 
             # Enable involflt_stop.service
             systemctl enable involflt_stop.service >> $INSTALL_LOGFILE 2>&1
             if [ $? -eq 0 ]; then
                 trace_log_message -q "Enabled involflt_stop.service successfully."
             else
-		trace_log_message -q "Performing systemctl daemon-reload."
+                trace_log_message -q "Performing systemctl daemon-reload."
                 systemctl daemon-reload >> $INSTALL_LOGFILE 2>&1
 
-		systemctl enable involflt_stop.service >> $INSTALL_LOGFILE 2>&1
-		if [ $? -eq 0 ]; then
-		    trace_log_message -q "Enabled involflt_stop.service successfully."
-		else
+                systemctl enable involflt_stop.service >> $INSTALL_LOGFILE 2>&1
+                if [ $? -eq 0 ]; then
+                    trace_log_message -q "Enabled involflt_stop.service successfully."
+                else
                     trace_log_message "Failed to enable involflt_stop.service. Rolling back agent installation..."
                     RecordOP 161 "Failed to enable involflt_stop.service"
                     [ z"$INSTALL_MODE" != z"--upgrade" ] && agent_rollback "161"
-		fi
+                fi
             fi
             ;;
         DEBIAN7-64)
@@ -1872,7 +2014,7 @@ boot_stack()
             chmod +x /etc/init.d/involflt
             trace_log_message -q "Creating involflt service."
             update-rc.d involflt defaults >> $INSTALL_LOGFILE 2>&1
-	    ;;
+        ;;
         UBUNTU-14.04-64)
             cp -f ${DEPLOY_DIR}/bin/inmaged.modules /etc/init.d
             cp -f ${DEPLOY_DIR}/bin/inmshutnotify ${INIT_DIRECTORY}/vxagent/hotplug_utils/
@@ -1910,11 +2052,11 @@ boot_stack()
                mv /etc/sysconfig/boot.new /etc/sysconfig/boot
                chmod +x /etc/sysconfig/boot
 
-       	       if [ "$OS" != "SLES11-SP4-64" ]; then
-	           trace_log_message -q "Renaming S[0-9][0-9]boot.inmage to /etc/init.d/boot.d/S00boot.inmage."
-       	           mv /etc/init.d/boot.d/S[0-9][0-9]boot.inmage /etc/init.d/boot.d/S00boot.inmage
-	           ln -s /etc/init.d/boot.inmage /etc/init.d/boot.d/K20boot.inmage >> $INSTALL_LOGFILE 2>&1
-	       fi
+               if [ "$OS" != "SLES11-SP4-64" ]; then
+               trace_log_message -q "Renaming S[0-9][0-9]boot.inmage to /etc/init.d/boot.d/S00boot.inmage."
+                   mv /etc/init.d/boot.d/S[0-9][0-9]boot.inmage /etc/init.d/boot.d/S00boot.inmage
+               ln -s /etc/init.d/boot.inmage /etc/init.d/boot.d/K20boot.inmage >> $INSTALL_LOGFILE 2>&1
+           fi
                chkconfig boot.lvm on > /dev/null 2>&1
           fi
           ;;
@@ -2397,11 +2539,13 @@ main() {
 
     RecordOP 0 ""
 
+    echo "$VM_PLATFORM" | grep -qi "azurestackhub" && VM_PLATFORM="VmWare" && IsAzureStackHub=1
+
     trace_log_message -q
     trace_log_message -q "VX INSTALLATION"
     trace_log_message -q "********************"
 
-	json_errors_file=$INSTALL_ERRORS_JSON
+    json_errors_file=$INSTALL_ERRORS_JSON
 
     if [ -f libcommon.sh ]; then
     . ./libcommon.sh
@@ -2424,16 +2568,16 @@ main() {
         
         mkdir -p $CHOSEN_DEPLOY_DIR   
         common_actions "$MODE" "$CHOSEN_DEPLOY_DIR" "$CHOICE_STRING"
-	create_cache_directory
-	delete_symbolic_links
-	create_symbolic_links $CHOSEN_DEPLOY_DIR || exit_with_retcode $?
+    create_cache_directory
+    delete_symbolic_links
+    create_symbolic_links $CHOSEN_DEPLOY_DIR || exit_with_retcode $?
     if [ "${AGENT_ROLE}" = "MasterTarget" ] && [ "$OS" = "UBUNTU-16.04-64" -o "$OS" = "RHEL7-64" -o "$OS" = "UBUNTU-20.04-64" ]; then
             trace_log_message -q "Not invoking boot_stack as role is MT and OS is $OS."
         else
             boot_stack $CHOSEN_DEPLOY_DIR || exit_with_retcode $?
         fi
         boottime_mirroring $CHOSEN_DEPLOY_DIR || exit_with_retcode $?
-	place_shutnotify $CHOSEN_DEPLOY_DIR || exit_with_retcode $?
+    place_shutnotify $CHOSEN_DEPLOY_DIR || exit_with_retcode $?
         set_permissions
         trace_log_message "$CHOICE_STRING process has finished."
     # u --> UPGRADE
@@ -2442,11 +2586,11 @@ main() {
         CHOICE_STRING="Upgrade" 
         EX_INST_DIR="$CHOSEN_DEPLOY_DIR"
         AGENT_ROLE=$(grep "^Role=" $EX_INST_DIR/etc/drscout.conf | cut -d= -f2)
-	VX_CSIP=$(grep ^Hostname ${EX_INST_DIR}/etc/drscout.conf | cut -d"=" -f2 | tr -d " ")
+    VX_CSIP=$(grep ^Hostname ${EX_INST_DIR}/etc/drscout.conf | cut -d"=" -f2 | tr -d " ")
     PLATFORM_CHANGE=$(grep "^PlatformChange=" $EX_INST_DIR/etc/drscout.conf | cut -d= -f2)
-	PLATFORM_CHANGE_TO_CSPRIME=$(grep "^PlatformChangeToCSPrime=" $EX_INST_DIR/etc/drscout.conf | cut -d= -f2)
+    PLATFORM_CHANGE_TO_CSPRIME=$(grep "^PlatformChangeToCSPrime=" $EX_INST_DIR/etc/drscout.conf | cut -d= -f2)
 
-	trace_log_message -q "AGENT_ROLE = $AGENT_ROLE"
+    trace_log_message -q "AGENT_ROLE = $AGENT_ROLE"
         trace_log_message -q "VX_CSIP = $VX_CSIP"
 
         unload_filter_driver
@@ -2465,7 +2609,7 @@ main() {
         set_permissions
 
         if [ "${PLATFORM_CHANGE}" = "VmWareToAzure" -o "${PLATFORM_CHANGE_TO_CSPRIME}" = "true" ]; then
-	        trace_log_message -q "Not starting services as PlatformChange value is set to VmWareToAzure in drscout.conf."
+            trace_log_message -q "Not starting services as PlatformChange value is set to VmWareToAzure in drscout.conf."
         else
             start_agent_service || exit_with_retcode $?
         fi
@@ -2477,6 +2621,11 @@ main() {
 
 set_scenario "InstallVx"
 SetOP "PreInstallVx"
+
+trace_log_message -q
+trace_log_message -q "Script initiated with the following command:"
+trace_log_message -q "       ${SCRIPT} $@"
+trace_log_message -q
 
 # Main function invocation
 main "$@"

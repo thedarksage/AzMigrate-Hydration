@@ -28,7 +28,9 @@
     <ClCompile Include="win32\wmiusers.cpp" />
     <ClCompile Include="inmcertutil.cpp" />
     <ClCompile Include="win32\portablehelpersmajorex.cpp" />
-	<ClCompile Include="win32\Failoverclusterinfocollector.cpp" />
+    <ClCompile Include="win32\Failoverclusterinfocollector.cpp" />
+    <ClCompile Include="ServiceHelper.cpp" />
+    <ClCompile Include="imdshelpers.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AgentHealthContract.h" />
@@ -81,6 +83,8 @@
     <ClInclude Include="win32\wmiconnect.h" />
     <ClInclude Include="win32\wmiusers.h" />
     <ClInclude Include="inmcertutil.h" />
-	<ClInclude Include="win32\Failoverclusterinfocollector.h" />
+    <ClInclude Include="win32\Failoverclusterinfocollector.h" />
+    <ClInclude Include="ServiceHelper.h" />
+    <ClInclude Include="VMSecurityTypes.h" />
   </ItemGroup>
 </Project>

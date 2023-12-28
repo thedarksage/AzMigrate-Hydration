@@ -48,8 +48,7 @@ function CopyDRA {
 	"$SharePath\ASRAdapterFiles\TelemetryInterface.dll",
 	"$SharePath\ASRAdapterFiles\Microsoft.Identity.Client.dll",
 	"$SharePath\ASRAdapterFiles\Microsoft.ApplicationInsights.dll",
-	"$SharePath\ASRAdapterFiles\Polly.dll",
-	"$SharePath\AzureSiteRecoveryConfigurationManager.msi"
+	"$SharePath\ASRAdapterFiles\Polly.dll"
 	)
 	            
     $ReleaseFileExists = Test-Path $dllArray[0]
