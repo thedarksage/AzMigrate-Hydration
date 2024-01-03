@@ -24184,7 +24184,7 @@ return BrotliDecoderDecompress ();
 _ACEOF
 if ac_fn_c_try_link "$LINENO"
 then :
-  ac_cv_lib_brotlidec_BrotliDecoderDecompress=yes
+  ac_cv_lib_brotlidec_BrotliDecoderDecompress=no
 else $as_nop
   ac_cv_lib_brotlidec_BrotliDecoderDecompress=no
 fi
