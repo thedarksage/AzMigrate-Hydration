@@ -31,7 +31,6 @@ chmod +x ./get-specific-version-info
 
 chmod +x ./gcc-depend
 
-
 chmod +x ./thirdparty_links.sh
 
 chmod +x ../thirdparty/zlib-1.2.12/inmage_config_build
@@ -44,7 +43,7 @@ chmod +x ../thirdparty/boost/boost_1_78_0/b2.exe
 
 chmod +x ../thirdparty/boost/boost_1_78_0/tools/build/src/engine/build.sh
 
-chmod +x ../thirdparty/cdk-5.0.4/inmage_config_build
+chmod +x ../thirdparty/c-ares-1.19.1/configure
 
 chmod +x ../thirdparty/sqlite3x/sqlite3x/inmage_config_build
 
@@ -56,11 +55,17 @@ chmod +x ../thirdparty/sqlite-3.36.0/inmage_config_build
 
 chmod +x ../thirdparty/openssl-3.1.2/inmage_config_build
 
+chmod +x ../thirdparty/curl-8.2.1/inmage_config_build
+
 chmod +x ../thirdparty/libxml2/libxml2-2.11.1/inmage_config_build
 
-chmod +x ../thirdparty/inm_md5/inmage_config_build
+chmod +x ../thirdparty/libxml2/libxml2-2.11.1/autogen.sh
 
-chmod +x ../thirdparty/cdk-5.0.4/inmage_config_build
+chmod +x ../thirdparty/libssh2-1.10.0/inmage_config_build
+
+chmod +x ../thirdparty/libssh2-1.10.0/configure
+
+chmod +x ../thirdparty/inm_md5/inmage_config_build
 
 mkdir -p ../host/Linux_x86_64/AzureRecoveryLib/release/resthelper/
 
