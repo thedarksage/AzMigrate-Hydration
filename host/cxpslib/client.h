@@ -2276,6 +2276,7 @@ public:
         std::string const& certFile,                                       ///< ssl client pem file to use for client cert
         std::string const& keyFile,                                        ///< ssl client pem file to use for client private key
         std::string const& serverCertThumbprint,                           ///< thumbprint to be used to verify server cert
+        std::string const& serverRolloverCertThumbprint,                   ///< thumbprint to be used to verify server rollover cert
         int writeMode,                                                     ///< write mode to be used see writemode.h for possible modes
         std::time_t heartbeatIntervalSeconds = HEARTBEAT_INTERVAL_SECONDS, ///< interval in seconds when a heartbeat should be sent if no other activity
         bool useFxLogin = false                                            ///< indicates if fx login should be used. true: yes, false: no default no
@@ -2293,7 +2294,7 @@ public:
             writeMode),
           m_timer(this->ioService())
     {
-        m_connection.reset(new SslConnection(this->ioService(), certFile, keyFile, serverCertThumbprint));
+        m_connection.reset(new SslConnection(this->ioService(), certFile, keyFile, serverCertThumbprint, serverRolloverCertThumbprint));
     }
 
     /// \brief destructor

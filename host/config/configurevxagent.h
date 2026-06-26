@@ -195,6 +195,7 @@ struct ConfigureLocalVxAgent {
     virtual SV_ULONG getLogResyncProgressInterval() const = 0;
     virtual SV_ULONG getResyncSlowProgressThreshold() const = 0;
     virtual SV_ULONG getResyncNoProgressThreshold() const = 0;
+    virtual SV_ULONG getResyncStuckThreshold() const = 0;
 
     // APIs For parameters required for Application Failover
     virtual int getDelayBetweenAppShutdownAndTagIssue() const = 0;

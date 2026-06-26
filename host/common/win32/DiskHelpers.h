@@ -8,6 +8,7 @@
 #include <atlbase.h>
 #include "..\scopeguard\scopeguard.h"
 
+
 #define DOS_NAME_PREFIX     "\\\\?\\"
 #define DISK_NAME_PREFIX        "\\\\.\\PhysicalDrive"
 
@@ -39,6 +40,12 @@ BOOL GetBusType(SV_ULONG ulDiskIndex, STORAGE_BUS_TYPE& busType, std::string& er
 BOOL GetBusType(std::string deviceName, STORAGE_BUS_TYPE& busType, std::string& errorMessage);
 BOOL GetBusType(HANDLE hDisk, STORAGE_BUS_TYPE& busType, std::string& errorMessage);
 
+BOOL GetScsiAddress(HANDLE hDisk,
+    UINT32& scsiBus,
+    UINT32& scsiLun,
+    UINT32& scsiPort,
+    UINT32& scsiTgt,
+    std::string& errorMessage);
 
 BOOL GetDeviceAttributes(ULONG ulDiskIndex,
     std::string& vendorId,

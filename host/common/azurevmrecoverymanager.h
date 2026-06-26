@@ -33,7 +33,7 @@ public:
     // checks if a recovery is required
     //
     // Returns true if the recovery is true, otherwise false.
-    static bool IsRecoveryRequired()
+    static bool IsRecoveryRequired(QuitFunction_t qf)
     {
         LocalConfigurator localConfig;
 
@@ -52,7 +52,15 @@ public:
         bpt::ini_parser::read_ini(rcmSettingsPath, pt);
 
         std::string configuredBiosId = pt.get("rcm.BiosId", "");
-        std::string systemBiosId = GetSystemUUID();
+        std::string systemBiosId = GetSystemUUIDEx(qf);
+
+        // for an Azure VM, this should never be empty
+        if (systemBiosId.empty())
+        {
+            THROW_HOST_REC_EXCEPTION(
+                "Could not verify if recovery is required as system UUID is empty."
+            );
+        }
 
         return (!boost::iequals(configuredBiosId, systemBiosId));
     }

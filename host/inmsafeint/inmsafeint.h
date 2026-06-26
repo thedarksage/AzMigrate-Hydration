@@ -7,7 +7,11 @@
 #ifndef INM_SAFEINT_H
 #define INM_SAFEINT_H
 
+#ifdef USE_3018p_SAFEINT
 #include "SafeInt.hpp"
+#else
+#include "SafeInt_3028p.hpp"
+#endif
 
 // Use InmSafeInt<T>::Type object
 template<class T>

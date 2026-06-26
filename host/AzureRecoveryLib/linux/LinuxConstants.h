@@ -45,7 +45,7 @@ namespace AzureRecovery
     const char AZURE_RECOVRY_PREPARE_TGT[]  = "PrepareTarget.sh";
     const char AZURE_OS_DETAILS_TGT[]       = "OS_details_target.sh";
     const char MOUNT_FSTAB[]                = "MountFS.sh";
-    
+
     namespace SystemPartitionName
     {
         const char Root[] = "root";
@@ -102,9 +102,18 @@ namespace AzureRecovery
         const unsigned int E_HV_DRIVERS_MISSING = 8;
         const unsigned int E_AZURE_GA_INSTALLATION_FAILED = 9;
         const unsigned int E_ENABLE_DHCP_FAILED = 10;
+        const unsigned int E_AZURE_UNSUPPORTED_FS_FOR_CVM = 11;
+        const unsigned int E_AZURE_ROOTFS_LABEL_FAILED = 12;
+        const unsigned int E_INSTALL_LINUX_AZURE_FDE_FAILED = 13;
+        const unsigned int E_AZURE_UNSUPPORTED_FIRMWARE_FOR_CVM = 14;
+        const unsigned int E_AZURE_UNSUPPORTED_DEVICE = 15;
+        const unsigned int E_AZURE_BOOTLOADER_CONFIGURATION_FAILED = 16;
+        const unsigned int E_AZURE_BOOTLOADER_INSTALLATION_FAILED = 17;
+        const unsigned int E_AZURE_ESP_PARTITION_CREATION_FAILED = 18;
+        const unsigned int E_AZURE_INSUFFICIENT_SPACE_FOR_ESP_PARTITION = 19;
     }
 
     // TODO: Make it as config setting.
-    const char SupportedLinuxDistros[] = "OL6,OL7,OL8,RHEL6,RHEL7,RHEL8,RHEL9,CENTOS6,CENTOS7,CENTOS8,CENTOS9,SLES11,SLES12,SLES15,UBUNTU14,UBUNTU16,UBUNTU18,UBUNTU19,UBUNTU20,UBUNTU21,UBUNTU22,DEBIAN,KALI";
+    const char SupportedLinuxDistros[] = "OL6,OL7,OL8,OL9,RHEL6,RHEL7,RHEL8,RHEL9,CENTOS6,CENTOS7,CENTOS8,CENTOS9,SLES11,SLES12,SLES15,UBUNTU14,UBUNTU16,UBUNTU18,UBUNTU19,UBUNTU20,UBUNTU21,UBUNTU22,UBUNTU24,DEBIAN,KALI,ROCKY8,ROCKY9,ALMA8,ALMA9";
 }
 #endif // ~AZURE_RECOVERY_LINUX_CONSTANTS_H

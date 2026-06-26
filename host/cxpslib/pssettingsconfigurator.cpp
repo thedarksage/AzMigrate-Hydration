@@ -9,12 +9,36 @@
 
 using namespace PSSettings;
 
-PSSettingsConfigurator PSSettingsConfigurator::s_instance;
+boost::shared_ptr<PSSettingsConfigurator> PSSettingsConfigurator::s_instancePtr;
+boost::shared_mutex PSSettingsConfigurator::s_instancePtrMutex;
 
-const char* CacheDataHeader::CHECKSUM_TYPE_MD5 = "MD5";
-const char* CacheDataHeader::CURRENT_CACHED_DATA_VERSION = "1.10";
+const char* CacheDataHeader::CHECKSUM_TYPE_SHA256 = "SHA256";
+const char* CacheDataHeader::CURRENT_CACHED_DATA_VERSION = "1.13";
 const int CacheDataHeader::CURRENT_CACHED_DATA_MAJOR_VERSION = 1;
-const int CacheDataHeader::CURRENT_CACHED_DATA_MINOR_VERSION = 10;
+const int CacheDataHeader::CURRENT_CACHED_DATA_MINOR_VERSION = 13;
+
+PSSettingsConfigurator& PSSettingsConfigurator::GetInstance()
+{
+    if (s_instancePtr.get() == NULL)
+    {
+        boost::unique_lock<boost::shared_mutex> lock(s_instancePtrMutex);
+        if (s_instancePtr.get() == NULL)
+        {
+            s_instancePtr = boost::make_shared<PSSettingsConfigurator>();
+        }
+    }
+
+    return *s_instancePtr;
+}
+
+PSSettingsConfigurator::~PSSettingsConfigurator()
+{
+    boost::unique_lock<boost::shared_mutex> lock(s_instancePtrMutex);
+    if (s_instancePtr.get() != NULL)
+    {
+        s_instancePtr.reset();
+    }
+}
 
 PSSettingsPtr PSSettingsConfigurator::ReadSettingsFromFile(
     bool& fileUnavailable,

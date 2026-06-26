@@ -64,6 +64,13 @@ namespace AzureRecovery
 		DWORD & dwOldValue);
 
 	bool RegKeyExists(HKEY hKeyParent, const std::string& keyPath);
+
+	bool RegGetKeyValue(
+		const std::string systemHive,
+		const std::string keyPath,
+		const std::string keyValueName,
+		std::stringstream& errStream,
+		std::string& keyValueData);
 		
 	LONG RegSetDWORDValues(HKEY hKey, std::map<std::string, DWORD>& value_map);
 

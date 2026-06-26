@@ -311,14 +311,16 @@ int StartRecovery(int argc, char* argv[], const std::string& operationScenario, 
         int retryCount = 3;
         while (retryCount-- > 0)
         {
-            UpdateMetadataStatus(operationScenario);
+            if (UpdateMetadataStatus(operationScenario))
+            {
+                break;
+            }
 
             if (retryCount == 0)
             {
                 return 1;
             }
         }
-
     } while (false);
 
     return 0;
@@ -516,7 +518,10 @@ int StartMigration(int argc, char* argv[], const std::string& operationScenario,
         int retryCount = 3;
         while (retryCount-- > 0)
         {
-            UpdateMetadataStatus(operationScenario);
+            if (UpdateMetadataStatus(operationScenario))
+            {
+                break;
+            }
 
             if (retryCount == 0)
             {
@@ -529,6 +534,119 @@ int StartMigration(int argc, char* argv[], const std::string& operationScenario,
 
     return 0;
 }
+
+/*
+Method      : StartMigrationTest
+
+Description : Starts the migration steps execution if the command line options are valid.
+
+Parameters  : command line arguments
+              operationScenario: Differentiates between Production and Test scenarion for Status and Hydration log updates.
+
+Return code : 0 on success, any other integer on failure. Even on recovery steps execution failure
+              the function still returns 0, but the status would be set to failed on status blob.
+*/
+int StartMigrationTest(int argc, char* argv[], const std::string& operationScenario, bool help)
+{
+    std::string recv_info_file;
+    std::string working_dir;
+    std::string hydration_config_settings;
+
+    try
+    {
+        po::options_description rec_opt("Migration options");
+        rec_opt.add_options()
+            (CMD_OPTION::RECV_INFO_FILE,
+                po::value<std::string>(&recv_info_file),
+                "Recovery configuration file path")
+            (CMD_OPTION::WORKING_DIR,
+                po::value<std::string>(&working_dir),
+                "working directory for the tool")
+            (CMD_OPTION::HYDRATION_CONFIG_SETTINGS,
+                po::value<std::string>(&hydration_config_settings),
+                "Config settings for operations in hydration");
+
+        if (help)
+        {
+            Usage(rec_opt, OPERATION::MIGRATION);
+
+            return 0;
+        }
+
+        po::command_line_parser parser(argc, argv);
+        parser.options(rec_opt).allow_unregistered();
+
+        po::variables_map cmd_values;
+        po::store(parser.run(), cmd_values);
+        po::notify(cmd_values);
+
+        if (!cmd_values.count(CMD_OPTION::WORKING_DIR) ||
+            !cmd_values.count(CMD_OPTION::RECV_INFO_FILE))
+        {
+            std::cout << "Command error: required argument missing" << std::endl;
+
+            Usage(rec_opt, OPERATION::MIGRATION);
+
+            return 1;
+        }
+    }
+    catch (boost::program_options::error& exp)
+    {
+        std::cout << "Recovery Command error:" << std::endl;
+
+        std::cerr << exp.what() << std::endl;
+
+        return 1;
+    }
+
+    //
+    // Initialize logger
+    //
+    std::string LogFile = working_dir +
+        (boost::ends_with(working_dir, ACE_DIRECTORY_SEPARATOR_STR_A) ?
+            "" : ACE_DIRECTORY_SEPARATOR_STR_A) +
+        std::string(RECOVERY_UTIL_LOG_FILE);
+
+    Trace::Init(LogFile);
+
+    do
+    {
+        //
+        // Initialize the configuration objects. If initialization fails then update the 
+        // status to blob and exit.
+        //
+        int ret_code = InitMigrationConfig(recv_info_file, working_dir, hydration_config_settings);
+
+        if (0 != ret_code)
+            break;
+
+        //
+        // Start migration steps.
+        // Here the StartMigration return code is not considering 
+        // as its already reflected to execution status error code.
+        //
+        StartMigration();
+
+        int retryCount = 3;
+        while (retryCount-- > 0)
+        {
+            if (UpdateMetadataStatus(operationScenario))
+            {
+                break;
+            }
+
+            if (retryCount == 0)
+            {
+                return 1;
+            }
+
+        }
+
+    } while (false);
+
+    return 0;
+}
+
 
 /*
 Method      : StartGenConversion
@@ -645,7 +763,10 @@ int StartGenConversion(int argc, char* argv[], const std::string& operationScena
         int retryCount = 3;
         while (retryCount-- > 0)
         {
-            UpdateMetadataStatus(operationScenario);
+            if (UpdateMetadataStatus(operationScenario))
+            {
+                break;
+            }
 
             if (retryCount == 0)
             {
@@ -710,7 +831,7 @@ int main(int argc, char* argv[])
         }
         else if (boost::iequals(operationtype, OPERATION::MIGRATION_TEST))
         {
-            ret_code = StartMigration(argc, argv, (std::string)OPERATION::MIGRATION_TEST, bHelp);
+            ret_code = StartMigrationTest(argc, argv, (std::string)OPERATION::MIGRATION_TEST, bHelp);
         }
         else if (boost::iequals(operationtype, OPERATION::GENCONVERSION_TEST))
         {

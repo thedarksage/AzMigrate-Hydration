@@ -28,10 +28,16 @@
 #include "fingerprintmgr.h"
 #include "csgetfingerprint.h"
 #include "errorexception.h"
+#include "imdshelpers.h"
 
 #include <sstream>
 #include <fstream>
 #include <iostream>
+
+#ifdef SV_UNIX
+#include <inmuuid.h>
+#endif
+
 #include <cstdio>
 #include <cstring>
 #include <string>
@@ -50,19 +56,13 @@
 #include <curl/curl.h>
 #include <boost/chrono.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/ini_parser.hpp>
 
 using namespace boost::chrono;
 using std::max;
 
 const std::string AZURE_ASSET_TAG("7783-7084-3265-9085-8269-3286-77");
 const long IMDS_RETRY_INTERVAL_IN_SECS = 5;
-
-typedef struct tagMemoryStruct 
-{
-    char *memory;
-    size_t insize;
-    size_t size;
-} MemoryStruct;
 
 SVERROR MakeReadOnly(const char *drive, void *VolumeGuid, etBitOperation Op);
 SVERROR MakeVirtualVolumeReadOnly(const char *mountpoint, void * volumeGuid, etBitOperation ReadOnlyBitFlag);
@@ -1095,6 +1095,10 @@ std::string getLocalTime()
 
     time( &ltime );
     today = localtime(&ltime);
+    if (!today)
+    {
+        return std::string("0000-00-00 00:00:00");
+    }
 
     inm_sprintf_s(szLocalTime, ARRAYSIZE(szLocalTime), "20%02d-%02d-%02d %02d:%02d:%02d",
         today->tm_year - 100,
@@ -2718,26 +2722,6 @@ bool RestoreNtfsOrFatSignature(const std::string & volumename)
     return rv;
 }
 
-size_t WriteMemoryCallbackFileReplication(void *ptr, size_t size, size_t nmemb, void *data)
-{
-    DebugPrintf(SV_LOG_DEBUG, "Entering %s\n", __FUNCTION__);
-    size_t realsize;
-    INM_SAFE_ARITHMETIC(realsize = InmSafeInt<size_t>::Type(size) * nmemb, INMAGE_EX(size)(nmemb))
-    MemoryStruct *mem = (MemoryStruct *)data;
-
-    size_t memorylen;
-    INM_SAFE_ARITHMETIC(memorylen = InmSafeInt<size_t>::Type(mem->size) + realsize + 1, INMAGE_EX(mem->size)(realsize))
-    mem->memory = (char *)realloc(mem->memory, memorylen);
-
-    if (mem->memory) {
-        inm_memcpy_s(&(mem->memory[mem->size]), realsize + 1, ptr, realsize);
-        mem->size += realsize;
-        mem->memory[mem->size] = 0;
-    }
-    DebugPrintf(SV_LOG_DEBUG, "Exiting %s\n", __FUNCTION__);
-    return realsize;
-}
-
 SVERROR postToCx(const char* pszHost, 
                  SV_INT Port, 
                  const char* pszUrl, 
@@ -3746,6 +3730,23 @@ bool ConvertToSVTime( SV_ULONGLONG fileTime, SV_TIME& svTime )
     svTime.wMicroseconds = static_cast<SV_USHORT>((fileTime / 10) % 1000);
     svTime.wHundrecNanoseconds = static_cast<SV_USHORT>(fileTime % 10);
 
+    // Validate the computed date for correctness (e.g., Feb 29 in leap years)
+    {
+        unsigned const DaysPerMonth[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+        int y = svTime.wYear;
+        bool isLeap = (y % 4 == 0) && (y % 100 != 0 || y % 400 == 0);
+        if (svTime.wMonth < 1 || svTime.wMonth > 12 || svTime.wDay < 1 ||
+            svTime.wDay > DaysPerMonth[svTime.wMonth - 1] +
+            (isLeap && svTime.wMonth == 2 ? 1 : 0))
+        {
+            memset(&svTime, 0, sizeof(svTime));
+            svTime.wYear = 1601;
+            svTime.wMonth = 1;
+            svTime.wDay = 1;
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -3796,7 +3797,19 @@ std::string getSystemTimeInUtc(void)
 {
   time_t t1 = time(NULL);
   char gmTime[128];
-  strftime(gmTime, 128, "%Y%m%d%H%M%S", gmtime(&t1));
+  struct tm gmtBuf;
+#ifdef SV_WINDOWS
+  if (gmtime_s(&gmtBuf, &t1) != 0)
+  {
+      return std::string("00000000000000");
+  }
+#else
+  if (!gmtime_r(&t1, &gmtBuf))
+  {
+      return std::string("00000000000000");
+  }
+#endif
+  strftime(gmTime, 128, "%Y%m%d%H%M%S", &gmtBuf);
   return gmTime;
 }
 
@@ -3899,10 +3912,20 @@ std::string GenerateUuid()
     {
         DebugPrintf(SV_LOG_ERROR, "Could not generate UUID. Unkown exception\n");
     }
+    
+    std:: string uuid = suuid.str();
+
+#ifdef SV_UNIX
+    if (uuid.empty())
+    {
+        DebugPrintf(SV_LOG_DEBUG, "%s : Using getuuid to generate uuid\n", __FUNCTION__);
+        uuid = GetUuid();
+    }
+#endif
 
     DebugPrintf(SV_LOG_DEBUG, "Exiting %s\n", __FUNCTION__);
-    
-    return suuid.str();
+
+    return uuid;
 }
 
 uint64_t GetTimeInMilliSecSinceEpoch1970()
@@ -3938,6 +3961,27 @@ uint64_t GetTimeInSecSinceEpoch1601()
     uint64_t secSinceEpoch = GetTimeInSecSinceEpoch1970();
     secSinceEpoch += GetSecsBetweenEpoch1970AndEpoch1601();
     return secSinceEpoch;
+}
+std::string WindowsEpochTimeToUTC(const uint64_t &windowsEpochTime)
+{
+    uint64_t secSince1Jan1970UTC;
+    INM_SAFE_ARITHMETIC(secSince1Jan1970UTC = (InmSafeInt<uint64_t>::Type(windowsEpochTime) / 10000000) - GetSecsBetweenEpoch1970AndEpoch1601(), INMAGE_EX(windowsEpochTime)(10000000))
+
+    time_t now(secSince1Jan1970UTC);
+    char* dt = ctime(&now);
+
+    tm* gmtm = gmtime(&now);
+    dt = asctime(gmtm);
+
+    std::stringstream ss;
+    ss << dt;
+    std::string rets(ss.str());
+    if (rets.length())
+    {
+        if (rets[rets.length() - 1] == '\n')
+            rets.erase(rets.length() - 1);
+    }
+    return rets;
 }
 
 void GetHypervisorInfo(HypervisorInfo_t &hypervinfo)
@@ -3993,6 +4037,7 @@ bool PersistPlatformTypeForDriver()
                 DebugPrintf(SV_LOG_ERROR,
                     "%s: creating directory %s failed. Error %d (%s).\n",
                     FUNCTION_NAME,
+                    newDir.c_str(),
                     ec.value(),
                     ec.message().c_str());
 
@@ -4042,75 +4087,7 @@ bool PersistPlatformTypeForDriver()
 }
 #endif
 
-std::string GetImdsMetadata()
-{
-    DebugPrintf(SV_LOG_DEBUG, "ENTERED %s\n", FUNCTION_NAME);
-    MemoryStruct chunk = {0};
-    CURL *curl = curl_easy_init();
-    try
-    {
-        chunk.size = 0;
-        chunk.memory = NULL;
-        if(CURLE_OK != curl_easy_setopt(curl, CURLOPT_URL, IMDS_URL)) {
-            throw ERROR_EXCEPTION << FUNCTION_NAME << ": Failed to set curl options IMDS_URL.\n";
-        }
 
-        if(CURLE_OK != curl_easy_setopt(curl, CURLOPT_NOPROXY, "*")) {
-            throw ERROR_EXCEPTION << FUNCTION_NAME << ": Failed to set curl options CURLOPT_NOPROXY.\n";
-        }
-
-        struct curl_slist * pheaders = curl_slist_append(NULL, IMDS_HEADERS);
-        if (CURLE_OK != curl_easy_setopt(curl, CURLOPT_HTTPHEADER, pheaders)) {
-            throw ERROR_EXCEPTION << FUNCTION_NAME << ": Failed to set curl options CURLOPT_HEADERDATA.\n";
-        }
-        
-        if(CURLE_OK != curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallbackFileReplication)) {
-            throw ERROR_EXCEPTION << FUNCTION_NAME << ": Failed to set curl options CURLOPT_WRITEFUNCTION.\n";
-        }
-
-        if(CURLE_OK != curl_easy_setopt(curl, CURLOPT_WRITEDATA, static_cast<void *>( &chunk ))) {
-            throw ERROR_EXCEPTION << FUNCTION_NAME << ": Failed to set curl options CURLOPT_WRITEDATA.\n";
-        }
-
-        CURLcode curl_code = curl_easy_perform(curl);
-
-        if (curl_code == CURLE_ABORTED_BY_CALLBACK)
-        {
-            throw ERROR_EXCEPTION << FUNCTION_NAME << ": Failed to perfvorm curl request, request aborted.\n";
-        }
-
-        long response_code = 0L;
-        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
-        if (response_code != HTTP_OK)
-        {
-            throw ERROR_EXCEPTION << FUNCTION_NAME << ": Failed to perform curl request, curl error "
-                << curl_code << ": " << curl_easy_strerror(curl_code)
-                << ", status code " << response_code
-                << ((chunk.memory != NULL) ? (std::string(", error ") + chunk.memory) : "") << ".\n";
-        }
-    }
-    catch (std::exception& e)
-    {
-        DebugPrintf(SV_LOG_ERROR, "%s: Failed  with exception: %s.\n", FUNCTION_NAME, e.what());
-    }
-    catch (...)
-    {
-        DebugPrintf(SV_LOG_ERROR, "%s: Failed  with exception.\n", FUNCTION_NAME);
-    }
-
-    std::string ret;
-    if (chunk.memory != NULL)
-    {
-        ret = std::string(chunk.memory, chunk.size);
-        free(chunk.memory);
-    }
-    curl_easy_cleanup(curl);
-
-    DebugPrintf(SV_LOG_DEBUG, "EXITED %s\n", FUNCTION_NAME);
-
-    return ret;
-
-}
 bool IsAzureStackVirtualMachine()
 {
     DebugPrintf(SV_LOG_DEBUG, "ENTERED %s\n", FUNCTION_NAME);
@@ -4149,7 +4126,7 @@ bool HasAzureStackHubFailoverTag(QuitFunction_t qf)
         try
         {
             // Get IMDS information. Always HTTP
-            std::string imdsMetadata = GetImdsMetadata();
+            std::string imdsMetadata = GetImdsMetadata(std::string(), IMDS_AZURESTACK_APIVERSION);
             std::istringstream stream(imdsMetadata);
             boost::property_tree::ptree pt;
             boost::property_tree::read_json(stream, pt);
@@ -4192,6 +4169,216 @@ bool HasAzureStackHubFailoverTag(QuitFunction_t qf)
     s_bIsCheckComplete = true;
     DebugPrintf(SV_LOG_DEBUG, "EXITED %s\n", FUNCTION_NAME);
     return s_HasFailoverTag;
+}
+
+SVSTATUS CheckAzureVmArmIdChanged(const std::string& currentVmId)
+{
+    DebugPrintf(SV_LOG_DEBUG, "ENTERED %s\n", FUNCTION_NAME);
+
+    std::string configDirName;
+    LocalConfigurator::getConfigDirname(configDirName);
+    if (configDirName.empty())
+    {
+        DebugPrintf(SV_LOG_ERROR, "%s: Configuration directory is empty.\n", FUNCTION_NAME);
+        return SVE_INVALIDARG;
+    }
+
+    boost::filesystem::path cachedSettingsFilePath = configDirName;
+    cachedSettingsFilePath /= "settings.json";
+    boost::system::error_code ec;
+    if (!boost::filesystem::exists(cachedSettingsFilePath,ec))
+    {
+        DebugPrintf(SV_LOG_ERROR, "%s: Cached settings file %s does not exist, error = %s.\n",
+            FUNCTION_NAME, cachedSettingsFilePath.string().c_str(), ec.message().c_str());
+        return SVE_FILE_NOT_FOUND;
+    }
+
+    namespace bpt = boost::property_tree;
+    bpt::ptree pt;
+    bpt::json_parser::read_json(cachedSettingsFilePath.string(), pt);
+
+    std::string configuredVmArmId = pt.get("m_vmArmId", "empty");
+    if (boost::iequals(configuredVmArmId, currentVmId))
+    {
+        DebugPrintf(SV_LOG_ALWAYS, "%s: Previous VM ID %s matches current VM ID %s.\n", FUNCTION_NAME, configuredVmArmId.c_str(), currentVmId.c_str());
+        DebugPrintf(SV_LOG_DEBUG, "EXITED %s\n", FUNCTION_NAME);
+        return SVS_OK;
+    }
+
+    DebugPrintf(SV_LOG_ALWAYS, "%s: Previous VM ID %s does not match current VM ID %s. VM ID has changed.\n",
+        FUNCTION_NAME, configuredVmArmId.c_str(), currentVmId.c_str());
+
+    DebugPrintf(SV_LOG_DEBUG, "EXITED %s\n", FUNCTION_NAME);
+    return SVS_FALSE;
+}
+
+bool HasAzureZonalFailoverTag(QuitFunction_t qf)
+{
+    DebugPrintf(SV_LOG_DEBUG, "ENTERED %s\n", FUNCTION_NAME);
+    static bool s_bIsCheckComplete = false;
+    static bool s_bIsZonalFailover = false;
+    if (s_bIsCheckComplete)
+    {
+        return s_bIsZonalFailover;
+    }
+
+    if (!IsAzureVirtualMachine())
+    {
+        s_bIsCheckComplete = true;
+        DebugPrintf(SV_LOG_DEBUG, "Not an Azure VM, skipping zonal failover tag check.\n");
+        DebugPrintf(SV_LOG_DEBUG, "EXITED %s\n", FUNCTION_NAME);
+        return false;
+    }
+
+    do
+    {
+        try
+        {
+            // Get IMDS information
+            std::string imdsMetadata = GetImdsMetadata(std::string());
+            if (imdsMetadata.empty())
+            {
+                DebugPrintf(SV_LOG_ERROR, "%s: IMDS metadata is empty. Retrying...\n", FUNCTION_NAME);
+                continue;
+            }
+
+            std::istringstream stream(imdsMetadata);
+            boost::property_tree::ptree pt;
+            boost::property_tree::read_json(stream, pt);
+
+            std::string location = pt.get<std::string>(IMDS_COMPUTE_LOCATION);
+            DebugPrintf(SV_LOG_ALWAYS, "%s: Azure VM Location : %s\n", FUNCTION_NAME, location.c_str());
+            if (location.empty())
+            {
+                DebugPrintf(SV_LOG_ERROR, "%s: IMDS metadata does not contain location. Retrying...\n", FUNCTION_NAME);
+                continue;
+            }
+
+            std::string vmResourceId = pt.get<std::string>(IMDS_COMPUTE_VM_RESOURCE_ID);
+            DebugPrintf(SV_LOG_ALWAYS, "%s: Azure VM Resource ID : %s\n", FUNCTION_NAME, vmResourceId.c_str());
+            if (vmResourceId.empty())
+            {
+                DebugPrintf(SV_LOG_ERROR, "%s: IMDS metadata does not contain resourceId. Retrying...\n", FUNCTION_NAME);
+                continue;
+            }
+
+            if (!pt.get_child_optional(IMDS_COMPUTE_TAGSLIST))
+            {
+                DebugPrintf(SV_LOG_ALWAYS, "%s: IMDS metadata does not contain tags list.\n", FUNCTION_NAME);
+                break;
+            }
+
+            std::stringstream tagsJson;
+            boost::property_tree::ptree& tagsList = pt.get_child(IMDS_COMPUTE_TAGSLIST);
+            boost::property_tree::write_json(tagsJson, tagsList);
+            DebugPrintf(SV_LOG_DEBUG, "Tags List: %s\n", tagsJson.str().c_str());
+
+            bool zonalFailoverFlag = false;
+            std::string zonalFailoverLocation;
+
+            for (boost::property_tree::ptree::iterator element = tagsList.begin();
+                element != tagsList.end();
+                element++)
+            {
+                std::string tagName = element->second.get<std::string>("name");
+                boost::trim(tagName);
+                std::string tagValue = element->second.get<std::string>("value");
+                boost::trim(tagValue);
+                if (boost::iequals(tagName,IMDS_ZONAL_FAILOVER_TAG_NAME))
+                {
+                    zonalFailoverFlag = boost::iequals(tagValue, "true");
+                    DebugPrintf(SV_LOG_ALWAYS, "%s: %s %s.\n", FUNCTION_NAME, tagName.c_str(), tagValue.c_str());
+                }
+                else if (boost::iequals(tagName, IMDS_ZONAL_FAILOVER_LOCATION_TAG_NAME))
+                {
+                    zonalFailoverLocation = tagValue.empty() ? "empty" : tagValue;
+                    DebugPrintf(SV_LOG_ALWAYS, "%s: %s %s.\n", FUNCTION_NAME, tagName.c_str(), tagValue.c_str());
+                }
+            }
+
+            if (zonalFailoverFlag)
+            {
+                if (boost::iequals(location, zonalFailoverLocation))
+                {
+                    SVSTATUS vmIdStatus = CheckAzureVmArmIdChanged(vmResourceId);
+                    if (SVS_FALSE == vmIdStatus)
+                    {
+                        DebugPrintf(SV_LOG_ALWAYS, "%s: VM ARM ID has changed since last check. Not considering this as zonal failover.\n", FUNCTION_NAME);
+                        break;
+                    }
+                    else  if (SVE_FILE_NOT_FOUND == vmIdStatus)
+                    {
+                        DebugPrintf(SV_LOG_ALWAYS, "%s: Settings file not found. Not considering this as zonal failover.\n", FUNCTION_NAME);
+                        break;
+                    }
+                    else if (SVE_INVALIDARG == vmIdStatus)
+                    {
+                        throw std::runtime_error("VM ARM ID check failed.");
+                    }
+                    else if (SVS_OK == vmIdStatus)
+                    {
+                        DebugPrintf(SV_LOG_ALWAYS, "%s: VM ARM ID matches, considering this as zonal failover.\n", FUNCTION_NAME);
+                    }
+                    s_bIsZonalFailover = true;
+                    DebugPrintf(SV_LOG_ALWAYS, "%s: Detected zonal failover at location %s.\n", FUNCTION_NAME, zonalFailoverLocation.c_str());
+                }
+                else
+                {
+                    DebugPrintf(SV_LOG_ALWAYS, "%s: Zonal failover location is %s and does not match current location %s.\n",
+                        FUNCTION_NAME, zonalFailoverLocation.c_str(), location.c_str());
+                }
+            }
+            else
+            {
+                DebugPrintf(SV_LOG_DEBUG, "%s: zonal failover is not set.\n", FUNCTION_NAME);
+            }
+            break;
+        }
+        catch (std::exception& e)
+        {
+            DebugPrintf(SV_LOG_ERROR, "%s: Failed  with exception: %s. Retrying...\n", FUNCTION_NAME, e.what());
+        }
+        catch (...)
+        {
+            DebugPrintf(SV_LOG_ERROR, "%s: Failed  with exception. Retrying...\n", FUNCTION_NAME);
+        }
+    } while (!qf(IMDS_RETRY_INTERVAL_IN_SECS));
+
+    if (qf(IMDS_RETRY_INTERVAL_IN_SECS))
+    {
+        throw std::runtime_error("Quit requested");
+    }
+
+    s_bIsCheckComplete = true;
+    DebugPrintf(SV_LOG_DEBUG, "EXITED %s\n", FUNCTION_NAME);
+    return s_bIsZonalFailover;
+}
+
+std::string GetSystemUUIDEx(QuitFunction_t qf)
+{
+    DebugPrintf(SV_LOG_DEBUG, "ENTERED %s\n", FUNCTION_NAME);
+
+    if (HasAzureZonalFailoverTag(qf))
+    {
+        LocalConfigurator localConfig;
+
+        std::string rcmSettingsPath = localConfig.getRcmSettingsPath();
+        if (!boost::filesystem::exists(rcmSettingsPath))
+        {
+            throw std::runtime_error("Could not verify if recovery is required as RCM settings file is not found.");
+        }
+
+        // check if the UUID of the host is same as configured
+        // a recovery is required if different
+        namespace bpt = boost::property_tree;
+        bpt::ptree pt;
+        bpt::ini_parser::read_ini(rcmSettingsPath, pt);
+
+        std::string configuredBiosId = pt.get("rcm.BiosId", "");
+        return configuredBiosId;
+    }
+    DebugPrintf(SV_LOG_DEBUG, "EXITED %s\n", FUNCTION_NAME);
+    return GetSystemUUID();
 }
 
 bool IsAzureVirtualMachine()
@@ -4395,7 +4582,7 @@ std::string  InmGetFormattedSize(unsigned long long ullSize)
 {
     std::stringstream   ssFormattedSize;
 
-    std::string     aformats[] = { "GB", "MB", "KB", "Bytes" };
+    std::string     aformats[] = { " GB", " MB", " KB", " Bytes" };
     std::vector<std::string>     formats(aformats, aformats + INM_ARRAY_SIZE(aformats));
 
     unsigned long long ullFormatShifter = 30;
@@ -4446,4 +4633,169 @@ void ExtractCacheStorageNameFromBlobContainerSasUrl(const std::string& blobConta
         DebugPrintf(SV_LOG_ERROR, "%s Failed with an unnknown exception.\n", FUNCTION_NAME);
     }
     DebugPrintf(SV_LOG_DEBUG, "EXITED %s\n", FUNCTION_NAME);
+}
+
+std::string SanitizeString(const std::string& inputStr) {
+    std::map<std::string, std::string> loggingExclusionMarkersList;
+    loggingExclusionMarkersList["sig=([^&\"]+)"] = " MaskedSigKey ";
+
+    std::string sanitizedStr = inputStr;
+
+    for (std::map<std::string, std::string>::const_iterator it = loggingExclusionMarkersList.begin(); it != loggingExclusionMarkersList.end(); ++it) {
+        const std::string& pattern = it->first;
+        const std::string& replacement =  it->second;
+        boost::regex rg(pattern, boost::regex::icase);
+        sanitizedStr = boost::regex_replace(sanitizedStr, rg, replacement);
+    }
+
+    return sanitizedStr;
+}
+
+std::string extractVersionId(const std::string& filePath)
+{    
+    std::string line;
+    std::string versionId;
+    std::string output;
+
+    try
+    {
+        std::ifstream fileStream(filePath.c_str());
+        if (fileStream.good())
+        {
+            output = std::string((std::istreambuf_iterator<char>(fileStream)), std::istreambuf_iterator<char>());
+            fileStream.close();
+        }
+        else
+        {
+            DebugPrintf(SV_LOG_ERROR, "%s: failed to read file %s - file stream not in good state.\n", FUNCTION_NAME, filePath.c_str());
+            return std::string();
+        }
+    }
+    catch (const std::exception& e)
+    {
+        DebugPrintf(SV_LOG_ERROR, "%s: failed to read file %s with an exception %s.\n", FUNCTION_NAME, filePath.c_str(), e.what());
+        return std::string();
+    }
+    catch (...)
+    {
+        DebugPrintf(SV_LOG_ERROR, "%s: failed to read file %s with an unknown exception.\n", FUNCTION_NAME, filePath.c_str());
+        return std::string();
+    }
+
+    std::stringstream contentStream(output);
+
+    while (std::getline(contentStream, line)) {
+        // Find the line that contains VERSION_ID
+        if (line.find("VERSION_ID") != std::string::npos) {
+            // Split the line at '=' and extract the value
+            size_t pos = line.find('=');
+            if (pos != std::string::npos) {
+                versionId = line.substr(pos + 1);
+
+                // Remove any extra double quotes or whitespace
+                versionId.erase(std::remove(versionId.begin(), versionId.end(), '"'), versionId.end());
+                versionId.erase(0, versionId.find_first_not_of(" \t")); // Trim leading spaces
+                versionId.erase(versionId.find_last_not_of(" \t") + 1); // Trim trailing spaces
+            }
+            break; // Exit the loop once VERSION_ID is found
+        }
+    }
+
+    DebugPrintf(SV_LOG_DEBUG, "%s: Got VERSION_ID %s\n", FUNCTION_NAME, versionId.c_str());
+    DebugPrintf(SV_LOG_DEBUG, "EXITED %s\n", FUNCTION_NAME);
+
+    return versionId;
+}
+
+std::string GetAgentVersionFromVxVersionFile(const std::string& filePath)
+{
+    std::string line;
+    std::string versionId;
+    std::string output;
+
+    try
+    {
+        std::ifstream fileStream(filePath.c_str());
+        if (fileStream.good())
+        {
+            output = std::string((std::istreambuf_iterator<char>(fileStream)), std::istreambuf_iterator<char>());
+            fileStream.close();
+        }
+        else
+        {
+            DebugPrintf(SV_LOG_ERROR, "%s: failed to read file %s - file stream not in good state.\n", FUNCTION_NAME, filePath.c_str());
+            return std::string();
+        }
+    }
+    catch (const std::exception& e)
+    {
+        DebugPrintf(SV_LOG_ERROR, "%s: failed to read file %s with an exception %s.\n", FUNCTION_NAME, filePath.c_str(), e.what());
+        return std::string();
+    }
+    catch (...)
+    {
+        DebugPrintf(SV_LOG_ERROR, "%s: failed to read file %s with an unknown exception.\n", FUNCTION_NAME, filePath.c_str());
+        return std::string();
+    }
+
+    // parse through BUILD_TAG=RELEASE_9.66.0.0_GA_7562_Sep_15_2025_INMAGE and extract both version and build number
+    std::string buildNumber;
+    std::string majorMinorVersion;
+    std::stringstream buildContentStream(output);
+    std::string buildLine;
+    
+    while (std::getline(buildContentStream, buildLine)) {
+        if (buildLine.find("BUILD_TAG") != std::string::npos) {
+            // Extract version and build number from BUILD_TAG format: RELEASE_x.x.x.x_GA_BUILDNUM_date_time_INMAGE
+            size_t releasePos = buildLine.find("RELEASE_");
+            if (releasePos != std::string::npos) {
+                size_t versionStart = releasePos + 8; // Skip "RELEASE_"
+                size_t versionEnd = buildLine.find("_GA_", versionStart);
+                if (versionEnd != std::string::npos) {
+                    std::string fullVersion = buildLine.substr(versionStart, versionEnd - versionStart);
+                    DebugPrintf(SV_LOG_DEBUG, "%s: Extracted full version: %s\n", FUNCTION_NAME, fullVersion.c_str());
+                    
+                    // Extract major.minor from full version (e.g., "9.66.0.0" -> "9.66")
+                    size_t firstDot = fullVersion.find('.');
+                    size_t secondDot = fullVersion.find('.', firstDot + 1);
+                    if (firstDot != std::string::npos && secondDot != std::string::npos) {
+                        majorMinorVersion = fullVersion.substr(0, secondDot);
+                        DebugPrintf(SV_LOG_DEBUG, "%s: Extracted major.minor version: %s\n", FUNCTION_NAME, majorMinorVersion.c_str());
+                    }
+                }
+                
+                // Extract build number
+                size_t gaPos = buildLine.find("_GA_");
+                if (gaPos != std::string::npos) {
+                    size_t buildStart = gaPos + 4; // Skip "_GA_"
+                    size_t buildEnd = buildLine.find('_', buildStart);
+                    if (buildEnd != std::string::npos) {
+                        buildNumber = buildLine.substr(buildStart, buildEnd - buildStart);
+                        DebugPrintf(SV_LOG_DEBUG, "%s: Extracted build number: %s\n", FUNCTION_NAME, buildNumber.c_str());
+                    }
+                }
+            }
+            break;
+        }
+    }
+    
+    // Format as MAJOR.MINOR.BUILDNUM.1 if we have both version and build number
+    if (!majorMinorVersion.empty() && !buildNumber.empty()) {
+        versionId = majorMinorVersion + "." + buildNumber + ".1";
+        DebugPrintf(SV_LOG_DEBUG, "%s: Formatted agent version from BUILD_TAG: %s\n", FUNCTION_NAME, versionId.c_str());
+    } else if (!versionId.empty() && !buildNumber.empty()) {
+        // Fallback: use VERSION line if BUILD_TAG parsing failed for version
+        size_t firstDot = versionId.find('.');
+        size_t secondDot = versionId.find('.', firstDot + 1);
+        if (firstDot != std::string::npos && secondDot != std::string::npos) {
+            std::string majorMinor = versionId.substr(0, secondDot);
+            versionId = majorMinor + "." + buildNumber + ".1";
+            DebugPrintf(SV_LOG_DEBUG, "%s: Formatted agent version from VERSION + BUILD_TAG: %s\n", FUNCTION_NAME, versionId.c_str());
+        }
+    }
+
+    DebugPrintf(SV_LOG_DEBUG, "%s: Returning agent version as %s\n", FUNCTION_NAME, versionId.c_str());
+    DebugPrintf(SV_LOG_DEBUG, "EXITED %s\n", FUNCTION_NAME);
+
+    return versionId;
 }

@@ -333,6 +333,7 @@ public:
     SV_ULONG getLogResyncProgressInterval() const;
     SV_ULONG getResyncSlowProgressThreshold() const;
     SV_ULONG getResyncNoProgressThreshold() const;
+    SV_ULONG getResyncStuckThreshold() const;
     /* End of the change */
 
     int setLastResyncOffsetForDirectSync(const std::string & sourceHostId,

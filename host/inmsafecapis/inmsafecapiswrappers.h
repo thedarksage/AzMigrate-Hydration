@@ -8,6 +8,9 @@
 #define INM_SAFE_C_APIS_WRAPPERS_H
 
 #include "inmageex.h"
+#ifdef SV_WINDOWS
+#include<strsafe.h>
+#endif
 #include "safecapisincludesmajor.h"
 
 inline void inm_memcpy_s_wrapper(
@@ -96,6 +99,22 @@ inline void inm_wcscpy_s_wrapper(
     if (0 != e)
         throw ContextualException(file, line, function)(__FUNCTION__)("error")(e)("numberOfElements")(numberOfElements);
 }
+
+#ifdef SV_WINDOWS
+inline void inm_cchprintfw_s_wrapper(
+    wchar_t* strDestination,
+    size_t numberOfElements,
+    const wchar_t* strSource,
+    const char* file,
+    int line,
+    const char* function
+)
+{
+    HRESULT hr = StringCchPrintfW(strDestination, numberOfElements, L"%s", strSource);
+    if (FAILED(hr))
+        throw ContextualException(file, line, function)(__FUNCTION__)("error")(hr)("numberOfElements")(numberOfElements);
+}
+#endif
 
 inline void inm_wcscat_s_wrapper(
    wchar_t *strDestination,

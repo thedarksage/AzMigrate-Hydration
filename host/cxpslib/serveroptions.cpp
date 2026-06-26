@@ -903,6 +903,11 @@ std::string ServerOptions::getAgentRepositoryPath() const
     return m_agentRepositoryPath;
 }
 
+std::string ServerOptions::getPullClientRepositoryPath() const
+{
+    return m_pullClientRepositoryPath;
+}
+
 void ServerOptions::buildAllowedDirs(boost::filesystem::path const& requestDir)
 {
     ServerOptions::remapPrefixFromTo_t fromTo = remapFullPathPrefix();
@@ -928,6 +933,17 @@ void ServerOptions::buildAllowedDirs(boost::filesystem::path const& requestDir)
             {
                 m_agentRepositoryPath = str;
                 CXPS_LOG_ERROR_INFO("m_agentRepositoryPath : " << m_agentRepositoryPath);
+            }
+            else if (str.find("Software/PullClients") != std::string::npos)
+            {
+                // This is required in case RCM wants to use separate dir for PullClients in future.
+                m_pullClientRepositoryPath = str;
+                CXPS_LOG_ERROR_INFO("m_pullClientRepositoryPath : " << m_pullClientRepositoryPath);
+            }
+            else if (str.find("Software/PushClients") != std::string::npos)
+            {
+                m_pullClientRepositoryPath = str;
+                CXPS_LOG_ERROR_INFO("m_pullClientRepositoryPath : " << m_pullClientRepositoryPath);
             }
 
             appendSlashIfNeeded(str);

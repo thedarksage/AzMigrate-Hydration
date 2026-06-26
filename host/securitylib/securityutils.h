@@ -143,33 +143,6 @@ namespace securitylib {
         return std::string((char*)mac, sizeof(mac));
     }
 
-    inline std::time_t asn1ToTimet(ASN1_TIME* asn1Time)
-    {
-        // NOTE: this does not take into account UTC
-        struct tm tmInfo;
-        memset(&tmInfo, 0, sizeof(tmInfo));
-
-        int i = 0;
-        if (V_ASN1_UTCTIME == asn1Time->type) {
-            tmInfo.tm_year = (asn1Time->data[i++] - '0') * 10 + (asn1Time->data[i++] - '0');
-            if (tmInfo.tm_year < 70) {
-                tmInfo.tm_year += 100;
-            }
-        } else if (V_ASN1_GENERALIZEDTIME == asn1Time->type) {
-            tmInfo.tm_year = (asn1Time->data[i++] - '0') * 1000
-                + (asn1Time->data[i++] - '0') * 100
-                + (asn1Time->data[i++] - '0') * 10
-                + (asn1Time->data[i++] - '0')
-                - 1900;
-        }
-        tmInfo.tm_mon = (asn1Time->data[i++] - '0') * 10 + (asn1Time->data[i++] - '0') - 1;
-        tmInfo.tm_mday = (asn1Time->data[i++] - '0') * 10 + (asn1Time->data[i++] - '0');
-        tmInfo.tm_hour = (asn1Time->data[i++] - '0') * 10 + (asn1Time->data[i++] - '0');
-        tmInfo.tm_min = (asn1Time->data[i++] - '0') * 10 + (asn1Time->data[i++] - '0');
-        tmInfo.tm_sec = (asn1Time->data[i++] - '0') * 10 + (asn1Time->data[i++] - '0');
-        return mktime(&tmInfo);
-    }
-
     inline bool backup(std::string const& name)
     {
         if (boost::filesystem::exists(name)) {

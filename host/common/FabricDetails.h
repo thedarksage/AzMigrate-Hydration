@@ -14,6 +14,60 @@ namespace AzureInstanceMetadata
 {
     const std::string AzureImdUri("http://169.254.169.254/metadata/instance/compute/storageProfile?api-version=2021-02-01");
 
+    // the particular API version 2021-12-13 has trustedlaunch
+    const std::string AzureImdSecProfileUri("http://169.254.169.254/metadata/instance/compute/securityProfile?api-version=2021-12-13");
+    const std::string SecProfilePathStr = "compute/securityProfile";
+    const std::string SecProfileApiVersion = "api-version=2021-12-13";
+
+    // the particular API version 2021-02-01 used by storage profile 
+    const std::string StorageProfilePathStr = "compute/storageProfile";
+    const std::string StorageProfileApiVersion = "api-version=2021-02-01";
+
+    // Full compute instance path for IMDS data blob (used for recovery point tags)
+    const std::string ComputePathStr = "compute";
+    const std::string DefaultImdsApiVersion = "api-version=2025-04-07";
+
+
+    // the particular API version 2019-06-04 used by tagsList
+    const std::string TagsListPathStr = "compute/tagsList";
+    const std::string TagsListApiVersion = "api-version=2019-06-04";
+
+
+    // the particular API version 2017-04-02 used by location
+    const std::string LocationPathStr = "compute/location";
+    const std::string LocationApiVersion = "api-version=2017-04-02";
+    const std::string LocationFormat = "format=text";
+
+    class Tag {
+        public:
+        std::string name;
+        std::string value;
+        void serialize(JSON::Adapter& adapter)
+        {
+            JSON::Class root(adapter, "Tag", false);
+            JSON_E(adapter, name);
+            JSON_T(adapter, value);
+        }
+        void serialize(ptree& node)
+        {
+            JSON_P(node, name);
+            JSON_P(node, value);
+        }
+    };
+    class TagsList {
+        public:
+        std::vector<Tag> tagsList;
+        void serialize(JSON::Adapter& adapter)
+        {
+            JSON::Class root(adapter, "TagsList", false);
+            JSON_T(adapter, tagsList);
+        }
+        void serialize(ptree& node)
+        {
+            JSON_VCL(node, tagsList);
+        }
+    };
+
     class ManagedDisk {
     public:
         std::string id;
@@ -110,6 +164,32 @@ namespace AzureInstanceMetadata
         {
             JSON_CL(node, osDisk);
             JSON_VCL(node, dataDisks);
+        }
+    };
+    
+    class SecurityProfile {
+    public:
+        std::string secureBootEnabled;
+        std::string virtualTpmEnabled;
+        std::string encryptionAtHost;
+        std::string securityType;
+
+        void serialize(JSON::Adapter& adapter)
+        {
+            JSON::Class root(adapter, "SecurityProfile", false);
+
+            JSON_E(adapter, secureBootEnabled);
+            JSON_E(adapter, virtualTpmEnabled);
+            JSON_E(adapter, encryptionAtHost);
+            JSON_T(adapter, securityType);
+        }
+
+        void serialize(ptree& node)
+        {
+            JSON_P(node, secureBootEnabled);
+            JSON_P(node, virtualTpmEnabled);
+            JSON_P(node, encryptionAtHost);
+            JSON_P(node, securityType);
         }
     };
 }

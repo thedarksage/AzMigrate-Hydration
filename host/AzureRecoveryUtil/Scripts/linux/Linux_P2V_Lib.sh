@@ -14,14 +14,22 @@ function Find_UUID_FSTABINFO
 {
     _UUID_=""
     _partition_name_=$1
-    _uuid_=`sed -n  "/^[=]* FSTAB UUID Information - START [=]*/,/^[=]* FSTAB UUID Information - END [=]*/p" "$_INPUT_CONFIG_FILE_" | grep "$_partition_name_" | head -1`
+    _uuid_=`sed -n  "/^[=]* FSTAB UUID Information - START [=]*/,/^[=]* FSTAB UUID Information - END [=]*/p" "$_INPUT_CONFIG_FILE_" | grep "$_partition_name_\s*:" | head -1`
     if [ "${_uuid_}" ]; then
+        echo "Matched colon suffixed partition ${_uuid_}"
         _uuid_=`echo $_uuid_ | awk -F"UUID=" '{ print $2 }' | awk '{ print $1 }' | sed -e "s/\"//g"`
         _UUID_=$_uuid_
+    else
+        echo "SECOND"
+        _uuid_=`sed -n  "/^[=]* FSTAB UUID Information - START [=]*/,/^[=]* FSTAB UUID Information - END [=]*/p" "$_INPUT_CONFIG_FILE_" | grep "$_partition_name_" | head -1`
+        echo "Matched vanilla substring partition ${_uuid_}"
+        if [ "${_uuid_}" ]; then
+            _uuid_=`echo $_uuid_ | awk -F"UUID=" '{ print $2 }' | awk '{ print $1 }' | sed -e "s/\"//g"`
+            _UUID_=$_uuid_
+        fi
     fi
     return $_SUCCESS_   
 }
-
 
 #FINDS UUID INFORMATION FROM BLKID INFORMATION
 function Find_UUID_BLKID

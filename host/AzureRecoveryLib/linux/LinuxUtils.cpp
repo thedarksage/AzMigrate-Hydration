@@ -14,6 +14,7 @@ History     :   29-4-2015 (Venu Sivanadham) - Created
 #include "../common/Trace.h"
 #include "../common/Process.h"
 #include "../common/utils.h"
+#include "../AzureRecovery.h"
 #include "../config/RecoveryConfig.h"
 
 
@@ -251,15 +252,14 @@ DWORD GetTheDiskDevicesToSkip( std::list<std::string>& diskToSkip )
         diskToSkip.push_back(deviceName);
         
         //
-        // Get the temp disk name
+        // Get the temp disk name. Many modern VM sizes may not have temp disk.
         //
         deviceName = GetStandardDeviceOfMountPoint( GetAzureTempPartitionMountPoint() ,
                                                     mountPointToPartition
                                                    );
         if ( deviceName.empty() )
         {
-            TRACE_INFO("Could not get the temp disk device name\n");
-            dwRet = 1;
+            TRACE_INFO("Could not get the temp disk device name. The VM Size may not support Temp Disk.\n");
             break;
         }
         diskToSkip.push_back(deviceName);
@@ -1392,6 +1392,20 @@ bool IsSupportedOS(const std::string &src_os_distro)
     bool bSupported = false;
 
     BOOST_ASSERT(!src_os_distro.empty());
+
+    std::string hydrationSupportedDistros = GetHydrationConfigValue(
+        GetHydrationConfigSettings(), HydrationConfig::HydrationSupportedDistros);
+    std::vector<std::string> hydration_supported_distros;
+
+    boost::split(hydration_supported_distros, hydrationSupportedDistros, boost::is_any_of("|"));
+    BOOST_FOREACH(const std::string & distro, hydration_supported_distros)
+    {
+        if (boost::istarts_with(src_os_distro, distro))
+        {
+            bSupported = true;
+            break;
+        }
+    }
 
     std::vector<std::string> os_distros;
     boost::split(os_distros, SupportedLinuxDistros, boost::is_any_of(","));

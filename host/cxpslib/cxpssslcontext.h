@@ -54,7 +54,11 @@ public:
                    std::string const& dhFile,
                    std::string const& passphrase,
                    std::string const& caCertThumbprint)
+#ifdef SV_WINDOWS
+        : m_sslContext(createSslContextWithRetry()),
+#else
         : m_sslContext(boost::asio::ssl::context::tlsv12),
+#endif
           m_passphrase(passphrase),
           m_caCertThumbprint(caCertThumbprint)
         {
@@ -74,14 +78,13 @@ public:
                 m_sslContext.use_tmp_dh_file(dhFile);
 
                 SSL_CTX* sslCtx = m_sslContext.native_handle();
-
-                if (!caCertThumbprint.empty()) {
+                if (GetCSMode() == CS_MODE_RCM)
+                {
                     m_sslContext.set_verify_mode(boost::asio::ssl::context::verify_peer | boost::asio::ssl::context::verify_fail_if_no_peer_cert);
                     SSL_CTX_set_ex_data(sslCtx, 1, this);
                     SSL_CTX_set_verify(sslCtx, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, &::opensslVerifyClientCertCallback);
                 }
-
-                ret = SSL_CTX_set_cipher_list(sslCtx, "HIGH:!ADH:!AECDH");
+                ret = SSL_CTX_set_cipher_list(sslCtx, "HIGH:!ADH:!AECDH:!CBC");
 
             } catch (std::exception const& e) {
                 throw ERROR_EXCEPTION << "failed to load ssl certificate files. ssl returned '" << e.what()
@@ -99,7 +102,11 @@ public:
     /// \brief constructs SSlContext for use on client side
     CxpsSslContext(boost::asio::io_service& ioService,
                    std::string const& clientFile)
+#ifdef SV_WINDOWS
+        : m_sslContext(createSslContextWithRetry())
+#else
         : m_sslContext(boost::asio::ssl::context::tlsv12)
+#endif
         {
             try {
                 m_sslContext.set_options(boost::asio::ssl::context::default_workarounds
@@ -129,9 +136,15 @@ public:
     CxpsSslContext(boost::asio::io_service& ioService,
         std::string const& certFile,
         std::string const& keyFile,
-        std::string const& serverCertThumbprint)
+        std::string const& serverCertThumbprint,
+        std::string serverRolloverCertThumbprint = std::string())
+#ifdef SV_WINDOWS
+        : m_sslContext(createSslContextWithRetry()),
+#else
         : m_sslContext(boost::asio::ssl::context::tlsv12),
-        m_serverCertThumbprint(serverCertThumbprint)
+#endif
+        m_serverCertThumbprint(serverCertThumbprint),
+        m_serverRolloverCertThumbprint(serverRolloverCertThumbprint)
     {
         try {
             m_sslContext.set_options(boost::asio::ssl::context::default_workarounds
@@ -184,7 +197,7 @@ public:
             if (0 == cert) {
                 return std::string();
             }
-            EVP_MD const* evpSha1 = EVP_sha1();
+            EVP_MD const* evpSha1 = EVP_sha1(); // CodeQL [SM02689] Changing crypto breaks existing functionality
             unsigned char md[EVP_MAX_MD_SIZE];
             unsigned int len;
             X509_digest(cert, evpSha1, md, &len);
@@ -252,6 +265,11 @@ public:
         return m_serverCertThumbprint;
     }
 
+    std::string getServerRolloverCertThumbprint()
+    {
+        return m_serverRolloverCertThumbprint;
+    }
+
     std::string getCaCertThumbprint()
     {
         return m_caCertThumbprint;
@@ -266,6 +284,37 @@ public:
     {
         m_certBiosId = biosId;
     }
+
+#ifdef SV_WINDOWS
+    /// \brief Creates SSL context with retry logic
+    static boost::asio::ssl::context createSslContextWithRetry()
+    {
+        const int maxRetries = 2;
+        int retryCount = 0;
+        
+        while (retryCount <= maxRetries) {
+            try {
+                return boost::asio::ssl::context(boost::asio::ssl::context::tlsv12);
+            } catch (std::exception const& e) {
+                retryCount++;
+                if (retryCount > maxRetries) {
+                    throw ERROR_EXCEPTION << "Failed to create SSL context after " << maxRetries 
+                                          << " retry attempts. Last error: " << e.what();
+                }
+                // Brief delay before retry (optional)
+                // std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            } catch (...) {
+                retryCount++;
+                if (retryCount > maxRetries) {
+                    throw ERROR_EXCEPTION << "Failed to create SSL context after " << maxRetries 
+                                          << " retry attempts. Unknown error occurred.";
+                }
+            }
+        }
+        // This should never be reached, but to satisfy compiler
+        throw ERROR_EXCEPTION << "Unexpected error in SSL context creation";
+    }
+#endif
 
 protected:
     /// \breif gets the passphrase needed to access certifcates
@@ -283,6 +332,9 @@ private:
     std::string m_passphrase;
 
     std::string m_serverCertThumbprint; ///< thumbprint used to validate server cert in client
+
+    ///< Rollover thumbprint used to validate server cert in client
+    std::string m_serverRolloverCertThumbprint;
 
     std::string m_caCertThumbprint; ///< thumbprint used to validate server cert in client
 
@@ -344,7 +396,8 @@ inline int opensslVerifyCallback2(int preverifyOk, X509_STORE_CTX* ctx)
         std::string fingerprint = g_fingerprintMgr.getFingerprint(cert);
 
         if ((X509_cmp_time(X509_get_notAfter(cert), 0) > 0) &&
-            boost::iequals(fingerprint, cxpsctx->getServerCertThumbprint()))
+            (boost::iequals(fingerprint, cxpsctx->getServerCertThumbprint()) ||
+            boost::iequals(fingerprint, cxpsctx->getServerRolloverCertThumbprint())))
         {
             X509_STORE_CTX_set_error(ctx, X509_V_OK); // may not be needed but play it safe
             preverifyOk = 1;
@@ -380,6 +433,40 @@ static void cxpsCertCloseStore(HCERTSTORE hStore)
         DWORD error = GetLastError(); // CRYPT_E_PENDING_CLOSE indicates some contexts are still open
         CXPS_LOG_ERROR(AT_LOC << "Error freeing cert store: " << error);
     }
+}
+
+// Function to find a certificate in a given certificate store by its thumbprint
+static PCCERT_CONTEXT findCertificateByThumbprint(HCERTSTORE hStore, const std::string& thumbprint)
+{
+    if (thumbprint.empty()) {
+        CXPS_LOG_ERROR(AT_LOC<<"Certificate verification failed as the thumbprint is null or empty.");
+        return nullptr;
+    }
+
+    // Convert thumbprint string to bytes
+    std::vector<BYTE> thumbprintBytes;
+    size_t cnt = thumbprint.length() / 2;
+    for (size_t i = 0; cnt > i; ++i) {
+        uint32_t s = 0;
+        std::stringstream ss;
+        ss << std::hex << thumbprint.substr(i * 2, 2);
+        ss >> s;
+
+        thumbprintBytes.push_back(static_cast<unsigned char>(s));
+    }
+
+    // Create a CRYPT_HASH_BLOB structure to hold the thumbprint bytes
+    CRYPT_HASH_BLOB hashBlob;
+    hashBlob.cbData = thumbprintBytes.size();
+    hashBlob.pbData = thumbprintBytes.data();
+
+    // Find the certificate in the store using its SHA-1 hash
+    return CertFindCertificateInStore(hStore,
+        (PKCS_7_ASN_ENCODING | X509_ASN_ENCODING),
+        0,
+        CERT_FIND_SHA1_HASH,
+        &hashBlob,
+        NULL);
 }
 #endif
 
@@ -473,84 +560,82 @@ inline int opensslVerifyClientCertCallback(int preverifyOk, X509_STORE_CTX* ctx)
     ON_BLOCK_EXIT(boost::bind<void>(&CertCloseStore, hStore, 0));
 #endif
 
-    std::string cacertThumbprint;
-    size_t cnt = cxpsctx->getCaCertThumbprint().length() / 2;
-    for (size_t i = 0; cnt > i; ++i)
+    // Attempt to find the certificate in the store using the self-signed certificate thumbprint (fingerprint)
+    pCertContext = findCertificateByThumbprint(hStore, fingerprint);
+
+    // If the certificate with the self-signed certificate thumbprint is not found
+    if (!pCertContext)
     {
-        uint32_t s = 0;
-        std::stringstream ss;
-        ss << std::hex << cxpsctx->getCaCertThumbprint().substr(i * 2, 2);
-        ss >> s;
+        CXPS_LOG_MONITOR(MONITOR_LOG_LEVEL_3, AT_LOC<<"No certificate with self signed cert thumbprint in local store :"
+           << fingerprint << ". Attempting to find the cert with CA certificate thumbprint " << cxpsctx->getCaCertThumbprint());
 
-        cacertThumbprint.push_back(static_cast<unsigned char>(s));
-    }
+        // Retry to find the certificate in the store using the CA certificate thumbprint
+        std::string cacertThumbprint = cxpsctx->getCaCertThumbprint();
+        pCertContext = findCertificateByThumbprint(hStore, cacertThumbprint);
+        if (!pCertContext) {
+            CXPS_LOG_ERROR(AT_LOC<<"No certificate found in local store with either self-signed cert thumbprint -" <<
+                fingerprint<<" or CA thumbprint -"<<cxpsctx->getCaCertThumbprint());
 
-    CRYPT_HASH_BLOB hashBlob;
-    hashBlob.cbData = cacertThumbprint.length();
-    hashBlob.pbData = (BYTE *)cacertThumbprint.c_str();
+            return preverifyOk;
+        }
 
-    // check the thumbprint in the certificate.
-    if (!(pCertContext = CertFindCertificateInStore(hStore,
-        (PKCS_7_ASN_ENCODING | X509_ASN_ENCODING),
-        0,
-        CERT_FIND_SHA1_HASH,
-        &hashBlob,
-        NULL)))
-    {
-        CXPS_LOG_ERROR(AT_LOC<<"No certificate with ca thumbprint in local store :"
-            << cxpsctx->getCaCertThumbprint()<<"\t");
-        return preverifyOk;
-    }
+        CXPS_LOG_MONITOR(MONITOR_LOG_LEVEL_3, AT_LOC<<"Found certificate with ca thumbprint in local store : "
+           << cxpsctx->getCaCertThumbprint() <<"\t");
 
-    ON_BLOCK_EXIT(boost::bind<void>(&CertFreeCertificateContext, pCertContext));
+        ON_BLOCK_EXIT(boost::bind<void>(&CertFreeCertificateContext, pCertContext));
 
-    CXPS_LOG_MONITOR(MONITOR_LOG_LEVEL_3, AT_LOC<<"Making the certificate chain");
+        CXPS_LOG_MONITOR(MONITOR_LOG_LEVEL_3, AT_LOC<<"Making the certificate chain");
     
-    X509_STORE *store = X509_STORE_new();
-    if (store == NULL)
-    {
-        CXPS_LOG_ERROR(AT_LOC<<"creation of cert store to check certificate validation failed");
-        return preverifyOk;
-    }
+        X509_STORE *store = X509_STORE_new();
+        if (store == NULL)
+        {
+            CXPS_LOG_ERROR(AT_LOC<<"creation of cert store to check certificate validation failed");
+            return preverifyOk;
+        }
 
-    ON_BLOCK_EXIT(boost::bind(&X509_STORE_free, store));
+        ON_BLOCK_EXIT(boost::bind(&X509_STORE_free, store));
 
-    X509 *matchingCert = d2i_X509(NULL,
-        (const unsigned char **)&pCertContext->pbCertEncoded,
-        pCertContext->cbCertEncoded);
+        X509 *matchingCert = d2i_X509(NULL,
+            (const unsigned char **)&pCertContext->pbCertEncoded,
+            pCertContext->cbCertEncoded);
 
-    if (matchingCert == NULL) {
-        CXPS_LOG_ERROR(AT_LOC<<"Cert in local store with same thumbprint's conversion to X509 Failed");
-        return preverifyOk;
-    }
-    ON_BLOCK_EXIT(boost::bind(&X509_free, matchingCert));
+        if (matchingCert == NULL) {
+            CXPS_LOG_ERROR(AT_LOC<<"Cert in local store with same thumbprint's conversion to X509 Failed");
+            return preverifyOk;
+        }
+        ON_BLOCK_EXIT(boost::bind(&X509_free, matchingCert));
 
-    if (!X509_STORE_add_cert(store, matchingCert)) {
-        CXPS_LOG_ERROR(AT_LOC<<"Local Cert addition in Store Failed");
-        return preverifyOk;
-    }
+        if (!X509_STORE_add_cert(store, matchingCert)) {
+            CXPS_LOG_ERROR(AT_LOC<<"Local Cert addition in Store Failed");
+            return preverifyOk;
+        }
     
-    X509_STORE_CTX * storectx= X509_STORE_CTX_new();
-    if (storectx == NULL)
-    {
-        CXPS_LOG_ERROR(AT_LOC<<"creation of cert store context to check certificate validation failed");
-        return preverifyOk;
-    }
-    ON_BLOCK_EXIT(boost::bind(&X509_STORE_CTX_free, storectx));
+        X509_STORE_CTX * storectx= X509_STORE_CTX_new();
+        if (storectx == NULL)
+        {
+            CXPS_LOG_ERROR(AT_LOC<<"creation of cert store context to check certificate validation failed");
+            return preverifyOk;
+        }
+        ON_BLOCK_EXIT(boost::bind(&X509_STORE_CTX_free, storectx));
 
-    X509_STORE_set_verify_cb(store, verify_cb);
-    if (X509_STORE_CTX_init(storectx, store, cert, NULL) == 0)
+        X509_STORE_set_verify_cb(store, verify_cb);
+        if (X509_STORE_CTX_init(storectx, store, cert, NULL) == 0)
+        {
+            CXPS_LOG_ERROR(AT_LOC << "Context Setup for Verification Failed");
+            return preverifyOk;
+        }
+
+        if (X509_verify_cert(storectx) <= 0)
+        {
+            CXPS_LOG_ERROR(AT_LOC<<"Verification of Cert Chain Failed");
+            return preverifyOk;
+        }
+    }
+    else
     {
-        CXPS_LOG_ERROR(AT_LOC << "Context Setup for Verification Failed");
-        return preverifyOk;
+        ON_BLOCK_EXIT(boost::bind<void>(&CertFreeCertificateContext, pCertContext));
     }
 
-    if (X509_verify_cert(storectx) <= 0)
-    {
-        CXPS_LOG_ERROR(AT_LOC<<"Verification of Cert Chain Failed");
-        return preverifyOk;
-    }
-    
     preverifyOk = 1;
     X509_STORE_CTX_set_error(ctx, X509_V_OK);
 

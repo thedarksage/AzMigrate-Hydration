@@ -28,7 +28,10 @@ export WORK_DIR=/usr/local/AzureRecovery
 export LINUX_GA_DIR=/usr/local/AzureRecovery/WALinuxAgentASR
 
 export RECOVERY_TOOLS_ZIPFILE="AzureRecoveryTools.zip"
-export LINUX_GA_TOOLS_ZIPFILE="master.zip"
+export LINUX_GA_TOOLS_ZIPFILE=""
+export LINUX_GA_TOOLS_FOLDER=""
+export LINUX_GA_TOOLS_ZIPFILE_MASTER="master.zip"
+export LINUX_GA_TOOLS_FOLDER_MASTER="WALinuxAgent-master"
 
 export HOSTINFO_PREFIX="hostinfo"
 export REC_INFO_PREFIX="azurerecovery"
@@ -57,8 +60,8 @@ _HOST_ID_=""
 _SCENARIO_=""
 _SCENARIO_RECOVERY_="recovery"
 _SCENARIO_MIGRATION_="migration"
-_SCENARIO_RECOVERY_TEST_="testrecovery";
-_SCENARIO_MIGRATION_TEST_= "testmigration";
+_SCENARIO_RECOVERY_TEST_="recoverytest";
+_SCENARIO_MIGRATION_TEST_="migrationtest";
 
 #
 # Trace functions to log the trace messages to log file.
@@ -456,6 +459,14 @@ function Prepare_Env
 {
     Trace "Preparing the environment for pre-recovery steps execution ..."
 
+    if [[ $HYDRATION_CONFIG_SETTINGS == *"LinuxGAReleaseZip:"* ]]; then
+       LINUX_GA_TOOLS_ZIPFILE=$(echo $HYDRATION_CONFIG_SETTINGS | sed -n 's/.*LinuxGAReleaseZip:\([^ ]*\.zip\).*/\1/p')
+       LINUX_GA_TOOLS_FOLDER=$(echo $LINUX_GA_TOOLS_ZIPFILE | sed 's/v\([^ ]*\)\.zip/WALinuxAgent-\1/')
+    fi
+
+    LINUX_GA_TOOLS_ZIPFILE=${LINUX_GA_TOOLS_ZIPFILE:-$LINUX_GA_TOOLS_ZIPFILE_MASTER}
+    LINUX_GA_TOOLS_FOLDER=${LINUX_GA_TOOLS_FOLDER:-$LINUX_GA_TOOLS_FOLDER_MASTER}
+
     HostInfoFile="$HOSTINFO_PREFIX-$_HOST_ID_.xml"
     RecInfoFile="$REC_INFO_PREFIX-$_HOST_ID_.conf"
     PWD=$(pwd)
@@ -477,7 +488,7 @@ function Prepare_Env
     # Timeout: 300 seconds
     #
     
-    if curl --silent -LO "https://github.com/Azure/WALinuxAgent/archive/master.zip" -m 300; then
+    if curl --silent -LO "https://github.com/Azure/WALinuxAgent/archive/$LINUX_GA_TOOLS_ZIPFILE" -m 300; then
         Trace "Successfully downloaded WALinuxAgent zip file."
         # Extract master.zip into WALinuxAgentASR
         Extract_ZipFile "$PWD/$LINUX_GA_TOOLS_ZIPFILE" $LINUX_GA_DIR
@@ -502,7 +513,15 @@ function Prepare_Env
         Trace_Error "Could not enable execute permission for one of the executables/scripts on working directory."
         return 1
     fi
-    
+	
+    if [ ! -d "$LINUX_GA_DIR/$LINUX_GA_TOOLS_FOLDER_MASTER" ]; then
+        mv "$LINUX_GA_DIR/$LINUX_GA_TOOLS_FOLDER" "$LINUX_GA_DIR/$LINUX_GA_TOOLS_FOLDER_MASTER"
+        if [ $? -ne 0 ]; then
+            Trace_Error "Could not rename the Linux Guest Agent Tools folder name to WALinuxAgent-master"
+            return 1
+        fi
+    fi
+	
     #
     # Verify the host-info, recovery-info & executables zip file.
     #
@@ -828,7 +847,7 @@ function Main
     # as log file will be created inside the working directory and the working
     # directory has been created just now.
     #
-    
+
     Prepare_Env
     if [ $? -ne 0 ] ; then
         exit 1

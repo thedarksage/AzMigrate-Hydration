@@ -97,16 +97,7 @@ typedef std::set<std::string> strset_t;
 
 #define INM_ARRAY_SIZE(a)       (sizeof(a)/sizeof(a[0]))
 
-const std::string external_ip_address = "external_ip_address";
-const char HTTPS[] = "https://";
-const char IMDS_URL[]						= "http://169.254.169.254/metadata/instance?api-version=2021-02-01";
-const char IMDS_HEADERS[]					= "Metadata: true";
-const char IMDS_COMPUTE_ENV[]				= "compute.azEnvironment";
-const char IMDS_AZURESTACK_NAME[]			= "AzureStack";
-const char IMDS_COMPUTE_TAGSLIST[]			= "compute.tagsList";
-const char IMDS_FAILOVER_TAG_PREFIX[]		= "ASR-Failover";
-const char IMDS_FAILOVER_TAG_SUFFIX[]		= "Failed-over by Azure Site Recovery.";
-const long HTTP_OK = 200L;
+
 
 /******************************************************************************/
 enum FILESYSTEM_TYPE
@@ -138,6 +129,7 @@ const unsigned int LitttleEndianDataFormatFlags = INMAGE_MAKEFOURCC('D', 'R', 'T
 const char VMWAREPLATFORM[] = "VmWare";
 const char AZUREPLATFORM[] = "Azure";
 const char CSTYPE_CSPRIME[] = "CSPrime";
+const char CSTYPE_CSLEGACY[] = "CSLegacy";
 
 struct volpackproperties 
 {
@@ -627,6 +619,11 @@ std::string GenerateUuid();
 
 std::string GetSystemUUID();
 
+// throws an exception if the system UUID cannot be retrieved
+std::string GetSystemUUIDEx(QuitFunction_t qf);
+
+SVSTATUS CheckAzureVmArmIdChanged(const std::string& currentArmId);
+
 std::string GetChassisAssetTag();
 
 uint64_t GetTimeInMilliSecSinceEpoch1970();
@@ -634,6 +631,8 @@ uint64_t GetTimeInMilliSecSinceEpoch1970();
 uint64_t GetTimeInSecSinceEpoch1970();
 
 uint64_t GetTimeInSecSinceEpoch1601();
+
+std::string WindowsEpochTimeToUTC(const uint64_t& secSince1Jan1601UTC);
 
 uint64_t GetTimeInSecSinceAd0001();
 
@@ -645,11 +644,11 @@ int GetDeviceNameTypeToReport(const std::string& hypervisorName = std::string(),
 
 bool IsAzureVirtualMachine();
 
-std::string GetImdsMetadata();
-
 bool IsAzureStackVirtualMachine();
 
 bool HasAzureStackHubFailoverTag(QuitFunction_t qf);
+
+bool HasAzureZonalFailoverTag(QuitFunction_t qf);
 
 bool IsAgentRunningOnAzureVm();
 
@@ -661,5 +660,13 @@ std::string  InmGetFormattedSize(unsigned long long ullSize);
 bool IsUEFIBoot(void);
 
 void ExtractCacheStorageNameFromBlobContainerSasUrl(const std::string& blobContainerSasUri, std::string& cacheStorageAccountName);
+
+std::string SanitizeString(const std::string& inputStr);
+
+// Function to extract the VERSION_ID from a given release file
+std::string extractVersionId(const std::string& filePath);
+
+// Function to extract the agent version from a given vx_version file
+std::string GetAgentVersionFromVxVersionFile(const std::string& filePath);
 
 #endif //PORTABLEHELPERS__H

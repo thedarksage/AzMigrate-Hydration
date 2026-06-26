@@ -730,6 +730,24 @@ public:
     }
 };
 
+class OsUpgradeAlert : public InmErrorAlertImp
+{
+public:
+    OsUpgradeAlert(const std::string &oldversion, const std::string &newversion)
+    {
+        const std::string OsUpgradeDetected = "OSUpgradeDetected";
+
+        Parameters_t p;
+        p["OldMajorVersion"] = oldversion;
+        p["NewMajorVersion"] = newversion;
+
+        std::stringstream msg;
+        msg << "OS upgraded from OS version " << oldversion << " to " << newversion;
+
+        SetDetails(OsUpgradeDetected, p, msg.str());
+    }
+};
+
 class LogUploadNetworkFailureAlert : public InmErrorAlertImp
 {
 public:
@@ -758,7 +776,7 @@ class AgentPeakChurnAlert : public InmErrorAlertImp
 public:
     AgentPeakChurnAlert(const std::string &timestamp,
         const std::string &device,
-        const std::string &value,
+        const std::string &peakChurn,
         const std::string &count,
         const std::string &failedNodes)
     {
@@ -769,7 +787,7 @@ public:
         msg << "Disk churn more than supported peak churn observed.";
         msg << " Timestamp : " << timestamp;
         msg << " Device : " << device;
-        msg << " Churn : " << value << " bytes";
+        msg << " PeakChurn : " << peakChurn;
         msg << " Accumulated Churn : " << count << " bytes.";
 
         SetDetails(E_DISK_CHURN_PEAK_ALERT, p, msg.str());
@@ -845,6 +863,24 @@ public:
             << " seconds detected at " << timeJumpedAt;
 
         SetDetails(E_TIME_JUMPED_BACKWARD_ALERT, p, msg.str());
+    }
+};
+
+class ProtectedMachinesNotInClusterAlert : public InmErrorAlertImp
+{
+public:
+    ProtectedMachinesNotInClusterAlert(const std::string &protectedMachineNotInCluster,
+        const std::string &clusterName)
+    {
+        Parameters_t p;
+        p["ProtectedMachineNotInCluster"] = protectedMachineNotInCluster;
+        p["ClusterName"] = clusterName;
+
+        std::stringstream msg;
+        msg << "The protected machines " << protectedMachineNotInCluster
+            << " are not in up state in the cluster " << clusterName;
+
+        SetDetails(E_SHARED_DISK_PROTECTED_NODE_NOT_IN_CLUSTER, p, msg.str());
     }
 };
 

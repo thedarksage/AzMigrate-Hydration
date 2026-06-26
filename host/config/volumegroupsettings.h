@@ -397,6 +397,7 @@ namespace NsVolumeAttributes
     const char INTERFACE_TYPE[] = "interface_type";
     const char SCSI_BUS[] = "scsi_bus";
     const char SCSI_LOGICAL_UNIT[] = "scsi_logical_unit";
+    const char ORIGINAL_SCSI_LOGICAL_UNIT[] = "original_scsi_logical_unit";
     const char SCSI_PORT[] = "scsi_port";
     const char SCSI_TARGET_ID[] = "scsi_target_id";
     const char STORAGE_TYPE[] = "storage_type";                        /* to intimate basic / dynamic disks for windows */
@@ -438,7 +439,13 @@ namespace NsVolumeAttributes
 
     const char SCSI_UUID[] = "scsi_uuid";  // SCSI UUID from page 83
 
-    const char IS_PART_OF_CLUSTER[] = "clustered"; //for clustered disk or volume identification
+    const char IS_PART_OF_CLUSTER[] = "clustered"; //for clustered disk or volume identification 
+    const char ARM_ID[] = "armid"; // Disk ARM ID fetched using IMDS storage profile
+
+    const char NVME_CONTROLLER_ID[] = "nvme_controller_id";
+    const char NVME_NAMESPACE_ID[] = "nvme_namespace_id";
+    const char NVME_LOGICAL_UNIT[] = "nvme_logical_unit";
+    const char NVME_NSID[] = "nvme_nsid";
 };
 
 
@@ -712,6 +719,7 @@ namespace NSOsInfo
     const char SYSTEMDRIVE[] = "systemdrive";
     const char SYSTEMDRIVE_DISKEXTENTS[] = "systemdrivediskextents";
     const char LASTBOOTUPTIME[] = "LastBootUpTime";
+    const char OSFAMILYNAME[] = "OsFamilyName";
 };
 
 struct ClusterVolumeInfo {
@@ -1176,4 +1184,25 @@ struct MTRegistrationDetails
     std::string registryData;
 };
 
+namespace STORAGE_INTERFACE_TYPE
+{
+    const char STORAGE_INTERFACE_SCSI[] = "SCSI";
+    const char STORAGE_INTERFACE_ATAPI[] = "ATAPI";
+    const char STORAGE_INTERFACE_ATA[] = "ATA";
+    const char STORAGE_INTERFACE_USB[] = "USB";
+    const char STORAGE_INTERFACE_ISCSI[] = "ISCSI";
+    const char STORAGE_INTERFACE_SATA[] = "SATA";
+    const char STORAGE_INTERFACE_VIRTUAL[] = "VIRTUAL";
+    const char STORAGE_INTERFACE_FILEBACKEDVIRTUAL[] = "FILEBACKEDVIRTUAL";
+    const char STORAGE_INTERFACE_SPACES[] = "SPACES";
+    const char STORAGE_INTERFACE_NVME[] = "NVME";
+    const char STORAGE_INTERFACE_NVME_LINUX[] = "nvme";
+    const char STORAGE_INTERFACE_UNKNOWN[] = "UNKNOWN";
+};
+
+namespace STORAGE_FRIENDLY_NAME_TYPE
+{
+    const char AZURE_NVME_DIRECT_DISK[] = "NVMe Direct Disk";
+    const char AZURE_NVME_DIRECT_DISK_V2[] = "Microsoft NVMe Direct Disk v2";
+};
 #endif // VOLUME_GROUP_SETTINGS_H

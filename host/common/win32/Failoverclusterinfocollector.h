@@ -147,6 +147,8 @@ public:
 
     bool IsClusterNode();
 
+    SVSTATUS CheckClusterHealth(const std::string& clusterName, bool& isClusterUp);
+
     bool GetClusSvcStatusOnCurrentNode(FailoverCluster::ClusterServiceStatus& status);
 
     std::string GetLastErrorMessage(void);
@@ -166,5 +168,17 @@ public:
     void dumpInfo();
 
 };
+
+#ifdef VACP_CONTEXT
+class FailoverClusterTagProvider
+{
+public:
+    static SVSTATUS GetClusterTag(
+        std::map<std::string, std::string> startUpClusterHostMapping, 
+        std::set<std::string> protectedMachines, 
+        std::string& clusterTag, 
+        std::string& errMsg);
+};
+#endif
 
 #endif

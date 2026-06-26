@@ -15,6 +15,11 @@ History		:   29-5-2015 (Venu Sivanadham) - Created
 #include "inmsafecapis.h"
 #include "../Status.h"
 #include <ace/OS.h>
+
+#ifdef SV_UNIX
+#include <inmuuid.h>
+#endif
+
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/assert.hpp>
 #include <boost/filesystem.hpp>
@@ -102,6 +107,14 @@ namespace AzureRecovery
             bGenerated = false;
         }
 
+#ifdef SV_UNIX
+        if (uuid.empty())
+        {
+            TRACE_INFO("Using getuuid to generate uuid\n");
+            uuid = GetUuid();
+            bGenerated = true;
+        }
+#endif
         TRACE_FUNC_END;
         return bGenerated;
     }

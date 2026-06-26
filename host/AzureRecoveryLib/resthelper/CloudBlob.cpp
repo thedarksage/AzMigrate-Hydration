@@ -604,7 +604,7 @@ bool CloudPageBlob::UploadFileContent(const std::string& local_file)
             hFile = ACE_OS::open(local_file.c_str(), O_RDONLY, ACE_DEFAULT_OPEN_PERMS);
             if (ACE_INVALID_HANDLE == hFile)
             {
-                TRACE_ERROR("%s: Could not open file %s. Open failed with error %d\n", FUNCTION_NAME, ACE_OS::last_error());
+                TRACE_ERROR("%s: Could not open file %s. Open failed with error %d\n", FUNCTION_NAME, local_file.c_str(), ACE_OS::last_error());
                 bRet = false;
                 break;
             }
@@ -749,11 +749,13 @@ Description : Returns a list of blobs with matching prefix on success.
 Parameters  : [in] prefix : A filter on result to return blob names only begining with.
               [in] maxResults: Specifies the maximum number of blobs in result.
               [out] listOutput : Serialized XML response string containing result of matching blob names.
+              [in] nextMarker : The list operation returns a marker value within the response body if the list returned was not complete.
+                                Use marker value in a subsequent call to request the next set of list items.
 
 Return Code : true on success, otherwise false.
 
 */
-bool CloudPageBlob::List(const std::string& prefix, const uint32_t maxResults, std::string &listOutput)
+bool CloudPageBlob::List(const std::string& prefix, const uint32_t maxResults, std::string &listOutput, const std::string& nextMarker)
 {
     TRACE_FUNC_BEGIN;
     bool bRet = true;
@@ -768,6 +770,10 @@ bool CloudPageBlob::List(const std::string& prefix, const uint32_t maxResults, s
         blobMetadaUri.AddQueryParam(Blob::QueryParamPrefix, prefix);
         blobMetadaUri.AddQueryParam(Blob::QueryParamInclude, Blob::QueryValueMetadata);
         blobMetadaUri.AddQueryParam(Blob::QueryParamMaxresults, boost::lexical_cast<std::string>(maxResults));
+        if (!nextMarker.empty())
+        {
+            blobMetadaUri.AddQueryParam(Blob::QueryParamMarker, nextMarker);
+        }
 
         HttpRequest request(blobMetadaUri.ToString());
 

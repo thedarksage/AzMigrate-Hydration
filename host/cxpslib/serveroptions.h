@@ -372,6 +372,9 @@ public:
     /// \brief get the agent repository path
     std::string getAgentRepositoryPath() const;
 
+    /// \brief get the pull client repository path
+    std::string getPullClientRepositoryPath() const;
+
 protected:
 
     /// \brief build the list of allowed dirs
@@ -448,6 +451,8 @@ private:
     PSSettings::StringMapPtr m_tunablesPtr;
 
     std::string m_agentRepositoryPath;
+
+    std::string m_pullClientRepositoryPath;
 
     void updateTunables(PSSettings::StringMapPtr latestTunables);
 

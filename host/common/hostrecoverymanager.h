@@ -186,6 +186,8 @@ public:
     // Resets the replication state on recovered VM 
     //
     static void ResetReplicationState();
+
+    static void StopFilteringAll();
 };
 
 

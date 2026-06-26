@@ -2,6 +2,7 @@
 #define INIT_INM_SAFE_C_APIS_MAJOR_H
 
 #include <cstdlib>
+#define inm_cchprintfw_s(strDestination, numberOfElements, strSource) inm_cchprintfw_s_wrapper(strDestination, numberOfElements, strSource, __FILE__, __LINE__, __FUNCTION__)
 
 inline void inm_invalid_param_handler(const wchar_t* expression,
    const wchar_t* function, 

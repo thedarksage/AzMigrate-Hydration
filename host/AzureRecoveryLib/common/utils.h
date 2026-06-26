@@ -27,7 +27,7 @@ const char SOURCE_OS_MOUNT_POINT_ROOT[] = "C:\\";
 
 const char MOUNT_PATH_PREFIX[] = "azure_rcvr_";
 
-const int MAX_CHILD_PROC_WAIT_TIME = 600; // 10mins
+const int MAX_CHILD_PROC_WAIT_TIME = 1200; // 20mins
 const int MAX_RETRY_ATTEMPTS = 5;
 
 
@@ -40,6 +40,12 @@ namespace HydrationConfig
     const char EnableWindowsGAInstallation[] = "EnableWindowsGAInstallation";
     const char EnableLinuxGAInstallation[] = "EnableLinuxGAInstallation";
     const char EnableWindowsGAInstallationDR[] = "EnableWindowsGAInstallationDR";
+    const char IsConfidentialVmMigration[] = "IsConfidentialVmMigration";
+    const char IsPartitionConversionRequired[] = "IsPartitionConversionRequired";
+    const char UseMigrationHydrationScript[] = "UseMigrationHydrationScript";
+    const char HydrationCommonDistros[] = "HydrationCommonDistros";
+    const char HydrationSupportedDistros[] = "HydrationSupportedDistros";
+    const char CvmSupportedDistros[] = "CvmSupportedDistros";
 }
 
 namespace AzureRecovery

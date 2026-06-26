@@ -9,7 +9,7 @@
 ##
 ## History      :   11-11-2018 (Venu Sivanadham) - Created
 ##
-## Usage        :   prepare-os-for-azure.sh <chroot-path>
+## Usage        :   prepare-os-for-azure.sh <chroot-path> <hydration-config-settings> <failover-operation>
 ##+----------------------------------------------------------------------------------+
 
 ###Start: Script error codes.
@@ -23,6 +23,15 @@ _E_AZURE_SMS_INITRD_IMAGE_GENERATION_FAILED=7
 _E_AZURE_SMS_HV_DRIVERS_MISSING=8
 _E_AZURE_GA_INSTALLATION_FAILED=9
 _E_AZURE_ENABLE_DHCP_FAILED=10
+_E_AZURE_UNSUPPORTED_FS_FOR_CVM=11
+_E_AZURE_ROOTFS_LABEL_FAILED=12
+_E_INSTALL_LINUX_AZURE_FDE_FAILED=13
+_E_AZURE_UNSUPPORTED_FIRMWARE_FOR_CVM=14
+_E_AZURE_UNSUPPORTED_DEVICE=15
+_E_AZURE_BOOTLOADER_CONFIGURATION_FAILED=16
+_E_AZURE_BOOTLOADER_INSTALLATION_FAILED=17
+_E_AZURE_ESP_PARTITION_CREATION_FAILED=18
+_E_AZURE_INSUFFICIENT_SPACE_FOR_ESP_PARTITION=19
 
 ###End: Script error codes.
 
@@ -34,6 +43,7 @@ _AM_SCRIPT_DIR_="/usr/local/azure-migrate"
 _AM_SCRIPT_LOG_FILE_="/var/log/${_AM_STARTUP_}.log"
 _AM_INSTALLGA_="asr-installga"
 _AM_HYDRATION_LOG_="/var/log/am-hydration-log"
+export _AM_SCRIPT_CVM_LOG_FILE_="/usr/local/AzureRecovery/AzureCvmMigration.log"
 ###End: Constants
 
 #@1 - Error Code
@@ -49,7 +59,28 @@ throw_error()
     echo "[Sms-Scrip-Error-Data]:${error_data}"
     echo "[Sms-Telemetry-Data]:${telemetry_data}"
 
+    if $confidential_migration_flag || $enable_inline_ga_installation_flag || $enable_inline_ga_installation_flag_centos; then
+        if ! $installation_logs_added_flag; then
+            add_installation_logs
+        fi
+    fi
+
     exit $error_code
+}
+
+add_installation_logs()
+{
+    echo -e "\n--- Installation Logs during Hydration for Azure ${failover_operation} Begin---\n"
+    
+    if [ -f "${_AM_SCRIPT_CVM_LOG_FILE_}" ]; then
+        cat "${_AM_SCRIPT_CVM_LOG_FILE_}"
+    else
+        echo "No Installation Logs found."
+    fi
+
+    echo -e "\n--- Installation Logs during Hydration End---\n"
+
+    installation_logs_added_flag=true
 }
 
 # Usage: Add telemetries about utilities absent on source VM.
@@ -84,9 +115,11 @@ trace()
 {
     echo "$(date +"%a %b %d %Y %T") : $1"
 }
+export -f trace
 
 unset chroot_path
 unset hydration_config_settings
+unset failover_operation
 #@1 - chroot path
 validate_script_input()
 {
@@ -99,7 +132,14 @@ validate_script_input()
         trace "Hydration Config Settings: $2"
         hydration_config_settings="$2"
     fi
+
+    if [[ $# -ge 3 ]]; then
+        trace "Failover Operation: $3"
+        failover_operation="$3"
+    fi
+
     chroot_path="$1"
+    export chroot_path
 }
 
 unset src_distro
@@ -108,12 +148,12 @@ find_src_distro()
 {
     local root_path=$chroot_path
     [[ -z "$1" ]] || root_path=$1
-    
+
     local script_dir=$(cd $(dirname "$0") > /dev/null && pwd)
     [[ -d "$script_dir" ]] || script_dir=/usr/local/AzureRecovery
     
     src_distro=$($script_dir/OS_details_target.sh "$chroot_path")
-    if [[ -z "src_distro" ]]; then
+    if [[ -z "$src_distro" ]]; then
         throw_error $_E_AZURE_SMS_OS_UNSUPPORTED "unknown"
     else
         trace "OS : $src_distro"
@@ -127,13 +167,13 @@ get_firmware_type()
     _grub2_efi_path="$chroot_path/boot/efi/EFI/"
 
     case "$src_distro" in
-        OL7*|RHEL6*|RHEL7*|RHEL8*|RHEL9*|OL8*|OL9*)
+        RHEL*|OL*)
             _grub2_efi_path="${_grub2_efi_path}redhat"
             ;;
-        CENTOS7*|CENTOS8*|CENTOS9*)
+        CENTOS*)
             _grub2_efi_path="${_grub2_efi_path}centos"
             ;;
-        SLES11*|SLES12*|SLES15*)
+        SLES*)
             _grub2_efi_path="${_grub2_efi_path}opensuse"
             ;;
         UBUNTU*)
@@ -142,8 +182,14 @@ get_firmware_type()
         DEBIAN*|KALI-ROLLING*)
             _grub2_efi_path="${_grub2_efi_path}debian"
             ;;
+        ROCKY*)
+            _grub2_efi_path="${_grub2_efi_path}rocky"
+            ;;
+        ALMA*)
+            _grub2_efi_path="${_grub2_efi_path}almalinux"
+            ;;
         *)
-            echo "Unsupported OS version for Migration - $src_distro "
+            trace "Unsupported OS version for Migration - $src_distro "
             ;;
     esac
 
@@ -151,10 +197,10 @@ get_firmware_type()
     if [[ -d $_grub2_efi_path ]]; then
         if [[ -f "$_grub2_efi_path/grub.conf" ]] || [[ -f "$_grub2_efi_path/menu.lst" ]] || [[ -f "$_grub2_efi_path/grub.cfg" ]]; then
             firmware_type="UEFI"
-            echo "Grub.cfg path in case of UEFI is: $_grub2_efi_path"
+            trace "Grub.cfg path in case of UEFI is: $_grub2_efi_path"
         fi
     else
-        echo "Default grub path applicable in case of BIOS"
+        trace "Default grub path applicable in case of BIOS"
     fi
 
     add_am_hydration_log "Firmware Type" "$firmware_type"
@@ -204,6 +250,26 @@ backup_file()
     return $?
 }
 
+#@1 - Final file name
+restore_file()
+{
+    local _final_file_=$1
+    local _backup_file_="${_final_file_}${_BCK_EXT_}"
+
+    trace "Restoring the file $_final_file_ from backup file at location $_backup_file_";
+    
+    [[ -f $_final_file_ ]] && {
+        trace "$_final_file_ already exists. Replacing the file with backup file.";
+    }
+    
+    [[ -f $_backup_file_ ]] || {
+        trace "$_backup_file_ file not found.";
+        return 1;
+    }
+    
+    mv -f "$_backup_file_" "$_final_file_"
+}
+
 #@1 - File path
 move_to_backup()
 {
@@ -221,6 +287,28 @@ move_to_backup()
     }
     
     mv -f $_source_ $_target_
+    return $?
+}
+
+# Copy a directory to a backup location
+copy_dir_to_backup()
+{
+    local _source_="$1"
+    local _target_="${_source_}${_BCK_EXT_}"
+    
+    # Check if the source directory is already a backup directory
+    [[ $_source_ =~ .*${_BCK_EXT_}$ ]] && {
+        trace "$_source_ is already a backup directory."
+        return 1;
+    }
+    
+    # Check if the source directory exists
+    [[ -d $_source_ ]] || { 
+        trace "$_source_ directory not found."
+        return 1;
+    }
+    
+    cp -rf $_source_ $_target_
     return $?
 }
 
@@ -251,6 +339,75 @@ move_to_backup_dir()
     
     mv -f $_source_ $_target_dir_
     return $?
+}
+
+execute_and_trace_function()
+{
+    local error_code=0
+    local function_name=$1
+    local error_code_arg=$2
+    local error_message_arg=$3
+
+    if ${function_name}; then
+        trace "Successfully executed function/command: ${function_name}."
+    else
+		error_code=$?
+        trace "Error: Failed to execute function/command: ${function_name}. Error code: ${error_code}."
+        if [ -n "$error_code_arg" ]; then
+            if [ -n "$error_message_arg" ]; then
+                throw_error "$error_code_arg" "$error_message_arg"
+            else
+                throw_error "$error_code_arg" "$error_code"
+            fi
+        fi
+    fi
+    
+    return $error_code
+}
+
+execute_chroot_command()
+{
+    local error_code=0
+    local command="$1"
+    local error_code_arg="$2"
+    local error_message_arg="$3"
+	
+    chroot "${chroot_path}" bash -c "$command" >> "${_AM_SCRIPT_CVM_LOG_FILE_}" 2>&1 \
+    || {
+        error_code=$?
+        trace "Error: Failed to execute chroot command ${command}. Error code: ${error_code}."
+
+        if [ -n "$error_code_arg" ]; then
+            if [ -n "$error_message_arg" ]; then
+                throw_error "$error_code_arg" "$error_message_arg"
+            else
+                throw_error "$error_code_arg" "$error_code"
+            fi
+        fi
+    }
+
+    return $error_code
+}
+export -f execute_chroot_command
+
+backup_and_clean_repo() {
+    local repo_directory="$1"
+    local error_code=0
+
+    if copy_dir_to_backup "$repo_directory"; then
+        trace "Successfully backed up $repo_directory to ${repo_directory}${_BCK_EXT_}"
+        if find "${repo_directory}" -name '*.repo' -delete ; then
+            trace "Successfully cleaned the repository in $repo_directory."
+        else
+            trace "Error: Failed to clean the repository in $repo_directory."
+            error_code=2
+        fi
+    else
+        trace "Error: Failed to back up $repo_directory to ${repo_directory}${_BCK_EXT_}"
+        error_code=1
+    fi
+
+    return $error_code
 }
 
 #@1 - Tool name
@@ -560,10 +717,9 @@ add_grub2_cmd_options()
 }
 
 #@1 - kernel version
-is_kernel_in_use()
-{
+is_kernel_in_use() {
     [[ -z "$1" ]] && return 1
-    
+
     local kernel_version=$1
     local grub_conf_files="$chroot_path/boot/grub/menu.lst \
             $chroot_path/boot/grub/grub.cfg \
@@ -574,12 +730,25 @@ is_kernel_in_use()
     
     for grub_file in $grub_conf_files
     do
-        if [[ -f $grub_file ]]; then
-            grep -q "\<initrd.*[[:space:]].*/initr.*${kernel_version}.*" $grub_file
-            return $?
+        if [[ -f $grub_file ]] &&
+        grep -q "\<initrd.*[[:space:]].*/initr.*${kernel_version}.*" $grub_file; then
+            trace "${kernel_version} found in $grub_file"
+            return 0
         fi
     done
-    
+
+    # Check entries inside /boot/loader/entries
+    local loader_entries_dir="$chroot_path/boot/loader/entries"
+    if [[ -d $loader_entries_dir ]]; then
+        for entry_file in "$loader_entries_dir"/*.conf; do
+            if [[ -f $entry_file ]] &&
+            grep -q "\<initrd.*[[:space:]].*/initr.*${kernel_version}.*" $entry_file; then
+                trace "${kernel_version} found in $entry_file"
+                return 0
+            fi
+        done
+    fi
+
     return 1
 }
 
@@ -677,6 +846,18 @@ is_kernel_image_in_use()
             return 0
         fi
     done
+
+    # Check entries inside /boot/loader/entries
+    local loader_entries_dir="$chroot_path/boot/loader/entries"
+    if [[ -d $loader_entries_dir ]]; then
+        for entry_file in "$loader_entries_dir"/*.conf; do
+            if [[ -f $entry_file ]] &&
+            grep -q "\<initrd.*[[:space:]].*/${kernel_image}\>" $entry_file; then
+                trace "${kernel_image} found in $entry_file"
+                return 0
+            fi
+        done
+    fi
     
     return 1
 }
@@ -691,10 +872,17 @@ verify_hv_drivers_in_module()
     
     for driver_name in hv_vmbus hv_storvsc hv_netvsc
     do
+        local out=0
         chroot $chroot_path modinfo -k $kernel_version $driver_name
-        [[ $? -ne 0 ]] && throw_error $_E_AZURE_SMS_HV_DRIVERS_MISSING $kernel_version
-        
-        trace "$driver_name available in the kernel."
+        out=$?
+        if [[ $out -ne 0 ]] && [[ $failover_operation != "recovery" ]]; then
+            throw_error $_E_AZURE_SMS_HV_DRIVERS_MISSING $kernel_version
+        fi
+    
+        if [[ $out -eq 0 ]]; then
+            trace "$driver_name available in the kernel."
+        fi
+
     done
     
     return 0
@@ -732,10 +920,19 @@ generate_initrd_image()
     local hv_drivers="hv_vmbus hv_storvsc hv_netvsc"
     local kernel_image=$(basename $2)
     local kernel_image_path=/boot/$kernel_image
+    local vmw_pvscsi_driver="vmw_pvscsi"
+    local ret=0
 
     trace "start re-generating kernel image $kernel_image_path with version $1 ..."
-    chroot $chroot_path dracut -f --add-drivers "$hv_drivers" $kernel_image_path $1
-    if [[ $? -ne 0 ]]; then
+    if [[ $failover_operation == "recovery" && ( $src_distro == "RHEL10"* || $src_distro == "OL10"* || $src_distro == "ROCKY10"* || $src_distro == "ALMA10"* ) ]]; then
+        trace "generating image with vmw_pvscsi drivers included for $src_distro"
+        chroot $chroot_path dracut -f --add-drivers "$hv_drivers $vmw_pvscsi_driver" $kernel_image_path $1
+        ret=$?
+    else
+        chroot $chroot_path dracut -f --add-drivers "$hv_drivers" $kernel_image_path $1
+        ret=$?
+    fi
+    if [[ $ret -ne 0 ]]; then
         # We throw an error in dracut step for migration.
         # TODO: Propagate this error up and handle so Migration passes but user\CSS knows step to take.
         # This will be a multi phase \ step error code bitmap. Since steps are independent of 
@@ -769,7 +966,9 @@ modify_grub_config()
     [[ ! -f $_grub_path ]] && _grub_path="$chroot_path/boot/grub/grub.conf"
     echo "Grub File: $_grub_path"
 
-    [[ ! -f $_grub_path ]] && throw_error $_E_AZURE_SMS_CONF_MISSING $(basename $_grub_path)
+    if [[ ! -f $_grub_path ]] && [[ $failover_operation != "recovery" ]]; then
+        throw_error $_E_AZURE_SMS_CONF_MISSING $(basename $_grub_path)
+    fi
         
     remove_grub_cmd_options "$opts_to_remove" $_grub_path
     add_grub_cmd_options "$opts_to_add" $_grub_path
@@ -801,7 +1000,9 @@ modify_grub2_config()
 
     echo "Grub File: $_grub2_path Setting Name: $2 Add: $1 Remove: $3"
     [[ ! -f $_grub2_path ]] && _grub2_path="$chroot_path/boot/grub/grub.cfg"
-    [[ ! -f $_grub2_path ]] && throw_error $_E_AZURE_SMS_CONF_MISSING $(basename $_grub2_path)
+    if [[ ! -f $_grub2_path ]] && [[ $failover_operation != "recovery" ]]; then
+        throw_error $_E_AZURE_SMS_CONF_MISSING $(basename $_grub2_path)
+    fi
     
     modify_grub2_config_helper "$1" "$2" "$3" $_grub2_path
 
@@ -842,6 +1043,8 @@ modify_grub2_config_helper()
 
 update_vm_repositories()
 {
+    trace "Updating repositories in ${chroot_path}."
+
     case $src_distro in
         CENTOS6*)
             # Bullet 8 - https://docs.microsoft.com/en-us/azure/virtual-machines/linux/create-upload-centos#centos-6x
@@ -877,13 +1080,26 @@ update_vm_repositories()
         OL7*)
             # https://public-yum.oracle.com/public-yum-ol7.repo
             # https://docs.microsoft.com/en-us/azure/virtual-machines/linux/oracle-create-upload-vhd#oracle-linux-installation-notes
-            sources_list_file="$chroot_path/etc/yum.repos.d/public-yum-ol7.repo"
-            backup_file $sources_list_file
-            copy_file "/usr/local/AzureRecovery/public-yum-ol6.repo" "$sources_list_file"
+            sources_list_dir="$chroot_path/etc/yum.repos.d"
+            sources_list_file="${sources_list_dir}/public-yum-ol7.repo"
+            
+            echo -e "\nList of the repository configuration files in the /etc/yum.repos.d directory:" >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+            execute_chroot_command "ls /etc/yum.repos.d"
+
+            if backup_and_clean_repo "$sources_list_dir"; then
+                copy_file "/usr/local/AzureRecovery/public-yum-ol7.repo" "$sources_list_file"
+            else
+                execute_chroot_command "yum install yum-utils"
+                execute_chroot_command "yum-config-manager --enable ol7_addons"
+            fi
         ;;
         OL8*)
             # Not documented. Replicated from VM created through platform image.
-            sources_list_file="$chroot_path/etc/yum.repos.d/public-yum-ol8.repo"
+            sources_list_file="$chroot_path/etc/yum.repos.d/oracle-linux-ol8.repo"
+
+            echo -e "\nList of the repository configuration files in the /etc/yum.repos.d directory:" >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+            execute_chroot_command "ls /etc/yum.repos.d"
+
             backup_file $sources_list_file
             copy_file "/usr/local/AzureRecovery/public-yum-ol8.repo" "$sources_list_file"
         ;;
@@ -893,31 +1109,114 @@ update_vm_repositories()
             backup_file $sources_list_file
             copy_file "/usr/local/AzureRecovery/public-yum-ol9.repo" "$sources_list_file"
         ;;
+        ROCKY8*)
+            # Not documented. Replicated from VM created through platform image.
+            baseos_repo_file="$chroot_path/etc/yum.repos.d/Rocky-BaseOS.repo"
+            appstream_repo_file="$chroot_path/etc/yum.repos.d/Rocky-AppStream.repo"
+
+            echo -e "\nList of the repository configuration files in the /etc/yum.repos.d directory:" >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+            execute_chroot_command "ls /etc/yum.repos.d"
+
+            # Backup and replace BaseOS repo
+            backup_file $baseos_repo_file
+            copy_file "/usr/local/AzureRecovery/Rocky8-BaseOS.repo" "$baseos_repo_file"
+
+            # Backup and replace AppStream repo
+            backup_file $appstream_repo_file
+            copy_file "/usr/local/AzureRecovery/Rocky8-AppStream.repo" "$appstream_repo_file"
+
+        ;;
+        ROCKY9*)
+            # Not documented. Replicated from VM created through platform image.
+            sources_list_file="$chroot_path/etc/yum.repos.d/rocky.repo"
+
+            echo -e "\nList of the repository configuration files in the /etc/yum.repos.d directory:" >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+            execute_chroot_command "ls /etc/yum.repos.d"
+
+            backup_file $sources_list_file
+            copy_file "/usr/local/AzureRecovery/ROCKY9.repo" "$sources_list_file"
+        ;;
         UBUNTU*)
             # https://docs.microsoft.com/en-us/azure/virtual-machines/linux/create-upload-ubuntu#manual-steps
             sources_list_file="$chroot_path/etc/apt/sources.list"
-            copy_file "$sources_list_file" "$(sources_list_file)_azr_sms_bak"
+            copy_file "$sources_list_file" "${sources_list_file}_azr_sms_bak"
             sed -i 's/http:\/\/archive\.ubuntu\.com\/ubuntu\//http:\/\/azure\.archive\.ubuntu\.com\/ubuntu\//g' "$sources_list_file"
             sed -i 's/http:\/\/[a-z][a-z]\.archive\.ubuntu\.com\/ubuntu\//http:\/\/azure\.archive\.ubuntu\.com\/ubuntu\//g' "$sources_list_file"
+        ;;
+        ALMA8*)
+            # Not documented. Replicated from VM created through platform image.
+            sources_list_file="$chroot_path/etc/yum.repos.d/almalinux.repo"
+
+            echo -e "\nList of the repository configuration files in the /etc/yum.repos.d directory:" >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+            execute_chroot_command "ls /etc/yum.repos.d"
+
+            backup_file $sources_list_file
+            copy_file "/usr/local/AzureRecovery/ALMA8.repo" "$sources_list_file"
+        ;;
+        ALMA9*)
+            # Not documented. Replicated from VM created through platform image.
+            baseos_repo_file="$chroot_path/etc/yum.repos.d/almalinux-baseos.repo"
+            appstream_repo_file="$chroot_path/etc/yum.repos.d/almalinux-appstream.repo"
+
+            echo -e "\nList of the repository configuration files in the /etc/yum.repos.d directory:" >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+            execute_chroot_command "ls /etc/yum.repos.d"
+
+            # Backup and replace BaseOS repo
+            backup_file $baseos_repo_file
+            copy_file "/usr/local/AzureRecovery/ALMA9-baseos.repo" "$baseos_repo_file"
+
+            # Backup and replace AppStream repo
+            backup_file $appstream_repo_file
+            copy_file "/usr/local/AzureRecovery/ALMA9-appstream.repo" "$appstream_repo_file"
+        ;;
+        ALMA10*)
+            # Not documented. Replicated from VM created through platform image.
+            baseos_repo_file="$chroot_path/etc/yum.repos.d/almalinux-baseos.repo"
+            appstream_repo_file="$chroot_path/etc/yum.repos.d/almalinux-appstream.repo"
+
+            echo -e "\nList of the repository configuration files in the /etc/yum.repos.d directory:" >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+            execute_chroot_command "ls /etc/yum.repos.d"
+
+            # Backup and replace BaseOS repo
+            backup_file $baseos_repo_file
+            copy_file "/usr/local/AzureRecovery/ALMA10-baseos.repo" "$baseos_repo_file"
+
+            # Backup and replace AppStream repo
+            backup_file $appstream_repo_file
+            copy_file "/usr/local/AzureRecovery/ALMA10-appstream.repo" "$appstream_repo_file"
         ;;
     esac
 }
 
 unset base_linuxga_path
-install_linux_guest_agent()
+install_guest_agent_post_boot()
 {
     ga_uuid=$(uuidgen)
     base_linuxga_path="var/ASRLinuxGA-$ga_uuid"
-	
-	if [[ ! -d $chroot_path/$base_linuxga_path ]]; then
+    
+    if [[ ! -d $chroot_path/$base_linuxga_path ]]; then
         trace "Base linux guest agent packages directory doesn't exist'. Creating $chroot_path/$base_linuxga_path"
         mkdir $chroot_path/$base_linuxga_path
     fi
-	
+    
     validate_guestagent_prereqs
-    update_vm_repositories
+
+    if ! $confidential_migration_flag && ! $enable_inline_ga_installation_flag && ! $enable_inline_ga_installation_flag_centos; then
+        update_vm_repositories
+    fi
 
     echo "Hydration Being Performed on the VM. $(date)" >> "$chroot_path/$base_linuxga_path/ASRLinuxGA.log"
+    chroot ${chroot_path} chmod a+w "$base_linuxga_path/ASRLinuxGA.log"
+    
+    setup_tool_install="install_setup_tools_false"
+    if [[ $telemetry_data == *"no-setuptools"* ]]; then
+        setup_tool_install="install_setup_tools_true"
+    fi
+
+    distro_module_install="install_distro_module_false"
+    if [[ $telemetry_data == *"no-distro-module"* ]]; then
+        distro_module_install="install_distro_module_true"
+    fi
 
     # If python is absent, guest agent installation will not work.
     # We continue to push the script to target VM to facilitate easier installation
@@ -926,7 +1225,7 @@ install_linux_guest_agent()
     else
         enable_installga_chkconfig
     fi
-	
+    
     enable_postlogin_installga
 
     add_am_hydration_log "Guest agent installation logs location" "/$base_linuxga_path/ASRLinuxGA.log"
@@ -965,31 +1264,395 @@ install_linux_guest_agent()
     chmod +x $chroot_path/$base_linuxga_path/*
 }
 
+display_guest_agent_service_files()
+{
+    if [ -f "$chroot_path/usr/lib/systemd/system/waagent.service" ]; then
+        chroot "$chroot_path" bash -c "cat /usr/lib/systemd/system/waagent.service"
+    fi
+
+    if [ -f "$chroot_path/lib/systemd/system/waagent.service" ]; then 
+        chroot "$chroot_path" bash -c "cat /lib/systemd/system/waagent.service"
+    fi
+
+    if [ -f "$chroot_path/usr/lib/systemd/system/walinuxagent.service" ]; then
+        chroot "$chroot_path" bash -c "cat /usr/lib/systemd/system/walinuxagent.service"
+    fi
+
+    if [ -f "$chroot_path/lib/systemd/system/walinuxagent.service" ]; then 
+        chroot "$chroot_path" bash -c "cat /lib/systemd/system/walinuxagent.service"
+    fi
+}
+
+install_guest_agent_package_zip_installation()
+{
+    local agent_installation_log="$chroot_path/$base_linuxga_path/ASRLinuxGA.log"
+
+
+    echo "INFO: Agent installation using zip package being performed on the VM. $(date)" >> "$agent_installation_log"
+
+    if [[ $pythonver -eq 2 ]]; then
+        if [[ $setup_tool_install == *"install_setup_tools_true"* ]]; then
+            chroot ${chroot_path} bash -c "cd $base_linuxga_path/setuptools-33.1.1; python setup.py install" >> "$agent_installation_log" 2>&1
+        fi
+        chroot ${chroot_path} bash -c "cd $base_linuxga_path/WALinuxAgentASR/WALinuxAgent-master; python setup.py install --register-service --force" >> "$agent_installation_log" 2>&1
+    
+    elif [[ $pythonver -eq 3 ]]; then
+        if [[ $setup_tool_install == *"install_setup_tools_true"* ]]; then
+            chroot ${chroot_path} bash -c "cd $base_linuxga_path/setuptools-33.1.1; python3 setup.py install" >> "$agent_installation_log" 2>&1
+        fi
+
+        chroot ${chroot_path} bash -c "cd $base_linuxga_path/WALinuxAgentASR/WALinuxAgent-master; python3 setup.py install --register-service --force" >> "$agent_installation_log" 2>&1
+
+        echo -e "\n Displaying guest agent service file before backward compatibility changes. \n"
+        display_guest_agent_service_files
+
+        # This is for backward compatibility for Guest agent installation. The service file may exist at 2 locations and 2 possible names.
+        # There are some guest agent installation binaries which fail to replace python version with the appropriate python version (3) after installation.
+        # Replace python with python3 for the python path. The space after ExecStart=/usr/bin/python ensures that 
+        # if python3 is already added in the path, python string won't be replaced.
+        if [ -f "$chroot_path/bin/waagent" ]; then
+            chroot "$chroot_path" bash -c "sed 's_#!/usr/bin/env python_#!/usr/bin/env python3_' /bin/waagent > /usr/sbin/waagent"
+        fi
+        if [ -f "$chroot_path/usr/lib/systemd/system/waagent.service" ]; then
+            chroot "$chroot_path" bash -c "sed -i 's_ExecStart=/usr/bin/python _ExecStart=/usr/bin/python3 _' /usr/lib/systemd/system/waagent.service"
+        fi
+        if [ -f "$chroot_path/lib/systemd/system/waagent.service" ]; then 
+            chroot "$chroot_path" bash -c "sed -i 's_ExecStart=/usr/bin/python _ExecStart=/usr/bin/python3 _' /lib/systemd/system/waagent.service"
+        fi
+        if [ -f "$chroot_path/usr/lib/systemd/system/walinuxagent.service" ]; then
+            chroot "$chroot_path" bash -c "sed -i 's_ExecStart=/usr/bin/python _ExecStart=/usr/bin/python3 _' /usr/lib/systemd/system/walinuxagent.service"
+        fi
+        if [ -f "$chroot_path/lib/systemd/system/walinuxagent.service" ]; then 
+            chroot "$chroot_path" bash -c "sed -i 's_ExecStart=/usr/bin/python _ExecStart=/usr/bin/python3 _' /lib/systemd/system/walinuxagent.service"
+        fi
+
+    else
+        trace "Error: Unsupported Python version for Guest Agent installation using Zip package."
+        return
+    fi
+
+    echo -e "\n Displaying guest agent service file after backward compatibility changes, if required. \n"
+    display_guest_agent_service_files
+
+    # Make waagent as executable file.
+    if [ -f "${chroot_path}/usr/sbin/waagent" ]; then
+        chroot ${chroot_path} chmod +x /usr/sbin/waagent >> "$agent_installation_log" 2>&1
+    elif [ -f "${chroot_path}/etc/init.d/waagent" ]; then
+        chroot ${chroot_path} chmod +x /etc/init.d/waagent >> "$agent_installation_log" 2>&1
+    fi
+
+    echo -e "\n--- Guest Agent Installation Logs during Hydration for Azure Migrate Begin---\n"
+    
+    if [ -f "${agent_installation_log}" ]; then
+        cat "${agent_installation_log}"
+    else
+        echo "No Guest Agent Installation Logs found."
+    fi
+
+    echo -e "\n--- Guest Agent Installation Logs during Hydration End---\n"
+}
+
+install_guest_agent_package()
+{
+    local package="Azure Linux Agent (the guest extensions handler) package"
+    trace "Installing $package in ${chroot_path}."
+    echo -e "\nInstalling $package in ${chroot_path}." >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+
+    local error_code=0
+
+    case "${src_distro}" in
+        "UBUNTU"*)
+            execute_chroot_command "apt-get install -y cloud-init gdisk netplan.io walinuxagent" || error_code=$?
+            ;;
+        "CENTOS7"*|"OL7"*)
+            execute_chroot_command "yum install -y python-pyasn1 WALinuxAgent" || error_code=$?
+            execute_chroot_command "yum install -y cloud-init cloud-utils-growpart gdisk hyperv-daemons" || error_code=$?
+            ;;
+        "OL"*)
+            execute_chroot_command "dnf install -y python3-pyasn1 WALinuxAgent" || error_code=$?
+            execute_chroot_command "dnf install -y cloud-init cloud-utils-growpart gdisk hyperv-daemons" || error_code=$?
+            ;;
+        "ROCKY"*|"ALMA"*)
+            execute_chroot_command "dnf install -y WALinuxAgent" || error_code=$?
+            execute_chroot_command "dnf install -y cloud-init cloud-utils-growpart gdisk hyperv-daemons" || error_code=$?
+            ;;
+        *)
+            local function_name="${FUNCNAME[0]}"
+            trace "Warning: ${src_distro} is not supported for '${function_name}' capability."
+            error_code=1
+            ;;
+    esac
+
+    return $error_code
+}
+export -f install_guest_agent_package
+
+enable_linux_guest_agent()
+{
+    local error_code=0
+    echo -e "\nEnabling the linux guest agent service in ${chroot_path}." >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+
+    case "${src_distro}" in
+        "UBUNTU"*)
+            execute_chroot_command "systemctl enable walinuxagent.service" || error_code=$?
+            execute_chroot_command "systemctl enable cloud-init.service" || error_code=$?
+            ;;
+        "CENTOS"*|"OL"*|"ROCKY"*|"ALMA"*)
+            execute_chroot_command "systemctl enable waagent.service" || error_code=$?
+            execute_chroot_command "systemctl enable cloud-init.service" || error_code=$?
+            ;;
+        *)
+            local function_name="${FUNCNAME[0]}"
+            trace "Warning: ${src_distro} is not supported for '${function_name}' capability."
+            error_code=1
+            ;;
+    esac
+
+    return $error_code
+}
+
+setup_cloud_init_provision_using_azure()
+{
+    local error_code=0
+
+    execute_chroot_command "cat > /etc/cloud/cloud.cfg.d/90_dpkg.cfg << EOF
+datasource_list: [ Azure ]
+EOF" || error_code=$?
+
+    execute_chroot_command "cat > /etc/cloud/cloud.cfg.d/90-azure.cfg << EOF
+system_info:
+   package_mirrors:
+     - arches: [i386, amd64]
+       failsafe:
+         primary: http://archive.ubuntu.com/ubuntu
+         security: http://security.ubuntu.com/ubuntu
+       search:
+         primary:
+           - http://azure.archive.ubuntu.com/ubuntu/
+         security: []
+     - arches: [armhf, armel, default]
+       failsafe:
+         primary: http://ports.ubuntu.com/ubuntu-ports
+         security: http://ports.ubuntu.com/ubuntu-ports
+EOF" || error_code=$?
+
+    return $error_code
+}
+
+setup_cloud_init_provision_using_azure_centos()
+{
+    local error_code=0
+
+    trace "Adding mounts and disk_setup to init stage."
+
+    execute_chroot_command "sed -i '/ - mounts/d' /etc/cloud/cloud.cfg" || error_code=$?
+    execute_chroot_command "sed -i '/ - disk_setup/d' /etc/cloud/cloud.cfg" || error_code=$?
+    execute_chroot_command "sed -i '/cloud_init_modules/a\\ - mounts' /etc/cloud/cloud.cfg" || error_code=$?
+    execute_chroot_command "sed -i '/cloud_init_modules/a\\ - disk_setup' /etc/cloud/cloud.cfg" || error_code=$?
+
+    trace "Allow only Azure datasource, disable fetching network setting via IMDS."
+
+    execute_chroot_command "cat > /etc/cloud/cloud.cfg.d/91-azure_datasource.cfg << EOF
+datasource_list: [ Azure ]
+datasource:
+   Azure:
+     apply_network_config: False
+EOF" || error_code=$?
+
+    trace "Add console log file."
+
+    execute_chroot_command "cat > /etc/cloud/cloud.cfg.d/05_logging.cfg << EOF
+# This tells cloud-init to redirect its stdout and stderr to
+# 'tee -a /var/log/cloud-init-output.log' so the user can see output
+# there without needing to look on the console.
+output: {all: '| tee -a /var/log/cloud-init-output.log'}
+EOF" || error_code=$?
+
+    return $error_code
+}
+
+configure_azure_linux_agent_for_cloud_init()
+{
+    local error_code=0
+
+    if [ -f "${chroot_path}/etc/waagent.conf" ]; then
+        execute_chroot_command "sed -i 's/Provisioning.Enabled=y/Provisioning.Enabled=n/g' /etc/waagent.conf" || error_code=$?
+        execute_chroot_command "sed -i 's/Provisioning.UseCloudInit=y/Provisioning.UseCloudInit=n/g' /etc/waagent.conf" || error_code=$?
+        execute_chroot_command "sed -i 's/ResourceDisk.Format=y/ResourceDisk.Format=n/g' /etc/waagent.conf" || error_code=$?
+        execute_chroot_command "sed -i 's/ResourceDisk.EnableSwap=y/ResourceDisk.EnableSwap=n/g' /etc/waagent.conf" || error_code=$?
+        execute_chroot_command "cat >> /etc/waagent.conf << EOF
+Provisioning.Agent=disabled
+EOF" || error_code=$?
+    else
+        trace "Error: The configuration file /etc/waagent.conf is not present."
+        error_code=1
+    fi
+
+    return $error_code
+}
+
+remove_cloud_init_configs()
+{
+    local error_code=0
+
+    execute_chroot_command "rm -f /etc/cloud/cloud.cfg.d/50-curtin-networking.cfg /etc/cloud/cloud.cfg.d/curtin-preserve-sources.cfg \
+				/etc/cloud/cloud.cfg.d/99-installer.cfg /etc/cloud/cloud.cfg.d/subiquity-disable-cloudinit-networking.cfg" || error_code=$?
+    execute_chroot_command "rm -f /etc/cloud/ds-identify.cfg" || error_code=$?
+    
+    return $error_code
+}
+
+configure_cloud_init_for_provisioning()
+{
+    trace "Configuring cloud-init to provision the system."
+    echo -e "\nConfiguring cloud-init to provision the system." >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+
+    local error_code=0
+
+    trace "Removing cloud-init default configs that may conflict with cloud-init provisioning on Azure."
+    execute_and_trace_function "remove_cloud_init_configs" || error_code=$?
+
+    trace "Configuring cloud-init to provision the system using the Azure datasource."
+    execute_and_trace_function "setup_cloud_init_provision_using_azure" || error_code=$?
+
+    trace "Configuring the Azure Linux agent to rely on cloud-init to perform provisioning."
+    execute_and_trace_function "configure_azure_linux_agent_for_cloud_init" || error_code=$?
+
+    return $error_code
+}
+
+configure_cloud_init_for_provisioning_centos()
+{
+    trace "Configuring cloud-init to provision the system."
+    echo -e "\nConfiguring cloud-init to provision the system." >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+
+    local error_code=0
+
+    trace "Configuring cloud-init to provision the system using the Azure datasource."
+    execute_and_trace_function "setup_cloud_init_provision_using_azure_centos" || error_code=$?
+
+    trace "Configuring the Azure Linux agent to rely on cloud-init to perform provisioning."
+    execute_and_trace_function "configure_azure_linux_agent_for_cloud_init" || error_code=$?
+
+    return $error_code
+}
+
+clean_agent_runtime_artifacts_logs()
+{
+    local error_code=0
+
+    trace "Cleaning cloud-init and Azure Linux agent runtime artifacts and logs."
+    echo -e "\nCleaning cloud-init and Azure Linux agent runtime artifacts and logs." >> "${_AM_SCRIPT_CVM_LOG_FILE_}" 2>&1
+
+    execute_chroot_command "cloud-init clean --logs --seed" || error_code=$?
+    execute_chroot_command "rm -rf /var/lib/cloud/" || error_code=$?
+    execute_chroot_command "rm -rf /var/lib/waagent/" || error_code=$?
+    execute_chroot_command "rm -f /var/log/waagent.log" || error_code=$?
+
+    return $error_code
+}
+
+install_guest_agent_pre_boot()
+{
+    local error_code=0
+
+    case "${src_distro}" in
+        "UBUNTU"*)
+            execute_and_trace_function "timeout --foreground 600s bash -c 'install_guest_agent_package'" || {
+                error_code=$?
+                trace "Error: Azure Linux Agent (the guest extensions handler) package installation failed."
+                add_telemetry_data "waagent"
+                execute_and_trace_function "install_guest_agent_package_zip_installation"
+            }
+            execute_and_trace_function "enable_linux_guest_agent" || error_code=$?
+            execute_and_trace_function "configure_cloud_init_for_provisioning" || error_code=$?
+            execute_and_trace_function "clean_agent_runtime_artifacts_logs" || error_code=$?
+            ;;
+        "CENTOS"*|"OL"*|"ROCKY"*|"ALMA"*)
+            execute_and_trace_function "timeout --foreground 600s bash -c 'install_guest_agent_package'" || {
+                error_code=$?
+                trace "Error: Azure Linux Agent (the guest extensions handler) package installation failed."
+                add_telemetry_data "waagent"
+                execute_and_trace_function "install_guest_agent_package_zip_installation"
+            }
+            execute_and_trace_function "enable_linux_guest_agent" || error_code=$?
+            execute_and_trace_function "configure_cloud_init_for_provisioning_centos" || error_code=$?
+            execute_and_trace_function "clean_agent_runtime_artifacts_logs" || error_code=$?
+            ;;
+        "RHEL"*)
+            execute_and_trace_function "install_guest_agent_package_zip_installation"
+            ;;
+        *)
+            local function_name="${FUNCNAME[0]}"
+            trace "Warning: ${src_distro} is not supported for '${function_name}' capability."
+            ;;
+    esac
+
+    if [[ $error_code -ne 0 ]]; then
+        trace "Error: One or more commands/functions failed in install_guest_agent_pre_boot."
+        add_telemetry_data "guest_agent"
+    fi
+}
+
 configure_dhcp_rhel()
 {
-    local ifcfg_dir="$chroot_path/etc/sysconfig/network-scripts"
     
-    # move the existing cscfg files to backup.
-    for _file in $(ls $ifcfg_dir/ifcfg-*)
-    do
-        local ifcfg_file=$(basename $_file)
+    if [ -d "$chroot_path/etc/NetworkManager/system-connections" ]; then
+      
+        local nm_connections_dir="$chroot_path/etc/NetworkManager/system-connections"
+
+        # Backup existing NetworkManager connection profiles
+        for _file in "$nm_connections_dir"/*.nmconnection; do
+            local nm_file=$(basename "$_file")
+            [[ "$nm_file" = "lo.nmconnection" ]] && continue
+            mv "$_file" "$backup_dir/$nm_file.bak"
+        done
+
+        # Create a default DHCP connection profile for eth0
+        local default_dhcp_profile="$nm_connections_dir/eth0.nmconnection"
+        cat <<EOF > "$default_dhcp_profile"
+[connection]
+id=eth0
+type=ethernet
+interface-name=eth0
+autoconnect=true
+
+[ipv4]
+method=auto
+
+[ipv6]
+method=ignore
+EOF
+
+        # Set proper permissions
+        chmod 600 "$default_dhcp_profile"
+
+ 
+    else
+        local ifcfg_dir="$chroot_path/etc/sysconfig/network-scripts"
         
-        # ignore loop back ifcfg.
-        [[ "$ifcfg_file" = "ifcfg-lo" ]] && continue
+        # move the existing cscfg files to backup.
+        for _file in $(ls $ifcfg_dir/ifcfg-*)
+        do
+            local ifcfg_file=$(basename $_file)
+            
+            # ignore loop back ifcfg.
+            [[ "$ifcfg_file" = "ifcfg-lo" ]] && continue
+            
+            ifcfg_file="$ifcfg_dir/$ifcfg_file"
+            move_to_backup_dir $ifcfg_file
+        done
         
-        ifcfg_file="$ifcfg_dir/$ifcfg_file"
-        move_to_backup_dir $ifcfg_file
-    done
-    
-    local default_dhcp_cscfg="$ifcfg_dir/ifcfg-eth0"
-    echo "DEVICE=eth0" > $default_dhcp_cscfg
-    echo "ONBOOT=yes" >> $default_dhcp_cscfg
-    echo "DHCP=yes" >> $default_dhcp_cscfg
-    echo "BOOTPROTO=dhcp" >> $default_dhcp_cscfg
-    echo "TYPE=Ethernet" >>  $default_dhcp_cscfg
-    echo "USERCTL=no" >>  $default_dhcp_cscfg
-    echo "PEERDNS=yes" >>  $default_dhcp_cscfg
-    echo "IPV6INIT=no" >> $default_dhcp_cscfg
+        local default_dhcp_cscfg="$ifcfg_dir/ifcfg-eth0"
+        echo "DEVICE=eth0" > $default_dhcp_cscfg
+        echo "ONBOOT=yes" >> $default_dhcp_cscfg
+        echo "DHCP=yes" >> $default_dhcp_cscfg
+        echo "BOOTPROTO=dhcp" >> $default_dhcp_cscfg
+        echo "TYPE=Ethernet" >>  $default_dhcp_cscfg
+        echo "USERCTL=no" >>  $default_dhcp_cscfg
+        echo "PEERDNS=yes" >>  $default_dhcp_cscfg
+        echo "IPV6INIT=no" >> $default_dhcp_cscfg
+    fi
 }
 
 configure_dhcp_sles()
@@ -1046,6 +1709,7 @@ create_dhcp_netplan_config_and_apply()
     echo "# This is generated for Azure SMS to make NICs DHCP in Azure." > $dhcp_netplan_file
     echo "network:" >> $dhcp_netplan_file
     echo "    version: 2" >> $dhcp_netplan_file
+    echo "    renderer: networkd" >> $dhcp_netplan_file
     echo "    ethernets:" >> $dhcp_netplan_file
     echo "        ephemeral:" >> $dhcp_netplan_file
     echo "            dhcp4: true" >> $dhcp_netplan_file
@@ -1068,6 +1732,46 @@ create_dhcp_netplan_config_and_apply()
     fi
 }
 
+create_dhcp_netplan_config_and_apply_v2()
+{
+    local error_code=0
+    local dhcp_netplan_file="$chroot_path/etc/netplan/50-azure_migrate_dhcp.yaml"
+    
+    if execute_chroot_command "rm -f /etc/netplan/*.yaml"; then
+        trace "Successfully removed the leftover netplan artifacts."
+    else
+        trace "WARNING: Failed to remove the leftover netplan artifacts."
+    fi
+
+    cat > "$dhcp_netplan_file" << EOF
+# This is generated for Azure SMS to make NICs DHCP in Azure.
+network:
+    ethernets:
+        eth0:
+            dhcp4: true
+            dhcp6: false
+            match:
+                driver: hv_netvsc
+            set-name: eth0
+    version: 2
+EOF
+    
+    error_code=$?
+    if [ $error_code -ne 0 ]; then
+        trace "ERROR: Failed to write DHCP netplan configuration to file. Error code: ${error_code}."
+        return
+    fi
+
+    trace "Applying the dhcp netplan configuration."
+    echo -e "Applying the dhcp netplan configuration in ${chroot_path}." >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+
+    if execute_chroot_command "netplan --debug apply"; then
+        trace "netplan with dhcp settings applied!"
+    else
+        trace "WARNING: netplan couldn't apply dhcp settings."
+    fi
+}
+
 enable_network_service()
 {
     trace "Making network service to start at boot time."
@@ -1076,8 +1780,17 @@ enable_network_service()
         RHEL6*|CENTOS6*|OL6*)
             chroot $chroot_path chkconfig network on
             ;;
-        RHEL7*|CENTOS7*|RHEL8*|RHEL9*|CENTOS8*|CENTOS9*|OL7*|OL8*|OL9*)
+        RHEL7*|CENTOS7*|OL7*)
             chroot $chroot_path systemctl enable network
+            ;;
+        CENTOS*|OL*|ROCKY*|ALMA*|RHEL*)
+            if ! chroot "$chroot_path" systemctl enable network; then 
+                trace "WARNING: Failed to enable network service; enabling NetworkManager service."
+                if ! chroot "$chroot_path" systemctl enable NetworkManager.service; then 
+                    trace "WARNING: Failed to enable NetworkManager service."
+                    add_telemetry_data "no-networkservices"
+                fi
+            fi
             ;;
         *)
             # For rest no operation.
@@ -1089,14 +1802,26 @@ verify_src_os_version()
 {
     find_src_distro
     
+    export src_distro
+    
     local supported_distros="OL6 OL7 OL8 OL9 \
           RHEL6 RHEL7 RHEL8 RHEL9 \
           CENTOS6 CENTOS7 CENTOS8 CENTOS9 \
           SLES11 SLES12 SLES15 \
-          UBUNTU14 UBUNTU16 UBUNTU18 UBUNTU19 UBUNTU20 UBUNTU21 UBUNTU22 \
-          DEBIAN7 DEBIAN8 DEBIAN9 DEBIAN10 DEBIAN11 KALI-ROLLING"
+          UBUNTU14 UBUNTU16 UBUNTU18 UBUNTU19 UBUNTU20 UBUNTU21 UBUNTU22 UBUNTU24 \
+          ROCKY8 ROCKY9 ALMA8 ALMA9\
+          DEBIAN7 DEBIAN8 DEBIAN9 DEBIAN10 DEBIAN11 DEBIAN12 KALI-ROLLING"
 
     add_am_hydration_log "Identified OS Version" $src_distro
+
+    additional_supported_distros=$(echo "$hydration_config_settings" | grep -oP 'HydrationSupportedDistros:\K[^;]+')
+
+    IFS='|' read -ra new_distros <<< "$additional_supported_distros"
+
+    for distro in "${new_distros[@]}"; 
+    do
+        supported_distros+=" $distro"
+    done
 
     for distro in $supported_distros
     do
@@ -1106,7 +1831,7 @@ verify_src_os_version()
     throw_error $_E_AZURE_SMS_OS_UNSUPPORTED $src_distro
 }
 
-verify_requited_tools()
+verify_required_tools()
 {
     # Prereqs:
     # Kernel image update with hyper-V drivers: dracut/mkinitrd, lsinitrd, modinfo
@@ -1195,7 +1920,6 @@ verify_uefi_bootloader_files()
     else
         trace "Boot folder verification not required for BIOS."
     fi
-
 }
 
 #@1 - Kernel version
@@ -1225,7 +1949,7 @@ mkinitrd_generate_initrd_image()
 verify_generate_initrd_images()
 {
     case "$src_distro" in
-    UBUNTU14*|UBUNTU16*|UBUNTU18*|UBUNTU19*|UBUNTU20*|UBUNTU21*|UBUNTU22*|DEBIAN*|KALI-ROLLING*)
+    UBUNTU*|DEBIAN*|KALI-ROLLING*)
         # Supported Ubuntu & Debian distros will have
         # hyper-v drivers build-in to the kernel image,
         # so skipping this step for these distros.
@@ -1332,6 +2056,69 @@ append_config_line_parameter()
     fi
 }
 
+# $1 - Pattern to match in the file
+# $2 - Value to append or replace
+# $3 - File name
+append_or_replace_line_parameter()
+{
+    local _line_number=$(sed -n "/$1/=" "$3")
+    if [[ ! -z $_line_number ]]; then
+        local _existing_line=$(sed -n "${_line_number}p" "$3")
+        trace "Pattern '$1' is already present in $3. Existing line: $_existing_line. Replacing the line with $2."
+        sed -i "${_line_number}s/.*/$2/" "$3"
+    else
+        trace "Pattern '$1' is absent in $3. Appending the line: $2."
+        echo -e "\n$2" >> "$3"
+    fi
+}
+
+# $1 - Grub file path
+modify_grub_serial_output_settings_helper()
+{
+    if [ ! -f "$1" ]; then
+        trace "Grub file not found at path: $1. Cannot update serial output settings."
+        return 1
+    fi
+
+    case $src_distro in
+        ROCKY*|RHEL*|CENTOS*|OL*|ALMA*)
+            trace "Updating grub configuration for serial and terminal output settings."
+            append_or_replace_line_parameter "^serial" "serial --speed=115200 --unit=0 --word=8 --parity=no --stop=1" $1
+            append_or_replace_line_parameter "^terminal_input" "terminal_input serial console" $1
+            append_or_replace_line_parameter "^terminal_output" "terminal_output serial console" $1
+            ;;
+        *)
+            local function_name="${FUNCNAME[0]}"
+            trace "Information: ${src_distro} is not supported for '${function_name}' capability."
+            return 1
+            ;;
+    esac
+}
+
+modify_grub_serial_output_settings()
+{
+    local error_code=0
+    case $src_distro in
+        ROCKY8*|RHEL8*|CENTOS8*|OL8*|ALMA8*)
+            if [ "$firmware_type" = "UEFI" ]; then
+                modify_grub_serial_output_settings_helper "$_grub2_efi_path/grub.cfg" || error_code=$?
+            else
+                modify_grub_serial_output_settings_helper "${chroot_path}/boot/grub2/grub.cfg" || error_code=$?
+            fi
+            ;;
+        ROCKY*|RHEL*|CENTOS*|OL*|ALMA*)
+            modify_grub_serial_output_settings_helper "${chroot_path}/boot/grub2/grub.cfg" || error_code=$?
+            ;;
+        *)
+            local function_name="${FUNCNAME[0]}"
+            trace "Warning: ${src_distro} is not supported for '${function_name}' capability."
+            error_code=1
+            ;;
+    esac
+    return $error_code
+}
+
+
 # Enable Getty on ttyS0 for SLES11
 set_sles11_inittab()
 {
@@ -1344,7 +2131,7 @@ set_serial_console_grub_options()
     trace "Updating boot grub options to redirect serial console logs ..."
     
     local opts_to_remove="rhgb quiet crashkernel=auto acpi=0"
-    local opts_to_add="rootdelay=300 earlyprintk=ttyS0 console=ttyS0 numa=off"
+    local opts_to_add="rootdelay=150 earlyprintk=ttyS0 console=ttyS0 numa=off"
     case $src_distro in
     RHEL6*|CENTOS6*|OL6*)
         modify_grub_config "$opts_to_add" "$opts_to_remove"
@@ -1353,8 +2140,8 @@ set_serial_console_grub_options()
         modify_grub_config "$opts_to_add" "$opts_to_remove"
         set_sles11_inittab
         ;;
-    UBUNTU14*|UBUNTU16*|UBUNTU18*|UBUNTU19|UBUNTU20*|UBUNTU21*|UBUNTU22*)
-        opts_to_add="splash quiet rootdelay=300 earlyprintk=ttyS0,115200 console=ttyS0,115200n8 console=tty1"
+    UBUNTU*)
+        opts_to_add="splash quiet rootdelay=150 earlyprintk=ttyS0,115200 console=ttyS0,115200n8 console=tty1"
         modify_grub2_config "$opts_to_add" "GRUB_CMDLINE_LINUX_DEFAULT" "$opts_to_remove"
         modify_grub2_config "$opts_to_add" "GRUB_CMDLINE_LINUX" "$opts_to_remove"
         modify_grub2_config "console serial" "GRUB_TERMINAL_OUTPUT" ""
@@ -1362,25 +2149,25 @@ set_serial_console_grub_options()
         modify_grub2_config "console serial" "GRUB_TERMINAL" ""
         ;;
     DEBIAN*|KALI-ROLLING*)
-        opts_to_add="splash quiet rootdelay=300 earlyprintk=ttyS0,115200 console=ttyS0,115200n8 console=tty1"
+        opts_to_add="splash quiet rootdelay=150 earlyprintk=ttyS0,115200 console=ttyS0,115200n8 console=tty1"
         modify_grub2_config "$opts_to_add" "GRUB_CMDLINE_LINUX_DEFAULT" "$opts_to_remove"
         modify_grub2_config "$opts_to_add" "GRUB_CMDLINE_LINUX" "$opts_to_remove"
         modify_grub2_config "console serial" "GRUB_TERMINAL_OUTPUT" ""
         modify_grub2_config "--stop=1 --parity=no --word=8 --unit=0 --speed=115200 serial" "GRUB_SERIAL_COMMAND" ""
         modify_grub2_config "console serial" "GRUB_TERMINAL" ""
         ;;
-    SLES12*|SLES15*)
-        opts_to_add="rootdelay=300 earlyprintk=ttyS0 console=ttyS0"
+    SLES*)
+        opts_to_add="rootdelay=150 earlyprintk=ttyS0 console=ttyS0"
         modify_grub2_config "$opts_to_add" "GRUB_CMDLINE_LINUX"
         modify_grub2_config "console serial" "GRUB_TERMINAL_OUTPUT" ""
         modify_grub2_config "console serial" "GRUB_TERMINAL" ""
         ;;
-    RHEL7*|CENTOS7*|OL7*|OL8*|OL9*|RHEL8*|RHEL9*|CENTOS8*|CENTOS9*)
+    RHEL7*|CENTOS7*|OL7*)
         #Following options are taken from official Azure document for RHEL7.
         #https://docs.microsoft.com/en-us/azure/virtual-machines/troubleshooting/serial-console-grub-single-user-mode#grub-access-in-rhel
         #and 
         #https://docs.microsoft.com/en-us/azure/virtual-machines/troubleshooting/serial-console-grub-proactive-configuration
-        opts_to_add="rootdelay=300 console=tty1 console=ttyS0,115200n8 earlyprintk=ttyS0,115200 earlyprintk=ttyS0 net.ifnames=0"
+        opts_to_add="rootdelay=150 console=tty1 console=ttyS0,115200n8 earlyprintk=ttyS0,115200 earlyprintk=ttyS0 net.ifnames=0"
         modify_grub2_config "$opts_to_add" "GRUB_CMDLINE_LINUX" "$opts_to_remove"
         modify_grub2_config "console serial" "GRUB_TERMINAL_OUTPUT" ""
         modify_grub2_config "--stop=1 --parity=no --word=8 --unit=0 --speed=115200 serial" "GRUB_SERIAL_COMMAND" ""
@@ -1388,10 +2175,32 @@ set_serial_console_grub_options()
         # So writing console serial which should become serial console when committed.
         modify_grub2_config "console serial" "GRUB_TERMINAL" ""
         ;;
+    ROCKY*|RHEL*|CENTOS*|OL*|ALMA*)
+        #https://learn.microsoft.com/en-us/azure/virtual-machines/linux/redhat-create-upload-vhd#rhel-8-using-hyper-v-manager
+        opts_to_add="rootdelay=150 console=tty1 console=ttyS0,115200n8 earlyprintk=ttyS0,115200 earlyprintk=ttyS0 net.ifnames=0"
+
+        if execute_chroot_command "grubby --update-kernel=ALL --args='$opts_to_add' --remove-args='$opts_to_remove'"; then
+            trace "Successfully modified kernel parameters using grubby command."
+        else
+            trace "Error: Failed to modify kernel parameters using grubby command. Error Code: $?"
+        fi
+
+        modify_grub2_config "$opts_to_add" "GRUB_CMDLINE_LINUX" "$opts_to_remove"
+        modify_grub2_config "--stop=1 --parity=no --word=8 --unit=0 --speed=115200 serial" "GRUB_SERIAL_COMMAND" ""
+        modify_grub2_config "console serial" "GRUB_TERMINAL_OUTPUT" ""
+        modify_grub2_config "console serial" "GRUB_TERMINAL" ""
+
+        if modify_grub_serial_output_settings; then
+            trace "Successfully modified grub configuration for serial and terminal output settings."
+        else
+            trace "Error: Failed to modify grub configuration for serial and terminal output settings."
+        fi
+        ;;
     *)
         throw_error $_E_AZURE_SMS_OS_UNSUPPORTED $src_distro
         ;;
     esac
+    
     trace "Successfully updated boot grub options!"
 }
 
@@ -1538,7 +2347,7 @@ enable_installga_chkconfig()
 
     echo 'case "$1" in' >> $asr_installga_exfile_path
     echo "start)" >> $asr_installga_exfile_path
-    echo "bash /$base_linuxga_path/InstallLinuxGuestAgent.sh $src_distro \"$base_linuxga_path\" $setup_tool_install" >> $asr_installga_exfile_path
+    echo "bash /$base_linuxga_path/InstallLinuxGuestAgent.sh $src_distro \"$base_linuxga_path\" $setup_tool_install $distro_module_install" >> $asr_installga_exfile_path
     echo ";;" >> $asr_installga_exfile_path
     echo "*)" >> $asr_installga_exfile_path
     echo ";;" >> $asr_installga_exfile_path
@@ -1595,7 +2404,7 @@ add_startup_script_for_dhcp()
         RHEL6*|CENTOS6*|OL6*|SLES11*|UBUNTU14*|DEBIAN7*)
             enable_chkconfig_on_startupscript
             ;;
-        SLES12*|SLES15*|DEBIAN8*|DEBIAN9*|DEBIAN10*|DEBIAN11*|KALI-ROLLING*|RHEL7*|RHEL8*|RHEL9*|CENTOS7*|CENTOS8*|CENTOS9*|OL7*|OL8*|OL9*|UBUNTU16*|UBUNTU18*|UBUNTU19*|UBUNTU20*|UBUNTU21*|UBUNTU22*)
+        SLES*|DEBIAN*|KALI-ROLLING*|RHEL*|CENTOS*|OL*|UBUNTU*|ROCKY*|ALMA*)
             enable_systemd_on_startupscipt
             ;;
         *)
@@ -1622,11 +2431,11 @@ enable_postlogin_installga()
         echo "echo \"The service may prompt you to login using elevated bash shell for installation to proceed.\"" >> $target_profiled_file
         echo "echo \"You can skip the installation, and can install manually, or retrigger the service by running\"" >> $target_profiled_file
         echo "echo \"systemctl start asr-installga or service asr-installga start\"" >> $target_profiled_file
-        echo "bash /$base_linuxga_path/InstallLinuxGuestAgent.sh $src_distro \"$base_linuxga_path\" $setup_tool_install >> /$base_linuxga_path/ASRLinuxGA.log" >> $target_profiled_file
+        echo "sudo bash /$base_linuxga_path/InstallLinuxGuestAgent.sh $src_distro \"$base_linuxga_path\" $setup_tool_install $distro_module_install >> /$base_linuxga_path/ASRLinuxGA.log" >> $target_profiled_file
         echo "echo \"Installation process completed. Proceed with Login.\"" >> $target_profiled_file
         echo "rm -f \"/etc/profile.d/ASRLinuxGAStartup.sh\"" >> $target_profiled_file
 
-        trace "/etc/profile.d post login startup file created."	
+        trace "/etc/profile.d post login startup file created."    
     fi
 }
 
@@ -1649,14 +2458,9 @@ enable_installga_service()
     # Write execution commands for asr.installga executable.
     trace "Creating asr.installga for execution during boot."
 
-    setup_tool_install="install_setup_tools_false"
-    if [[ $telemetry_data == *"no-setuptools"* ]]; then
-        setup_tool_install="install_setup_tools_true"
-    fi
-
     echo "#!/bin/bash" >> $chroot_path/$asr_installga_exfile_path
     echo "#This file is generated for execution during boot" >> $chroot_path/$asr_installga_exfile_path
-    echo "bash /$base_linuxga_path/InstallLinuxGuestAgent.sh $src_distro \"$base_linuxga_path\" $setup_tool_install >> /$base_linuxga_path/ASRLinuxGA.log" >> $chroot_path/$asr_installga_exfile_path
+    echo "bash /$base_linuxga_path/InstallLinuxGuestAgent.sh $src_distro \"$base_linuxga_path\" $setup_tool_install $distro_module_install >> /$base_linuxga_path/ASRLinuxGA.log" >> $chroot_path/$asr_installga_exfile_path
     echo "exit 0" >> $chroot_path/$asr_installga_exfile_path
 
     # Add executable permissions.
@@ -1719,7 +2523,7 @@ check_valid_python_version()
     else
         pythonver=3
         add_am_hydration_log "Python Version" "python3"
-		return
+        return
     fi
 
     # Check for Major version 2 and Minor Version >= 6 for Python.
@@ -1727,7 +2531,7 @@ check_valid_python_version()
     if [[ $? -ne 0 ]] ; then
         trace "Python is not installed on the target VM.\n"
         pythonver=1
-		return
+        return
     else
         vermajor=$(chroot $chroot_path python -c"import platform; major, minor, patch = platform.python_version_tuple(); print(major)")
         verminor=$(chroot $chroot_path python -c"import platform; major, minor, patch = platform.python_version_tuple(); print(minor)")
@@ -1816,6 +2620,35 @@ test_setuptools_prereq()
     rm -f $setuptools_file_path
 }
 
+test_distro_module_prereq() {
+    vermajor=$(chroot $chroot_path python3 -c"import platform; major, minor, patch = platform.python_version_tuple(); print(major)")
+    verminor=$(chroot $chroot_path python3 -c"import platform; major, minor, patch = platform.python_version_tuple(); print(minor)")
+    trace "Major Version: $vermajor Minor Version: $verminor"
+
+    distro_test_uuid=$(uuidgen)
+    distro_test_file_path="$chroot_path/$base_linuxga_path/distro-test-$distro_test_uuid.sh"
+
+    echo "try:" >> $distro_test_file_path
+    echo "    import distro" >> $distro_test_file_path
+    echo "except ImportError:" >> $distro_test_file_path
+    echo "    print('ABSENT')" >> $distro_test_file_path
+    echo "else:" >> $distro_test_file_path
+    echo "    print('PRESENT')" >> $distro_test_file_path
+
+    distro_output=$(chroot $chroot_path python3 "$base_linuxga_path/distro-test-$distro_test_uuid.sh")
+
+    if [[ "$distro_output" == "ABSENT" ]]; then
+        add_am_hydration_log "Python distro module" "ABSENT"
+        trace "distro module is absent on the VM."
+        add_telemetry_data "no-distro-module"
+    else
+        trace "distro module is present on the VM."
+    fi
+
+    rm -f $distro_test_file_path
+}
+
+
 validate_guestagent_prereqs()
 {
     check_valid_python_version
@@ -1827,6 +2660,7 @@ validate_guestagent_prereqs()
         trace "Python3 present on the source VM."
         add_telemetry_data "python3"
         test_setuptools_prereq "python3"
+        test_distro_module_prereq
     elif [[ $pythonver -eq 2 ]]; then
         trace "Python 2.6+ installed on the source VM."
         add_telemetry_data "python2"
@@ -1857,7 +2691,7 @@ fix_network_config()
         configure_dhcp_rhel
         add_startup_script_for_dhcp
     ;;
-    SLES11*|SLES12*|SLES15*)
+    SLES*)
         remove_network_manager_rpm
         update_network_dhcp_file
         configure_dhcp_sles
@@ -1868,19 +2702,24 @@ fix_network_config()
         configure_dhcp_ubuntu
         add_startup_script_for_dhcp
     ;;
-    UBUNTU18*|UBUNTU19*|UBUNTU20*|UBUNTU21*|UBUNTU22*)
+    UBUNTU*)
         remove_persistent_net_rules
-        create_dhcp_netplan_config_and_apply
+        if $confidential_migration_flag || $enable_inline_ga_installation_flag; then
+            create_dhcp_netplan_config_and_apply_v2
+        else
+            create_dhcp_netplan_config_and_apply
+        fi
     ;;
-    RHEL7*|RHEL8*|RHEL9*)
+    RHEL*)
         update_network_file
         enable_network_service
         configure_dhcp_rhel
         add_startup_script_for_dhcp
     ;;
-    CENTOS7*|OL7*|OL8*|OL9*|CENTOS8*|CENTOS9*)
+    CENTOS*|OL*|ROCKY*|ALMA*)
         reset_persistent_net_gen_rules
         update_network_file
+        enable_network_service
         configure_dhcp_rhel
         add_startup_script_for_dhcp
     ;;
@@ -1981,32 +2820,624 @@ update_root_device_uuid_in_boot_cmd()
     4<&-
 }
 
+set_global_flags_based_on_configuration()
+{
+    local confidential_migration_string="IsConfidentialVmMigration:true"
+    local enable_ga_installation_string="IsInlineGAInstallationEnabled:true"
+    local enable_centos_ga_installation_string="IsCentosInlineGAInstallationEnabled:true"
+    local partition_conversion_required_string="IsPartitionConversionRequired:true"
+
+    determine_selinux_state
+    add_telemetry_data "$selinux_state"
+
+    if [[ $hydration_config_settings =~ $confidential_migration_string ]]; then
+        cvm_supported_distros=$(echo "$hydration_config_settings" | grep -oP 'CvmSupportedDistros:\K[^;]+')
+        if [[ $src_distro =~ ^(UBUNTU20|UBUNTU22|UBUNTU24|RHEL9|ROCKY9) || $src_distro =~ ^($cvm_supported_distros) ]]; then
+            trace "Confidential VM migration is enabled." 
+            confidential_migration_flag=true
+            if [[ $hydration_config_settings =~ $partition_conversion_required_string ]]; then
+                trace "ESP partition creation is required." 
+                esp_partition_creation_required=true
+            fi
+        else
+            throw_error $_E_AZURE_SMS_OS_UNSUPPORTED "$src_distro"
+        fi
+    else
+        trace "Confidential VM migration is not enabled."
+    fi
+
+    if [[ $hydration_config_settings =~ $enable_ga_installation_string && $src_distro =~ ^(UBUNTU) ]] && \
+       ! [[ $src_distro =~ ^(UBUNTU14|UBUNTU16) ]]; then
+        trace "Guest agent installation during hydration is enabled."
+        enable_inline_ga_installation_flag=true
+    fi
+
+    if [[ $hydration_config_settings =~ $enable_centos_ga_installation_string && $src_distro =~ ^(CENTOS7|OL|ROCKY|ALMA) ]] && \
+       ! [[ $src_distro =~ ^(OL6) ]];  then
+        if [ "$selinux_state" != "enforcing" ]; then
+            trace "Guest agent installation during hydration is enabled."
+            enable_inline_ga_installation_flag_centos=true
+        fi
+    fi  
+}
+
+verfiy_firmware_type_for_cvm()
+{
+    if [ "$firmware_type" = "UEFI" ]; then
+        trace "Firmware type: $firmware_type"
+    elif [[ "$firmware_type" == "BIOS" && "$esp_partition_creation_required" == "true" ]]; then
+        trace "Firmware type: $firmware_type"
+    else
+        trace "Firmware type: $firmware_type"
+        throw_error  $_E_AZURE_UNSUPPORTED_FIRMWARE_FOR_CVM "Firmware type: $firmware_type"
+    fi
+}
+
+unset root_type
+label_rootfs()
+{  
+    trace "Labelling root file system in ${chroot_path}."    
+
+    # Find all root file systems in the chroot environment
+    root_info=$(findmnt -n -o SOURCE,FSTYPE --target "${chroot_path}/")
+    root_count=$(echo "${root_info}" | wc -l)
+
+    # Check if there is more than one root file system
+    if [ "${root_count}" -gt 1 ]; then
+        trace "Error: Multiple root file systems found in chroot ${chroot_path}."
+        throw_error  $_E_AZURE_ROOTFS_LABEL_FAILED "Multiple root file systems found in chroot ${chroot_path}."
+    fi
+
+    # Find the device name and type of the root file system
+    if [ -z "${root_info}" ]; then
+        trace "Error: Unable to find root file system in chroot ${chroot_path}."
+        throw_error  $_E_AZURE_ROOTFS_LABEL_FAILED "Unable to find root file system in chroot ${chroot_path}."
+    fi
+
+    root_device=$(echo "${root_info}" | awk '{print $1}')
+    root_type=$(echo "${root_info}" | awk '{print $2}')
+    device_type=$(lsblk -n -o TYPE "${root_device}")
+
+    # Trace the root device and file system type
+    trace "Found root file system device: ${root_device}"
+    trace "Root file system type: ${root_type}"
+    trace "Root device type: ${device_type}"
+    
+    if [ "$device_type" != "disk" ] && [ "$device_type" != "part" ]; then
+        trace "Error: Device Type is not supported. Unable to label root file system."
+        throw_error $_E_AZURE_UNSUPPORTED_DEVICE "${device_type}"
+    fi
+
+    if [ "${root_type}" != "ext4" ]; then
+        trace "Error: File system type not supported by e2label."
+        throw_error $_E_AZURE_UNSUPPORTED_FS_FOR_CVM "${root_type}"
+    fi
+
+    # Label the root file system using e2label
+    e2label "${root_device}" cloudimg-rootfs
+    if [ $? -eq 0 ]; then
+        trace "Successfully labeled root file system." 
+    else
+        trace "Error: Failed to label root file system." 
+        throw_error $_E_AZURE_ROOTFS_LABEL_FAILED "Failed to label root file system with root device: ${root_device} and type ${root_type}."
+    fi
+}
+
+create_empty_resolv_conf() {
+	local path="${chroot_path}/etc/resolv.conf"
+
+	if [ -L "$path" ]; then
+		trace "Creating an empty file at ${chroot_path}/etc/resolv.conf"
+        trace "$path is a symlink."
+		symlink_target=$(readlink "$path")
+		chroot "${chroot_path}" mkdir -p "$(dirname "$symlink_target")"
+		chroot "${chroot_path}" touch "$symlink_target"
+		trace "Created an empty file at the symlink target: ${chroot_path}/$symlink_target"
+	else
+        trace "Error: ${chroot_path}/etc/resolv.conf does not exist"
+	fi
+}
+
+mount_resolv_conf()
+{
+    trace "Mounting /etc/resolv.conf from the host to ${chroot_path}/etc/resolv.conf"
+    echo -e "Mounting /etc/resolv.conf from the host to ${chroot_path}/etc/resolv.conf" > ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+
+    case "${src_distro}" in
+        "UBUNTU"*|"CENTOS"*|"OL"*|"ROCKY"*|"ALMA"*|"RHEL"*)
+            if [ ! -e "${chroot_path}/etc/resolv.conf" ]; then
+                trace "${chroot_path}/etc/resolv.conf does not exist"
+                create_empty_resolv_conf
+            fi
+            
+            if mount --bind /etc/resolv.conf "${chroot_path}/etc/resolv.conf"; then
+                trace "Successfully mounted /etc/resolv.conf from host to ${chroot_path}/etc/resolv.conf"
+                cat "${chroot_path}/etc/resolv.conf" >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+            else
+                trace "Error: Failed to mount /etc/resolv.conf from host to ${chroot_path}/etc/resolv.conf"
+            fi
+            ;;
+        *)
+            local function_name="${FUNCNAME[0]}"
+            trace "Warning: ${src_distro} is not supported for '${function_name}' capability."
+            ;;
+    esac
+}
+
+determine_selinux_state()
+{
+    local selinux_config="${chroot_path}/etc/selinux/config"
+
+    if [ -f "$selinux_config" ]; then
+        local selinux_status=$(awk -F'=' '/^SELINUX=/ {print $2}' "$selinux_config" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
+
+        case $selinux_status in
+            enforcing|permissive|disabled)
+                selinux_state="$selinux_status"
+                trace "SELinux is in '$selinux_state' mode."
+                ;;
+            *)
+                selinux_state="unknown"
+                trace "Warning: Unknown SELinux status: $selinux_status."
+                ;;
+        esac
+    else
+        trace "SELinux configuration file is not found at $selinux_config. SELinux may not be installed or configured."
+    fi
+}
+
+recover_modular_yum_configuration()
+{
+    local package_name=$1
+    local script_path=$2
+
+    if execute_chroot_command "yum list installed ${package_name}"; then 
+        execute_chroot_command "yum -y reinstall ${package_name}"
+        if [[ -f "${chroot_path}/${script_path}" ]]; then
+            trace "${script_path} script is present in ${chroot_path}."
+            execute_chroot_command "${script_path}"
+        else
+            trace "Error: ${script_path} script is not present."
+        fi
+    else
+        trace "Package ${package_name} is not installed."
+    fi
+}
+
+update_package_manager()
+{
+    local error_code=0
+    case $src_distro in
+        UBUNTU*)
+            execute_chroot_command "apt-get update -y" || error_code=$?
+            ;;
+        CENTOS*)
+            execute_chroot_command "yum clean all" || error_code=$?
+            ;;
+        OL7*)
+            local package_name="oraclelinux-release-el7"
+            local script_path="/usr/bin/ol_yum_configure.sh"
+            execute_chroot_command "yum clean all" || error_code=$?
+            recover_modular_yum_configuration "${package_name}" "${script_path}"
+            ;;
+        OL*|ROCKY*|ALMA*)
+            execute_chroot_command "dnf clean all" || error_code=$?
+            ;;
+        *)
+            local function_name="${FUNCNAME[0]}"
+            trace "Warning: ${src_distro} is not supported for '${function_name}' capability."
+            error_code=1
+            ;;
+    esac
+
+    return $error_code
+}
+
+update_repositories_and_packages() 
+{   
+    if update_vm_repositories; then
+        trace "Successfully updated repositories in ${chroot_path}."
+    else 
+        trace "Error: Failed to update repositories in ${chroot_path}."
+    fi
+
+    trace "Updating available packages in ${chroot_path}."
+    echo -e "\nUpdating available packages in ${chroot_path}." >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+
+    if update_package_manager; then
+        trace "Successfully updated packages in ${chroot_path}."
+    else 
+        trace "Error: Failed to update packages in ${chroot_path}." 
+    fi
+}
+
+purge_grub_shim_and_kernel_packages() 
+{
+    trace "Purging grub,shim and kernel related packages in ${chroot_path}."
+    echo -e "\nPurging grub,shim and kernel related packages in ${chroot_path}." >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+    
+    if DEBIAN_FRONTEND=noninteractive chroot "${chroot_path}" apt-get -y purge --allow-remove-essential \
+        -- grub* shim* linux-*  &> /dev/null; then
+        
+        trace "Successfully purged the grub,shim and kernel related packages in ${chroot_path}."
+		
+    else
+        trace "Error: Failed to purge the grub,shim and kernel related packages in ${chroot_path}."
+    fi
+}
+
+backup_and_delete_efi_content()
+{
+    if [ ! -d "${chroot_path}/boot/efi" ]; then
+        return 0
+    fi
+
+    trace "Backing up and deleting the /boot/efi folder"
+
+    if copy_dir_to_backup "${chroot_path}/boot/efi"; then
+        trace "Successfully backed up ${chroot_path}/boot/efi folder to ${chroot_path}/boot/efi${_BCK_EXT_}"
+    else
+        trace "Error: Failed to back up ${chroot_path}/boot/efi to ${chroot_path}/boot/efi${_BCK_EXT_}"
+    fi
+
+    if execute_chroot_command "rm -rf /boot/efi/*"; then
+        trace "Successfully removed the files in /boot/efi directory in ${chroot_path}."
+    fi
+
+}
+
+install_linux_azure_fde()
+{
+    trace "Installing linux-azure-fde kernel in ${chroot_path}."
+    echo -e "\nInstalling linux-azure-fde kernel in ${chroot_path}." >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+
+    execute_chroot_command "apt-get install -y linux-azure-fde" $_E_INSTALL_LINUX_AZURE_FDE_FAILED \
+        "linux-azure-fde kernel installation failed." 
+    trace "Successfully installed linux-azure-fde kernel in ${chroot_path}."
+}
+
+install_and_configure_nullboot()
+{
+    trace "Installing and configuring nullboot in ${chroot_path}."
+    echo -e "\nInstalling and configuring nullboot in ${chroot_path}." >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+
+    execute_chroot_command "apt-get install -y nullboot" $_E_AZURE_BOOTLOADER_INSTALLATION_FAILED \
+        "Failed to install nullboot in ${chroot_path}."
+    trace "Successfully installed nullboot in ${chroot_path}."
+
+    if execute_chroot_command "mkdir -p /boot/efi/EFI/ubuntu"; then
+        trace "Successfully created /boot/efi/EFI/ubuntu directory inside chroot at ${chroot_path}"
+    fi
+
+    execute_chroot_command "nullbootctl --no-tpm --no-efivars" $_E_AZURE_BOOTLOADER_CONFIGURATION_FAILED \
+        "Failed to configure nullboot in ${chroot_path}."
+    trace "Successfully executed the command nullbootctl --no-tpm --no-efivars in ${chroot_path}."
+}
+
+#@1: Name of the disk
+run_partprobe() {
+	trace "Running partprobe command on the disk after updating the partition table."
+	
+	partprobe "$1"
+	error_code=$?
+	if [[ $error_code -ne 0 ]] ; then
+		trace "Error while running partprobe command. Error code: ${error_code}."
+	fi
+	sleep 10
+}
+
+
+setup_efi_system() {
+
+    if [[ "$firmware_type" == "UEFI" || "$setup_efi_system_flag" == "false" ]]; then
+        return 0
+    fi
+
+    trace "Setting up the EFI system partition."
+
+    mkfs -t vfat -v /dev/disk/by-partlabel/EFI-system || throw_error $_E_AZURE_ESP_PARTITION_CREATION_FAILED \
+        "ERROR: Creating file system on the ESP partition.Error code: $?."
+
+    if [ ! -d "${chroot_path}"/boot/efi ]; then
+        mkdir -p "${chroot_path}"/boot/efi
+    fi
+
+    echo -e "/dev/disk/by-partlabel/EFI-system\t/boot/efi\tvfat\tdefaults\t0\t2" >> "${chroot_path}"/etc/fstab
+
+    mount /dev/disk/by-partlabel/EFI-system "${chroot_path}"/boot/efi || \
+        throw_error $_E_AZURE_ESP_PARTITION_CREATION_FAILED "ERROR: Mounting the EFI partition failed.Error code: $?."
+        
+    trace "Successfully set up the EFI system partition."
+}
+
+create_esp_partition() {
+
+    if [ "$firmware_type" = "UEFI" ]; then
+        return 0
+    fi
+
+    trace "Creating the ESP partition on the disk"
+
+    # Check if /boot/efi is a separate partition
+    if mount | grep -q "on $chroot_path/boot/efi type"; then
+        trace "/boot/efi is a separate partition."
+
+        # Get the partition UUID for /boot/efi
+        efi_partition=$(findmnt -no UUID "$chroot_path/boot/efi")
+
+        # Check if the partition type is EFI System Partition.
+        partition_type=$(lsblk -no PARTTYPE /dev/disk/by-uuid/$efi_partition)
+        trace "Partition type: $partition_type"
+        if [[ "$partition_type" == "c12a7328-f81f-11d2-ba4b-00a0c93ec93b" ]]; then
+            trace "The partition at /boot/efi is already an EFI System Partition."
+            setup_efi_system_flag=false
+            return 0
+        else
+            trace "/boot/efi is not an EFI System Partition. Commenting its entry in /etc/fstab."
+            sed -i 's|^\(.*\s/boot/efi\s.*\)$|#\1|' "$chroot_path/etc/fstab"
+        fi
+    else
+        trace "/boot/efi is not a separate partition."
+    fi
+
+    partition_name=$(df --output=source "$chroot_path" | tail -1)
+    disk_name="/dev/$(lsblk -no pkname "$partition_name")"
+    trace "Disk name containing the root partition: $disk_name"
+
+    sgdisk -g "$disk_name" || throw_error $_E_AZURE_ESP_PARTITION_CREATION_FAILED \
+        "ERROR: Failed to convert partition table from MBR to GPT.Error code: $?."
+    run_partprobe "$disk_name"
+
+    #Checks if size of largest free block considering partition alignment is atleast 500MB
+    #Partition alignment is considered to enhance optimal performance
+    largestblock_first_sector=$(sgdisk -F "$disk_name" | tail -1)
+    largestblock_end_sector=$(sgdisk -E "$disk_name" | tail -1)
+
+    trace "First sector of the largest free block : $largestblock_first_sector"
+    trace "End sector of the largest free block : $largestblock_end_sector"
+
+    esp_partition_size=500
+    buffer_sectors=$((32 * 1024 * 1024 / 512))
+    sectors_needed=$((esp_partition_size * 1024 * 1024 / 512 + buffer_sectors))
+    ending_sector=$((largestblock_first_sector + sectors_needed - 1))
+
+    if (( ending_sector > largestblock_end_sector )); then
+        trace "Not enough space available on $disk_name."
+        throw_error  $_E_AZURE_INSUFFICIENT_SPACE_FOR_ESP_PARTITION "No enough space to create new ESP partition on the disk"
+    fi
+
+    first_sector=$(sgdisk -F "$disk_name" | tail -1)
+    trace "Starting sector of the ESP partition: $first_sector"
+    trace "Executing the sgdisk command to create and rename ESP partition"
+
+    sgdisk -g -n 0:"$first_sector":+${esp_partition_size}M -c 0:"EFI-system" \
+        -t 0:ef00 "$disk_name" || throw_error $_E_AZURE_ESP_PARTITION_CREATION_FAILED \
+        "ERROR: Failed to create ESP partition.Error code: $?."
+
+    trace "Successfully created the ESP partition."
+
+    run_partprobe "$disk_name"
+}
+
+create_device_path_file_for_cpt()
+{
+    mkdir -p /var/lib/hydration
+    local device_path_file="/var/lib/hydration/devicePath"
+    
+    if [[ -f "$device_path_file" ]]; then
+       move_to_backup "$device_path_file" || true
+    fi
+
+    partition_name=$(df --output=source "$chroot_path" | tail -1)
+    disk_name="/dev/$(lsblk -no pkname "$partition_name")"
+
+    trace "Disk name containing the os disk is : $disk_name"
+    trace "Root partition of the os disk is : $partition_name"
+
+    echo "devicePath:$disk_name" > $device_path_file
+    echo "rootDevicePath:$partition_name" >> $device_path_file
+    echo "sourceOS:$src_distro" >> $device_path_file
+
+    trace "Successfully created the device path file to be used by CPT tool."
+}
+
+install_efi_packages()
+{
+    if [ "$firmware_type" = "UEFI" ]; then
+        return 0
+    fi
+
+    trace "Installing EFI package and GRUB EFI bootloader."
+    echo -e "\nInstalling EFI package and GRUB EFI bootloader." >> ${_AM_SCRIPT_CVM_LOG_FILE_} 2>&1
+
+    execute_chroot_command "yum install grub2-efi-x64-modules efibootmgr -y" $_E_AZURE_ESP_PARTITION_CREATION_FAILED \
+        "Failed to install EFI package."
+    trace "Successfully installed EFI package."
+
+    execute_chroot_command "yum install grub2-efi shim -y" $_E_AZURE_ESP_PARTITION_CREATION_FAILED \
+        "Failed to install GRUB EFI bootloader."
+    trace "Successfully installed GRUB EFI bootloader."
+
+    execute_chroot_command "yum install gdisk dosfstools -y"
+
+    if [ -f "$chroot_path/etc/default/grub" ] && grep -q "^GRUB_DISABLE_OS_PROBER=" "$chroot_path/etc/default/grub"; then
+        sed -i 's/^GRUB_DISABLE_OS_PROBER=false/GRUB_DISABLE_OS_PROBER=true/' "$chroot_path/etc/default/grub"
+        trace "Modified GRUB_DISABLE_OS_PROBER to be equal to true in $chroot_path/etc/default/grub"
+    elif [ -f "$chroot_path/etc/default/grub" ]; then
+        echo "GRUB_DISABLE_OS_PROBER=true" >> "$chroot_path/etc/default/grub"
+        trace "Added entry of GRUB_DISABLE_OS_PROBER=true in $chroot_path/etc/default/grub"
+    fi
+
+    execute_chroot_command "grub2-mkconfig -o /boot/grub2/grub.cfg" $_E_AZURE_ESP_PARTITION_CREATION_FAILED \
+        "Failed to modify the grub configuration file."
+    trace "Successfully modified the grub configuration file."
+}
+
+prepare_for_cvm() 
+{
+    if [[ $src_distro =~ ^(RHEL|ROCKY) ]]; then
+     
+       get_firmware_type
+
+       verfiy_firmware_type_for_cvm
+
+       create_device_path_file_for_cpt
+
+       create_esp_partition
+
+       setup_efi_system
+
+       mount_runtime_partitions
+
+       mount_resolv_conf
+
+       update_repositories_and_packages
+
+       install_efi_packages
+
+       verify_required_tools
+
+       verify_generate_initrd_images
+        
+       set_serial_console_grub_options
+
+       verify_uefi_bootloader_files
+
+       update_root_device_uuid_in_boot_cmd
+
+       fix_network_config
+    
+       update_lvm_conf_to_allow_all_device_types
+
+       install_guest_agent_post_boot
+
+       install_guest_agent_pre_boot
+
+       add_installation_logs
+    
+    elif [[ $src_distro =~ ^(UBUNTU) ]]; then 
+         
+       get_firmware_type
+
+       verfiy_firmware_type_for_cvm
+
+       label_rootfs
+       
+       create_device_path_file_for_cpt
+        
+       create_esp_partition
+        
+       backup_and_delete_efi_content
+        
+       setup_efi_system
+        
+       mount_runtime_partitions
+
+       mount_resolv_conf
+
+       update_repositories_and_packages
+
+       purge_grub_shim_and_kernel_packages
+
+       install_linux_azure_fde
+
+       install_and_configure_nullboot
+
+       fix_network_config
+    
+       update_lvm_conf_to_allow_all_device_types
+
+       install_guest_agent_post_boot
+
+       install_guest_agent_pre_boot
+
+       add_installation_logs
+    fi
+
+}
+
+
+###Start: Global variable
+
+confidential_migration_flag=false
+installation_logs_added_flag=false
+enable_inline_ga_installation_flag=false
+enable_inline_ga_installation_flag_centos=false
+esp_partition_creation_required=false
+selinux_state="absent"
+setup_efi_system_flag=true
+esp_partition_size=500
+
+###End: Global variable
+
 main()
 {
     local error_in_generate_initrd_image=0
     validate_script_input "$@"
-    
+
     verify_src_os_version
 
-    get_firmware_type
+    set_global_flags_based_on_configuration
 
-    mount_runtime_partitions
-
-    verify_requited_tools
-
-    verify_generate_initrd_images
+    if $confidential_migration_flag; then
+        
+        prepare_for_cvm
     
-    set_serial_console_grub_options
+    elif $enable_inline_ga_installation_flag || $enable_inline_ga_installation_flag_centos; then
 
-    verify_uefi_bootloader_files
+        get_firmware_type
 
-    update_root_device_uuid_in_boot_cmd
+        mount_runtime_partitions
+
+        mount_resolv_conf
+
+        update_repositories_and_packages
+
+        verify_required_tools
+
+        verify_generate_initrd_images
+        
+        set_serial_console_grub_options
+
+        verify_uefi_bootloader_files
+
+        update_root_device_uuid_in_boot_cmd
+
+        fix_network_config
     
-    fix_network_config
-    
-    update_lvm_conf_to_allow_all_device_types
+        update_lvm_conf_to_allow_all_device_types
 
-    install_linux_guest_agent
+        install_guest_agent_post_boot
+
+        install_guest_agent_pre_boot
+
+        add_installation_logs
+
+    else
+
+        get_firmware_type
+
+        mount_runtime_partitions 
+
+        verify_required_tools
+
+        verify_generate_initrd_images
+        
+        set_serial_console_grub_options
+
+        verify_uefi_bootloader_files
+
+        update_root_device_uuid_in_boot_cmd
+
+        fix_network_config
+    
+        update_lvm_conf_to_allow_all_device_types
+
+        install_guest_agent_post_boot
+
+        install_guest_agent_package_zip_installation
+
+    fi
 
     # Most Hard failures will be immediately thrown.
     # Return Soft Failures, call failure checks in increasing order of priority
@@ -2014,22 +3445,28 @@ main()
 
     final_error_code="0"
     final_error_data=""
-    if [[ $telemetry_data == *"systemctl"* ]] && [[ $telemetry_data == "service" ]]; then
+    if [[ $telemetry_data == *"systemctl"* ]] && [[ $telemetry_data == *"service"* ]] && [[ $failover_operation != "recovery" ]]; then
         final_error_code="$_E_AZURE_GA_INSTALLATION_FAILED"
         final_error_data="systemctl"
     fi
 
-    if [[ $telemetry_data == *"no-python"* ]]; then
+    if [[ $telemetry_data == *"no-python"* ]] && [[ $failover_operation != "recovery" ]]; then
         final_error_code="$_E_AZURE_GA_INSTALLATION_FAILED"
         final_error_data="no-python"
     fi
 
-    if [[ $telemetry_data == *"dhclient"* ]] && [[ $telemetry_data == *"dhcpcd"* ]]; then
-        final_error_code="$_E_AZURE_ENABLE_DHCP_FAILED"
-        final_error_data="dhclient"
+    distros_with_dhcp_error=("OL6" "CENTOS6" "RHEL6")
+
+    if [[ $failover_operation != "recovery" ]]; then
+        for distro in "${distros_with_dhcp_error[@]}"; do
+            if [[ "$src_distro" == *"$distro"* ]]; then
+                final_error_code="$_E_AZURE_ENABLE_DHCP_FAILED"
+                final_error_data="dhclient"
+            fi
+        done
     fi
 
-    if [[ $telemetry_data == *"bootx64.efi"* ]]; then
+    if [[ $telemetry_data == *"bootx64.efi"* ]] && [[ $failover_operation != "recovery" ]]; then
         final_error_code="$_E_AZURE_SMS_CONF_MISSING"
         final_error_data="bootx64.efi"
     fi

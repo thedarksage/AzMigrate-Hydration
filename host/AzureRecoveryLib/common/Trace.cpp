@@ -18,6 +18,8 @@ History		:   29-5-2015 (Venu Sivanadham) - Created
 #include <sstream>
 #include <vector>
 #include <string>
+#include <map>
+#include <boost/regex.hpp>
 
 namespace LogLevelTxtMsg
 {
@@ -259,10 +261,10 @@ void Trace::TraceMsg(const char* format, ...)
     va_list args;
     va_start(args, format);
 
-    std::string msg = GetFormatedMsg(LogLevelTxtMsg::Trace, format, args);
+    std::string msg = SanitizeTraceString(GetFormatedMsg(LogLevelTxtMsg::Trace, format, args));
 
     if (s_logCallback)
-        s_logCallback(LogLevelAlways, msg.c_str());
+        s_logCallback(LogLevelTrace, msg.c_str());
     else
         s_trace.WriteToLog(msg);
     
@@ -292,7 +294,7 @@ void Trace::Warning(const char* format, ...)
     va_list args;
     va_start(args, format);
 
-    std::string msg = GetFormatedMsg(LogLevelTxtMsg::Warning, format, args);
+    std::string msg = SanitizeTraceString(GetFormatedMsg(LogLevelTxtMsg::Warning, format, args));
 
     if (s_logCallback)
         s_logCallback(LogLevelWarning, msg.c_str());
@@ -322,7 +324,7 @@ void Trace::Error(const char* format, ...)
     va_list args;
     va_start(args, format);
 
-    std::string msg = GetFormatedMsg(LogLevelTxtMsg::Error, format, args);
+    std::string msg = SanitizeTraceString(GetFormatedMsg(LogLevelTxtMsg::Error, format, args));
     
     if (s_logCallback)
         s_logCallback(LogLevelError, msg.c_str());
@@ -355,7 +357,7 @@ void Trace::Info(const char* format, ...)
     va_list args;
     va_start(args, format);
 
-    std::string msg = GetFormatedMsg(LogLevelTxtMsg::Info, format, args);
+    std::string msg = SanitizeTraceString(GetFormatedMsg(LogLevelTxtMsg::Info, format, args));
 
     if (s_logCallback)
         s_logCallback(LogLevelInfo, msg.c_str());
@@ -363,6 +365,25 @@ void Trace::Info(const char* format, ...)
         s_trace.WriteToLog(msg);
 
     va_end(args);
+}
+
+std::string Trace::SanitizeTraceString(const std::string& inputStr) {
+    std::map<std::string, std::string> loggingExclusionMarkersList;
+    loggingExclusionMarkersList["sig=([^&\"]+)"] = " MaskedSigKey ";
+    loggingExclusionMarkersList["(://)([^:@]+):([^@]+)@"] = "$1MaskedUsernamePassword@";
+
+    std::string sanitizedStr = inputStr;
+
+    for (std::map<std::string, std::string>::const_iterator it =
+        loggingExclusionMarkersList.begin();
+        it != loggingExclusionMarkersList.end(); ++it) {
+        const std::string& pattern = it->first;
+        const std::string& replacement = it->second;
+        boost::regex rg(pattern, boost::regex::icase);
+        sanitizedStr = boost::regex_replace(sanitizedStr, rg, replacement);
+    }
+
+    return sanitizedStr;
 }
 
 

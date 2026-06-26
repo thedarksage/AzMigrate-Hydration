@@ -81,7 +81,7 @@ namespace AzureStorageRest {
         try
         {
             // sas token format example :
-            // SharedAccessSignature sr=https%3a%2f%2frcmonitoringonebox.servicebus.windows.net%2fRcmMonitoringInfo-minint-au72e5b&sig=q75HSI8isgDV3pFOFDFors0V7gwnw%2btEnoriqPwST9Y%3d&se=1478758826&skn=SendPolicy
+            // https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-sas
 
             if (!boost::starts_with(m_sas_token, SHARED_ACCESS_SIGNATURE))
             {

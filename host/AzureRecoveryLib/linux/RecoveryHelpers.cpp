@@ -23,6 +23,7 @@ History     :   1-6-2015 (Venu Sivanadham) - Created
 #include "../config/HostInfoDefs.h"
 #include "../config/HostInfoConfig.h"
 #include "../config/RecoveryConfig.h"
+#include "../../AzureRecoveryUtil/command_options.h"
 
 /*
 Method      : GlobalInit
@@ -197,12 +198,14 @@ int StartMigration()
         {
             errStream << "Error mounting source system partitions. "
                 << RecoveryStatus::Instance().GetLastErrorMessge();
+
+            // We have set the error code internally, it won't be overwritten.
             retcode = E_RECOVERY_COULD_NOT_MOUNT_SYS_VOL;
             break;
         }
 
         curTaskDesc = TASK_DESCRIPTIONS::CHANGE_BOOT_NW_CONFIG;
-        if (!AR::PrepareSourceOSForAzure())
+        if (!AR::PrepareSourceOSForAzure(AR::SMS_AZURE_CHROOT, OPERATION::MIGRATION, true))
         {
             errStream << "Error preparing source OS for Azure. "
                 << RecoveryStatus::Instance().GetLastErrorMessge();
@@ -1025,46 +1028,54 @@ bool PerformPreRecoveryChanges( const std::map<std::string, std::string>& mapSrc
         }
         
         //
-        // Run pre recovery script to install the WALinuxAgent and other drivers on source system partitions.
+        // Run prepare os for azure / post rec script to install the WALinuxAgent and other drivers on source system partitions.
         // It also configures Network changes for recovering VM.
         //
-        
-        std::string rcvrScriptCmd = GetWorkingDir();
-        rcvrScriptCmd += ACE_DIRECTORY_SEPARATOR_STR;
-        rcvrScriptCmd += AZURE_PRE_RECOVERY_SCRIPT;
-        
-        std::string rcvrScriptCmdArgs = iterRoot->second.MountPoint;
-        rcvrScriptCmdArgs += " " + GetWorkingDir();
-        rcvrScriptCmdArgs += " " + GetHydrationConfigSettings();
-        
-        std::stringstream OutStream;
-        DWORD dwRet = RunCommand(rcvrScriptCmd, rcvrScriptCmdArgs, OutStream);
-        if( 0 != dwRet )
+        std::string mntPath = iterRoot->second.MountPoint;
+        if (boost::iequals(GetHydrationConfigValue(
+            GetHydrationConfigSettings(), HydrationConfig::UseMigrationHydrationScript), "false") || !IsCommonHydrationOS(mntPath))
         {
-            errorStream << "Pre Recovery script failed with error " << dwRet;
-            
-            bSuccess = false;
-            //break; //Don't break here, log Command outstream on failure as well.
-        }
+            std::string rcvrScriptCmd = GetWorkingDir();
+            rcvrScriptCmd += ACE_DIRECTORY_SEPARATOR_STR;
+            rcvrScriptCmd += AZURE_PRE_RECOVERY_SCRIPT;
 
-        std::string err_line, telemetry_data;
-        while (std::getline(OutStream, err_line))
-        {
-            boost::trim(err_line);
-            if (boost::istarts_with(err_line,
-                PrepareForAzureScript::TELEMETRY_DATA_LINE_BEGIN))
+            std::string rcvrScriptCmdArgs = iterRoot->second.MountPoint;
+            rcvrScriptCmdArgs += " " + GetWorkingDir();
+            rcvrScriptCmdArgs += " " + GetHydrationConfigSettings();
+
+            std::stringstream OutStream;
+            DWORD dwRet = RunCommand(rcvrScriptCmd, rcvrScriptCmdArgs, OutStream);
+            if (0 != dwRet)
             {
-                telemetry_data = boost::erase_first_copy(
-                    err_line,
-                    PrepareForAzureScript::TELEMETRY_DATA_LINE_BEGIN);
-                break;
+                errorStream << "Pre Recovery script failed with error " << dwRet;
+
+                bSuccess = false;
+                //break; //Don't break here, log Command outstream on failure as well.
             }
+
+            std::string err_line, telemetry_data;
+            while (std::getline(OutStream, err_line))
+            {
+                boost::trim(err_line);
+                if (boost::istarts_with(err_line,
+                    PrepareForAzureScript::TELEMETRY_DATA_LINE_BEGIN))
+                {
+                    telemetry_data = boost::erase_first_copy(
+                        err_line,
+                        PrepareForAzureScript::TELEMETRY_DATA_LINE_BEGIN);
+                    break;
+                }
+            }
+
+            RecoveryStatus::Instance().SetTelemetryData(
+                telemetry_data);
+
+            TRACE_INFO("Script Console Log:\n%s\n", OutStream.str().c_str());
         }
-
-        RecoveryStatus::Instance().SetTelemetryData(
-            telemetry_data);
-
-        TRACE_INFO("Script Console Log:\n%s\n", OutStream.str().c_str());
+        else
+        {
+            bSuccess = PrepareSourceOSForAzure(mntPath, OPERATION::RECOVERY, false);
+        }
     
     } while (false);
     
@@ -1438,6 +1449,7 @@ bool MountSourceSystemPartitions()
 
     BOOST_FOREACH(const fs_tree_entry& sft_entry, sft_entries)
     {
+        bool isSupportedFS = true;
         // root (/) is already mounted, ignore it
         // and continue with rest.
         if (boost::equals(sft_entry.mountpoint, "/"))
@@ -1452,6 +1464,15 @@ bool MountSourceSystemPartitions()
             }
 
             continue;
+        }
+
+        if (sft_entry.src_fstab_entry.IsUFSVolume() ||
+            sft_entry.src_fstab_entry.IsDazukoFSVolume() ||
+            sft_entry.src_fstab_entry.IsZFSMember())
+        {
+            TRACE_WARNING("%s has an unsupported FileSystem.\n",
+                sft_entry.mountpoint.c_str());
+            isSupportedFS = false;
         }
 
         std::stringstream mnt;
@@ -1481,9 +1502,21 @@ bool MountSourceSystemPartitions()
             TRACE_ERROR("Could not mount partition on hydration VM for: %s.\n",
                 sft_entry.src_fstab_entry.ToString().c_str());
 
-            RecoveryStatus::Instance().SetStatusErrorCode(
-                E_RECOVERY_COULD_NOT_MOUNT_SYS_VOL,
-                sft_entry.src_fstab_entry.mountpoint);
+            if (!isSupportedFS)
+            {
+                RecoveryStatus::Instance().SetStatusErrorCode(
+                    E_RECOVERY_FILE_SYSTEM_UNSUPPORTED,
+                    sft_entry.src_fstab_entry.mountpoint);
+
+                RecoveryStatus::Instance().SetCustomErrorData(
+                    sft_entry.src_fstab_entry.fstype);
+            }
+            else
+            {
+                RecoveryStatus::Instance().SetStatusErrorCode(
+                    E_RECOVERY_COULD_NOT_MOUNT_SYS_VOL,
+                    sft_entry.src_fstab_entry.mountpoint);
+            }
 
             bSuccess = false;
             break;
@@ -1591,6 +1624,70 @@ bool VerifyOSVersion(bool setError, std::string mntPath)
 }
 
 /*
+Method      : IsCommonHydrationOS
+
+Description : Verifies if the hydration of current OS should happen through common hydration script
+
+Parameters  : [in] mntPath: The mount path where the root partition of source VM is present.
+
+Return      : true on yes, otherwise false.
+
+*/
+bool IsCommonHydrationOS(std::string mntPath) {
+    bool bCommon = false;
+    TRACE_FUNC_BEGIN;
+
+    do
+    {
+        std::stringstream os_details_script;
+        os_details_script << GetWorkingDir()
+            << ACE_DIRECTORY_SEPARATOR_STR
+            << AZURE_OS_DETAILS_TGT;
+
+        std::stringstream script_args;
+        script_args << mntPath
+            << " --formated-output";
+
+        std::stringstream osDetailsScriptOut;
+        DWORD dwRet = RunCommand(os_details_script.str(),
+            script_args.str(),
+            osDetailsScriptOut);
+
+        TRACE_INFO("\n%s\n", osDetailsScriptOut.str().c_str());
+
+        if (dwRet != 0)
+        {
+            TRACE_ERROR("Could not detect source OS. Script failed with error %d\n",
+                dwRet);
+
+            break;
+        }
+
+        std::string os_version, os_details;
+        GetOSDetailsFromScriptOutput(osDetailsScriptOut,
+            os_version,
+            os_details);
+
+        std::string hydrationCommonDistros = GetHydrationConfigValue(
+            GetHydrationConfigSettings(), HydrationConfig::HydrationCommonDistros);
+        std::vector<std::string> hydration_common_distros;
+
+        boost::split(hydration_common_distros, hydrationCommonDistros, boost::is_any_of("|"));
+        BOOST_FOREACH(const std::string & distro, hydration_common_distros)
+        {
+            if (boost::istarts_with(os_version, distro))
+            {
+                bCommon = true;
+                break;
+            }
+        }
+    } while (false);
+
+    TRACE_FUNC_END;
+    return bCommon;
+}
+
+/*
 Method      : PrepareSourceOSForAzure
 
 Description : Prepares the source OS for Azure.
@@ -1600,7 +1697,7 @@ Parameters  :
 Return      : true on success, otherwise false.
 
 */
-bool PrepareSourceOSForAzure()
+bool PrepareSourceOSForAzure(std::string mntPath, std::string operationScenario, bool setErrorCode)
 {
     bool bSuccess = true;
     TRACE_FUNC_BEGIN;
@@ -1611,9 +1708,11 @@ bool PrepareSourceOSForAzure()
         << PREPARE_OS_FOR_AZURE_SCRIPT;
 
     std::stringstream pre_os_script_args;
-    pre_os_script_args << SMS_AZURE_CHROOT
+    pre_os_script_args << mntPath
         << " "
-        << GetHydrationConfigSettings();
+        << GetHydrationConfigSettings()
+        << " "
+        << operationScenario;
 
     std::stringstream scriptOut;
     DWORD dwRet = RunCommand(pre_os_script.str(),
@@ -1682,15 +1781,44 @@ bool PrepareSourceOSForAzure()
         case PrepareForAzureScript::E_ENABLE_DHCP_FAILED:
             error_code = E_RECOVERY_ENABLE_DHCP_FAILED;
             break;
+        case PrepareForAzureScript::E_AZURE_UNSUPPORTED_FS_FOR_CVM:
+            error_code = E_RECOVERY_FILE_SYSTEM_UNSUPPORTED;
+            break;
+        case PrepareForAzureScript::E_AZURE_ROOTFS_LABEL_FAILED:
+            error_code = E_RECOVERY_CVM_INTERNAL;
+            break;
+        case PrepareForAzureScript::E_INSTALL_LINUX_AZURE_FDE_FAILED:
+            error_code = E_RECOVERY_CVM_INTERNAL;
+            break;
+        case PrepareForAzureScript::E_AZURE_UNSUPPORTED_FIRMWARE_FOR_CVM:
+            error_code = E_RECOVERY_UNSUPPORTED_FIRMWARE_FOR_CVM;
+            break;
+        case PrepareForAzureScript::E_AZURE_UNSUPPORTED_DEVICE:
+            error_code = E_RECOVERY_UNSUPPORTED_DEVICE;
+            break;
+        case PrepareForAzureScript::E_AZURE_BOOTLOADER_CONFIGURATION_FAILED:
+            error_code = E_RECOVERY_CVM_INTERNAL;
+            break;
+        case PrepareForAzureScript::E_AZURE_BOOTLOADER_INSTALLATION_FAILED:
+            error_code = E_RECOVERY_CVM_INTERNAL;
+            break;
+        case PrepareForAzureScript::E_AZURE_ESP_PARTITION_CREATION_FAILED:
+            error_code = E_RECOVERY_ESP_PARTITION_CREATION_FAILED;
+            break;
+        case PrepareForAzureScript::E_AZURE_INSUFFICIENT_SPACE_FOR_ESP_PARTITION:
+            error_code = E_RECOVERY_INSUFFICIENT_SPACE_FOR_ESP_PARTITION;
+            break;
         default:
             // Any other error code is an internal error.
             error_code = E_RECOVERY_INTERNAL;
             break;
         }
 
-        RecoveryStatus::Instance().SetStatusErrorCode(
-            error_code,
-            err_data);
+        if (setErrorCode) {
+            RecoveryStatus::Instance().SetStatusErrorCode(
+                error_code,
+                err_data);
+        }
     }
 
     RecoveryStatus::Instance().SetTelemetryData(

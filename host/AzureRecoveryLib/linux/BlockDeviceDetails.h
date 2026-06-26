@@ -202,6 +202,21 @@ namespace AzureRecovery
             return boost::iequals(fstype, "btrfs");
         }
 
+        bool IsUFSVolume() const
+        {
+            return boost::iequals(fstype, "ufs");
+        }
+
+        bool IsZFSMember() const
+        {
+            return boost::iequals(fstype, "zfs_member");
+        }
+
+        bool IsDazukoFSVolume() const
+        {
+            return boost::iequals(fstype, "dazukofs");
+        }
+
         // Returns disk name if its a standard partition
         // otherwise it returns empty string.
         std::string GetDiskName() const

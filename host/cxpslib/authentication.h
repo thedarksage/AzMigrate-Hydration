@@ -703,7 +703,7 @@ protected:
         {
             unsigned char digest[MD5_DIGEST_LENGTH];
 
-            MD5((unsigned char const *)str.c_str(), str.length(), digest);
+            MD5((unsigned char const *)str.c_str(), str.length(), digest); // CodeQL [SM02689] Changing crypto breaks existing functionality
 
             std::stringstream digestStr;
 

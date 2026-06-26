@@ -1,5 +1,6 @@
 #include "stdafx.h"
 
+#include <ntddscsi.h>
 #include <winioctl.h>
 #include <Windows.h>
 #include <diskguid.h>
@@ -718,6 +719,56 @@ BOOL GetBusType(HANDLE hDisk, STORAGE_BUS_TYPE& busType, std::string& errorMessa
     return bResult;
 }
 
+BOOL GetScsiAddress(HANDLE hDisk,
+    UINT32& scsiBus,
+    UINT32& scsiLun,
+    UINT32& scsiPort,
+    UINT32& scsiTgt,
+    std::string& errorMessage)
+{
+    DebugPrintf(SV_LOG_DEBUG, "Entering %s\n", FUNCTION_NAME);
+
+    std::stringstream           ssErrorMsg;
+
+    DWORD   dwBytes;
+    SCSI_ADDRESS    scsiAddress;
+    ZeroMemory(&scsiAddress, sizeof(scsiAddress));
+
+    BOOL bResult = DeviceIoControl(hDisk,
+        IOCTL_SCSI_GET_ADDRESS,
+        NULL,
+        0,
+        &scsiAddress,
+        sizeof(scsiAddress),
+        &dwBytes,
+        NULL
+    );
+
+    if (!bResult) {
+        ssErrorMsg << "IOCTL_SCSI_GET_ADDRESS failed with error = " << GetLastError();
+        errorMessage = ssErrorMsg.str();
+        DebugPrintf(SV_LOG_ERROR, "%s\n", errorMessage.c_str());
+    }
+    else {
+        scsiPort = scsiAddress.PortNumber;
+        scsiTgt = scsiAddress.TargetId;
+        scsiBus = scsiAddress.PathId;
+        scsiLun = scsiAddress.Lun;
+
+        DebugPrintf(SV_LOG_DEBUG, "%s : scsi PortNumber: %u TargetId: %u PathId: %u Lun: %u\n",
+            FUNCTION_NAME,
+            scsiPort,
+            scsiTgt,
+            scsiBus,
+            scsiLun);
+
+
+
+    }
+
+    DebugPrintf(SV_LOG_DEBUG, "Exiting %s\n", FUNCTION_NAME);
+    return bResult;
+}
 
 std::set<ULONG>
 GetAvailableDiskIndices(

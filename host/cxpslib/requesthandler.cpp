@@ -134,7 +134,11 @@ void RequestHandler::process(HttpTraits::reply_t::ptr reply)
         request_t::iterator action(m_requests.find(m_requestInfo.m_request));
         if (m_requests.end() == action) {
             m_requestTelemetryData.SetRequestFailure(RequestFailure_UnknownRequest);
-            badRequest(AT_LOC, m_requestInfo.m_request.c_str());
+            CXPS_LOG_ERROR(AT_LOC << "(sid: " << m_sessionId << ") "
+                << m_connection->endpointInfoAsString() << ": "
+                << m_requestInfo.m_request);
+            // to avoid cross site scripting, don't include the request path in the reply
+            badRequest(AT_LOC, "bad request");
         } else {
             logRequestReceived();
             checkCfsNonSecureRequest(m_requestInfo.m_request);  // make sure request is actually allowed
@@ -2781,7 +2785,22 @@ void RequestHandler::VerifyDirAccess(std::string const& fileName, boost::filesys
         std::string fileDir = filePath.parent_path().string();
 
         // Allow read only access to agent repository directory for auto updates.
-        if ((filePath.parent_path().compare(m_serverOptions->getAgentRepositoryPath()) == 0))
+        // Also allow access to pullclient files by comparing with parent directory of agent repository
+        std::string agentRepoPath = m_serverOptions->getAgentRepositoryPath();
+        std::string pullClientsPath = m_serverOptions->getPullClientRepositoryPath();
+
+        CXPS_LOG_ERROR(AT_LOC << "fileName: " << fileName);
+        CXPS_LOG_ERROR(AT_LOC << "agentRepoPath: " << agentRepoPath);
+        CXPS_LOG_ERROR(AT_LOC << "pullClientsPath: " << pullClientsPath);
+
+        bool isAgentRepoAccess = (filePath.parent_path().compare(agentRepoPath) == 0);
+        bool isPullClientAccess = (fileName.find("pullclient") != std::string::npos) && 
+                                  (filePath.parent_path().compare(pullClientsPath) == 0);
+
+        CXPS_LOG_ERROR(AT_LOC << "isAgentRepoAccess: " << isAgentRepoAccess);
+        CXPS_LOG_ERROR(AT_LOC << "isPullClientAccess: " << isPullClientAccess);
+
+        if (isAgentRepoAccess || isPullClientAccess)
         {
             ValidateAgentRepositoryDirAccess(fileName);
         }

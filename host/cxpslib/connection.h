@@ -657,9 +657,10 @@ public:
     explicit SslConnection(boost::asio::io_service& ioService,
         std::string const& certFile,
         std::string const& keyFile,
-        std::string const& serverCertThumbprint)
+        std::string const& serverCertThumbprint,
+        std::string const& serverRolloverCertThumbprint)
         : BasicConnection<sslSocket_t>(ioService),
-        m_sslContext(ioService, certFile, keyFile, serverCertThumbprint),
+        m_sslContext(ioService, certFile, keyFile, serverCertThumbprint, serverRolloverCertThumbprint),
         m_socket(ioService, m_sslContext.context())
     {
     }

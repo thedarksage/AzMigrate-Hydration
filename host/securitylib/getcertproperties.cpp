@@ -25,13 +25,14 @@ namespace securitylib {
         X509_NAME_print_ex(output, subject, 0, 0);
         BIO_read(output, &subject_name[0], subject_name.size());
         certproperties.insert(std::pair<std::string, std::string>(SUBJECT_NAME, &subject_name[0]));
-
         BIO_reset(output);
+
         std::vector<char> issuer_name(256);
         X509_NAME* issuer = X509_get_issuer_name(cert);
         X509_NAME_print_ex(output, issuer, 0, 0);
         BIO_read(output, &issuer_name[0], issuer_name.size());
         certproperties.insert(std::pair<std::string, std::string>(ISSUER_NAME, &issuer_name[0]));
+        BIO_reset(output);
 
         int position = X509_NAME_get_index_by_NID(issuer, NID_commonName, -1);
         if (position >= 0)
@@ -50,6 +51,19 @@ namespace securitylib {
         sstream.str("");
         sstream << std::hex << X509_issuer_name_hash_old(cert);
         certproperties.insert(std::pair<std::string, std::string>(MD5_HASH, sstream.str()));
+
+        //Get expiry time of certificate
+        std::vector<char> expiry_time(50);
+        ASN1_TIME *expiry = X509_get_notAfter(cert);
+        if (!expiry) {
+            certsearchmsg << "Failed to get expiry time from certificate." << std::endl;
+            errmsg += certsearchmsg.str();
+            return certproperties;
+        }
+        ASN1_TIME_print(output, expiry);
+        BIO_read(output, &expiry_time[0], expiry_time.size());
+        certproperties.insert(std::pair<std::string, std::string>(EXPIRY_TIME, &expiry_time[0]));
+        BIO_reset(output);
 
         return certproperties;
     }

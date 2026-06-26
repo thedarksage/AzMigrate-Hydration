@@ -140,6 +140,9 @@ namespace SrcTelemetry
     const std::string LASTTAGREQTIME("LastTagReqTime");
     const std::string LOGREASON("LogReason");
 
+    const std::string NRQUEUERQBIOS("NrQueueRqBios");
+    const std::string NRQUEUERQSBIOS("NrQueueRqsBios");
+
     const std::string KERNELVERSION("KernelVersion");
     const std::string AGENTRESOURCEID("AgentResourceId");
     const std::string AGENTSOURCEGROUPID("AgentSourceGroupId");

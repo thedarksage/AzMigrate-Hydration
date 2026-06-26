@@ -6,6 +6,7 @@
 #include <boost/asio.hpp>
 #include <boost/algorithm/string.hpp>
 
+#include "configfilevalidation.h"
 
 /// \brief Http Proxy settings
 class ProxySettings
@@ -18,8 +19,23 @@ public:
         const std::string httpProtocolKey("http://");
         const std::string httpsProtocolKey("https://");
 
+        std::string validationErr;
+        if (!ValidateConfigFileSize(settingsFile, MAX_INI_CONFIG_FILE_SIZE, validationErr))
+        {
+            throw std::runtime_error("ProxySettings: " + validationErr);
+        }
+
         bpt::ptree pt;
-        bpt::ini_parser::read_ini(settingsFile, pt);
+        try
+        {
+            bpt::ini_parser::read_ini(settingsFile, pt);
+        }
+        catch (const std::exception& e)
+        {
+            throw std::runtime_error(
+                std::string("ProxySettings: Failed to parse INI file ") +
+                settingsFile + ". Error: " + e.what());
+        }
 
         m_Address = pt.get("proxy.Address", "");
         m_Port = pt.get("proxy.Port", "");

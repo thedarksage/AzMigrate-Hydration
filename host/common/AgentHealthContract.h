@@ -12,6 +12,7 @@
 #include <boost/algorithm/string/predicate.hpp>
 
 #define EVENT_SOURCE_AGENT              "SourceAgent"
+#define EVENT_SHARED_DISK_CLUSTER       "Cluster"
 #define EVENT_SEVERITY_ERROR            "Error"
 #define EVENT_SEVERITY_WARNING          "Warning"
 #define EVENT_SEVERITY_INFORMATION      "Information"
@@ -39,6 +40,14 @@ public:
         IssueCode(issueCode),
         Severity(EVENT_SEVERITY_WARNING),
         Source(EVENT_SOURCE_AGENT),
+        MessageParams(params)
+    {
+    }
+
+    HealthIssue(std::string issueCode, std::string Severity, std::string Source, std::map<std::string, std::string> params) :
+        IssueCode(issueCode),
+        Severity(Severity),
+        Source(Source),
         MessageParams(params)
     {
     }

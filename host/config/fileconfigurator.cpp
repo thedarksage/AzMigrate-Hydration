@@ -17,6 +17,7 @@
 #include "platformfileconfiguratordefs.h"
 #include "cfslocalname.h"
 #include "defaultdirs.h"
+#include "configfilevalidation.h"
 
 #ifdef SV_WINDOWS
 #include <VersionHelpers.h>
@@ -56,10 +57,17 @@ static const char KEY_PUSH_JOBRETRIES[] = "JobRetries";
 static const char KEY_PUSH_JOBRETRYINTERVAL[] = "JobRetryIntervalInSecs";
 static const char KEY_PUSH_CSJOBRETRIES[] = "CSJobRetries";
 static const char KEY_PUSH_CSJOBRETRYINTERVAL[] = "CSJobRetryIntervalInSecs";
+
 static const char KEY_DPP_USAGE_IN_PERCENTAGE[] = "DataPagePoolMemoryUsageInPercentage";
 static const char KEY_DPP_ALIGNMENT_IN_MB[] = "DataPagedPoolAlignmentInMB";
 static const char KEY_MAX_DPP_USAGE_IN_MB[] = "MaxDataPagedPoolSizeInMB";
 static const char KEY_MIN_DPP_USAGE_IN_MB[] = "MinDataPagedPoolSizeInMB";
+
+static const char KEY_DNP_USAGE_IN_PERCENTAGE[] = "DataNonPagePoolMemoryUsageInPercentage";
+static const char KEY_DNP_ALIGNMENT_IN_MB[] = "DataNonPagedPoolAlignmentInMB";
+static const char KEY_MAX_DNP_USAGE_IN_MB[] = "MaxDataNonPagedPoolSizeInMB";
+static const char KEY_MIN_DNP_USAGE_IN_MB[] = "MinDataNonPagedPoolSizeInMB";
+
 
 static const char SECTION_BACKUP_EXPRESS_CONFIGSTORE[] = "backupexpress.configstore";
 
@@ -76,7 +84,10 @@ static const char KEY_IS_AZURE_STACK_HUB_VM[] = "IsAzureStackHubVm";
 static const char KEY_SOURCE_CONTROL_PLANE[] = "SourceControlPlane";
 static const char KEY_FAILOVER_VM_BIOS_ID[] = "FailoverVmBiosId";
 static const char KEY_FAILOVER_TARGET_TYPE[] = "FailoverTargetType";
-
+static const char KEY_UNSUPPORTED_DISK_INTERFACES_ON_AZURE_ON_WINDOWS[] = "UnsupportedDiskInterfacesonAzureonWindows";
+static const char DEFAULT_UNSUPPORTED_DISK_INTERFACES_ON_AZURE_ON_WINDOWS[] = "usb,ata,ide,FILEBACKEDVIRTUAL";
+static const char KEY_UNSUPPORTED_DISK_INTERFACES_ON_AZURE_ON_LINUX[] = "UnsupportedDiskInterfacesonAzureonLinux";
+static const char DEFAULT_UNSUPPORTED_DISK_INTERFACES_ON_AZURE_ON_LINUX[] = "usb";
 
 const std::string DEFAULT_UNREGISTER_LOG_FILE = "unregister.log";
 #ifdef SV_WINDOWS
@@ -121,6 +132,9 @@ static const std::string RCM_SETTINGS_FILE_SUFFIX = "/config/RCMInfo.conf";
 static const char KEY_PROXY_SETTINGS_PATH[] = "ProxySettingsPath";
 static const char KEY_VM_PLATFORM[] = "VmPlatform";
 static const char KEY_PHYSICAL_SUPPORTED_HYPERVISORS[] = "PhysicalSupportedHypervisors";
+static const char KEY_OSNAME_FORWHICH_AGENTINSTALLED[] = "OsNameForWhichAgentIsInstalled";
+static const char KEY_CX_CONFIGURED_MAJOR_OS_UPGRADE[] = "CxConfiguredMajorOSUpgrade";
+static const char KEY_PULL_CLIENT_DOWNLOAD_DIR_REQ_SPACE[] = "PullClientDownloadDirReqSpace";
 
 static const char KEY_MAX_DIFF_SIZE[] = "MaxDiffSize";
 static const char KEY_FASTSYNC_READ_BUFFER_SIZE[] = "FastSyncReadBufferSize";
@@ -312,8 +326,9 @@ static const char KEY_RESYNC_UPDATE_INTERVAL[] = "ResyncUpdateInterval";
 static const char DEFAULT_RESYNC_UPDATE_INTERVAL[] = "300";
 static const char KEY_IR_METRICS_REPORT_INTERVAL[] = "IRMetricsReportInterval";
 static const char KEY_LOG_RESYNC_PROGRESS_INTERVAL[] = "LogResyncProgressInterval";
-static const char KEY_RESYNC_SLOW_PROGRESS_THRESHOLD[] = "ResyncSlowProgressThreshold";
-static const char KEY_RESYNC_NO_PROGRESS_THRESHOLD[] = "ResyncNoProgressThreshold";
+static const char KEY_RESYNC_SLOW_PROGRESS_THRESHOLD[] = "ResyncSlowProgressThresholdInSeconds";
+static const char KEY_RESYNC_NO_PROGRESS_THRESHOLD[] = "ResyncNoProgressThresholdInSeconds";
+static const char KEY_RESYNC_STUCK_THRESHOLD[] = "ResyncStuckThresholdInSeconds";
 static const char KEY_CONFIGSTORE_NAME[] = "ConfigStoreName";
 
 static const SV_UINT DEFAULT_LENGTHFOR_FILESYSTEM_CLUSTERSQUERY = 1024 * 1024 * 1024; // 1 GB
@@ -375,12 +390,19 @@ static const int DEFAULT_INSTALLER_UNZIP_RETRY_COUNT = 3;
 static const char KEY_INSTALLER_UNZIP_RETRY_INTERVAL[] = "InstallerUnzipRetryInterval";
 static const uint32_t DEFAULT_INSTALLER_UNZIP_RETRY_INTERVAL = 1;
 static const char KEY_IS_CREDENTIAL_LESS_DISCOVERY[] = "IsCredentialLessDiscovery";
+static const char KEY_VERIFY_ISSUER_CERT_EXPIRY[] = "VerifyIssuerCertExpiry";
+static const char KEY_CLIENT_CERT_POLL_TIME[] = "ClientCertPollTime";
+static const int DEFAULT_CLIENT_CERT_POLL_TIME = 12;
+static const char KEY_CLIENT_CERT_RENEW_BUFFER_IN_DAYS[] = "ClientCertRenewBufferInDays";
+static const int DEFAULT_CLIENT_CERT_RENEW_BUFFER_IN_DAYS = 90;
 static const char KEY_SWITCH_APPLIANCE_STATE[] = "SwitchApplianceState";
 static const char KEY_VACP_STATE[] = "VacpState";
 static const char KEY_MIGRATION_STATE[] = "MigrationState";
 static const char KEY_MIGRATION_MIN_MARS_VERSION[] = "MigrationMinMARSVersion";
 static const char DEFAULT_MIGRATION_MIN_MARS_VERSION[] = "2.0.9249.0";
-
+static const int DEFAULT_INSTALL_PATH_REQUIRED_SPACE = 629145600;
+static const char KEY_INSTALL_PATH_REQUIRED_SPACE[] = "InstallPathRequiredSpace";
+static const char KEY_USE_DRSCOUT_INSTALL_PATH_SPACE[] = "UseDrscoutInstallPathSpace";
 
 static const char KEY_MAXDIFF_FS_RAW_SIZE[] = "MaxDifferenceBetweenFSandRawSize";
 
@@ -517,6 +539,7 @@ static const char KEY_MAXIMUM_CONS_MISSING_DISK_INDEX[] = "MaxConsMissingDiskInd
 static const char KEY_DISK_RECOVERY_WAIT_TIME_SEC[] = "DiskRecoveryWaitTimeSec";
 static const char KEY_MAX_WMI_CONNECTION_TIMEOUT_SEC[] = "MaxWmiConnectionTimeout";
 static const char KEY_MAX_SUPPORTED_PARTS_UEFI_BOOT[] = "MaximumSupportedPartitionsOnUefiBoot";
+static const char KEY_IS_SCSI_ATTRIB_MADATORY[] = "IsScsiAttributeManadatory";
 
 #ifdef SV_WINDOWS
 static const int DEFAULT_CACHEVOLUMEHANDLE = 0;
@@ -524,6 +547,7 @@ static const int DEFAULT_CACHEVOLUMEHANDLE = 0;
 static const int DEFAULT_CACHEVOLUMEHANDLE = 1;
 #endif
 
+static const int DEFAULT_IS_SCSI_ATTRIBUTE_MANDATORY = 1;
 static const int DEFAULT_DPMAX_RETENTIONFILE_TO_CACHE = 100;
 static const int DEFAULT_MAX_UNMOUNT_RETRIES = 2;
 
@@ -563,6 +587,8 @@ static const char KEY_TRANSPORT_RESPONSE_TIMEOUT_SECONDS[] = "TransportResponseT
 static const char KEY_TRANSPORT_LOW_SPEED_TIMEOUT_SECONDS[] = "TransportLowSpeedTimeoutSeconds";
 static const char KEY_TRANSPORT_CONNECT_TIMEOUT_SECONDS[] = "TransportConnectTimeoutSeconds";
 static const char KEY_TRANSPORT_WRITE_MODE[] = "TransportWriteMode";
+
+static const char KEY_AZURE_BLOB_CLIENT_MAX_LIST_RESULT[] = "AzureBlobClientMaxListResults";
 
 // name of file for caching the initial settings
 //
@@ -681,6 +707,13 @@ static const SV_ULONG CM_MAX_DPP_USAGE_IN_PERCENTAGE = 10;
 static const SV_ULONG CM_DEFAULT_MAX_DPP_USAGE_IN_MB = 4096;
 static const SV_ULONG CM_DEFAULT_MIN_DPP_USAGE_IN_MB = 256;
 static const SV_ULONG CM_DEFAULT_DPP_ALIGNMENT_IN_MB = 4;
+
+static const SV_ULONG CM_DEFAULT_DNP_USAGE_IN_PERCENTAGE = 2;
+static const SV_ULONG CM_MAX_DNP_USAGE_IN_PERCENTAGE = 4;
+static const SV_ULONG CM_DEFAULT_MAX_DNP_USAGE_IN_MB = 256;
+static const SV_ULONG CM_DEFAULT_MIN_DNP_USAGE_IN_MB = 32;
+static const SV_ULONG CM_DEFAULT_DNP_ALIGNMENT_IN_MB = 4;
+
 static const unsigned long int DEFAULT_EXPECTED_MAX_DIFFFILE_SIZE = 10 * 1024 * 1024;
 
 static const unsigned long DEFAULT_MIRROR_RESYNC_EVENT_WAITTIME = 65; /* 65 secs */
@@ -805,6 +838,8 @@ static const char KEY_VACP_DRAINBARRIER_TIMEOUT[] = "VacpDrainBarrierTimeout";
 static const int  DEFAULT_VACP_DRAINBARRIER_TIMEOUT = 3 * 60 * 1000; // in msec, 3 min
 #else
 static const int  DEFAULT_VACP_DRAINBARRIER_TIMEOUT = 40 * 1000; // in msec, 40 sec
+static const char KEY_IS_HIGH_CHURN_SUPPORTED_DISTRO[] = "IsHighChurnSupportedDistro";
+static const char KEY_IS_NVME_SUPPORTED_DISTRO[] = "IsNVMeSupportedDistro";
 #endif
 static const char KEY_VACP_TAG_COMMIT_MAX_TIMEOUT[] = "VacpTagCommitMaxTimeOut";
 static const int  DEFAULT_VACP_TAG_COMMIT_MAX_TIMEOUT = 30 * 60 * 1000; // in msec, 30 min
@@ -823,6 +858,15 @@ static const SV_ULONGLONG DEFAULT_MAX_DISK_CHURN_SUPPORTED_MBPS = 25; // in MBps
 
 static const char KEY_MAX_VM_CHURN_SUPPORTED_MBPS[] = "MaxVMChurnSupportedMBps";
 static const SV_ULONGLONG DEFAULT_MAX_VM_CHURN_SUPPORTED_MBPS = 50; // in MBps
+
+static const char KEY_MAX_DISK_HIGH_CHURN_SUPPORTED_MBPS[] = "MaxDiskHighChurnSupportedMBps";
+static const SV_ULONGLONG DEFAULT_MAX_DISK_HIGH_CHURN_SUPPORTED_MBPS = 50; // in MBps
+
+static const char KEY_MAX_VM_HIGH_CHURN_SUPPORTED_MBPS[] = "MaxVMHighChurnSupportedMBps";
+static const SV_ULONGLONG DEFAULT_MAX_VM_HIGH_CHURN_SUPPORTED_MBPS = 100; // in MBps
+
+static const char KEY_HIGH_CHURN_MINIMUM_MEMORY_GB[] = "HighChurnMinimumMemoryGB";
+static const SV_ULONGLONG DEFAULT_HIGH_CHURN_MINIMUM_MEMORY_GB = 250; // in GB
 
 static const char KEY_MAX_TIMEJUMP_FWD_ACCEPTABLE_IN_MS[] = "MaximumTimeJumpForwardAcceptableInMs";
 static const SV_ULONGLONG DEFAULT_MAX_TIMEJUMP_FWD_ACCEPTABLE_IN_MS = 3 * 60 * 1000; // 3 min, in ms
@@ -905,6 +949,14 @@ static const char KEY_HEALTHCOLLATOR_PATH[] = "HealthCollatorPath";
 static const char KEY_ADDITIONAL_INSTALL_PATHS[] = "AdditionalInstallPaths";
 
 static const char KEY_CLUSTER_ID[] = "ClusterId";
+static const char KEY_CLUSTER_NAME[] = "ClusterName";
+
+static const char KEY_ALLOW_TENANT_MIGRATION[] = "AllowTenantMigration";
+static const int DEFAULT_ALLOW_TENANT_MIGRATION = 1;
+static const char KEY_TENANT_MIGRATION_LINEAR_RETRY_INTERVAL[] = "TenantMigrationLinearRetryInterval";
+static const char KEY_TENANT_MIGRATION_MAX_EXPONENTIAL_RETRY_INTERVAL[] = "TenantMigrationMaxExponentialRetryInterval";
+static const int DEFAULT_TENANT_MIGRATION_LINEAR_RETRY_INTERVAL = 90; // Initial retry interval in seconds for linear retry
+static const int DEFAULT_TENANT_MIGRATION_MAX_EXPONENTIAL_RETRY_INTERVAL = 3600; // Maximum retry interval capped at 1 hour
 
 FileConfiguratorMode FileConfigurator::s_initmode = FILE_CONFIGURATOR_MODE_VX_AGENT;
 
@@ -949,6 +1001,12 @@ FileConfigurator::FileConfigurator()
 
     if (s_initmode == FILE_CONFIGURATOR_MODE_VX_AGENT)
     {
+        std::string fileSizeErr;
+        if (!ValidateConfigFileSize(getConfigPathname(), MAX_INI_CONFIG_FILE_SIZE, fileSizeErr))
+        {
+            throw INMAGE_EX(fileSizeErr.c_str());
+        }
+
         if (m_inifile.open() < 0) {
             throw INMAGE_EX("couldn't open file");
         }
@@ -975,6 +1033,12 @@ FileConfigurator::FileConfigurator(const std::string fileName)
     AutoGuardFileLock lock(m_lockInifile);
     if (s_initmode == FILE_CONFIGURATOR_MODE_VX_AGENT)
     {
+        std::string fileSizeErr;
+        if (!ValidateConfigFileSize(fileName, MAX_INI_CONFIG_FILE_SIZE, fileSizeErr))
+        {
+            throw INMAGE_EX(fileSizeErr.c_str());
+        }
+
         if (m_inifile.open() < 0) {
             throw INMAGE_EX("couldn't open file");
         }
@@ -1040,8 +1104,13 @@ void FileConfigurator::getSection(std::string const& section, std::map<std::stri
 
         int index = 0;
         int rval = -1;
+        static const int MAX_ENUMERATE_VALUES = 10000;
         while (true)
         {
+            if (index >= MAX_ENUMERATE_VALUES)
+            {
+                throw INMAGE_EX("exceeded maximum number of config values in section")(section);
+            }
             ACE_TString name;
             ACE_Configuration::VALUETYPE type;
             rval = m_inifile.enumerate_values(sectionKey, index, name, type);
@@ -1213,6 +1282,7 @@ bool FileConfigurator::getVxPlatformTypeForDriverPersistentFile(std::string &fil
     filePath = configdir + ACE_DIRECTORY_SEPARATOR_CHAR_A + VxPlatformTypeForDriverPersistentFile;
     return true;
 }
+
 
 bool FileConfigurator::getNameValuesInSection(const std::string &section, std::map<std::string, std::string> &namevaluepairs) const
 {
@@ -1423,35 +1493,35 @@ std::string FileConfigurator::getMTSupportedDataPlanes() const {
 }
 
 SV_ULONGLONG FileConfigurator::getMinAzureUploadSize() const {
-    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MIN_AZURE_UPLOAD_SIZE,
+    return safe_lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MIN_AZURE_UPLOAD_SIZE,
         DEFAULT_MIN_AZURE_UPLOAD_SIZE));
 }
 
 unsigned int FileConfigurator::getMinTimeGapBetweenAzureUploads() const {
-    return boost::lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_MIN_TIMEGAP_BETWEEN_AZURE_UPLOADS,
+    return safe_lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_MIN_TIMEGAP_BETWEEN_AZURE_UPLOADS,
         DEFAULT_MIN_TIMEGAP_AZURE_UPLOADS));
 }
 
 unsigned int FileConfigurator::getTimeGapBetweenFileArrivalCheck() const {
-    return boost::lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_TIMEGAP_BETWEEN_FILEARRIVAL_CHECK,
+    return safe_lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_TIMEGAP_BETWEEN_FILEARRIVAL_CHECK,
         DEFAULT_TIMEGAP_FILEARRIVAL_CHECK));
 }
 
 unsigned int FileConfigurator::getMaxAzureAttempts() const
 {
-    return boost::lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_MAX_AZURE_ATTEMPTS,
+    return safe_lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_MAX_AZURE_ATTEMPTS,
         DEFAULT_MAX_AZURE_ATTEMPTS));
 }
 
 unsigned int FileConfigurator::getAzureRetryDelayInSecs() const
 {
-    return boost::lexical_cast<unsigned int>(get(SECTION_VXAGENT,
+    return safe_lexical_cast<unsigned int>(get(SECTION_VXAGENT,
         KEY_AZURE_RETRY_DELAY_IN_SECS, DEFAULT_AZURE_RETRY_DELAY_IN_SECS));
 }
 
 unsigned int FileConfigurator::getAzureImplType() const
 {
-    return boost::lexical_cast<unsigned int>(get(SECTION_VXAGENT,
+    return safe_lexical_cast<unsigned int>(get(SECTION_VXAGENT,
         KEY_AZURE_IMPL_TYPE, DEFAULT_AZURE_IMPL_TYPE));
 }
 
@@ -1527,7 +1597,7 @@ std::string FileConfigurator::getUnregisterAgentLogPath() const {
 // EvtCollForw settings - Start
 
 SV_LOG_LEVEL FileConfigurator::getEvtCollForwAgentLogPostLevel() const {
-    return static_cast<SV_LOG_LEVEL>(boost::lexical_cast<int>(
+    return static_cast<SV_LOG_LEVEL>(safe_lexical_cast<int>(
         get(SECTION_VXAGENT, KEY_EVTCOLLFORW_AGENT_LOG_POST_LEVEL, DEFAULT_EVTCOLLFORW_AGENT_LOG_POST_LEVEL)));
 }
 
@@ -1541,32 +1611,32 @@ std::vector<std::string> FileConfigurator::getSourceAgentLogsToUpload() const {
 }
 
 int FileConfigurator::getEvtCollForwPollIntervalInSecs() const {
-    return boost::lexical_cast<int>(
+    return safe_lexical_cast<int>(
         get(SECTION_VXAGENT, KEY_EVTCOLLFORW_POLL_INTERVAL_IN_SECS, DEFAULT_EVTCOLLFORW_POLL_INTERVAL_IN_SECS));
 }
 
 int FileConfigurator::getEvtCollForwPenaltyTimeInSecs() const {
-    return boost::lexical_cast<int>(
+    return safe_lexical_cast<int>(
         get(SECTION_VXAGENT, KEY_EVTCOLLFORW_PENALTY_TIME_IN_SECS, DEFAULT_EVTCOLLFORW_PENALTY_TIME_IN_SECS));
 }
 
 int FileConfigurator::getEvtCollForwMaxStrikes() const {
-    return boost::lexical_cast<int>(
+    return safe_lexical_cast<int>(
         get(SECTION_VXAGENT, KEY_EVTCOLLFORW_MAX_STRIKES, DEFAULT_EVTCOLLFORW_MAX_STRIKES));
 }
 
 unsigned int FileConfigurator::getEvtCollForwProcSpawnInterval() const {
-    return boost::lexical_cast<unsigned int>(
+    return safe_lexical_cast<unsigned int>(
         get(SECTION_VXAGENT, KEY_EVTCOLLFORW_PROC_SPAWN_INTERVAL, DEFAULT_EVTCOLLFORW_PROC_SPAWN_INTERVAL));
 }
 
 unsigned int FileConfigurator::getEvtCollForwMaxMarsUploadFilesCnt() const {
-    return boost::lexical_cast<unsigned int>(
+    return safe_lexical_cast<unsigned int>(
         get(SECTION_VXAGENT, KEY_EVTCOLLFORW_MAX_MARS_UPLOAD_FILES_CNT, DEFAULT_EVTCOLLFORW_MAX_MARS_UPLOAD_FILES_CNT));
 }
 
 uint32_t FileConfigurator::getEvtCollForwCxTransportMaxAttempts() const {
-    return boost::lexical_cast<uint32_t>(
+    return safe_lexical_cast<uint32_t>(
         get(SECTION_VXAGENT, KEY_EVTCOLLFORW_CX_TRANSPORT_MAX_ATTEMPTS, DEFAULT_EVTCOLLFORW_CX_TRANSPORT_MAX_ATTEMPTS));
 }
 
@@ -1575,14 +1645,14 @@ std::string FileConfigurator::getEvtCollForwIRCompletedFilesMoveDir() const {
 }
 
 bool FileConfigurator::isEvtCollForwEventLogUploadEnabled() const {
-    return boost::lexical_cast<bool>(
+    return safe_lexical_cast<bool>(
         get(SECTION_VXAGENT, KEY_EVTCOLLFORW_UPLOAD_EVENT_LOG, DEFAULT_EVTCOLLFORW_UPLOAD_EVENT_LOG));
 }
 
 // EvtCollForw settings - End
 
 unsigned int FileConfigurator::getCsJobProcessorProcSpawnInterval() const {
-    return boost::lexical_cast<unsigned int>(
+    return safe_lexical_cast<unsigned int>(
         get(SECTION_VXAGENT, KEY_CSJOBPROCESSOR_PROC_SPAWN_INTERVAL, DEFAULT_CSJOBPROCESSOR_PROC_SPAWN_INTERVAL));
 }
 
@@ -1598,7 +1668,7 @@ void FileConfigurator::setRcmSettingsPath(const std::string& rcmSettingsPath) co
 }
 
 unsigned int FileConfigurator::getRcmRequestTimeout() const {
-    return boost::lexical_cast<unsigned int>(
+    return safe_lexical_cast<unsigned int>(
         get(SECTION_VXAGENT, KEY_RCM_REQUEST_TIMEOUT, DEFAULT_RCM_REQUEST_TIMEOUT));
 }
 
@@ -1611,8 +1681,29 @@ std::string FileConfigurator::getVmPlatform() const {
     return get(SECTION_VXAGENT, KEY_VM_PLATFORM, std::string());
 }
 
+std::string FileConfigurator::getOsNameForWhichAgentIsInstalled() const {
+    return get(SECTION_VXAGENT, KEY_OSNAME_FORWHICH_AGENTINSTALLED, std::string());
+}
+
+void FileConfigurator::setOsNameForWhichAgentIsInstalled(const std::string& upgradedOS) const {
+    return set(SECTION_VXAGENT, KEY_OSNAME_FORWHICH_AGENTINSTALLED, upgradedOS);
+}
+
+bool FileConfigurator::IsCxConfiguredMajorOSUpgrade() const {
+    std::string value = get(SECTION_VXAGENT, KEY_CX_CONFIGURED_MAJOR_OS_UPGRADE, "true");
+    return boost::iequals(value, "true");
+}
+
+void FileConfigurator::setCxConfiguredMajorOSUpgrade(const std::string& value) const {
+    return set(SECTION_VXAGENT, KEY_CX_CONFIGURED_MAJOR_OS_UPGRADE, value);
+}
+
 std::string FileConfigurator::getPhysicalSupportedHypervisors() const {
     return get(SECTION_VXAGENT, KEY_PHYSICAL_SUPPORTED_HYPERVISORS, XENNAME);
+}
+
+std::string FileConfigurator::getPullClientDownloadDirReqSpace() const {
+    return get(SECTION_VXAGENT, KEY_PULL_CLIENT_DOWNLOAD_DIR_REQ_SPACE, "104857600");
 }
 
 bool FileConfigurator::IsAzureToAzureReplication() const {
@@ -1620,11 +1711,11 @@ bool FileConfigurator::IsAzureToAzureReplication() const {
     return boost::iequals(vmPlatform, "Azure");
 }
 int FileConfigurator::getMaxDifferentialPayload() const {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_MAX_DIFF_SIZE));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_MAX_DIFF_SIZE));
 }
 
 SV_UINT FileConfigurator::getFastSyncReadBufferSize() const {
-    return boost::lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_FASTSYNC_READ_BUFFER_SIZE, DEFAULT_FASTSYNC_READ_BUFFER_SIZE));
+    return safe_lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_FASTSYNC_READ_BUFFER_SIZE, DEFAULT_FASTSYNC_READ_BUFFER_SIZE));
 }
 
 SV_HOST_AGENT_TYPE FileConfigurator::getAgentType() const {
@@ -1675,32 +1766,32 @@ SV_LOG_LEVEL FileConfigurator::getLogLevel() const {
 
     if (s_initmode == FILE_CONFIGURATOR_MODE_CS_PRIME_APPLIANCE_EVTCOLLFORW)
     {
-        return static_cast<SV_LOG_LEVEL>(boost::lexical_cast<int>(getEvtCollForwParam(KEY_LOG_LEVEL)));
+        return static_cast<SV_LOG_LEVEL>(safe_lexical_cast<int>(getEvtCollForwParam(KEY_LOG_LEVEL)));
     }
     else
     {
-        return static_cast<SV_LOG_LEVEL>(boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_LOG_LEVEL, DEFAULT_LOG_LEVEL)));
+        return static_cast<SV_LOG_LEVEL>(safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_LOG_LEVEL, DEFAULT_LOG_LEVEL)));
     }
 }
 
 SV_UINT FileConfigurator::getLogMaxCompletedFiles() const {
-    return boost::lexical_cast<SV_UINT>(get(SECTION_VXAGENT,
+    return safe_lexical_cast<SV_UINT>(get(SECTION_VXAGENT,
         KEY_LOG_MAX_NUM_COMPLETED_FILES,
         SV_DEFAULT_LOG_MAX_NUM_COMPLETED_FILES));
 }
 
 SV_UINT FileConfigurator::getLogCutInterval() const {
-    return boost::lexical_cast<SV_UINT>(get(SECTION_VXAGENT,
+    return safe_lexical_cast<SV_UINT>(get(SECTION_VXAGENT,
         KEY_LOG_CUT_INTERVAL,
         SV_DEFAULT_LOG_CUT_INTERVAL));
 }
 SV_UINT FileConfigurator::getLogMaxFileSize() const {
-    return boost::lexical_cast<SV_UINT>(get(SECTION_VXAGENT,
+    return safe_lexical_cast<SV_UINT>(get(SECTION_VXAGENT,
         KEY_LOG_MAX_FILE_SIZE,
         SV_DEFAULT_LOG_MAX_FILE_SIZE));
 }
 SV_UINT FileConfigurator::getLogMaxFileSizeForTelemetry() const {
-    return boost::lexical_cast<SV_UINT>(get(SECTION_VXAGENT,
+    return safe_lexical_cast<SV_UINT>(get(SECTION_VXAGENT,
         KEY_LOG_MAX_FILE_SIZE_TELEMETRY,
         SV_DEFAULT_LOG_MAX_FILE_SIZE_TELEMETRY));
 }
@@ -1756,18 +1847,18 @@ bool FileConfigurator::getAccountInfo(std::map<std::string, std::string> &nameva
 }
 
 int FileConfigurator::getTcpSendWindowSize() const {
-    return boost::lexical_cast<int>(get(SECTION_VXTRANSPORT, KEY_TCP_SENDWINDOW_SIZE, DEFAULT_TCP_SENDWINDOW_SIZE));
+    return safe_lexical_cast<int>(get(SECTION_VXTRANSPORT, KEY_TCP_SENDWINDOW_SIZE, DEFAULT_TCP_SENDWINDOW_SIZE));
 }
 
 int FileConfigurator::getTcpRecvWindowSize() const {
-    return boost::lexical_cast<int>(get(SECTION_VXTRANSPORT, KEY_TCP_RECVWINDOW_SIZE, DEFAULT_TCP_RECVWINDOW_SIZE));
+    return safe_lexical_cast<int>(get(SECTION_VXTRANSPORT, KEY_TCP_RECVWINDOW_SIZE, DEFAULT_TCP_RECVWINDOW_SIZE));
 }
 
 HTTP_CONNECTION_SETTINGS FileConfigurator::getHttp() const {
     HTTP_CONNECTION_SETTINGS s;
     std::string ipaddr = get(SECTION_VXTRANSPORT, KEY_HTTP_IPADDRESS, "").c_str();
     inm_strcpy_s(s.ipAddress, ARRAYSIZE(s.ipAddress), ipaddr.c_str());
-    s.port = boost::lexical_cast<int>(get(SECTION_VXTRANSPORT, KEY_HTTP_PORT, "-1").c_str());
+    s.port = safe_lexical_cast<int>(get(SECTION_VXTRANSPORT, KEY_HTTP_PORT, "-1").c_str());
     return s;
 }
 
@@ -1781,7 +1872,7 @@ std::string FileConfigurator::getCsAddressForAzureComponents() const {
 
 bool FileConfigurator::IsHttps() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXTRANSPORT, KEY_HTTPS, "1"));
+    return safe_lexical_cast<bool>(get(SECTION_VXTRANSPORT, KEY_HTTPS, "1"));
 }
 
 
@@ -1806,7 +1897,7 @@ std::string FileConfigurator::getDataProtectionExeV2Pathname() const
 /** Added by BSR for upgrade issue **/
 bool FileConfigurator::getUpdatedUpgradeToCX() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_UPGRADE, KEY_UPDATED_UPGRADE_TO_CX, "1"));
+    return safe_lexical_cast<bool>(get(SECTION_UPGRADE, KEY_UPDATED_UPGRADE_TO_CX, "1"));
 }
 
 void FileConfigurator::setUpdatedUpgradeToCX(const bool bUpdated) const
@@ -1826,43 +1917,48 @@ std::string FileConfigurator::getUpgradePHPPath() const
 
 SV_ULONG FileConfigurator::getUpdateUpgradeWaitTimeSecs() const
 {
-    return boost::lexical_cast<SV_ULONG>(get(SECTION_UPGRADE, KEY_UPDATE_UPGRADE_WAITTIME, DEFAULT_UPGRADE_WAIT_TIME));
+    return safe_lexical_cast<SV_ULONG>(get(SECTION_UPGRADE, KEY_UPDATE_UPGRADE_WAITTIME, DEFAULT_UPGRADE_WAIT_TIME));
 }
 /** End of the change **/
 
 SV_ULONG FileConfigurator::getResyncStaleFilesCleanupInterval() const
 {
-    return boost::lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_RESYNC_STALE_FILE_CLEANUP_INTERVAL, KEY_DEFAULT_RESYNC_STALE_FILE_CLEANUP_INTERVAL));
+    return safe_lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_RESYNC_STALE_FILE_CLEANUP_INTERVAL, KEY_DEFAULT_RESYNC_STALE_FILE_CLEANUP_INTERVAL));
 }
 
 bool FileConfigurator::ShouldCleanupCorruptSyncFile() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_SHOULD_CLEANUP_CORRUPT_SYNC_FILE, "1"));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_SHOULD_CLEANUP_CORRUPT_SYNC_FILE, "1"));
 }
 
 SV_ULONG FileConfigurator::getResyncUpdateInterval() const
 {
-    return boost::lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_RESYNC_UPDATE_INTERVAL, DEFAULT_RESYNC_UPDATE_INTERVAL));
+    return safe_lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_RESYNC_UPDATE_INTERVAL, DEFAULT_RESYNC_UPDATE_INTERVAL));
 }
 
 SV_ULONG FileConfigurator::getIRMetricsReportInterval() const
 {
-    return boost::lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_IR_METRICS_REPORT_INTERVAL, "7200"));
+    return safe_lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_IR_METRICS_REPORT_INTERVAL, "1800"));
 }
 
 SV_ULONG FileConfigurator::getLogResyncProgressInterval() const
 {
-    return boost::lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_LOG_RESYNC_PROGRESS_INTERVAL, "900"));
+    return safe_lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_LOG_RESYNC_PROGRESS_INTERVAL, "900"));
 }
 
 SV_ULONG FileConfigurator::getResyncSlowProgressThreshold() const
 {
-    return boost::lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_RESYNC_SLOW_PROGRESS_THRESHOLD, "3600"));
+    return safe_lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_RESYNC_SLOW_PROGRESS_THRESHOLD, "3600"));
 }
 
 SV_ULONG FileConfigurator::getResyncNoProgressThreshold() const
 {
-    return boost::lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_RESYNC_NO_PROGRESS_THRESHOLD, "7200"));
+    return safe_lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_RESYNC_NO_PROGRESS_THRESHOLD, "7200"));
+}
+
+SV_ULONG FileConfigurator::getResyncStuckThreshold() const
+{
+    return safe_lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_RESYNC_STUCK_THRESHOLD, "900"));
 }
 
 std::string FileConfigurator::getOffloadSyncPathname() const  {
@@ -1919,88 +2015,88 @@ std::string FileConfigurator::getFastSyncExePathname() const {
 }
 
 int FileConfigurator::getFastSyncBlockSize() const {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_FAST_SYNC_BLOCK_SIZE));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_FAST_SYNC_BLOCK_SIZE));
 }
 
 int FileConfigurator::getFastSyncMaxChunkSize() const {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_FAST_SYNC_MAX_CHUNK_SIZE, DEFAULT_MAX_FASTSYNC_CHUNK_SIZE));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_FAST_SYNC_MAX_CHUNK_SIZE, DEFAULT_MAX_FASTSYNC_CHUNK_SIZE));
 }
 
 int FileConfigurator::getFastSyncMaxChunkSizeForE2A() const {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_FAST_SYNC_MAX_CHUNK_SIZE_FOR_E2A, DEFAULT_MAX_FASTSYNC_CHUNK_SIZE_E2A));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_FAST_SYNC_MAX_CHUNK_SIZE_FOR_E2A, DEFAULT_MAX_FASTSYNC_CHUNK_SIZE_E2A));
 }
 
 
 bool FileConfigurator::getDICheck() const {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_DI_CHECK, DEFAULT_DI_CHECK));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_DI_CHECK, DEFAULT_DI_CHECK));
 }
 
 bool FileConfigurator::getSVDCheck() const {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_SVD_CHECK, DEFAULT_SVD_CHECK));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_SVD_CHECK, DEFAULT_SVD_CHECK));
 }
 
 bool FileConfigurator::getDirectTransfer() const {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_DIRECT_TRANSFER, DEFAULT_DIRECT_TRANSFER));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_DIRECT_TRANSFER, DEFAULT_DIRECT_TRANSFER));
 }
 
 bool FileConfigurator::getEnableDiffFileChecksums() const {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_ENABLE_DIFF_FILE_CHECKSUMS, DEFAULT_ENABLE_DIFF_FILE_CHECKSUMS));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_ENABLE_DIFF_FILE_CHECKSUMS, DEFAULT_ENABLE_DIFF_FILE_CHECKSUMS));
 }
 
 bool FileConfigurator::CompareInInitialDirectSync() const {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_COMPARE_IN_INITIAL_DIRECTSYNC, false));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_COMPARE_IN_INITIAL_DIRECTSYNC, false));
 }
 
 bool FileConfigurator::IsProcessClusterPipeEnabled() const {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_ENABLE_PROCESS_CLUSTER_PIPE, "1"));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_ENABLE_PROCESS_CLUSTER_PIPE, "1"));
 }
 
 bool FileConfigurator::allowRootVolumeForRetention() const {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_ALLOW_ROOTVOLUME_FOR_RETENTION_NAME, 1));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_ALLOW_ROOTVOLUME_FOR_RETENTION_NAME, 1));
 }
 
 SV_UINT FileConfigurator::getMaxHcdsAllowdAtCx() const {
-    return boost::lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_MAX_HCDS, DEFAULT_MAX_HCDS));
+    return safe_lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_MAX_HCDS, DEFAULT_MAX_HCDS));
 }
 
 SV_UINT FileConfigurator::getMaxClusterBitmapsAllowdAtCx() const {
-    return boost::lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_MAX_CLUSTER_BITMAPS, DEFAULT_MAX_CLUSTER_BITMAPS));
+    return safe_lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_MAX_CLUSTER_BITMAPS, DEFAULT_MAX_CLUSTER_BITMAPS));
 }
 
 SV_UINT FileConfigurator::getSecsToWaitForHcdSend() const {
-    return boost::lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_SECS_TO_WAITFORHCD, DEFAULT_SECS_TO_WAITFORHCD));
+    return safe_lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_SECS_TO_WAITFORHCD, DEFAULT_SECS_TO_WAITFORHCD));
 }
 
 SV_UINT FileConfigurator::getSecsToWaitForClusterBitmapSend() const {
-    return boost::lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_SECS_TO_WAITFORCLUSTERBITMAP, DEFAULT_SECS_TO_WAITFORCLUSTERBITMAP));
+    return safe_lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_SECS_TO_WAITFORCLUSTERBITMAP, DEFAULT_SECS_TO_WAITFORCLUSTERBITMAP));
 }
 
 bool FileConfigurator::getTSCheck() const {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_TS_CHECK, DEFAULT_TS_CHECK));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_TS_CHECK, DEFAULT_TS_CHECK));
 }
 
 SV_ULONG FileConfigurator::getDirectSyncBlockSizeInKB() const {
-    return boost::lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_DIRECTSYNC_BLOCKSIZE_INKB, DEFAULT_DIRECTSYNC_BLOCKSIZE_INKB));
+    return safe_lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_DIRECTSYNC_BLOCKSIZE_INKB, DEFAULT_DIRECTSYNC_BLOCKSIZE_INKB));
 }
 
 bool FileConfigurator::getDIVerify() const {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_DI_VERIFY, DEFAULT_DI_VERIFY));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_DI_VERIFY, DEFAULT_DI_VERIFY));
 }
 
 bool FileConfigurator::isRetainBookmarkForVsnap() const {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_VSNAPLOCKBOOKMARK, DEFAULT_VSNAPLOCKBOOKMARK));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_VSNAPLOCKBOOKMARK, DEFAULT_VSNAPLOCKBOOKMARK));
 }
 
 SV_ULONGLONG FileConfigurator::getSparseFileMaxSize() const {
-    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MAX_SPARSE_SIZE, DEFAULT_MAX_SPARSE_SIZE));
+    return safe_lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MAX_SPARSE_SIZE, DEFAULT_MAX_SPARSE_SIZE));
 }
 
 bool FileConfigurator::DPPrintPerfCounters() const {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_DPMEASURE_PERF, DEFAULT_DPMEASURE_PERF));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_DPMEASURE_PERF, DEFAULT_DPMEASURE_PERF));
 }
 
 bool FileConfigurator::DPProfileSourceIo() const {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_DPPROFILE_SRCIO, DEFAULT_DPPROFILE_SRCIO));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_DPPROFILE_SRCIO, DEFAULT_DPPROFILE_SRCIO));
 }
 
 std::string FileConfigurator::getApplicationConsistentExcludedVolumes() const
@@ -2009,19 +2105,19 @@ std::string FileConfigurator::getApplicationConsistentExcludedVolumes() const
 }
 
 bool FileConfigurator::DPProfileVolRead() const {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_DPPROFILE_VOLREAD, DEFAULT_DPPROFILE_VOLREAD));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_DPPROFILE_VOLREAD, DEFAULT_DPPROFILE_VOLREAD));
 }
 
 bool FileConfigurator::DPProfileVolWrite() const {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_DPPROFILE_VOLWRITE, DEFAULT_DPPROFILE_VOLWRITE));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_DPPROFILE_VOLWRITE, DEFAULT_DPPROFILE_VOLWRITE));
 }
 
 bool FileConfigurator::DPProfileCdpWrite() const {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_DPPROFILE_CDPWRITE, DEFAULT_DPPROFILE_CDPWRITE));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_DPPROFILE_CDPWRITE, DEFAULT_DPPROFILE_CDPWRITE));
 }
 
 bool FileConfigurator::IsCdpcliSkipCheck() const {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_CDPCLI_SKIPCHECK_NAME, 0));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_CDPCLI_SKIPCHECK_NAME, 0));
 }
 
 std::string FileConfigurator::getTargetChecksumsDir() const {
@@ -2029,26 +2125,26 @@ std::string FileConfigurator::getTargetChecksumsDir() const {
 }
 
 int FileConfigurator::getUncompressRetries() const {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_UNCOMPRESS_RETRIES, DEFAULT_UNCOMPRESS_RETRIES));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_UNCOMPRESS_RETRIES, DEFAULT_UNCOMPRESS_RETRIES));
 }
 
 int FileConfigurator::getUncompressRetryInterval() const {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_UNCOMPRESS_RETRY_INTERVAL, DEFAULT_UNCOMPRESS_RETRY_INTERVAL));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_UNCOMPRESS_RETRY_INTERVAL, DEFAULT_UNCOMPRESS_RETRY_INTERVAL));
 }
 
 SV_ULONGLONG FileConfigurator::getMinDiskFreeSpaceForUncompression() const
 {
-    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MIN_DISK_FREESPACE_FOR_UNCOMPRESSION,
+    return safe_lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MIN_DISK_FREESPACE_FOR_UNCOMPRESSION,
         DEFAULT_MIN_DISK_FREESPACE_FOR_UNCOMPRESSION));
 }
 
 bool FileConfigurator::shouldIgnoreCorruptedDiffs() const {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_IGNORE_CORRUPTED_DIFFS, DEFAULT_IGNORE_CORRUPTED_DIFFS));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_IGNORE_CORRUPTED_DIFFS, DEFAULT_IGNORE_CORRUPTED_DIFFS));
 }
 
 bool FileConfigurator::getUseConfiguredHostname() const {
     // TODO: handle `true' and `false' strings
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_USE_CONFIGURED_HOSTNAME));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_USE_CONFIGURED_HOSTNAME));
 }
 
 void FileConfigurator::setUseConfiguredHostname(bool flag) const {
@@ -2057,7 +2153,7 @@ void FileConfigurator::setUseConfiguredHostname(bool flag) const {
 
 bool FileConfigurator::getUseConfiguredIpAddress() const{
     // TODO: handle `true' and `false' strings
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_USE_CONFIGURED_IP_ADDRESS));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_USE_CONFIGURED_IP_ADDRESS));
 }
 
 void FileConfigurator::setUseConfiguredIpAddress(bool flag) const{
@@ -2085,7 +2181,7 @@ std::string FileConfigurator::getExternalIpAddress() const{
 }
 
 int FileConfigurator::getFastSyncHashCompareDataSize() const {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_FAST_SYNC_HASH_COMPARE_DATA_SIZE, DEFAULT_FAST_SYNC_HASH_COMPARE_DATA_SIZE));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_FAST_SYNC_HASH_COMPARE_DATA_SIZE, DEFAULT_FAST_SYNC_HASH_COMPARE_DATA_SIZE));
 }
 
 std::string FileConfigurator::getResyncSourceDirectoryPath() const {
@@ -2094,14 +2190,14 @@ std::string FileConfigurator::getResyncSourceDirectoryPath() const {
 
 
 bool FileConfigurator::getChunkMode() const {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_CHUNK_MODE));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_CHUNK_MODE));
 }
 
 
 unsigned int FileConfigurator::getMaxFastSyncApplyThreads() const
 {
     SV_UINT maxFastsyncApplyThreads =
-        boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_MAX_FASTSYNC_APPLY_THREADS, DEFAULT_MIN_FASTSYNC_APPLY_THREADS));
+        safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_MAX_FASTSYNC_APPLY_THREADS, DEFAULT_MIN_FASTSYNC_APPLY_THREADS));
 
     if (maxFastsyncApplyThreads == 0)
     {
@@ -2119,7 +2215,7 @@ unsigned int FileConfigurator::getMaxFastSyncApplyThreads() const
 
 SV_UINT FileConfigurator::getMaxFastSyncProcessThreads() const
 {
-    SV_UINT maxFastSyncProcessThreads = boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_MAX_FASTSYNC_PROCHCD_THREADS, "2"));
+    SV_UINT maxFastSyncProcessThreads = safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_MAX_FASTSYNC_PROCHCD_THREADS, "2"));
 
     maxFastSyncProcessThreads =
         (maxFastSyncProcessThreads == 0) ? DEFAULT_MIN_FASTSYNC_PROCHCD_THREADS : maxFastSyncProcessThreads;
@@ -2132,7 +2228,7 @@ SV_UINT FileConfigurator::getMaxFastSyncProcessThreads() const
 
 SV_UINT FileConfigurator::getMaxClusterProcessThreads() const
 {
-    SV_UINT maxClusterProcessThreads = boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_MAX_CLUSTER_PROCESS_THREADS, "1"));
+    SV_UINT maxClusterProcessThreads = safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_MAX_CLUSTER_PROCESS_THREADS, "1"));
 
     maxClusterProcessThreads =
         (maxClusterProcessThreads == 0) ? DEFAULT_MIN_CLUSTER_PROCESS_THREADS : maxClusterProcessThreads;
@@ -2145,7 +2241,7 @@ SV_UINT FileConfigurator::getMaxClusterProcessThreads() const
 
 SV_UINT FileConfigurator::getMaxFastSyncGenerateHCDThreads() const
 {
-    SV_UINT maxFastSyncGenHCDThreads = boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_MAX_FASTSYNC_GENHCD_THREADS, "2"));
+    SV_UINT maxFastSyncGenHCDThreads = safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_MAX_FASTSYNC_GENHCD_THREADS, "2"));
 
     maxFastSyncGenHCDThreads =
         (maxFastSyncGenHCDThreads == 0) ? DEFAULT_MIN_FASTSYNC_GENHCD_THREADS : maxFastSyncGenHCDThreads;
@@ -2158,7 +2254,7 @@ SV_UINT FileConfigurator::getMaxFastSyncGenerateHCDThreads() const
 
 SV_UINT FileConfigurator::getMaxGenerateClusterBitmapThreads() const
 {
-    SV_UINT maxGenClusterBitmapThreads = boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_MAX_GENCLUSTER_BITMAP_THREADS, "1"));
+    SV_UINT maxGenClusterBitmapThreads = safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_MAX_GENCLUSTER_BITMAP_THREADS, "1"));
 
     maxGenClusterBitmapThreads =
         (maxGenClusterBitmapThreads == 0) ? DEFAULT_MIN_GENCLUSTER_BITMAP_THREADS : maxGenClusterBitmapThreads;
@@ -2171,27 +2267,27 @@ SV_UINT FileConfigurator::getMaxGenerateClusterBitmapThreads() const
 
 int FileConfigurator::getSyncBytesToApplyThreshold(std::string const& vol) const {
     /* TODO: add in per volume support */
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_SYNC_BYTES_TO_APPLY_THRESHOLD));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_SYNC_BYTES_TO_APPLY_THRESHOLD));
 }
 
 bool FileConfigurator::getHostType() const {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, "CDPDirection"));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, "CDPDirection"));
 }
 
 // Recent get additions
 
 int FileConfigurator::getMaxOutpostThreads() const {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_MAX_OUTPOST_THREADS, DEFAULT_MIN_OUTPOST_THREADS));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_MAX_OUTPOST_THREADS, DEFAULT_MIN_OUTPOST_THREADS));
 }
 
 int FileConfigurator::getVolumeChunkSize() const
 {
-    int iChunkSize = boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_VOLUME_CHUNK_SIZE));
+    int iChunkSize = safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_VOLUME_CHUNK_SIZE));
     return iChunkSize;
 }
 
 bool FileConfigurator::getRegisterSystemDrive() const {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_REGISTER_SYSTEM_CACHE_VOLUMES, DEFAULT_REGISTER_SYSTEM_CACHE_VOLUMES));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_REGISTER_SYSTEM_CACHE_VOLUMES, DEFAULT_REGISTER_SYSTEM_CACHE_VOLUMES));
 }
 
 // All set member functions
@@ -2228,7 +2324,7 @@ void FileConfigurator::setRegisterSystemDrive(bool flag) const {
 
 //Changed RemoteLog to RemoteLogLevel see Bug#6625 for details
 int FileConfigurator::getRemoteLogLevel() const {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_REMOTE_LOG_LEVEL, 0));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_REMOTE_LOG_LEVEL, 0));
 }
 
 //Changed RemoteLog to RemoteLogLevel see Bug#6625 for details
@@ -2298,32 +2394,32 @@ std::string FileConfigurator::getFinalRemoteName()const
 
 int FileConfigurator::getThrottleWaitTime()const
 {
-    return boost::lexical_cast<int> (get(SECTION_VXAGENT, KEY_THROTTLE_WAIT_TIME));
+    return safe_lexical_cast<int> (get(SECTION_VXAGENT, KEY_THROTTLE_WAIT_TIME));
 }
 
 int FileConfigurator::getSentinelExitTime() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_SENTINEL_EXIT_TIME));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_SENTINEL_EXIT_TIME));
 }
 
 int FileConfigurator::getSentinelExitTimeV2() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_SENTINEL_EXIT_TIME_V2, DEFAULT_SENTINEL_EXIT_TIME_V2));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_SENTINEL_EXIT_TIME_V2, DEFAULT_SENTINEL_EXIT_TIME_V2));
 }
 
 int FileConfigurator::getS2DataWaitTime()const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_S2_DATA_WAIT_TIME));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_S2_DATA_WAIT_TIME));
 }
 
 int FileConfigurator::getWaitForDBNotify() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_WAIT_FOR_DB_NOTIFY));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_WAIT_FOR_DB_NOTIFY));
 }
 
 int FileConfigurator::getAzureBlobOperationsTimeout() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_AZURE_BLOB_OPS_TIMEOUT, DEFAULT_AZURE_BLOB_OPS_TIMEOUT));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_AZURE_BLOB_OPS_TIMEOUT, DEFAULT_AZURE_BLOB_OPS_TIMEOUT));
 }
 
 std::string FileConfigurator::getProtectedVolumes() const {
@@ -2367,6 +2463,9 @@ std::string FileConfigurator::getResyncBatchCachePath() const
     return resyncBatchCachePath;
 }
 
+
+
+
 bool FileConfigurator::GetConfigDir(std::string &configDir) const
 {
     DebugPrintf(SV_LOG_DEBUG, "ENTERED %s\n", FUNCTION_NAME);
@@ -2388,7 +2487,7 @@ bool FileConfigurator::GetConfigDir(std::string &configDir) const
 
 SV_UINT FileConfigurator::getManualResyncStartThresholdInSecs() const
 {
-    const SV_UINT delay = boost::lexical_cast<SV_UINT>(get
+    const SV_UINT delay = safe_lexical_cast<SV_UINT>(get
     (SECTION_VXAGENT, KEY_MANUAL_RESYNC_START_THRESHOLD_IN_SECS, DEFAULT_MANUAL_RESYNC_START_THRESHOLD_IN_SECS));
 
     return delay ? delay : DEFAULT_MANUAL_RESYNC_START_THRESHOLD_IN_SECS;
@@ -2396,7 +2495,7 @@ SV_UINT FileConfigurator::getManualResyncStartThresholdInSecs() const
 
 SV_UINT FileConfigurator::getInitialReplicationStartThresholdInSecs() const
 {
-    const SV_UINT delay = boost::lexical_cast<SV_UINT>(get
+    const SV_UINT delay = safe_lexical_cast<SV_UINT>(get
     (SECTION_VXAGENT, KEY_INITIAL_REPLICATION_START_THRESHOLD_IN_SECS, DEFAULT_INITIAL_REPLICATION_START_THRESHOLD_IN_SECS));
 
     return delay ? delay : DEFAULT_INITIAL_REPLICATION_START_THRESHOLD_IN_SECS;
@@ -2404,7 +2503,7 @@ SV_UINT FileConfigurator::getInitialReplicationStartThresholdInSecs() const
 
 SV_UINT FileConfigurator::getAutoResyncStartThresholdInSecs() const
 {
-    const SV_UINT delay = boost::lexical_cast<SV_UINT>(get
+    const SV_UINT delay = safe_lexical_cast<SV_UINT>(get
     (SECTION_VXAGENT, KEY_AUTO_RESYNC_START_THRESHOLD_IN_SECS, DEFAULT_AUTO_RESYNC_START_THRESHOLD_IN_SECS));
 
     return delay ? delay : DEFAULT_AUTO_RESYNC_START_THRESHOLD_IN_SECS;
@@ -2429,6 +2528,20 @@ std::string FileConfigurator::getInstallPath() const
         throw INMAGE_EX("Invalid init mode")(s_initmode);
     }
 }
+
+bool FileConfigurator::getUseDrscoutInstallPathSpace() const
+{
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT,
+        KEY_USE_DRSCOUT_INSTALL_PATH_SPACE, "0"));
+}
+
+int FileConfigurator::getInstallPathReqSpace() const
+{
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT,
+        KEY_INSTALL_PATH_REQUIRED_SPACE,
+        DEFAULT_INSTALL_PATH_REQUIRED_SPACE));
+}
+
 std::string FileConfigurator::getHealthCollatorDirPath() const
 {
     std::string strDefaultHealthCollatorPath = getInstallPath() + 
@@ -2475,27 +2588,27 @@ bool FileConfigurator::shouldReportScsiIdAsDevName() const
 
 int FileConfigurator::getCxUpdateInterval() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_CX_UPDATE_INTERVAL, 60));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_CX_UPDATE_INTERVAL, 60));
 }
 
 int FileConfigurator::getCxCDPDiskUsageUpdateInterval() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_CX_CDPDISKUSAGE_UPDATE_INTERVAL, 3600));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_CX_CDPDISKUSAGE_UPDATE_INTERVAL, 3600));
 }
 
 bool FileConfigurator::CanDeleteAllCxCDPPendingUpdates() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_DELETE_CXCDPUPDATES, 0));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_DELETE_CXCDPUPDATES, 0));
 }
 
 int FileConfigurator::getDeleteAllCxCDPPendingUpdatesInterval() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_DELETE_CXCDPUPDATES_INTERVAL, 0));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_DELETE_CXCDPUPDATES_INTERVAL, 0));
 }
 
 bool FileConfigurator::getIsCXPatched() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_IS_CX_PATCHED, 0));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_IS_CX_PATCHED, 0));
 }
 
 std::string FileConfigurator::getProfileDeviceList() const
@@ -2505,40 +2618,40 @@ std::string FileConfigurator::getProfileDeviceList() const
 
 unsigned int FileConfigurator::getMaxDirectSyncFlushToRetnSize() const
 {
-    return boost::lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_GET_MAX_DIRECTSYNC_FLUSH_TO_RETN_SIZE, 16));
+    return safe_lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_GET_MAX_DIRECTSYNC_FLUSH_TO_RETN_SIZE, 16));
 }
 unsigned int FileConfigurator::getMaxVacpServiceThreads() const
 {
-    return boost::lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_GET_MAX_VACP_SERVICE_THREADS, 2));
+    return safe_lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_GET_MAX_VACP_SERVICE_THREADS, 2));
 }
 unsigned int FileConfigurator::getVacpToCxDelay() const
 {
-    return boost::lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_GET_VACP_TO_CX_DELAY, 300/* 5 mins*/));
+    return safe_lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_GET_VACP_TO_CX_DELAY, 300/* 5 mins*/));
 }
 
 int FileConfigurator::getVolumeRetries() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_VOLUME_RETRIES, SV_DEFAULT_RETRIES));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_VOLUME_RETRIES, SV_DEFAULT_RETRIES));
 }
 
 int FileConfigurator::getVolumeRetryDelay() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_VOLUME_RETRY_DELAY, SV_DEFAULT_RETRY_DELAY));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_VOLUME_RETRY_DELAY, SV_DEFAULT_RETRY_DELAY));
 }
 
 int FileConfigurator::getDirectSyncPartitions() const
 {
-    return boost::lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_DIRECTSYNC_PARTITIONS, 0));
+    return safe_lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_DIRECTSYNC_PARTITIONS, 0));
 }
 
 SV_UINT FileConfigurator::getDirectSyncPartitionSize() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_DIRECTSYNC_PARTITIONSIZE, 0));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_DIRECTSYNC_PARTITIONSIZE, 0));
 }
 
 int FileConfigurator::getEnforcerDelay() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_GET_ENFORCER_DELAY, 5));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_GET_ENFORCER_DELAY, 5));
 }
 
 void FileConfigurator::setCxUpdateInterval(int interval) const
@@ -2548,22 +2661,22 @@ void FileConfigurator::setCxUpdateInterval(int interval) const
 
 SV_UINT FileConfigurator::getPendingDataReporterInterval() const
 {
-    return boost::lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_PENDING_DATA_REPORTER_INTERVAL, "60"));
+    return safe_lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_PENDING_DATA_REPORTER_INTERVAL, "60"));
 }
 
 SV_UINT FileConfigurator::getPendingVsnapReporterInterval() const
 {
-    return boost::lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_PENDING_VSNAP_REPORTER_INTERVAL, "180"));
+    return safe_lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_PENDING_VSNAP_REPORTER_INTERVAL, "180"));
 }
 
 SV_UINT FileConfigurator::getNumberOfBatchRequestToCX() const
 {
-    return boost::lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_NUMBER_OF_BATCH_REQUEST_TO_CX, "256"));
+    return safe_lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_NUMBER_OF_BATCH_REQUEST_TO_CX, "256"));
 }
 
 SV_UINT FileConfigurator::getDoNotRunDiskPart() const
 {
-    return boost::lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_DONOT_RUN_DISKPART, "0"));
+    return safe_lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_DONOT_RUN_DISKPART, "0"));
 }
 
 std::string FileConfigurator::getArchiveToolPath() const
@@ -2574,12 +2687,12 @@ std::string FileConfigurator::getArchiveToolPath() const
 
 SV_ULONG FileConfigurator::getMinCacheFreeDiskSpacePercent() const
 {
-    return boost::lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_MIN_FREE_FREE_DISKSPACE_PERCENT));
+    return safe_lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_MIN_FREE_FREE_DISKSPACE_PERCENT));
 }
 
 int FileConfigurator::getLocalLogSize() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_CM_LOCAL_LOG_SIZE, DEFAULT_LOCAL_LOG_SIZE));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_CM_LOCAL_LOG_SIZE, DEFAULT_LOCAL_LOG_SIZE));
 }
 
 void FileConfigurator::setMinCacheFreeDiskSpacePercent(SV_ULONG percent) const
@@ -2589,7 +2702,7 @@ void FileConfigurator::setMinCacheFreeDiskSpacePercent(SV_ULONG percent) const
 
 SV_ULONGLONG FileConfigurator::getMinCacheFreeDiskSpace() const
 {
-    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MIN_CACHE_FREE_DISKSPACE));
+    return safe_lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MIN_CACHE_FREE_DISKSPACE));
 }
 
 void FileConfigurator::setMinCacheFreeDiskSpace(SV_ULONG space) const
@@ -2599,13 +2712,13 @@ void FileConfigurator::setMinCacheFreeDiskSpace(SV_ULONG space) const
 
 SV_ULONGLONG FileConfigurator::getCMMinReservedSpacePerPair() const
 {
-    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_CM_MIN_RESERVEDSPCE_PER_PAIR,
+    return safe_lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_CM_MIN_RESERVEDSPCE_PER_PAIR,
         DEFAULT_CM_MIN_RESERVEDSPCE_PER_PAIR));
 }
 
 int FileConfigurator::getVirtualVolumesId() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT_VIRTUAL_VOLUMES, KEY_ID, "0"));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT_VIRTUAL_VOLUMES, KEY_ID, "0"));
 }
 
 void  FileConfigurator::setVirtualVolumesId(int id) const
@@ -2625,17 +2738,17 @@ void FileConfigurator::setVirtualVolumesPath(string key, string value) const
 
 int FileConfigurator::getIdleWaitTime() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_IDLE_WAIT_TIME));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_IDLE_WAIT_TIME));
 }
 
 unsigned long long FileConfigurator::getVsnapId() const
 {
-    return boost::lexical_cast<unsigned long long>(get(SECTION_VXAGENT, KEY_VSNAP_ID, 0));
+    return safe_lexical_cast<unsigned long long>(get(SECTION_VXAGENT, KEY_VSNAP_ID, 0));
 }
 
 SV_ULONGLONG FileConfigurator::getVsnapWriteDataLength() const
 {
-    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_VSNAP_WRITEDATA_LENGTH, DEFAULT_VSNAP_WRITEDATA_LENGTH));
+    return safe_lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_VSNAP_WRITEDATA_LENGTH, DEFAULT_VSNAP_WRITEDATA_LENGTH));
 }
 
 void FileConfigurator::setVsnapId(unsigned long long snapId) const
@@ -2645,7 +2758,7 @@ void FileConfigurator::setVsnapId(unsigned long long snapId) const
 
 unsigned long long FileConfigurator::getLowLastSnapshotId() const
 {
-    return boost::lexical_cast<unsigned long long>(get(SECTION_VXAGENT, KEY_LOW_LAST_SNAPSHOT_ID));
+    return safe_lexical_cast<unsigned long long>(get(SECTION_VXAGENT, KEY_LOW_LAST_SNAPSHOT_ID));
 }
 
 void FileConfigurator::setLowLastSnapshotId(unsigned long long snapId) const
@@ -2655,7 +2768,7 @@ void FileConfigurator::setLowLastSnapshotId(unsigned long long snapId) const
 
 unsigned long long FileConfigurator::getHighLastSnapshotId() const
 {
-    return boost::lexical_cast<unsigned long long>(get(SECTION_VXAGENT, KEY_HIGH_LAST_SNAPSHOT_ID));
+    return safe_lexical_cast<unsigned long long>(get(SECTION_VXAGENT, KEY_HIGH_LAST_SNAPSHOT_ID));
 }
 
 void FileConfigurator::setHighLastSnapshotId(unsigned long long snapId) const
@@ -2665,70 +2778,70 @@ void FileConfigurator::setHighLastSnapshotId(unsigned long long snapId) const
 
 SV_ULONG FileConfigurator::getMaxMemoryUsagePerReplication() const
 {
-    return boost::lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_MAX_MEMORYUSAGEPERREPLICATION_VALUE_NAME));
+    return safe_lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_MAX_MEMORYUSAGEPERREPLICATION_VALUE_NAME));
 }
 
 SV_ULONG FileConfigurator::getMaxRunsPerInvocation() const
 {
-    return boost::lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_MAX_RUNSPERINVOCATION_VALUE_NAME));
+    return safe_lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_MAX_RUNSPERINVOCATION_VALUE_NAME));
 }
 
 SV_ULONG FileConfigurator::getMaxInMemoryCompressedFileSize() const
 {
-    return boost::lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_MAX_INMEMORYCOMPRESSEDFILESIZE_VALUE_NAME, DEFAULT_INMEMORYCOMPRESSEDFILESIZE_VALUE));
+    return safe_lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_MAX_INMEMORYCOMPRESSEDFILESIZE_VALUE_NAME, DEFAULT_INMEMORYCOMPRESSEDFILESIZE_VALUE));
 }
 
 
 SV_ULONG FileConfigurator::getMaxInMemoryUnCompressedFileSize() const
 {
-    return boost::lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_MAX_INMEMORYUNCOMPRESSEDFILESIZE_VALUE_NAME, DEFAULT_INMEMORYUNCOMPRESSEDFILESIZE_VALUE));
+    return safe_lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_MAX_INMEMORYUNCOMPRESSEDFILESIZE_VALUE_NAME, DEFAULT_INMEMORYUNCOMPRESSEDFILESIZE_VALUE));
 }
 
 SV_ULONG FileConfigurator::getCompressionChunkSize() const
 {
-    return boost::lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_COMPRESSIONCHUNKSIZE_VALUE_NAME, DEFAULT_COMPRESSIONCHUNKSIZE_VALUE));
+    return safe_lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_COMPRESSIONCHUNKSIZE_VALUE_NAME, DEFAULT_COMPRESSIONCHUNKSIZE_VALUE));
 }
 
 SV_ULONG FileConfigurator::getCompressionBufSize() const
 {
-    return boost::lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_COMPRESSIONBUFSIZE_VALUE_NAME, DEFAULT_COMPRESSIONBUFSIZE_VALUE));
+    return safe_lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_COMPRESSIONBUFSIZE_VALUE_NAME, DEFAULT_COMPRESSIONBUFSIZE_VALUE));
 }
 
 SV_ULONG FileConfigurator::getSequenceCount() const
 {
-    return boost::lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_SEQUENCECOUNT_VALUE_NAME));
+    return safe_lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_SEQUENCECOUNT_VALUE_NAME));
 }
 
 SV_ULONG FileConfigurator::getSequenceCountInMsecs() const
 {
-    return boost::lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_SEQUENCECOUNTINMSECS_VALUE_NAME));
+    return safe_lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_SEQUENCECOUNTINMSECS_VALUE_NAME));
 }
 
 SV_ULONG FileConfigurator::getRetentionBufferSize() const
 {
     string defaultValue = "1048576"; // 1 MB
 
-    return boost::lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_RETENIONBUFSIZE_VALUE_NAME, defaultValue));
+    return safe_lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_RETENIONBUFSIZE_VALUE_NAME, defaultValue));
 }
 
 int FileConfigurator::getCdpPolicyCheckInterval() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_CDP_POLICYCHECK_INTERVAL, DEFAULT_CDP_POLICYCHECK_INTERVAL));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_CDP_POLICYCHECK_INTERVAL, DEFAULT_CDP_POLICYCHECK_INTERVAL));
 }
 
 int FileConfigurator::getCdpFreeSpaceCheckInterval() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_CDP_FREESPACECHECK_INTERVAL, DEFAULT_CDP_FREESPACECHECK_INTERVAL));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_CDP_FREESPACECHECK_INTERVAL, DEFAULT_CDP_FREESPACECHECK_INTERVAL));
 }
 
 SV_ULONGLONG FileConfigurator::getCdpLowSpaceTriggerPercentage() const
 {
-    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_CDP_LOWSPACE_TRIGGER_PERCENT, DEFAULT_CDP_LOWSPACE_TRIGGER_PERCENT));
+    return safe_lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_CDP_LOWSPACE_TRIGGER_PERCENT, DEFAULT_CDP_LOWSPACE_TRIGGER_PERCENT));
 }
 
 SV_ULONGLONG FileConfigurator::getCdpLowSpaceTriggerLowerThreshold() const
 {
-    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_CDP_LOWSPACE_TRIGGER_LOWER_THRESHOLD, DEFAULT_CDP_LOWSPACE_TRIGGER_LOWER_THRESHOLD));
+    return safe_lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_CDP_LOWSPACE_TRIGGER_LOWER_THRESHOLD, DEFAULT_CDP_LOWSPACE_TRIGGER_LOWER_THRESHOLD));
 }
 
 SV_ULONGLONG FileConfigurator::getCdpLowSpaceTriggerUpperThreshold() const
@@ -2740,12 +2853,12 @@ SV_ULONGLONG FileConfigurator::getCdpLowSpaceTriggerUpperThreshold() const
     catch (ContextualException&) {
         result = boost::lexical_cast<std::string>(DEFAULT_CDP_LOWSPACE_TRIGGER_UPPER_THRESHOLD);
     }
-    return boost::lexical_cast<SV_ULONGLONG>(result);
+    return safe_lexical_cast<SV_ULONGLONG>(result);
 }
 
 SV_ULONGLONG FileConfigurator::getSizeOfReservedRetentionSpace() const
 {
-    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_CDP_RESERVED_RETENTION_SPACE_SIZE, DEFAULT_CDP_RESERVED_RETENTION_SPACE_SIZE));
+    return safe_lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_CDP_RESERVED_RETENTION_SPACE_SIZE, DEFAULT_CDP_RESERVED_RETENTION_SPACE_SIZE));
 }
 
 // --------------------------------------------------------------------------
@@ -2785,17 +2898,17 @@ void FormatVolumeNameForCx(std::string& volumeName)
 
 bool FileConfigurator::enforceStrictConsistencyGroups() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_ENFORCE_STRICT_CONSISTENCY_GROUPS));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_ENFORCE_STRICT_CONSISTENCY_GROUPS));
 }
 
 bool FileConfigurator::trackExperimentalDeviceNumbers() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_TRACK_EXPERIMENTAL_DEVICE_NUMBERS, "0"));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_TRACK_EXPERIMENTAL_DEVICE_NUMBERS, "0"));
 }
 
 bool FileConfigurator::useLinuxDeviceTxt() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_USE_LINUX_DEVICE_TXT, "0"));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_USE_LINUX_DEVICE_TXT, "0"));
 }
 
 std::string FileConfigurator::getLinuxDiskDiscoveryCommand() const
@@ -2843,7 +2956,7 @@ std::string FileConfigurator::getVxDiskCmd() const
 
 unsigned int FileConfigurator::getLinuxNumPartitions() const
 {
-    return boost::lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_LINUX_NUM_PARTITIONS, DEFAULT_LINUX_NUM_PARTITIONS));
+    return safe_lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_LINUX_NUM_PARTITIONS, DEFAULT_LINUX_NUM_PARTITIONS));
 }
 
 std::string FileConfigurator::getVxVsetCmd() const
@@ -2888,43 +3001,43 @@ std::string FileConfigurator::getFabricWorldWideName() const
 }
 int FileConfigurator::getDelayBetweenAppShutdownAndTagIssue() const
 {
-    return boost::lexical_cast<int>(get(SECTION_APPLICATION, KEY_DELAY_BETWEEN_APPSHUTDOWN_AND_TAGISSUE, 60));
+    return safe_lexical_cast<int>(get(SECTION_APPLICATION, KEY_DELAY_BETWEEN_APPSHUTDOWN_AND_TAGISSUE, 60));
 }
 
 int FileConfigurator::getMaxWaitTimeForTagArrival() const
 {
-    return boost::lexical_cast<int>(get(SECTION_APPLICATION, KEY_MAX_WAITTIME_FOR_TAGARRIVAL, 300));
+    return safe_lexical_cast<int>(get(SECTION_APPLICATION, KEY_MAX_WAITTIME_FOR_TAGARRIVAL, 300));
 }
 
 int FileConfigurator::getMaxRetryAttemptsToShutdownVXAgent() const
 {
-    return boost::lexical_cast<int>(get(SECTION_APPLICATION, KEY_MAX_RETRY_ATTEMPTS_TO_SHUTDOWN_VXSERVICE, 2));
+    return safe_lexical_cast<int>(get(SECTION_APPLICATION, KEY_MAX_RETRY_ATTEMPTS_TO_SHUTDOWN_VXSERVICE, 2));
 }
 
 bool FileConfigurator::getApplicationFailoverChkDskEnabled() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_APPLICATION, KEY_AAPLICARION_FAILOVER_CHKDSK, 0));
+    return safe_lexical_cast<bool>(get(SECTION_APPLICATION, KEY_AAPLICARION_FAILOVER_CHKDSK, 0));
 }
 //Xen Registration by Ranjan
 
 int FileConfigurator::getMaxWaitTimeForXenRegistration() const
 {
-    return boost::lexical_cast<int>(get(SECTION_APPLICATION, KEY_MAX_WAITTIME_FOR_XENREGISTRATION, 180));
+    return safe_lexical_cast<int>(get(SECTION_APPLICATION, KEY_MAX_WAITTIME_FOR_XENREGISTRATION, 180));
 }
 
 int FileConfigurator::getMaxWaitTimeForLvActivation() const
 {
-    return boost::lexical_cast<int>(get(SECTION_APPLICATION, KEY_MAX_WAITTIME_FOR_LVACTIVATION, 21600));
+    return safe_lexical_cast<int>(get(SECTION_APPLICATION, KEY_MAX_WAITTIME_FOR_LVACTIVATION, 21600));
 }
 
 int FileConfigurator::getMaxWaitTimeForDisplayVmVdiInfo() const
 {
-    return boost::lexical_cast<int>(get(SECTION_APPLICATION, KEY_MAX_WAITTIME_FOR_DISPLAYVMVDIINFO, 180));
+    return safe_lexical_cast<int>(get(SECTION_APPLICATION, KEY_MAX_WAITTIME_FOR_DISPLAYVMVDIINFO, 180));
 }
 
 int FileConfigurator::getMaxWaitTimeForCxStatusUpdate() const
 {
-    return boost::lexical_cast<int>(get(SECTION_APPLICATION, KEY_MAX_WAITTIME_FOR_CXSTATUSUPDATE, 300));
+    return safe_lexical_cast<int>(get(SECTION_APPLICATION, KEY_MAX_WAITTIME_FOR_CXSTATUSUPDATE, 300));
 }
 //end of change
 
@@ -2941,47 +3054,47 @@ void FileConfigurator::setMaxWaitTimeForTagArrival(int noOfSecondsToWaitForTagAr
 /*Added by BSR for Fast Sync TBC*/
 bool FileConfigurator::getMemoryBasedSyncApplyEnabled() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_MEMORY_BASED_SYNC_APPLY_ENABLED, 0));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_MEMORY_BASED_SYNC_APPLY_ENABLED, 0));
 }
 
 SV_ULONG FileConfigurator::getMaxMemoryCapForResync() const
 {
-    return boost::lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_MAX_MEMORY_CAP_FOR_RESYNC));
+    return safe_lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_MAX_MEMORY_CAP_FOR_RESYNC));
 }
 
 /*End of the change */
 
 unsigned long long FileConfigurator::GetMaxSpacePerCdpDataFile() const
 {
-    return boost::lexical_cast<unsigned long long>(get(SECTION_VXAGENT, KEY_MAX_SPACE_PER_CDP_DATA_FILE, 67108864));
+    return safe_lexical_cast<unsigned long long>(get(SECTION_VXAGENT, KEY_MAX_SPACE_PER_CDP_DATA_FILE, 67108864));
 }
 
 bool FileConfigurator::isCdpDataFilePreAllocationEnabled() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_PREALLOCATE_CDP_DATA_FILE, "0"));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_PREALLOCATE_CDP_DATA_FILE, "0"));
 }
 bool FileConfigurator::isVsnapLocalPersistenceEnabled() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_VSNAP_LOCAL_PERSISTENCE, "1"));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_VSNAP_LOCAL_PERSISTENCE, "1"));
 }
 unsigned long long FileConfigurator::GetMaxTimeRangePerCdpDataFile() const
 {
-    return boost::lexical_cast<unsigned long long>(get(SECTION_VXAGENT, KEY_MAX_TIME_RANGE_PER_CDP_DATA_FILE, "36000000000"));
+    return safe_lexical_cast<unsigned long long>(get(SECTION_VXAGENT, KEY_MAX_TIME_RANGE_PER_CDP_DATA_FILE, "36000000000"));
 }
 
 bool FileConfigurator::registerClusterInfoEnabled() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_REGISTER_CLUSTER_INFO, "1"));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_REGISTER_CLUSTER_INFO, "1"));
 }
 
 bool FileConfigurator::monitorVolumesEnabled() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_MONITOR_VOLUMES, "1"));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_MONITOR_VOLUMES, "1"));
 }
 
 bool FileConfigurator::reportFullDeviceNamesOnly() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_REPORT_FULL_DEVICE_NAMES_ONLY, "0"));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_REPORT_FULL_DEVICE_NAMES_ONLY, "0"));
 }
 
 std::string FileConfigurator::getAgentMode() const
@@ -2997,27 +3110,32 @@ void FileConfigurator::setAgentMode(std::string mode) const
 
 int FileConfigurator::getTransportMaxBufferSize() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXTRANSPORT, KEY_TRANSPORT_MAX_BUFFER_SIZE, "1048576"));
+    return safe_lexical_cast<int>(get(SECTION_VXTRANSPORT, KEY_TRANSPORT_MAX_BUFFER_SIZE, "1048576"));
 }
 
 int FileConfigurator::getTransportConnectTimeoutSeconds() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXTRANSPORT, KEY_TRANSPORT_CONNECT_TIMEOUT_SECONDS, "0"));
+    return safe_lexical_cast<int>(get(SECTION_VXTRANSPORT, KEY_TRANSPORT_CONNECT_TIMEOUT_SECONDS, "0"));
 }
 
 int FileConfigurator::getTransportResponseTimeoutSeconds() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXTRANSPORT, KEY_TRANSPORT_RESPONSE_TIMEOUT_SECONDS, "300"));
+    return safe_lexical_cast<int>(get(SECTION_VXTRANSPORT, KEY_TRANSPORT_RESPONSE_TIMEOUT_SECONDS, "300"));
 }
 
 int FileConfigurator::getTransportLowSpeedTimeoutSeconds() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXTRANSPORT, KEY_TRANSPORT_LOW_SPEED_TIMEOUT_SECONDS, "120"));
+    return safe_lexical_cast<int>(get(SECTION_VXTRANSPORT, KEY_TRANSPORT_LOW_SPEED_TIMEOUT_SECONDS, "120"));
 }
 
 int FileConfigurator::getTransportWriteMode() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXTRANSPORT, KEY_TRANSPORT_WRITE_MODE, "1"));
+    return safe_lexical_cast<int>(get(SECTION_VXTRANSPORT, KEY_TRANSPORT_WRITE_MODE, "1"));
+}
+
+int FileConfigurator::getAzureBlobClientMaxListResults() const
+{
+    return safe_lexical_cast<int>(get(SECTION_VXTRANSPORT, KEY_AZURE_BLOB_CLIENT_MAX_LIST_RESULT, "1000"));
 }
 
 /*
@@ -3039,12 +3157,12 @@ int FileConfigurator::getTransportWriteMode() const
  */
 bool FileConfigurator::get_curl_verbose() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXTRANSPORT, KEY_CURLVERBOSE, DEFAULT_CURLVERBOSE));
+    return safe_lexical_cast<bool>(get(SECTION_VXTRANSPORT, KEY_CURLVERBOSE, DEFAULT_CURLVERBOSE));
 }
 
 bool FileConfigurator::ignoreCurlPartialFileErrors() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXTRANSPORT, "IgnoreCurlPartialFileErrors", false));
+    return safe_lexical_cast<bool>(get(SECTION_VXTRANSPORT, "IgnoreCurlPartialFileErrors", false));
 }
 
 std::string FileConfigurator::getCacheMgrExePathname() const
@@ -3081,7 +3199,7 @@ std::string FileConfigurator::getCdpMgrExePathname() const
  */
 int FileConfigurator::getCDPMgrExitTime() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_CDPMGR_EXIT_TIME_V2, DEFAULT_CDPMGR_EXIT_TIME_V2));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_CDPMGR_EXIT_TIME_V2, DEFAULT_CDPMGR_EXIT_TIME_V2));
 }
 
 // to speed up rollback operation, metadata can be read ahead by multiple read ahead threads
@@ -3091,22 +3209,22 @@ int FileConfigurator::getCDPMgrExitTime() const
 
 bool FileConfigurator::isCDPReadAheadCacheEnabled() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_CDP_READAHEAD_ENABLED, 1));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_CDP_READAHEAD_ENABLED, 1));
 }
 
 unsigned int FileConfigurator::CDPReadAheadThreads() const
 {
-    return boost::lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_CDP_READAHEAD_THREADS, 4));
+    return safe_lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_CDP_READAHEAD_THREADS, 4));
 }
 
 unsigned int FileConfigurator::CDPReadAheadFileCount() const
 {
-    return boost::lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_CDP_READAHEAD_FILECOUNT, 4));
+    return safe_lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_CDP_READAHEAD_FILECOUNT, 4));
 }
 
 unsigned int FileConfigurator::CDPReadAheadLength() const
 {
-    return boost::lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_CDP_READAHEAD_LENGTH, 4194304));
+    return safe_lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_CDP_READAHEAD_LENGTH, 4194304));
 }
 
 /*
@@ -3128,7 +3246,7 @@ unsigned int FileConfigurator::CDPReadAheadLength() const
  */
 int FileConfigurator::getCacheMgrExitTime() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_CACHEMGR_EXIT_TIME, DEFAULT_CACHEMGR_EXIT_TIME));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_CACHEMGR_EXIT_TIME, DEFAULT_CACHEMGR_EXIT_TIME));
 }
 
 /*
@@ -3151,7 +3269,7 @@ int FileConfigurator::getCacheMgrExitTime() const
 SV_ULONGLONG FileConfigurator::getMaxDiskUsagePerReplication() const
 {
     SV_ULONGLONG maxdiskusage =
-        boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT,
+        safe_lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT,
         KEY_MAX_DISKUSAGEPERREPLICATION_VALUE_NAME, DEFAULT_MAXDISKUSAGE_PERREPLICATION));
 
     if (maxdiskusage == 0)
@@ -3181,7 +3299,7 @@ SV_ULONGLONG FileConfigurator::getMaxDiskUsagePerReplication() const
  */
 SV_UINT FileConfigurator::getNWThreadsPerReplication() const
 {
-    SV_UINT nwThreads = boost::lexical_cast<SV_UINT>(get
+    SV_UINT nwThreads = safe_lexical_cast<SV_UINT>(get
         (SECTION_VXAGENT, KEY_NWTHREADSPERREPLICATION_VALUE_NAME, DEFAULT_MIN_NW_THREADS));
     if (nwThreads == 0)
     {
@@ -3215,7 +3333,7 @@ SV_UINT FileConfigurator::getNWThreadsPerReplication() const
  */
 SV_UINT FileConfigurator::getIOThreadsPerReplication() const
 {
-    SV_UINT ioThreads = boost::lexical_cast<SV_UINT>(get
+    SV_UINT ioThreads = safe_lexical_cast<SV_UINT>(get
         (SECTION_VXAGENT, KEY_IOTHREADSPERREPLICATION_VALUE_NAME, DEFAULT_MIN_IO_THREADS));
     if (ioThreads == 0)
     {
@@ -3250,7 +3368,7 @@ SV_UINT FileConfigurator::getIOThreadsPerReplication() const
  */
 SV_UINT FileConfigurator::getCMRetryDelayInSeconds() const
 {
-    SV_UINT delay = boost::lexical_cast<SV_UINT>(get
+    SV_UINT delay = safe_lexical_cast<SV_UINT>(get
         (SECTION_VXAGENT, KEY_CMRETRYDELAY_VALUE_NAME, CM_DEFAULT_RETRY_DELAY));
 
     if (delay == 0)
@@ -3281,7 +3399,7 @@ SV_UINT FileConfigurator::getCMRetryDelayInSeconds() const
  */
 SV_UINT FileConfigurator::getCMMaxRetries() const
 {
-    SV_UINT retries = boost::lexical_cast<SV_UINT>(get
+    SV_UINT retries = safe_lexical_cast<SV_UINT>(get
         (SECTION_VXAGENT, KEY_CMMAXRETRIES_VALUE_NAME, CM_DEFAULT_RETRIES));
     if (retries == 0)
     {
@@ -3310,7 +3428,7 @@ SV_UINT FileConfigurator::getCMMaxRetries() const
  */
 SV_UINT FileConfigurator::getCMIdleWaitTimeInSeconds() const
 {
-    SV_UINT idleWaitTime = boost::lexical_cast<SV_UINT>(get
+    SV_UINT idleWaitTime = safe_lexical_cast<SV_UINT>(get
         (SECTION_VXAGENT, KEY_CMIDLEWAITTIME_VALUE_NAME, CM_DEFAULT_IDLE_WAIT_TIME));
     if (idleWaitTime == 0)
     {
@@ -3345,7 +3463,7 @@ SV_UINT FileConfigurator::getCMIdleWaitTimeInSeconds() const
 */
 SV_ULONG    FileConfigurator::getDriverDppRamUsageInPercent() const
 {
-    SV_ULONG ulDppUsageInPercent = boost::lexical_cast<SV_ULONG>(get
+    SV_ULONG ulDppUsageInPercent = safe_lexical_cast<SV_ULONG>(get
         (SECTION_DRIVER, KEY_DPP_USAGE_IN_PERCENTAGE, CM_DEFAULT_DPP_USAGE_IN_PERCENTAGE));
 
     if ((ulDppUsageInPercent <= 0) || (ulDppUsageInPercent >= CM_MAX_DPP_USAGE_IN_PERCENTAGE))
@@ -3381,7 +3499,7 @@ SV_ULONG    FileConfigurator::getDriverDppRamUsageInPercent() const
 */
 SV_ULONG    FileConfigurator::getDriverMinDppUsageInMB() const
 {
-    SV_ULONG ulMinDppUsageInMB = boost::lexical_cast<SV_ULONG>(get
+    SV_ULONG ulMinDppUsageInMB = safe_lexical_cast<SV_ULONG>(get
         (SECTION_DRIVER, KEY_MIN_DPP_USAGE_IN_MB, CM_DEFAULT_MIN_DPP_USAGE_IN_MB));
 
     if (ulMinDppUsageInMB < CM_DEFAULT_MIN_DPP_USAGE_IN_MB)
@@ -3419,7 +3537,7 @@ SV_ULONG    FileConfigurator::getDriverMinDppUsageInMB() const
 */
 SV_ULONG    FileConfigurator::getDriverMaxDppUsageInMB() const
 {
-    SV_ULONG ulMaxDppUsageInMB = boost::lexical_cast<SV_ULONG>(get
+    SV_ULONG ulMaxDppUsageInMB = safe_lexical_cast<SV_ULONG>(get
         (SECTION_DRIVER, KEY_MAX_DPP_USAGE_IN_MB, CM_DEFAULT_MAX_DPP_USAGE_IN_MB));
     if (ulMaxDppUsageInMB > CM_DEFAULT_MAX_DPP_USAGE_IN_MB)
     {
@@ -3450,15 +3568,159 @@ SV_ULONG    FileConfigurator::getDriverMaxDppUsageInMB() const
 */
 SV_ULONG    FileConfigurator::getDriverDppAlignmentInMB() const
 {
-    SV_ULONG ulDppAlignmentInMB = boost::lexical_cast<SV_ULONG>(get
+    SV_ULONG ulDppAlignmentInMB = safe_lexical_cast<SV_ULONG>(get
         (SECTION_DRIVER, KEY_DPP_ALIGNMENT_IN_MB, CM_DEFAULT_DPP_ALIGNMENT_IN_MB));
 
-    if (0 <= ulDppAlignmentInMB) {
+    if (ulDppAlignmentInMB >= CM_DEFAULT_DPP_ALIGNMENT_IN_MB) {
         ulDppAlignmentInMB = CM_DEFAULT_DPP_ALIGNMENT_IN_MB;
     }
 
     return ulDppAlignmentInMB;
 }
+
+/*
+* FUNCTION NAME : FileConfigurator::getDriverDNpFreeRamUsageInPercent
+*
+* DESCRIPTION
+*       Defines percentage of Free Memory to be used by driver as non paged pool.
+*       Fetches the non paged pool in percentage of Total free memory.
+*       It is configured in KEY_DNP_USAGE_IN_PERCENTAGE.
+*       By default it is configured to 2%.
+*       Maximum allowed is defined by CM_MAX_DNP_USAGE_IN_PERCENTAGE.
+*       If configuration doesn't contain it returns
+*                                   CM_DEFAULT_DNP_USAGE_IN_PERCENTAGE.
+*       This is only applicable for Windows.
+*
+* INPUT PARAMETERS : none
+*
+* OUTPUT PARAMETERS : none
+*
+* NOTES :
+*
+*
+* return value :   Data NonPaged Pool in percentage of RAM to be used by driver.
+*
+*/
+SV_ULONG    FileConfigurator::getDriverDNpFreeRamUsageInPercent() const
+{
+    SV_ULONG ulDnpUsageInPercent = safe_lexical_cast<SV_ULONG>(get
+    (SECTION_DRIVER, KEY_DNP_USAGE_IN_PERCENTAGE, CM_DEFAULT_DNP_USAGE_IN_PERCENTAGE));
+
+    if ((ulDnpUsageInPercent <= 0) || (ulDnpUsageInPercent >= CM_MAX_DNP_USAGE_IN_PERCENTAGE))
+    {
+        ulDnpUsageInPercent = CM_DEFAULT_DNP_USAGE_IN_PERCENTAGE;
+    }
+    return ulDnpUsageInPercent;
+}
+
+/*
+* FUNCTION NAME : FileConfigurator::getDriverMinDnpUsageInMB
+*
+* DESCRIPTION
+*       Minimum Data non paged pool in MB to be used by driver.
+*       Fetches the minimum data non paged pool size in MB.
+*       It is configured in KEY_MIN_DNP_USAGE_IN_MB in conf file.
+*       By default it is configured to CM_DEFAULT_MIN_DNP_USAGE_IN_MB.
+*       If this configuration is missing CM_DEFAULT_MIN_DNP_USAGE_IN_MB
+*               is returned.
+*       If minimum configured is less than CM_DEFAULT_MIN_DNP_USAGE_IN_MB,
+*                   CM_DEFAULT_MIN_DNP_USAGE_IN_MB is returned.
+*       This is only applicable for Windows.
+*
+* INPUT PARAMETERS : none
+*
+* OUTPUT PARAMETERS : none
+*
+* NOTES :
+*
+*
+* return value : Minumum Data Non Paged Pool to be used by driver.
+*
+*/
+
+SV_ULONG    FileConfigurator::getDriverMinDNpUsageInMB() const
+{
+    SV_ULONG ulMinDnpUsageInMB = safe_lexical_cast<SV_ULONG>(get
+    (SECTION_DRIVER, KEY_MIN_DNP_USAGE_IN_MB, CM_DEFAULT_MIN_DNP_USAGE_IN_MB));
+
+    if (ulMinDnpUsageInMB < CM_DEFAULT_MIN_DNP_USAGE_IN_MB)
+    {
+        ulMinDnpUsageInMB = CM_DEFAULT_MIN_DNP_USAGE_IN_MB;
+    }
+
+    return ulMinDnpUsageInMB;
+}
+
+/*
+* FUNCTION NAME : FileConfigurator::getDriverMaxDNpUsageInMB
+*
+* DESCRIPTION
+*       Maximum Data Non paged pool in MB to be used by driver.
+*       Fetches the maximum data Non paged pool size in MB.
+*       It is configured in KEY_MAX_DNP_USAGE_IN_MB in conf file.
+*       By default it is configured to CM_DEFAULT_MAX_DNP_USAGE_IN_MB.
+*       If this configuration is missing CM_DEFAULT_MAX_DNP_USAGE_IN_MB
+*               is returned.
+*       If maximum configured is greater than than CM_DEFAULT_MAX_DNP_USAGE_IN_MB,
+*                   CM_DEFAULT_MAX_DNP_USAGE_IN_MB is returned.
+*       This is only applicable for Windows.
+*
+* INPUT PARAMETERS : none
+*
+* OUTPUT PARAMETERS : none
+*
+* NOTES :
+*
+*
+* return value : Max Data Non Paged Pool to be used by driver.
+*
+*/
+
+SV_ULONG    FileConfigurator::getDriverMaxDNpUsageInMB() const
+{
+    SV_ULONG ulMaxDnpUsageInMB = safe_lexical_cast<SV_ULONG>(get
+    (SECTION_DRIVER, KEY_MAX_DNP_USAGE_IN_MB, CM_DEFAULT_MAX_DNP_USAGE_IN_MB));
+    if (ulMaxDnpUsageInMB > CM_DEFAULT_MAX_DNP_USAGE_IN_MB)
+    {
+        ulMaxDnpUsageInMB = CM_DEFAULT_MAX_DNP_USAGE_IN_MB;
+    }
+    return ulMaxDnpUsageInMB;
+}
+
+/*
+* FUNCTION NAME : FileConfigurator::getDriverDNpAlignmentInMB
+*
+* DESCRIPTION
+*       Data non paged pool alignment in MB to be used by driver.
+*       Fetches the data non paged pool alignment in MB.
+*       It is configured in KEY_DNP_ALIGNMENT_IN_MB in conf file.
+*       By default it is configured to CM_DEFAULT_DNP_ALIGNMENT_IN_MB.
+*
+*       This is only applicable for Windows.
+* INPUT PARAMETERS : none
+*
+* OUTPUT PARAMETERS : none
+*
+* NOTES :
+*
+*
+* return value : Data Non Paged Pool Alignment to be used by driver.
+*
+*/
+
+SV_ULONG    FileConfigurator::getDriverDNpAlignmentInMB() const
+{
+    SV_ULONG ulDnpAlignmentInMB = safe_lexical_cast<SV_ULONG>(get
+    (SECTION_DRIVER, KEY_DNP_ALIGNMENT_IN_MB, CM_DEFAULT_DNP_ALIGNMENT_IN_MB));
+
+    if (ulDnpAlignmentInMB >= CM_DEFAULT_DNP_ALIGNMENT_IN_MB) {
+        ulDnpAlignmentInMB = CM_DEFAULT_DNP_ALIGNMENT_IN_MB;
+    }
+
+    return ulDnpAlignmentInMB;
+}
+
+
 
 /*
  * FUNCTION NAME : FileConfigurator::AllowOutOfOrderSeq
@@ -3480,7 +3742,7 @@ SV_ULONG    FileConfigurator::getDriverDppAlignmentInMB() const
  */
 SV_UINT FileConfigurator::AllowOutOfOrderSeq() const
 {
-    SV_UINT action = boost::lexical_cast<SV_UINT>(get
+    SV_UINT action = safe_lexical_cast<SV_UINT>(get
         (SECTION_VXAGENT, KEY_OUTOFORDERSEQ_VALUE_NAME, SV_DEFAULT_OUTOFORDERSEQACTION));
 
     return action;
@@ -3506,7 +3768,7 @@ SV_UINT FileConfigurator::AllowOutOfOrderSeq() const
  */
 SV_UINT FileConfigurator::AllowOutOfOrderTS() const
 {
-    SV_UINT action = boost::lexical_cast<SV_UINT>(get
+    SV_UINT action = safe_lexical_cast<SV_UINT>(get
         (SECTION_VXAGENT, KEY_OUTOFORDERTS_VALUE_NAME, SV_DEFAULT_OUTOFORDERTSACTION));
 
     return action;
@@ -3534,7 +3796,7 @@ SV_UINT FileConfigurator::AllowOutOfOrderTS() const
  */
 SV_UINT FileConfigurator::IgnoreOutOfOrder() const
 {
-    SV_UINT action = boost::lexical_cast<SV_UINT>(get
+    SV_UINT action = safe_lexical_cast<SV_UINT>(get
         (SECTION_VXAGENT, KEY_IGNOREOUTOFORDER_VALUE_NAME, 0));
 
     return action;
@@ -3542,27 +3804,27 @@ SV_UINT FileConfigurator::IgnoreOutOfOrder() const
 
 bool FileConfigurator::isCMSVDCheckEnabled() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_CM_ENABLE_SVD_CHECK, "0"));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_CM_ENABLE_SVD_CHECK, "0"));
 }
 
 bool FileConfigurator::getShouldS2RenameDiffs() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_SHOULD_S2_RENAME_DIFFERENTIAL_FILES, true));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_SHOULD_S2_RENAME_DIFFERENTIAL_FILES, true));
 }
 
 bool FileConfigurator::ShouldProfileDirectSync(void) const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_SHOULD_PROFILE_DIRECT_SYNC, false));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_SHOULD_PROFILE_DIRECT_SYNC, false));
 }
 
 int FileConfigurator::getS2StrictMode() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_S2_STRICTMODE, "0"));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_S2_STRICTMODE, "0"));
 }
 
 unsigned int FileConfigurator::getRepeatingAlertIntervalInSeconds() const
 {
-    return boost::lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_REPEATING_ALERT_INTERVAL_IN_SECS, "1800"));
+    return safe_lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_REPEATING_ALERT_INTERVAL_IN_SECS, "1800"));
 }
 
 void FileConfigurator::insertRole(std::map<std::string, std::string> &m) const
@@ -3575,68 +3837,68 @@ void FileConfigurator::insertRole(std::map<std::string, std::string> &m) const
 bool FileConfigurator::registerLabelOnDisks() const
 {
     /* TODO: should default be not to register ? */
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_REGISTER_LABEL_ON_DISKS, true));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_REGISTER_LABEL_ON_DISKS, true));
 }
 
 bool FileConfigurator::compareHcd() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_COMPARE_HCD, true));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_COMPARE_HCD, true));
 }
 
 unsigned FileConfigurator::DirectSyncIOBufferCount() const
 {
     /* 2 is default because there are two stages in direct sync pipeline (read and write) */
-    return boost::lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_DIRECTSYNC_IO_BUFFER_COUNT, "2"));
+    return safe_lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_DIRECTSYNC_IO_BUFFER_COUNT, "2"));
 }
 
 bool FileConfigurator::pipelineReadWriteInDirectSync() const
 {
-    return boost::lexical_cast<bool> (get(SECTION_VXAGENT, KEY_PIPELINE_READWRITE_INDIRECTSYNC, true));
+    return safe_lexical_cast<bool> (get(SECTION_VXAGENT, KEY_PIPELINE_READWRITE_INDIRECTSYNC, true));
 }
 
 long FileConfigurator::getTransportFlushThresholdForDiff() const
 {
-    return boost::lexical_cast<long>(get(SECTION_VXAGENT, KEY_TRANSPORT_FLUSH_THRESHOLD_FORDIFF, 1048576));
+    return safe_lexical_cast<long>(get(SECTION_VXAGENT, KEY_TRANSPORT_FLUSH_THRESHOLD_FORDIFF, 1048576));
 }
 
 long FileConfigurator::getAzureBlobFlushThresholdForDiff() const
 {
-    return boost::lexical_cast<long>(get(SECTION_VXAGENT, KEY_AZUREBLOB_FLUSH_THRESHOLD_FORDIFF, DEFAULT_AZUREBLOB_FLUSH_THRESHOLD_FORDIFF));
+    return safe_lexical_cast<long>(get(SECTION_VXAGENT, KEY_AZUREBLOB_FLUSH_THRESHOLD_FORDIFF, DEFAULT_AZUREBLOB_FLUSH_THRESHOLD_FORDIFF));
 }
 
 long FileConfigurator::getVacpParallelMaxRunTime() const
 {
-    return boost::lexical_cast<long>(get(SECTION_VXAGENT, KEY_VACP_PARALLEL_MAX_RUN_TIME, DEFAULT_VACP_PARALLEL_MAX_RUN_TIME));
+    return safe_lexical_cast<long>(get(SECTION_VXAGENT, KEY_VACP_PARALLEL_MAX_RUN_TIME, DEFAULT_VACP_PARALLEL_MAX_RUN_TIME));
 }
 
 long FileConfigurator::getVacpDrainBarrierTimeout() const
 {
-    return boost::lexical_cast<long>(get(SECTION_VXAGENT, KEY_VACP_DRAINBARRIER_TIMEOUT, DEFAULT_VACP_DRAINBARRIER_TIMEOUT));
+    return safe_lexical_cast<long>(get(SECTION_VXAGENT, KEY_VACP_DRAINBARRIER_TIMEOUT, DEFAULT_VACP_DRAINBARRIER_TIMEOUT));
 }
 
 long FileConfigurator::getVacpTagCommitMaxTimeOut() const
 {
-    return boost::lexical_cast<long>(get(SECTION_VXAGENT, KEY_VACP_TAG_COMMIT_MAX_TIMEOUT, DEFAULT_VACP_TAG_COMMIT_MAX_TIMEOUT));
+    return safe_lexical_cast<long>(get(SECTION_VXAGENT, KEY_VACP_TAG_COMMIT_MAX_TIMEOUT, DEFAULT_VACP_TAG_COMMIT_MAX_TIMEOUT));
 }
 
 uint32_t FileConfigurator::getVacpExitWaitTime() const
 {
-    return boost::lexical_cast<uint32_t>(get(SECTION_VXAGENT, KEY_VACP_EXIT_WAIT_TIME, DEFAULT_VACP_EXIT_WAIT_TIME));
+    return safe_lexical_cast<uint32_t>(get(SECTION_VXAGENT, KEY_VACP_EXIT_WAIT_TIME, DEFAULT_VACP_EXIT_WAIT_TIME));
 }
 
 uint32_t FileConfigurator::getConsistencyLogParseInterval() const
 {
-    return boost::lexical_cast<uint32_t>(get(SECTION_VXAGENT, KEY_CONSISTENCY_LOG_PARSE_INTERVAL, DEFAULT_CONSISTENCY_LOG_PARSE_INTERVAL));
+    return safe_lexical_cast<uint32_t>(get(SECTION_VXAGENT, KEY_CONSISTENCY_LOG_PARSE_INTERVAL, DEFAULT_CONSISTENCY_LOG_PARSE_INTERVAL));
 }
 
 uint32_t FileConfigurator::getAppConsistencyRetryOnRebootMaxTime() const
 {
-    return boost::lexical_cast<uint32_t>(get(SECTION_VXAGENT, KEY_APP_CONSISTENCY_RETRY_ON_REBOOT_MAX_TIME, DEFAULT_APP_CONSISTENCY_RETRY_ON_REBOOT_MAX_TIME));
+    return safe_lexical_cast<uint32_t>(get(SECTION_VXAGENT, KEY_APP_CONSISTENCY_RETRY_ON_REBOOT_MAX_TIME, DEFAULT_APP_CONSISTENCY_RETRY_ON_REBOOT_MAX_TIME));
 }
 
 int FileConfigurator::getProfileDiffs() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_PROFILE_DIFFS, "0"));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_PROFILE_DIFFS, "0"));
 }
 
 std::string FileConfigurator::ProfileDifferentialRate() const
@@ -3646,61 +3908,61 @@ std::string FileConfigurator::ProfileDifferentialRate() const
 
 SV_UINT FileConfigurator::ProfileDifferentialRateInterval() const
 {
-    return boost::lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_PROFILE_DIFFERENTIAL_RATE_INTERVAL, 600));
+    return safe_lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_PROFILE_DIFFERENTIAL_RATE_INTERVAL, 600));
 }
 
 SV_UINT FileConfigurator::getLengthForFileSystemClustersQuery() const
 {
-    return boost::lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_LENGTHFOR_FILESYSTEM_CLUSTERSQUERY, DEFAULT_LENGTHFOR_FILESYSTEM_CLUSTERSQUERY));
+    return safe_lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_LENGTHFOR_FILESYSTEM_CLUSTERSQUERY, DEFAULT_LENGTHFOR_FILESYSTEM_CLUSTERSQUERY));
 }
 
 unsigned int FileConfigurator::getWaitTimeForSrcLunsValidity() const
 {
-    return boost::lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_WAIT_TIME_FOR_SRCLUN_VALIDITY, DEFAULT_WAITTIME_FOR_SRCVALIDITY));
+    return safe_lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_WAIT_TIME_FOR_SRCLUN_VALIDITY, DEFAULT_WAITTIME_FOR_SRCVALIDITY));
 }
 
 unsigned int FileConfigurator::getSourceReadRetries() const
 {
-    return boost::lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_SOURCE_READ_RETRIES, "30"));
+    return safe_lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_SOURCE_READ_RETRIES, "30"));
 }
 
 
 bool FileConfigurator::getZerosForSourceReadFailures() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_ZEROS_FOR_SOURCE_READ_FAILURES, false));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_ZEROS_FOR_SOURCE_READ_FAILURES, false));
 }
 
 
 unsigned int FileConfigurator::getSourceReadRetriesInterval() const
 {
-    return boost::lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_SOURCE_READ_RETRIES_INTERVAL, "30"));
+    return safe_lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_SOURCE_READ_RETRIES_INTERVAL, "30"));
 }
 
 unsigned long int FileConfigurator::getExpectedMaxDiffFileSize() const
 {
-    return boost::lexical_cast<unsigned long int>(get(SECTION_VXAGENT, KEY_EXPECTED_MAX_DIFFFILE_SIZE, DEFAULT_EXPECTED_MAX_DIFFFILE_SIZE));
+    return safe_lexical_cast<unsigned long int>(get(SECTION_VXAGENT, KEY_EXPECTED_MAX_DIFFFILE_SIZE, DEFAULT_EXPECTED_MAX_DIFFFILE_SIZE));
 }
 
 unsigned int FileConfigurator::getPendingChangesUpdateInterval() const
 {
-    return boost::lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_PENDING_CHANGES_UPDATE_INTERVAL, "300"));
+    return safe_lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_PENDING_CHANGES_UPDATE_INTERVAL, "300"));
 }
 
 bool FileConfigurator::shouldIssueScsiCmd() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_SHOULD_ISSUE_SCSICMD, "1"));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_SHOULD_ISSUE_SCSICMD, "1"));
 }
 
 unsigned FileConfigurator::getClusSvcRetryTimeInSeconds() const
 {
     /* 6 mins should handle almost all cases because on internal setups, the
     *  time is generally 2 to 3 mins for cluster service to be online after svagents */
-    return boost::lexical_cast<unsigned>(get(SECTION_VXAGENT, KEY_CLUSSVC_RETRY_TIME_IN_SECONDS, "360"));
+    return safe_lexical_cast<unsigned>(get(SECTION_VXAGENT, KEY_CLUSSVC_RETRY_TIME_IN_SECONDS, "360"));
 }
 
 bool FileConfigurator::getScsiId() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_GET_SCSI_ID, "1"));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_GET_SCSI_ID, "1"));
 }
 
 std::string FileConfigurator::getCxData() const
@@ -3710,22 +3972,22 @@ std::string FileConfigurator::getCxData() const
 
 int FileConfigurator::getLogFileXfer() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_ENABLE_FILE_XFERLOG, "1"));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_ENABLE_FILE_XFERLOG, "1"));
 }
 
 size_t FileConfigurator::getMetadataReadBufLen() const
 {
-    return boost::lexical_cast<size_t>(get(SECTION_VXAGENT, KEY_METADATA_READ_BUFLEN, DEFAULT_METADATA_READ_BUFFER_LENGTH));
+    return safe_lexical_cast<size_t>(get(SECTION_VXAGENT, KEY_METADATA_READ_BUFLEN, DEFAULT_METADATA_READ_BUFFER_LENGTH));
 }
 
 unsigned long FileConfigurator::getMirrorResyncEventWaitTime() const
 {
-    return boost::lexical_cast<unsigned long>(get(SECTION_VXAGENT, KEY_MIRROR_RESYNC_EVENT_WAITTIME, DEFAULT_MIRROR_RESYNC_EVENT_WAITTIME));
+    return safe_lexical_cast<unsigned long>(get(SECTION_VXAGENT, KEY_MIRROR_RESYNC_EVENT_WAITTIME, DEFAULT_MIRROR_RESYNC_EVENT_WAITTIME));
 }
 
 int FileConfigurator::getEnableVolumeMonitor() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_ENABLE_VOLUMEMONITOR, "1"));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_ENABLE_VOLUMEMONITOR, "1"));
 }
 
 /*
@@ -3747,7 +4009,7 @@ int FileConfigurator::getEnableVolumeMonitor() const
  */
 int FileConfigurator::getEnforcerAlertInterval() const
 {
-    return boost::lexical_cast<int>(get
+    return safe_lexical_cast<int>(get
         (SECTION_VXAGENT, KEY_ENFORCER_ALERT_INTERVAL, DEFAULT_ENFORCER_ALERT_INTERVAL));
 }
 
@@ -3773,7 +4035,7 @@ int FileConfigurator::getEnforcerAlertInterval() const
  */
 int FileConfigurator::getDataprotectionExitTime() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_DATAPROTECTION_EXIT_TIME, DEFAULT_DATAPROTECTION_EXIT_TIME));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_DATAPROTECTION_EXIT_TIME, DEFAULT_DATAPROTECTION_EXIT_TIME));
 }
 
 /*
@@ -3795,7 +4057,7 @@ int FileConfigurator::getDataprotectionExitTime() const
 
 int FileConfigurator::getSnapshotInterval() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_DEFAULT_SNAPSHOT_INTERVAL, DEFAULT_SNAPSHOT_INTERVAL));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_DEFAULT_SNAPSHOT_INTERVAL, DEFAULT_SNAPSHOT_INTERVAL));
 }
 /*
  * FUNCTION NAME : FileConfigurator::getNotifyCxDiffsInterval
@@ -3816,115 +4078,115 @@ int FileConfigurator::getSnapshotInterval() const
 
 int FileConfigurator::getNotifyCxDiffsInterval() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_DEFAULT_NOTIFY_DIFF_INTERVAL, DEFAULT_NOTIFY_DIFF_INTERVAL));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_DEFAULT_NOTIFY_DIFF_INTERVAL, DEFAULT_NOTIFY_DIFF_INTERVAL));
 }
 bool FileConfigurator::AsyncOpEnabled() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_ASYNCH_OPTIMIZATIONS, 1));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_ASYNCH_OPTIMIZATIONS, 1));
 }
 
 bool FileConfigurator::AsyncOpEnabledForPhysicalVolumes() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_ASYNCH_OPTIMIZATIONS_FOR_PHYSICALVOLUMES, 1));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_ASYNCH_OPTIMIZATIONS_FOR_PHYSICALVOLUMES, 1));
 }
 
 
 
 bool FileConfigurator::useNewApplyAlgorithm() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_USE_NEW_APPLY_ALGORITHM, 1));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_USE_NEW_APPLY_ALGORITHM, 1));
 }
 
 SV_ULONG FileConfigurator::MaxAsyncIos() const
 {
-    return boost::lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_MAXASYNCH_IOS, 256));
+    return safe_lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_MAXASYNCH_IOS, 256));
 }
 
 bool FileConfigurator::getCDPMgrUpdateCxPerTargetVolume() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_CDPMGR_UPDATECX_PER_TARGET_VOLUME, 0));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_CDPMGR_UPDATECX_PER_TARGET_VOLUME, 0));
 }
 
 SV_ULONG FileConfigurator::getCDPMgrEventTimeRangeRecordsPerBatch() const
 {
-    return boost::lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_CDPMGR_EVENT_TIMERANGE_RECORDS_PER_BATCH, DEFAULT_EVENT_TIMERANGE_RECORDS_PER_BATCH));
+    return safe_lexical_cast<SV_ULONG>(get(SECTION_VXAGENT, KEY_CDPMGR_EVENT_TIMERANGE_RECORDS_PER_BATCH, DEFAULT_EVENT_TIMERANGE_RECORDS_PER_BATCH));
 }
 
 bool FileConfigurator::getCDPMgrSendUpdatesAtOnce() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_CDPMGR_SEND_UPDATE_ATONCE, 0));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_CDPMGR_SEND_UPDATE_ATONCE, 0));
 }
 
 bool FileConfigurator::getCDPMgrDeleteUnusableRecoveryPoints() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_CDPMGR_DELETE_UNUSABLE_POINTS, 1));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_CDPMGR_DELETE_UNUSABLE_POINTS, 1));
 }
 
 bool FileConfigurator::getCDPMgrDeleteStaleFiles() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_CDPMGR_DELETE_STALEFILES, 1));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_CDPMGR_DELETE_STALEFILES, 1));
 }
 
 int FileConfigurator::getAgentHealthCheckInterval() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_AGENT_HEALTH_CHECK_INTERVAL, DEFAULT_AGENT_HEALTH_CHECK_INTERVAL));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_AGENT_HEALTH_CHECK_INTERVAL, DEFAULT_AGENT_HEALTH_CHECK_INTERVAL));
 }
 
 int FileConfigurator::getMarsHealthCheckInterval() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_MARS_HEALTH_CHECK_INTERVAL, DEFAULT_MARS_HEALTH_CHECK_INTERVAL));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_MARS_HEALTH_CHECK_INTERVAL, DEFAULT_MARS_HEALTH_CHECK_INTERVAL));
 }
 
 int FileConfigurator::getMarsServerUnavailableCheckInterval() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_MARS_SERVER_UNAVAILABLE_CHECK_INTERVAL, DEFAULT_MARS_SERVER_UNAVAILABLE_CHECK_INTERVAL));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_MARS_SERVER_UNAVAILABLE_CHECK_INTERVAL, DEFAULT_MARS_SERVER_UNAVAILABLE_CHECK_INTERVAL));
 }
 
 int FileConfigurator::getRegisterHostInterval() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_REGISTER_HOST_INTERVAL, DEFAULT_REGISTER_HOST_INTERVAL));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_REGISTER_HOST_INTERVAL, DEFAULT_REGISTER_HOST_INTERVAL));
 }
 
 int FileConfigurator::getTransportErrorLogInterval() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_TRANSPORT_ERROR_LOG_INTERVAL, DEFAULT_TRANSPORT_ERROR_LOG_INTERVAL));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_TRANSPORT_ERROR_LOG_INTERVAL, DEFAULT_TRANSPORT_ERROR_LOG_INTERVAL));
 }
 
 int FileConfigurator::getDiskReadErrorLogInterval() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_DISK_READ_ERROR_LOG_INTERVAL, DEFAULT_DISK_READ_ERROR_LOG_INTERVAL));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_DISK_READ_ERROR_LOG_INTERVAL, DEFAULT_DISK_READ_ERROR_LOG_INTERVAL));
 }
 
 int FileConfigurator::getDiskNotFoundErrorLogInterval() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_DISK_NOT_FOUND_ERROR_LOG_INTERVAL, DEFAULT_DISK_NOT_FOUND_ERROR_LOG_INTERVAL));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_DISK_NOT_FOUND_ERROR_LOG_INTERVAL, DEFAULT_DISK_NOT_FOUND_ERROR_LOG_INTERVAL));
 }
 int FileConfigurator::getSrcTelemetryPollInterval() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_SRC_TELEMETRY_POLL_INTERVAL, DEFAULT_SRC_TELEMETRY_POLL_INTERVAL));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_SRC_TELEMETRY_POLL_INTERVAL, DEFAULT_SRC_TELEMETRY_POLL_INTERVAL));
 }
 int FileConfigurator::getSrcTelemetryStartDelay() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_SRC_TELEMETRY_START_DELAY, DEFAULT_SRC_TELEMETRY_START_DELAY));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_SRC_TELEMETRY_START_DELAY, DEFAULT_SRC_TELEMETRY_START_DELAY));
 }
 int FileConfigurator::getMonitorHostInterval() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_MONITOR_HOST_INTERVAL, DEFAULT_MONITOR_HOST_INTERVAL));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_MONITOR_HOST_INTERVAL, DEFAULT_MONITOR_HOST_INTERVAL));
 }
 
 int FileConfigurator::getRcmDetailsPollInterval() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_RCM_DETAILS_POLL_INTERVAL, DEFAULT_RCM_DETAILS_POLL_INTERVAL));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_RCM_DETAILS_POLL_INTERVAL, DEFAULT_RCM_DETAILS_POLL_INTERVAL));
 }
 
 int FileConfigurator::getMonitorHostStartDelay() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_MONITOR_HOST_START_DELAY, DEFAULT_MONITOR_HOST_START_DELAY));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_MONITOR_HOST_START_DELAY, DEFAULT_MONITOR_HOST_START_DELAY));
 }
 
 int FileConfigurator::getConsistencyTagIssueTimeLimit() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_CONSISTENCY_TAG_ISSUE_TIME_LIMIT, DEFAULT_CONSISTENCY_TAG_ISSUE_TIME_LIMIT));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_CONSISTENCY_TAG_ISSUE_TIME_LIMIT, DEFAULT_CONSISTENCY_TAG_ISSUE_TIME_LIMIT));
 }
 
 std::string FileConfigurator::getMonitorHostCmdList() const
@@ -3973,32 +4235,38 @@ void FileConfigurator::addToRecoveryCleanupFileList(const std::string &cleanupFi
 
 int FileConfigurator::getInitialSettingCallInterval() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_INITIAL_SETTING_CALL_INTERVAL, DEFAULT_INITIAL_SETTING_CALL_INTERVAL));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_INITIAL_SETTING_CALL_INTERVAL, DEFAULT_INITIAL_SETTING_CALL_INTERVAL));
 }
 
 int FileConfigurator::getSettingsCallInterval() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_SETTINGS_CALL_INTERVAL, DEFAULT_SETTINGS_CALL_INTERVAL));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_SETTINGS_CALL_INTERVAL, DEFAULT_SETTINGS_CALL_INTERVAL));
 }
 
 SV_ULONGLONG FileConfigurator::getMaxMemoryForDiffSyncFile() const
 {
-    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MAX_MEM_PER_DIFFSYNC_FILE, 33554432));
+    return safe_lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MAX_MEM_PER_DIFFSYNC_FILE, 33554432));
 }
 
 SV_ULONGLONG FileConfigurator::getMaxMemoryForResyncFile() const
 {
-    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MAX_MEM_PER_RESYNC_FILE, 33554432));
+    return safe_lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MAX_MEM_PER_RESYNC_FILE, 33554432));
 }
 
 bool FileConfigurator::DPCacheVolumeHandle() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_DP_CACHEVOLUMEHANDLE, DEFAULT_CACHEVOLUMEHANDLE));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_DP_CACHEVOLUMEHANDLE, DEFAULT_CACHEVOLUMEHANDLE));
 }
+
+bool FileConfigurator::getIsScsiAttributeMandatory() const
+{
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_IS_SCSI_ATTRIB_MADATORY, DEFAULT_IS_SCSI_ATTRIBUTE_MANDATORY));
+}
+
 
 SV_UINT FileConfigurator::DPMaxRetentionFileHandlesToCache() const
 {
-    return boost::lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_DPMAX_RETENTIONFILE_TO_CACHE, DEFAULT_DPMAX_RETENTIONFILE_TO_CACHE));
+    return safe_lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_DPMAX_RETENTIONFILE_TO_CACHE, DEFAULT_DPMAX_RETENTIONFILE_TO_CACHE));
 }
 
 std::string FileConfigurator::getHostAgentName() const
@@ -4014,38 +4282,38 @@ bool FileConfigurator::useUnBufferedIo() const
 #ifdef SV_SUN
     return 0;
 #endif
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_DPUNBUFFEREDIO, 1));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_DPUNBUFFEREDIO, 1));
 }
 
 bool FileConfigurator::getCMVerifyDiff() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_CMMVERIFYDIFFS_VALUE_NAME, 1));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_CMMVERIFYDIFFS_VALUE_NAME, 1));
 }
 
 bool FileConfigurator::getCMPreserveBadDiff() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_CMPRESERVEBADDIFFS_VALUE_NAME, 0));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_CMPRESERVEBADDIFFS_VALUE_NAME, 0));
 }
 
 SV_ULONGLONG FileConfigurator::getMaxCdpv3CowFileSize() const
 {
-    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MAX_CDPV3_COW_FILESIZE,
+    return safe_lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MAX_CDPV3_COW_FILESIZE,
         DEFAULT_MAX_CDPV3_COW_FILESIZE));
 }
 
 bool FileConfigurator::SimulateSparse() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_SIMULATESPARSE_VALUE_NAME, 0));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_SIMULATESPARSE_VALUE_NAME, 0));
 }
 
 bool FileConfigurator::TrackExtraCoalescedFiles() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_TRACKEXTRACOALESCEDFILES_VALUE_NAME, 0));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_TRACKEXTRACOALESCEDFILES_VALUE_NAME, 0));
 }
 
 bool FileConfigurator::TrackCoalescedFiles() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_TRACKCOALESCEDFILES_VALUE_NAME, 1));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_TRACKCOALESCEDFILES_VALUE_NAME, 1));
 }
 
 void FileConfigurator::setRepositoryLocation(const std::string& repoLocation) const
@@ -4091,7 +4359,7 @@ std::string FileConfigurator::getRepositoryLocation() const
 }
 bool FileConfigurator::CDPCompressionEnabled() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_CDP_COMPRESSION, DEFAULT_CDP_COMPRESSION));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_CDP_COMPRESSION, DEFAULT_CDP_COMPRESSION));
 }
 
 void FileConfigurator::SetCDPCompression(bool compress) const
@@ -4108,7 +4376,7 @@ void FileConfigurator::SetCDPCompression(bool compress) const
 
 SV_UINT FileConfigurator::GetCDPCompression() const
 {
-    return boost::lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_CDP_COMPRESSION));
+    return safe_lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_CDP_COMPRESSION));
 }
 
 SV_UINT FileConfigurator::GetDiskRecoveryWaitTime() const
@@ -4119,32 +4387,32 @@ SV_UINT FileConfigurator::GetDiskRecoveryWaitTime() const
         uiDiskRecoveryTimeSec = DEFAULT_W2K8_DISK_RECOVERY_WAIT_TIME_SEC;
     }
 #endif
-    return boost::lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_DISK_RECOVERY_WAIT_TIME_SEC, uiDiskRecoveryTimeSec));
+    return safe_lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_DISK_RECOVERY_WAIT_TIME_SEC, uiDiskRecoveryTimeSec));
 }
 
 SV_UINT FileConfigurator::getMaximumWMIConnectionTimeout() const
 {
-    return boost::lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_MAX_WMI_CONNECTION_TIMEOUT_SEC, DEFAULT_MAX_WMI_CONNECTION_TIMEOUT_SEC));
+    return safe_lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_MAX_WMI_CONNECTION_TIMEOUT_SEC, DEFAULT_MAX_WMI_CONNECTION_TIMEOUT_SEC));
 }
 
 SV_UINT FileConfigurator::getMaxSupportedPartitionsCountUEFIBoot() const
 {
-    return boost::lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_MAX_SUPPORTED_PARTS_UEFI_BOOT, DEFAULT_MAX_SUPPORTED_PARTS_UEFI_BOOT));
+    return safe_lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_MAX_SUPPORTED_PARTS_UEFI_BOOT, DEFAULT_MAX_SUPPORTED_PARTS_UEFI_BOOT));
 }
 
 SV_UINT FileConfigurator::GetMaximumDiskIndex() const
 {
-    return boost::lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_MAXIMUM_DISK_INDEX, DEFAULT_MAXIMUM_DISK_INDEX));
+    return safe_lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_MAXIMUM_DISK_INDEX, DEFAULT_MAXIMUM_DISK_INDEX));
 }
 
 SV_UINT FileConfigurator::GetMaximumConsMissingDiskIndex() const
 {
-    return boost::lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_MAXIMUM_CONS_MISSING_DISK_INDEX, DEFAULT_MAXIMUM_CONS_MISSING_DISK_INDEX));
+    return safe_lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_MAXIMUM_CONS_MISSING_DISK_INDEX, DEFAULT_MAXIMUM_CONS_MISSING_DISK_INDEX));
 }
 
 bool FileConfigurator::VirtualVolumeCompressionEnabled() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_VIRTUALVOLUME_COMPRESSION, DEFAULT_VIRTUALVOLUME_COMPRESSION));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_VIRTUALVOLUME_COMPRESSION, DEFAULT_VIRTUALVOLUME_COMPRESSION));
 }
 
 void FileConfigurator::SetVirtualVolumeCompression(bool compression) const
@@ -4160,22 +4428,22 @@ void FileConfigurator::SetVirtualVolumeCompression(bool compression) const
 }
 bool FileConfigurator::DPBMAsynchIo() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_DPBM_ASYNCHIO, DEFAULT_DPBM_ASYNCHIO));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_DPBM_ASYNCHIO, DEFAULT_DPBM_ASYNCHIO));
 }
 
 bool FileConfigurator::DPBMAsynchIoForPhysicalVolumes() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_DPBM_ASYNCHIO_FOR_PHYSICALVOLUMES, 1));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_DPBM_ASYNCHIO_FOR_PHYSICALVOLUMES, 1));
 }
 
 bool FileConfigurator::DPBMCachingEnabled() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_DPBM_CACHING, DEFAULT_DPBM_CACHING));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_DPBM_CACHING, DEFAULT_DPBM_CACHING));
 }
 
 unsigned int FileConfigurator::DPBMCacheSize() const
 {
-    return boost::lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_DPBM_CACHESIZE, DEFAULT_DPBM_CACHESIZE));
+    return safe_lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_DPBM_CACHESIZE, DEFAULT_DPBM_CACHESIZE));
 }
 
 bool FileConfigurator::DPBMUnBufferedIo() const
@@ -4186,74 +4454,74 @@ bool FileConfigurator::DPBMUnBufferedIo() const
 #ifdef SV_SUN
     return 0;
 #endif
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_DPBM_UNBUFFEREDIO, DEFAULT_DPBM_UNBUFFEREDIO));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_DPBM_UNBUFFEREDIO, DEFAULT_DPBM_UNBUFFEREDIO));
 }
 
 unsigned int FileConfigurator::DPBMBlockSize() const
 {
-    return boost::lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_DBBM_BLOCKSIZE, DEFAULT_DPBM_BLOCKSIZE));
+    return safe_lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_DBBM_BLOCKSIZE, DEFAULT_DPBM_BLOCKSIZE));
 }
 
 unsigned int FileConfigurator::DPBMBlocksPerEntry() const
 {
-    return boost::lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_DPBM_BLOCKSPERENTRY, DEFAULT_DPBM_BLOCKSPERENTRY));
+    return safe_lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_DPBM_BLOCKSPERENTRY, DEFAULT_DPBM_BLOCKSPERENTRY));
 }
 
 bool FileConfigurator::DPBMCompressionEnabled() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_DPBM_COMPRESSION, DEFAULT_DPBM_COMPRESSION));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_DPBM_COMPRESSION, DEFAULT_DPBM_COMPRESSION));
 }
 
 unsigned int FileConfigurator::DPBMMaxIos() const
 {
-    return boost::lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_DPBM_MAXIOS, DEFAULT_DPBM_MAXIOS));
+    return safe_lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_DPBM_MAXIOS, DEFAULT_DPBM_MAXIOS));
 }
 
 unsigned int FileConfigurator::DPBMMaxMemForIo() const
 {
-    return boost::lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_DPBM_MAXMEMFORIO, DEFAULT_DPBM_MAXMEMFORIO));
+    return safe_lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_DPBM_MAXMEMFORIO, DEFAULT_DPBM_MAXMEMFORIO));
 }
 
 unsigned int FileConfigurator::DPDelayBeforeExitOnError() const
 {
-    return boost::lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_DPDELAY_BEFORE_EXIT_ONERROR, DEFAULT_DPDELAY_BEFORE_EXIT_ONERROR));
+    return safe_lexical_cast<unsigned int>(get(SECTION_VXAGENT, KEY_DPDELAY_BEFORE_EXIT_ONERROR, DEFAULT_DPDELAY_BEFORE_EXIT_ONERROR));
 }
 
 
 
 bool FileConfigurator::IsFilterDriverAvailable() const {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_FILTERDRIVERAVAILABLE_VALUE_NAME, "0"));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_FILTERDRIVERAVAILABLE_VALUE_NAME, "0"));
 }
 
 bool FileConfigurator::IsVolpackDriverAvailable() const {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_VOLPACKDRIVERAVAILABLE_VALUE_NAME, 0));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_VOLPACKDRIVERAVAILABLE_VALUE_NAME, 0));
 }
 
 
 SV_UINT FileConfigurator::getCdpMaxIOSize() const {
-    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MAX_CDP_IO_SIZE, DEFAULT_DP_MAX_IO_SIZE));
+    return safe_lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MAX_CDP_IO_SIZE, DEFAULT_DP_MAX_IO_SIZE));
 }
 
 SV_UINT FileConfigurator::getCdpMaxSnapshotIOSize() const {
-    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MAX_CDP_SNAPSHOT_IO_SIZE, DEFAULT_CDP_SNAPSHOT_IO_SIZE));
+    return safe_lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MAX_CDP_SNAPSHOT_IO_SIZE, DEFAULT_CDP_SNAPSHOT_IO_SIZE));
 }
 
 bool FileConfigurator::IsVsnapDriverAvailable() const {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_VSNAPDRIVERAVAILABLE_VALUE_NAME, 0));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_VSNAPDRIVERAVAILABLE_VALUE_NAME, 0));
 }
 
 SV_UINT FileConfigurator::GetFullBackupInterval() const
 {
-    return boost::lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_FULLBACKUP_SCHEDULE, 24 * 60 * 60));
+    return safe_lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_FULLBACKUP_SCHEDULE, 24 * 60 * 60));
 }
 
 bool FileConfigurator::IsFullBackupRequired() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_FULLBACKUP_ENABLED, false));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_FULLBACKUP_ENABLED, false));
 }
 SV_ULONGLONG FileConfigurator::GetLastFullBackupTimeInGmt() const
 {
-    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_SUCCESS_LAST_FULLBKPTIME, 0));
+    return safe_lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_SUCCESS_LAST_FULLBKPTIME, 0));
 }
 
 void FileConfigurator::SetLastFullBackupTimeInGmt(SV_ULONGLONG gmt)
@@ -4261,49 +4529,49 @@ void FileConfigurator::SetLastFullBackupTimeInGmt(SV_ULONGLONG gmt)
     set(SECTION_VXAGENT, KEY_SUCCESS_LAST_FULLBKPTIME, boost::lexical_cast<std::string>(gmt));
 }
 SV_ULONGLONG FileConfigurator::getVxAlignmentSize() const {
-    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_DP_SECTOR_SIZE, DEFAULT_DP_SECTOR_SIZE));
+    return safe_lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_DP_SECTOR_SIZE, DEFAULT_DP_SECTOR_SIZE));
 }
 SV_UINT FileConfigurator::getVolpackSparseAttribute() const {
-    return boost::lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_VOLPACK_SPARSE_ATTRIBUTE_ENABLED, 2));
+    return safe_lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_VOLPACK_SPARSE_ATTRIBUTE_ENABLED, 2));
 }
 
 SV_UINT FileConfigurator::getMaxUnmountRetries() const
 {
-    return boost::lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_MAX_UNMOUNT_RETRIES, DEFAULT_MAX_UNMOUNT_RETRIES));
+    return safe_lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_MAX_UNMOUNT_RETRIES, DEFAULT_MAX_UNMOUNT_RETRIES));
 }
 
 bool FileConfigurator::shouldDiscoverOracle() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_APPAGENT, KEY_ORACLE_DISCOVERY, 0));
+    return safe_lexical_cast<bool>(get(SECTION_APPAGENT, KEY_ORACLE_DISCOVERY, 0));
 }
 bool FileConfigurator::useFSAwareSnapshotCopy() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_USE_FSAWARE_COPY, DEFAULT_USE_FSAWARE_COPY));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_USE_FSAWARE_COPY, DEFAULT_USE_FSAWARE_COPY));
 }
 
 SV_ULONGLONG FileConfigurator::getMaxMemForReadingFSBitmap() const
 {
-    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MAXMEMFOR_READING_FSBITMAP, DEFAULT_MAXMEMFOR_READING_FSBITMAP));
+    return safe_lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MAXMEMFOR_READING_FSBITMAP, DEFAULT_MAXMEMFOR_READING_FSBITMAP));
 }
 
 SV_UINT FileConfigurator::getCdpRedoLogMaxFileSize() const
 {
-    return boost::lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_CDP_REDOLOG_MAX_FILE_SIZE, DEFAULT_CDP_REDOLOG_MAX_FILE_SIZE));
+    return safe_lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_CDP_REDOLOG_MAX_FILE_SIZE, DEFAULT_CDP_REDOLOG_MAX_FILE_SIZE));
 }
 
 bool FileConfigurator::IsFlushAndHoldWritesRetryEnabled() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_FLUSH_AND_HOLD_WRITES_RETRY_ENABLED, 1));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_FLUSH_AND_HOLD_WRITES_RETRY_ENABLED, 1));
 }
 
 bool FileConfigurator::IsFlushAndHoldResumeRetryEnabled() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_FLUSH_AND_HOLD_RESUME_RETRY_ENABLED, 1));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_FLUSH_AND_HOLD_RESUME_RETRY_ENABLED, 1));
 }
 
 SV_LONGLONG FileConfigurator::MaxDifferenceBetweenFSandRawSize() const
 {
-    return boost::lexical_cast<SV_LONGLONG>(get(SECTION_VXAGENT, KEY_MAXDIFF_FS_RAW_SIZE, 0));
+    return safe_lexical_cast<SV_LONGLONG>(get(SECTION_VXAGENT, KEY_MAXDIFF_FS_RAW_SIZE, 0));
 }
 
 SV_UINT FileConfigurator::getRenameFailureRetryIntervalInSec() const
@@ -4458,7 +4726,7 @@ void FileConfigurator::setFailoverVmDetectionId(const std::string& failoverVmId)
 
 bool FileConfigurator::getIsAzureVm() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_IS_AZURE_VM, 0));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_IS_AZURE_VM, 0));
 }
 
 void FileConfigurator::setIsAzureVm(bool bAzureVM) const
@@ -4468,7 +4736,7 @@ void FileConfigurator::setIsAzureVm(bool bAzureVM) const
 
 bool FileConfigurator::getIsAzureStackHubVm() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_IS_AZURE_STACK_HUB_VM, 0));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_IS_AZURE_STACK_HUB_VM, 0));
 }
 
 void FileConfigurator::setIsAzureStackHubVm(bool bAzsVM) const
@@ -4536,28 +4804,28 @@ ESERIALIZE_TYPE FileConfigurator::getSerializerType() const
 
 SV_UINT FileConfigurator::getSentinalStartStatus() const
 {
-    return boost::lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_START_SENTINAL, 1));
+    return safe_lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_START_SENTINAL, 1));
 }
 
 SV_UINT FileConfigurator::getDataProtectionStartStatus() const
 {
-    return boost::lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_START_DATAPROTECTION, 1));
+    return safe_lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_START_DATAPROTECTION, 1));
 }
 
 SV_UINT FileConfigurator::getCDPManagerStartStatus() const
 {
-    return boost::lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_START_CDP_MANAGER, 1));
+    return safe_lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_START_CDP_MANAGER, 1));
 }
 
 SV_UINT FileConfigurator::getCacheManagerStartStatus() const
 {
-    return boost::lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_START_CACHE_MANAGER, 1));
+    return safe_lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_START_CACHE_MANAGER, 1));
 }
 
 bool FileConfigurator::canEditCatchePath() const
 {
     bool bRet = true;
-    int value = boost::lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_EDIT_CATCHE_PATH, 1));
+    int value = safe_lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_EDIT_CATCHE_PATH, 1));
     if (value == 0)
     {
         bRet = false;
@@ -4572,11 +4840,11 @@ std::string FileConfigurator::getConsistencyOptions() const
 
 SV_UINT FileConfigurator::getS2ReIncarnationInterval() const
 {
-    return boost::lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_S2_REINCARNATION_INTERVAL, 0));
+    return safe_lexical_cast<SV_UINT>(get(SECTION_VXAGENT, KEY_S2_REINCARNATION_INTERVAL, 0));
 }
 bool FileConfigurator::isGuestAccess() const
 {
-    return boost::lexical_cast<bool> (get(SECTION_BACKUP_EXPRESS_CONFIGSTORE, KEY_GUESTACCESS, 0));
+    return safe_lexical_cast<bool> (get(SECTION_BACKUP_EXPRESS_CONFIGSTORE, KEY_GUESTACCESS, 0));
 }
 
 void FileConfigurator::setGuestAccess(bool isGuestAccess)
@@ -4606,7 +4874,7 @@ std::string FileConfigurator::pushInstallPath() const
 
 bool FileConfigurator::isVmWarePushInstallationEnabled() const
 {
-    return boost::lexical_cast<bool> (get(SECTION_PUSHINSTALLER, KEY_VMWAREBASED_PUSHINSTALL_ENABLED, "0"));
+    return safe_lexical_cast<bool> (get(SECTION_PUSHINSTALLER, KEY_VMWAREBASED_PUSHINSTALL_ENABLED, "0"));
 }
 
 std::string FileConfigurator::pushLogFolder() const
@@ -4624,13 +4892,13 @@ HTTP_CONNECTION_SETTINGS FileConfigurator::pushHttpSettings() const
     HTTP_CONNECTION_SETTINGS s;
     std::string ipaddr = get(SECTION_PUSHINSTALLERTRANSPORT, KEY_HTTP_IPADDRESS).c_str();
     inm_strcpy_s(s.ipAddress, ARRAYSIZE(s.ipAddress), ipaddr.c_str());
-    s.port = boost::lexical_cast<int>(get(SECTION_PUSHINSTALLERTRANSPORT, KEY_HTTP_PORT).c_str());
+    s.port = safe_lexical_cast<int>(get(SECTION_PUSHINSTALLERTRANSPORT, KEY_HTTP_PORT).c_str());
     return s;
 }
 
 bool FileConfigurator::pushHttps() const
 {
-    return boost::lexical_cast<bool> (get(SECTION_PUSHINSTALLERTRANSPORT, KEY_HTTPS, "0"));
+    return safe_lexical_cast<bool> (get(SECTION_PUSHINSTALLERTRANSPORT, KEY_HTTPS, "0"));
 }
 
 std::string FileConfigurator::pushHostid() const
@@ -4640,7 +4908,7 @@ std::string FileConfigurator::pushHostid() const
 
 int FileConfigurator::pushLogLevel() const
 {
-    return static_cast<SV_LOG_LEVEL>(boost::lexical_cast<int>(get(SECTION_PUSHINSTALLER, KEY_LOG_LEVEL, "3")));
+    return static_cast<SV_LOG_LEVEL>(safe_lexical_cast<int>(get(SECTION_PUSHINSTALLER, KEY_LOG_LEVEL, "3")));
 }
 void FileConfigurator::pushLogLevel(int level)
 {
@@ -4649,12 +4917,12 @@ void FileConfigurator::pushLogLevel(int level)
 
 bool FileConfigurator::pushSignVerificationEnabled() const
 {
-    return boost::lexical_cast<bool> (get(SECTION_PUSHINSTALLERTRANSPORT, KEY_PUSH_SIGNATURE_CHECK, "1"));
+    return safe_lexical_cast<bool> (get(SECTION_PUSHINSTALLERTRANSPORT, KEY_PUSH_SIGNATURE_CHECK, "1"));
 }
 
 bool FileConfigurator::pushSignVerificationEnabledOnRemoteMachine() const
 {
-    return boost::lexical_cast<bool> (get(SECTION_PUSHINSTALLERTRANSPORT, KEY_PUSH_SIGNATURE_CHECK_ON_REMOTEMACHINE, "0"));
+    return safe_lexical_cast<bool> (get(SECTION_PUSHINSTALLERTRANSPORT, KEY_PUSH_SIGNATURE_CHECK_ON_REMOTEMACHINE, "0"));
 }
 
 std::string FileConfigurator::pushInstallTelemetryLogsPath() const
@@ -4706,102 +4974,122 @@ std::string FileConfigurator::pushVmwareApiWrapperCmd() const
 
 int FileConfigurator::pushJobTimeoutSecs() const
 {
-    return boost::lexical_cast<int> (get(SECTION_PUSHINSTALLER, KEY_PUSH_JOBTIMEOUT, 1800));
+    return safe_lexical_cast<int> (get(SECTION_PUSHINSTALLER, KEY_PUSH_JOBTIMEOUT, 1800));
 }
 
 int FileConfigurator::pushVmwareApiWrapperCmdTimeOutSecs() const
 {
-    return boost::lexical_cast<int> (get(SECTION_PUSHINSTALLER, KEY_PUSH_VMWAREWRAPPER_TIMEOUT, 0));
+    return safe_lexical_cast<int> (get(SECTION_PUSHINSTALLER, KEY_PUSH_VMWAREWRAPPER_TIMEOUT, 0));
 }
 
 int FileConfigurator::pushJobFetchIntervalInSecs() const
 {
-    return boost::lexical_cast<int> (get(SECTION_PUSHINSTALLER, KEY_PUSH_JOBFETCHINTERVAL, 60));
+    return safe_lexical_cast<int> (get(SECTION_PUSHINSTALLER, KEY_PUSH_JOBFETCHINTERVAL, 60));
 }
 
 int FileConfigurator::pushJobRetries() const
 {
-    return boost::lexical_cast<int> (get(SECTION_PUSHINSTALLER, KEY_PUSH_JOBRETRIES, 10));
+    return safe_lexical_cast<int> (get(SECTION_PUSHINSTALLER, KEY_PUSH_JOBRETRIES, 10));
 }
 
 int FileConfigurator::pushJobRetryIntervalInsecs() const
 {
-    return boost::lexical_cast<int> (get(SECTION_PUSHINSTALLER, KEY_PUSH_JOBRETRYINTERVAL, 30));
+    return safe_lexical_cast<int> (get(SECTION_PUSHINSTALLER, KEY_PUSH_JOBRETRYINTERVAL, 30));
 }
 
 int FileConfigurator::pushJobCSRetries() const
 {
-    return boost::lexical_cast<int> (get(SECTION_PUSHINSTALLER, KEY_PUSH_CSJOBRETRIES, 15));
+    return safe_lexical_cast<int> (get(SECTION_PUSHINSTALLER, KEY_PUSH_CSJOBRETRIES, 15));
 }
 
 int FileConfigurator::pushJobCSRetryIntervalInsecs() const
 {
-    return boost::lexical_cast<int> (get(SECTION_PUSHINSTALLER, KEY_PUSH_CSJOBRETRYINTERVAL, 60));
+    return safe_lexical_cast<int> (get(SECTION_PUSHINSTALLER, KEY_PUSH_CSJOBRETRYINTERVAL, 60));
 }
 int FileConfigurator::getLastNLinesCountToReadFromLogOrBuffer() const
 {
-    return boost::lexical_cast<int>(get(SECTION_APPLICATION, KEY_GET_LAST_N_LINES_FROM_LOG, 8));
+    return safe_lexical_cast<int>(get(SECTION_APPLICATION, KEY_GET_LAST_N_LINES_FROM_LOG, 8));
 }
 
 //For OMS Statistics and DR Metrics Collection
 int FileConfigurator::getOMSStatsCollInterval() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_OMS_STATS_COLLECTION_INTERVAL, DEFAULT_OMS_STATS_COLL_INTERVAL));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_OMS_STATS_COLLECTION_INTERVAL, DEFAULT_OMS_STATS_COLL_INTERVAL));
 }
 
 int FileConfigurator::getOMSStatsSendingIntervalToPS() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_OMS_STATS_SENDING_INTERVAL_TO_PS, DEFAULT_OMS_STATS_SENDING_INTERVAL));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_OMS_STATS_SENDING_INTERVAL_TO_PS, DEFAULT_OMS_STATS_SENDING_INTERVAL));
 }
 
 int FileConfigurator::getDRMetricsCollInterval() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT, KEY_DR_METRICS_COLLECTION_INTERVAL, DEFAULT_DR_METRICS_COLL_INTERVAL));
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_DR_METRICS_COLLECTION_INTERVAL, DEFAULT_DR_METRICS_COLL_INTERVAL));
 }
 
 /* churn-throughput CX session definitions start */
 SV_ULONGLONG FileConfigurator::getMaxDiskChurnSupportedMBps() const
 {
-    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MAX_DISK_CHURN_SUPPORTED_MBPS,
+    return safe_lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MAX_DISK_CHURN_SUPPORTED_MBPS,
         DEFAULT_MAX_DISK_CHURN_SUPPORTED_MBPS));
 }
 
 SV_ULONGLONG FileConfigurator::getMaxVMChurnSupportedMBps() const
 {
-    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MAX_VM_CHURN_SUPPORTED_MBPS,
+    return safe_lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MAX_VM_CHURN_SUPPORTED_MBPS,
         DEFAULT_MAX_VM_CHURN_SUPPORTED_MBPS));
 }
+
+/* churn-throughput CX session definitions start */
+SV_ULONGLONG FileConfigurator::getMaxDiskHighChurnSupportedMBps() const
+{
+    return safe_lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MAX_DISK_HIGH_CHURN_SUPPORTED_MBPS,
+        DEFAULT_MAX_DISK_HIGH_CHURN_SUPPORTED_MBPS));
+}
+
+SV_ULONGLONG FileConfigurator::getMaxVMHighChurnSupportedMBps() const
+{
+    return safe_lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MAX_VM_HIGH_CHURN_SUPPORTED_MBPS,
+        DEFAULT_MAX_VM_HIGH_CHURN_SUPPORTED_MBPS));
+}
+
+SV_ULONGLONG FileConfigurator::getHighChurnMinimumMemoryGB() const
+{
+    return safe_lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_HIGH_CHURN_MINIMUM_MEMORY_GB,
+        DEFAULT_HIGH_CHURN_MINIMUM_MEMORY_GB));
+}
+
 SV_ULONGLONG FileConfigurator::getMaximumTimeJumpForwardAcceptableInMs() const
 {
-    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MAX_TIMEJUMP_FWD_ACCEPTABLE_IN_MS,
+    return safe_lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MAX_TIMEJUMP_FWD_ACCEPTABLE_IN_MS,
         DEFAULT_MAX_TIMEJUMP_FWD_ACCEPTABLE_IN_MS));
 }
 SV_ULONGLONG FileConfigurator::getMaximumTimeJumpBackwardAcceptableInMs() const
 {
-    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MAX_TIMEJUMP_BWD_ACCEPTABLE_IN_MS,
+    return safe_lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MAX_TIMEJUMP_BWD_ACCEPTABLE_IN_MS,
         DEFAULT_MAX_TIMEJUMP_BWD_ACCEPTABLE_IN_MS));
 }
 SV_ULONGLONG FileConfigurator::getMinConsecutiveTagFailures() const
 {
-    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MIN_CONSECUTIVE_TAG_FAILURES,
+    return safe_lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MIN_CONSECUTIVE_TAG_FAILURES,
         DEFAULT_MIN_CONSECUTIVE_TAG_FAILURES));
 }
 
 SV_ULONGLONG FileConfigurator::getMaxS2LatencyBetweenCommitDBAndGetDB() const
 {
-    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MAX_S2_LATENCY_BETWEEN_COMMITDB_AND_GETDB,
+    return safe_lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MAX_S2_LATENCY_BETWEEN_COMMITDB_AND_GETDB,
         DEFAULT_MAX_S2_LATENCY_BETWEEN_COMMITDB_AND_GETDB));
 }
 
 SV_ULONGLONG FileConfigurator::getCxClearHealthCount() const
 {
-    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_CX_CLEAR_HEALTH_COUNT,
+    return safe_lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_CX_CLEAR_HEALTH_COUNT,
         DEFAULT_CX_CLEAR_HEALTH_COUNT));
 }
 
 SV_ULONGLONG FileConfigurator::getMaxWaitTimeForHealthEventCommitFailureInSec() const
 {
-    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MAX_WAIT_TIME_FOR_HEALTH_EVENT_COMMIT_FAILURE_IN_SEC,
+    return safe_lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT, KEY_MAX_WAIT_TIME_FOR_HEALTH_EVENT_COMMIT_FAILURE_IN_SEC,
         DEFAULT_MAX_WAIT_TIME_FOR_HEALTH_EVENT_COMMIT_FAILURE_IN_SEC));
 }
 
@@ -4809,14 +5097,14 @@ SV_ULONGLONG FileConfigurator::getMaxWaitTimeForHealthEventCommitFailureInSec() 
 
 int FileConfigurator::getMonitoringCxpsClientTimeoutInSec() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT,
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT,
         KEY_MONITORING_CXPS_CLIENT_TIMEOUT_IN_SEC,
         DEFAULT_MONITORING_CXPS_CLIENT_TIMEOUT_IN_SEC));
 }
 
 SV_ULONGLONG FileConfigurator::getPausePendingAckRepeatIntervalInSecs() const
 {
-    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT,
+    return safe_lexical_cast<SV_ULONGLONG>(get(SECTION_VXAGENT,
         KEY_PAUSE_PENDING_ACK_REPEAT_INTERVAL_IN_SECS,
         DEFAULT_PAUSE_PENDING_ACK_REPEAT_INTERVAL_IN_SECS));
 }
@@ -4841,19 +5129,19 @@ std::string FileConfigurator::getCSType() const
 // get the interval in seconds at which the replicaiton settings to be fetched
 uint32_t    FileConfigurator::getReplicationSettingsFetchInterval() const
 {
-    return boost::lexical_cast<uint32_t>(get(SECTION_VXAGENT, KEY_SETTINGS_FETCH_INTERVAL, DEFAULT_SETTINGS_FETCH_INTERVAL));
+    return safe_lexical_cast<uint32_t>(get(SECTION_VXAGENT, KEY_SETTINGS_FETCH_INTERVAL, DEFAULT_SETTINGS_FETCH_INTERVAL));
 }
 
 // get the number job worker threads to use
 uint32_t FileConfigurator::getRcmJobWorkerThreadCount() const
 {
-    return boost::lexical_cast<uint32_t>(get(SECTION_VXAGENT, KEY_NUM_OF_RCM_JOB_WORKER_THREADS, DEFAULT_NUM_OF_RCM_JOB_WORKER_THREADS));
+    return safe_lexical_cast<uint32_t>(get(SECTION_VXAGENT, KEY_NUM_OF_RCM_JOB_WORKER_THREADS, DEFAULT_NUM_OF_RCM_JOB_WORKER_THREADS));
 }
 
 // get the number job worker threads to use
 uint32_t FileConfigurator::getRcmJobMaxAllowedTimeInSec() const
 {
-    return boost::lexical_cast<uint32_t>(get(SECTION_VXAGENT, KEY_RCM_JOB_MAX_ALLOWED_TIME_INSECS, DEFAULT_RCM_JOB_MAX_ALLOWED_TIME_INSECS));
+    return safe_lexical_cast<uint32_t>(get(SECTION_VXAGENT, KEY_RCM_JOB_MAX_ALLOWED_TIME_INSECS, DEFAULT_RCM_JOB_MAX_ALLOWED_TIME_INSECS));
 }
 
 std::string FileConfigurator::getCloudPairingStatus() const
@@ -4868,29 +5156,29 @@ void FileConfigurator::setCloudPairingStatus(const std::string& status) const
 
 uint32_t FileConfigurator::getPeerRemoteResyncStateParseRetryCount() const
 {
-    return boost::lexical_cast<uint32_t>(get(SECTION_VXAGENT, KEY_PEER_REMOTE_RESYNCSTATE_PARSE_RETRY_COUNT, DEFAULT_PEER_REMOTE_RESYNCSTATE_PARSE_RETRY_COUNT));
+    return safe_lexical_cast<uint32_t>(get(SECTION_VXAGENT, KEY_PEER_REMOTE_RESYNCSTATE_PARSE_RETRY_COUNT, DEFAULT_PEER_REMOTE_RESYNCSTATE_PARSE_RETRY_COUNT));
 }
 
 uint32_t FileConfigurator::getPeerRemoteResyncStateMonitorInterval() const
 {
-    return boost::lexical_cast<uint32_t>(get(SECTION_VXAGENT, KEY_PEER_REMOTE_RESYNCSTATE_MONITOR_INTERVAL_IN_SEC, DEFAULT_PEER_REMOTE_RESYNCSTATE_MONITOR_INTERVAL_IN_SEC));
+    return safe_lexical_cast<uint32_t>(get(SECTION_VXAGENT, KEY_PEER_REMOTE_RESYNCSTATE_MONITOR_INTERVAL_IN_SEC, DEFAULT_PEER_REMOTE_RESYNCSTATE_MONITOR_INTERVAL_IN_SEC));
 }
 
 uint32_t FileConfigurator::getMaxResyncBatchSize() const
 {
-    return boost::lexical_cast<uint32_t>(get(SECTION_VXAGENT, KEY_MAX_RESYNC_BATCH_SIZE, DEFAULT_MAX_RESYNC_BATCH_SIZE));
+    return safe_lexical_cast<uint32_t>(get(SECTION_VXAGENT, KEY_MAX_RESYNC_BATCH_SIZE, DEFAULT_MAX_RESYNC_BATCH_SIZE));
 }
 
 SV_ULONGLONG FileConfigurator::getAzureBlobOperationMaximumTimeout() const
 {
-    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXTRANSPORT,
+    return safe_lexical_cast<SV_ULONGLONG>(get(SECTION_VXTRANSPORT,
         KEY_AZURE_BLOBS_OPERATION_MAXIMUM_TIMEOUT,
         DEFAULT_AZURE_BLOBS_OPERATION_MAXIMUM_TIMEOUT));
 }
 
 SV_ULONGLONG FileConfigurator::getAzureBlobOperationMinimumTimeout() const
 {
-    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXTRANSPORT,
+    return safe_lexical_cast<SV_ULONGLONG>(get(SECTION_VXTRANSPORT,
         KEY_AZURE_BLOBS_OPERATION_MINIMUM_TIMEOUT,
         DEFAULT_AZURE_BLOBS_OPERATION_MINIMUM_TIMEOUT
     ));
@@ -4898,7 +5186,7 @@ SV_ULONGLONG FileConfigurator::getAzureBlobOperationMinimumTimeout() const
 
 SV_UINT FileConfigurator::getAzureBlobOperationTimeoutResetInterval() const
 {
-    return boost::lexical_cast<SV_UINT>(get(SECTION_VXTRANSPORT,
+    return safe_lexical_cast<SV_UINT>(get(SECTION_VXTRANSPORT,
         KEY_AZURE_BLOBS_OPERATION_TIMEOUT_RESET_INTERVAL,
         DEFAULT_AZURE_BLOBS_OPERATION_TIMEOUT_RESET_INTERVAL
     ));
@@ -4906,92 +5194,110 @@ SV_UINT FileConfigurator::getAzureBlobOperationTimeoutResetInterval() const
 
 SV_ULONGLONG FileConfigurator::getAzureBlockBlobParallelUploadChunkSize() const
 {
-    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXTRANSPORT,
+    return safe_lexical_cast<SV_ULONGLONG>(get(SECTION_VXTRANSPORT,
         KEY_AZURE_BLOCK_BLOB_PARALLEL_UPLOAD_CHUNK_SIZE,
         DEFAULT_AZURE_BLOCK_BLOB_PARALLEL_UPLOAD_CHUNK_SIZE
     ));
 }
 
+void FileConfigurator::setAzureBlockBlobParallelUploadChunkSize(const SV_ULONGLONG chunkSize) const
+{
+    set(SECTION_VXTRANSPORT, KEY_AZURE_BLOCK_BLOB_PARALLEL_UPLOAD_CHUNK_SIZE,
+        boost::lexical_cast<std::string>(chunkSize));
+}
+
 SV_ULONGLONG FileConfigurator::getAzureBlockBlobMaxWriteSize() const
 {
-    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXTRANSPORT,
+    return safe_lexical_cast<SV_ULONGLONG>(get(SECTION_VXTRANSPORT,
         KEY_AZURE_BLOCK_BLOB_MAX_WRITE_SIZE,
         DEFAULT_AZURE_BLOCK_BLOB_MAX_WRITE_SIZE
     ));
 }
 
+void FileConfigurator::setAzureBlockBlobMaxWriteSize(const SV_ULONGLONG maxWriteSize) const
+{
+    set(SECTION_VXTRANSPORT, KEY_AZURE_BLOCK_BLOB_MAX_WRITE_SIZE,
+        boost::lexical_cast<std::string>(maxWriteSize));
+}
+
 SV_UINT FileConfigurator::getAzureBlockBlobMaxParallelUploadThreads() const
 {
-    return boost::lexical_cast<SV_ULONGLONG>(get(SECTION_VXTRANSPORT,
+    return safe_lexical_cast<SV_ULONGLONG>(get(SECTION_VXTRANSPORT,
         KEY_AZURE_BLOCK_BLOB_MAX_PARALLEL_UPLOAD_THREADS,
         DEFAULT_AZURE_BLOCK_BLOB_MAX_PARALLEL_UPLOAD_THREADS
     ));
 }
 
+void FileConfigurator::setAzureBlockBlobMaxParallelUploadThreads(const SV_UINT maxParallelThreads) const
+{
+    set(SECTION_VXTRANSPORT, KEY_AZURE_BLOCK_BLOB_MAX_PARALLEL_UPLOAD_THREADS,
+        boost::lexical_cast<std::string>(maxParallelThreads));
+}
+
 SV_UINT FileConfigurator::getLogContainerRenewalRetryTimeInSecs() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT,
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT,
         KEY_LOG_CONTAINER_RENEWAL_RETRY_IN_SECS,
         DEFAULT_LOG_CONTAINER_RENEWAL_RETRY_IN_SECS));
 }
 
 bool FileConfigurator::validateAgentInstallerChecksum() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT, KEY_VALIDATE_INSTALLER_CHECKSUM, 1));
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_VALIDATE_INSTALLER_CHECKSUM, 1));
 }
 
 uint32_t FileConfigurator::getUpdateDirectoryCreationRetryCount() const
 {
-    return boost::lexical_cast<uint32_t>(get(SECTION_VXAGENT,
+    return safe_lexical_cast<uint32_t>(get(SECTION_VXAGENT,
         KEY_UPGRADE_DIRECTORY_CREATION_RETRY_COUNT,
         DEFAULT_UPGRADE_DIRECTORY_CREATION_RETRY_COUNT));
 }
 
 uint32_t FileConfigurator::getUpdateDirectoryCreationRetryInterval() const
 {
-    return boost::lexical_cast<uint32_t>(get(SECTION_VXAGENT,
+    return safe_lexical_cast<uint32_t>(get(SECTION_VXAGENT,
         KEY_UPGRADE_DIRECTORY_CREATION_RETRY_INTERVAL,
         DEFAULT_UPGRADE_DIRECTORY_CREATION_RETRY_INTERVAL));
 }
 
 uint32_t FileConfigurator::getUpdateDirectoryDeletionRetryCount() const
 {
-    return boost::lexical_cast<uint32_t>(get(SECTION_VXAGENT,
+    return safe_lexical_cast<uint32_t>(get(SECTION_VXAGENT,
         KEY_UPGRADE_DIRECTORY_DELETION_RETRY_COUNT,
         DEFAULT_UPGRADE_DIRECTORY_DELETION_RETRY_COUNT));
 }
 
 uint32_t FileConfigurator::getUpdateDirectoryDeletionRetryInterval() const
 {
-    return boost::lexical_cast<uint32_t>(get(SECTION_VXAGENT,
+    return safe_lexical_cast<uint32_t>(get(SECTION_VXAGENT,
         KEY_UPGRADE_DIRECTORY_DELETION_RETRY_INTERVAL,
         DEFAULT_UPGRADE_DIRECTORY_DELETION_RETRY_INTERVAL));
 }
 
 uint32_t FileConfigurator::getInstallerDownloadRetryCount() const
 {
-    return boost::lexical_cast<uint32_t>(get(SECTION_VXAGENT,
+    return safe_lexical_cast<uint32_t>(get(SECTION_VXAGENT,
         KEY_INSTALLER_DOWNLOAD_RETRY_COUNT,
         DEFAULT_INSTALLER_DOWNLOAD_RETRY_COUNT));
 }
 
 int FileConfigurator::getInstallerUnzipRetryCount() const
 {
-    return boost::lexical_cast<int>(get(SECTION_VXAGENT,
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT,
         KEY_INSTALLER_UNZIP_RETRY_COUNT,
         DEFAULT_INSTALLER_UNZIP_RETRY_COUNT));
 }
 
 uint32_t FileConfigurator::getInstallerUnzipRetryInterval() const
 {
-    return boost::lexical_cast<uint32_t>(get(SECTION_VXAGENT,
+    return safe_lexical_cast<uint32_t>(get(SECTION_VXAGENT,
         KEY_INSTALLER_UNZIP_RETRY_INTERVAL,
         DEFAULT_INSTALLER_UNZIP_RETRY_INTERVAL));
 }
 
 bool FileConfigurator::getIsCredentialLessDiscovery() const
 {
-    return boost::lexical_cast<bool>(get(SECTION_VXAGENT,
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT,
         KEY_IS_CREDENTIAL_LESS_DISCOVERY, "0"));
 }
 
@@ -5008,7 +5314,7 @@ void FileConfigurator::setSwitchApplianceState(SwitchAppliance::State state) con
 
 SwitchAppliance::State FileConfigurator::getSwitchApplianceState() const
 {
-    return (SwitchAppliance::State)boost::lexical_cast<int>(get(SECTION_VXAGENT,
+    return (SwitchAppliance::State)safe_lexical_cast<int>(get(SECTION_VXAGENT,
         KEY_SWITCH_APPLIANCE_STATE, 0));
 }
 
@@ -5019,7 +5325,7 @@ void FileConfigurator::setVacpState(VacpConf::State state) const
 
 VacpConf::State FileConfigurator::getVacpState() const
 {
-    return (VacpConf::State)boost::lexical_cast<int>(get(SECTION_VXAGENT,
+    return (VacpConf::State)safe_lexical_cast<int>(get(SECTION_VXAGENT,
         KEY_VACP_STATE, 0));
 }
 
@@ -5030,7 +5336,7 @@ void FileConfigurator::setMigrationState(Migration::State state) const
 
 Migration::State FileConfigurator::getMigrationState() const
 {
-    return (Migration::State)boost::lexical_cast<int>(get(SECTION_VXAGENT,
+    return (Migration::State)safe_lexical_cast<int>(get(SECTION_VXAGENT,
         KEY_MIGRATION_STATE, 0));
 }
 
@@ -5054,3 +5360,83 @@ std::string FileConfigurator::getClusterId() const
 {
     return get(SECTION_VXAGENT, KEY_CLUSTER_ID, std::string());
 }
+
+void FileConfigurator::setClusterName(const std::string& clusterName) const
+{
+    set(SECTION_VXAGENT, KEY_CLUSTER_NAME, clusterName);
+}
+
+std::string FileConfigurator::getClusterName() const
+{
+    return get(SECTION_VXAGENT, KEY_CLUSTER_NAME, std::string());
+}
+
+std::vector<std::string> FileConfigurator::getUnsupportedDiskInterfacesOnAzureOnWindows() const
+{
+    std::vector<std::string> toRet;
+    std::string unsupportedDisksonAzure = get(
+        SECTION_VXAGENT, KEY_UNSUPPORTED_DISK_INTERFACES_ON_AZURE_ON_WINDOWS, DEFAULT_UNSUPPORTED_DISK_INTERFACES_ON_AZURE_ON_WINDOWS);
+    boost::split(toRet, unsupportedDisksonAzure, boost::algorithm::is_any_of(","), boost::token_compress_on);
+
+    return toRet;
+}
+
+std::vector<std::string> FileConfigurator::getUnsupportedDiskInterfacesOnAzureOnLinux() const
+{
+    std::vector<std::string> toRet;
+    std::string unsupportedDisksonAzure = get(
+        SECTION_VXAGENT, KEY_UNSUPPORTED_DISK_INTERFACES_ON_AZURE_ON_LINUX, DEFAULT_UNSUPPORTED_DISK_INTERFACES_ON_AZURE_ON_LINUX);
+    boost::split(toRet, unsupportedDisksonAzure, boost::algorithm::is_any_of(","), boost::token_compress_on);
+
+    return toRet;
+}
+
+bool FileConfigurator::getVerifyIssuerCertExpiry() const
+{
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT,
+        KEY_VERIFY_ISSUER_CERT_EXPIRY, "1"));
+}
+
+void FileConfigurator::setVerifyIssuerCertExpiry(const bool& verifyIssuerCertExpiry) const
+{
+    set(SECTION_VXAGENT, KEY_VERIFY_ISSUER_CERT_EXPIRY,
+        boost::lexical_cast<std::string>(verifyIssuerCertExpiry));
+}
+
+int FileConfigurator::getClientCertRenewBufferInDays() const
+{
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT,
+        KEY_CLIENT_CERT_RENEW_BUFFER_IN_DAYS, DEFAULT_CLIENT_CERT_RENEW_BUFFER_IN_DAYS));
+}
+
+int FileConfigurator::getClientCertPollTime() const
+{
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT,
+        KEY_CLIENT_CERT_POLL_TIME, DEFAULT_CLIENT_CERT_POLL_TIME));
+}
+
+int FileConfigurator::getTenantMigrationLinearRetryInterval() const
+{
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_TENANT_MIGRATION_LINEAR_RETRY_INTERVAL, DEFAULT_TENANT_MIGRATION_LINEAR_RETRY_INTERVAL));
+}
+
+int FileConfigurator::getTenantMigrationMaxExponentialRetryInterval() const
+{
+    return safe_lexical_cast<int>(get(SECTION_VXAGENT, KEY_TENANT_MIGRATION_MAX_EXPONENTIAL_RETRY_INTERVAL, DEFAULT_TENANT_MIGRATION_MAX_EXPONENTIAL_RETRY_INTERVAL));
+}
+
+bool FileConfigurator::IsTenantMigrationAllowed() const {
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_ALLOW_TENANT_MIGRATION, DEFAULT_ALLOW_TENANT_MIGRATION));
+}
+
+#ifdef SV_UNIX
+bool FileConfigurator::getIsHighChurnSupportedDistro() const
+{
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_IS_HIGH_CHURN_SUPPORTED_DISTRO, 0));
+}
+
+bool FileConfigurator::getIsNVMeSupportedDistro() const
+{
+    return safe_lexical_cast<bool>(get(SECTION_VXAGENT, KEY_IS_NVME_SUPPORTED_DISTRO, 0));
+}
+#endif

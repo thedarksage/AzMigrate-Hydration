@@ -313,7 +313,9 @@ namespace securitylib {
         void writePfx(EVP_PKEY* pkey, X509* cert)
             {
                 REPORT_VERBOSE(m_verbose, "Writing certificate to " << m_pfxName);
-                PKCS12* p12 = PKCS12_create((char*)PFX_PASSPHRASE, (char*)m_pfxFriendlyName.c_str(), pkey, cert, 0, 0, 0, 0, 0, 0);
+                PKCS12* p12 = PKCS12_create(PFX_PASSPHRASE, m_pfxFriendlyName.c_str(), pkey, cert, 0,
+                    NID_pbe_WithSHA1And3_Key_TripleDES_CBC, NID_pbe_WithSHA1And3_Key_TripleDES_CBC, // CodeQL [SM01923] Changing crypto breaks existing functionality
+                    0, -1, 0);
                 if (0 == p12) {
                     throw ERROR_EXCEPTION << "GenCert::writePfx: Error creating PKCS12 structures" << '\n';
                 }
@@ -344,7 +346,7 @@ namespace securitylib {
 
         static std::string extractFingerprint(const X509* cert)
             {
-                EVP_MD const* evpSha1 = EVP_sha1();
+                EVP_MD const* evpSha1 = EVP_sha1(); // CodeQL [SM02689] Changing crypto breaks existing functionality
                 unsigned char md[EVP_MAX_MD_SIZE];
                 unsigned int len;
                 X509_digest(cert, evpSha1, md, &len);
@@ -488,6 +490,23 @@ namespace securitylib {
                     + boost::chrono::hours(days * 24);
 
                 return isCertLive(clientCert, expTime);
+            }
+
+        static ASN1_TIME *getCertExpiryTime(const std::string& certName)
+            {
+                X509 *clientCert = NULL;
+                std::string clientCertPath = getCertDir();
+                clientCertPath += SECURITY_DIR_SEPARATOR;
+                clientCertPath += certName;
+                clientCertPath += EXTENSION_CRT;
+
+                clientCert = readCert(clientCertPath);
+                ASN1_TIME *expirationTime = X509_get_notAfter(clientCert);
+                if (!expirationTime) {
+                    throw ERROR_EXCEPTION << "Failed to get expiration time from certificate " << clientCertPath << '\n';
+                }
+
+                return expirationTime;
             }
 
         X509_REQ* generateX509Req(EVP_PKEY* pkey)

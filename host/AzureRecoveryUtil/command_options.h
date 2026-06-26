@@ -12,6 +12,7 @@ namespace CMD_OPTION
     const char RECV_INFO_FILE[] = "recoveryinfofile";
     const char WORKING_DIR[] = "workingdir";
     const char HYDRATION_CONFIG_SETTINGS[] = "hydrationconfigsettings";
+    const char HYDRATION_COMMON_DISTROS[] = "hydrationcommondistros";
 
     const char STATUS[] = "status";
     const char TASK_DESC[] = "taskdescription";

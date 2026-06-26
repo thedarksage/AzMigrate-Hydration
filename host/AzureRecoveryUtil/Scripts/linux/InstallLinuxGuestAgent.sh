@@ -86,6 +86,7 @@ function CheckGuestAgentRunningState
     gaRunningState=1
     RunServiceCommand stop $1
     RunServiceCommand start $1
+    sleep 60
     checkAzureGAInstalled=$(RunServiceCommand status $waagent_servicename)
 
     if [[ $checkAzureGAInstalled == *"active"* ]] && [[ $checkAzureGAInstalled == *"running"* ]]; then
@@ -113,6 +114,20 @@ function GetWALinuxAgentServiceName
     fi
 }
 
+function ensure_pip_availability()
+{
+    if python3 -m pip --version; then
+        echo "Pip is already installed."
+    else
+        echo "Pip is not installed. Attempting installation..."
+        if python3 -m ensurepip --default-pip; then
+            echo "Pip installation successful."
+        else
+            echo "Pip installation failed."
+        fi
+    fi
+}
+
 #EndRegion
 
 # Formatting Logs
@@ -124,10 +139,12 @@ echo ""
 
 unset setup_tools_install
 unset base_linuxga_dir
+unset distro_module_install
 
 linux_distro=$1
 base_linuxga_dir="$2"
 setup_tools_install="$3"
+distro_module_install="$4"
 
 GetServiceBinaryName
 CheckValidPythonVersion
@@ -156,7 +173,8 @@ if [[ -f '/usr/sbin/waagent' ]]; then
     CheckGuestAgentRunningState $waagent_servicename
     
     if [[ $gaRunningState -eq 0 ]]; then
-        echo "Guest agent is in running state. "
+        echo "Guest agent is in running state."
+        rm -f /etc/profile.d/ASRLinuxGAStartup.sh
         exit 0
     else
         # WALinuxAgent is not present in runnable state.
@@ -173,13 +191,23 @@ if [[ $pythonversion -eq 3 ]]; then
     python3 /$base_linuxga_dir/PythonSetupPrereqs.py
     if [[ $setup_tools_install == *"install_setup_tools_true"* ]]; then
         # Try repository based installation first.
-        if [[ $linux_distro == *"UBUNTU"* ]]; then 
+        if [[ $linux_distro == *"UBUNTU"* || $linux_distro == *"DEBIAN"* ]]; then 
             # For CentOS, Redhat python3, setuptools comes pre-installed.
             apt-get install python3-distutils python3-setuptools -y
         fi
 
         cd "/$base_linuxga_dir/setuptools-33.1.1"
         python3 setup.py install
+    fi
+
+    if [[ $distro_module_install == *"install_distro_module_true"* ]]; then
+        ensure_pip_availability
+        if python3 -m pip install distro; then
+            echo "Distro package installed successfully."
+        else
+            echo "Installation of distro package failed."
+        fi
+
     fi
 
     cd /$base_linuxga_dir/WALinuxAgentASR/WALinuxAgent-master
@@ -236,15 +264,30 @@ if [[ $gaRunningState -eq 0 ]]; then
 	rm -f /etc/profile.d/ASRLinuxGAStartup.sh
 else
     case $linux_distro in
+    OL8*)
+        CheckGuestAgentRunningState "waagent"
+        dnf install -y python3-pyasn1 WALinuxAgent
+        ;;
     CENTOS*|OL*)
         CheckGuestAgentRunningState "waagent"
         yum install -y python-pyasn1 WALinuxAgent
         ;;
+    RHEL6*)
+        subscription-manager repos --enable=rhel-6-server-extras-rpms
+        CheckGuestAgentRunningState "waagent"
+        yum install -y WALinuxAgent
+        systemctl enable waagent.service
+        ;;
+    RHEL7*)
+        subscription-manager repos --enable=rhel-7-server-extras-rpms
+        CheckGuestAgentRunningState "waagent"
+        yum install -y WALinuxAgent
+        systemctl enable waagent.service
+        ;;
     RHEL*)
-        # [TODO] Needs Subscription Manager changes.
-        # subscription-manager repos --enable=rhel-6-server-extras-rpms
-        # CheckGuestAgentRunningState "waagent"
-        # yum install -y WALinuxAgent
+        CheckGuestAgentRunningState "waagent"
+        yum install -y WALinuxAgent
+        systemctl enable waagent.service
         ;;
     UBUNTU*)
         CheckGuestAgentRunningState "walinuxagent"
@@ -258,17 +301,45 @@ else
         CheckGuestAgentRunningState "walinuxagent" 
         apt-get install -y waagent
         ;;
+    ROCKY*)
+        CheckGuestAgentRunningState "waagent" 
+        dnf install -y WALinuxAgent
+        ;; 
+    ALMA*)
+        CheckGuestAgentRunningState "waagent" 
+        dnf install -y WALinuxAgent
+        ;;
     SLES*)
         CheckGuestAgentRunningState "waagent"
-        if [[ $linux_distro == *"SLES15"* ]]; then
-            zypper ar -f http://download.opensuse.org/repositories/Cloud:Tools/openSUSE_15.2 Cloud:Tools_15.2
-            zypper ar -f https://download.opensuse.org/distribution/15.2/repo/oss openSUSE_15.2_OSS
-            zypper ar -f http://download.opensuse.org/update/15.2 openSUSE_15.2_Updates
-        fi
         
-        zypper -n refresh
+        if [ -f /etc/os-release ] && grep -q 'SLES' /etc/os-release; then
+            if grep -q 'VERSION="12' /etc/os-release; then
+                SUSEConnect -p sle-module-public-cloud/12/x86_64
+            elif grep -q 'VERSION="15-SP1' /etc/os-release; then
+                SUSEConnect -p sle-module-public-cloud/15.1/x86_64
+            elif grep -q 'VERSION="15-SP2' /etc/os-release; then
+                SUSEConnect -p sle-module-public-cloud/15.2/x86_64
+            elif grep -q 'VERSION="15-SP3' /etc/os-release; then
+                SUSEConnect -p sle-module-public-cloud/15.3/x86_64
+            elif grep -q 'VERSION="15-SP4' /etc/os-release; then
+                SUSEConnect -p sle-module-public-cloud/15.4/x86_64
+            elif grep -q 'VERSION="15-SP5' /etc/os-release; then
+                SUSEConnect -p sle-module-public-cloud/15.5/x86_64
+            elif grep -q 'VERSION="15-SP6' /etc/os-release; then
+                SUSEConnect -p sle-module-public-cloud/15.6/x86_64
+            elif grep -q 'VERSION="15-SP7' /etc/os-release; then
+                SUSEConnect -p sle-module-public-cloud/15.7/x86_64
+            fi
+        elif [ -f /etc/os-release ] && grep -q 'openSUSE Leap' /etc/os-release; then
+            zypper ar -f https://download.opensuse.org/update/openSUSE-stable openSUSE_stable_Updates
+            zypper ar -f https://download.opensuse.org/repositories/Cloud:/Tools/15.4 Cloud:Tools_15.4
+            zypper ar -f https://download.opensuse.org/distribution/openSUSE-stable/repo/oss openSUSE_stable_OSS
+        fi    
+        
+        zypper --gpg-auto-import-keys -n refresh
         zypper -n install python-azure-agent
         zypper -n install cloud-init
+        systemctl enable waagent
         ;;
     esac
 fi

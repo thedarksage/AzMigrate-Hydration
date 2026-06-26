@@ -170,6 +170,8 @@ public:
     static bool getVxProtectedDeviceDetailCachePathname(std::string & cachePath);
     static bool getDeprecatedVxProtectedDeviceDetailCachePathname(std::string & cachePath);
     static bool getVxPlatformTypeForDriverPersistentFile(std::string &filePath);
+    //static bool getImdsCachePathname(std::string& imdsSecurityCachePath, std::string& imdsStorageCachePath);
+
 public:
     //
     // ConfigureLocalVxAgent interface
@@ -197,6 +199,8 @@ public:
     std::string getSourceControlPlane() const;
     std::string getFailoverVmBiosId() const;
     std::string getFailoverTargetType() const;
+    std::vector<std::string> getUnsupportedDiskInterfacesOnAzureOnWindows() const;
+    std::vector<std::string> getUnsupportedDiskInterfacesOnAzureOnLinux() const;
 
     // EvtCollForw settings - Start
     SV_LOG_LEVEL getEvtCollForwAgentLogPostLevel() const;
@@ -220,6 +224,9 @@ public:
     unsigned int getRcmRequestTimeout() const;
     std::string getProxySettingsPath() const;
     std::string getVmPlatform() const;
+    std::string getOsNameForWhichAgentIsInstalled() const;
+    bool IsCxConfiguredMajorOSUpgrade() const;
+    std::string getPullClientDownloadDirReqSpace() const;
     std::string getPhysicalSupportedHypervisors() const;
     bool IsAzureToAzureReplication() const;
 
@@ -237,6 +244,8 @@ public:
     void setDiffSourceExePathname(const std::string& diffSourceExePathname) const;
     std::string getDataProtectionExePathname() const;
     void setDataProtectionExePathname(const std::string& dataProtectionExePathname) const;
+    void setOsNameForWhichAgentIsInstalled(const std::string& upgradedOS) const;
+    void setCxConfiguredMajorOSUpgrade(const std::string& value) const;
 
     /* Added by BSR
      *  Project: New Sync
@@ -304,6 +313,7 @@ public:
     SV_ULONG getLogResyncProgressInterval() const;
     SV_ULONG getResyncSlowProgressThreshold() const;
     SV_ULONG getResyncNoProgressThreshold() const;
+    SV_ULONG getResyncStuckThreshold() const;
 
     std::string getOffloadSyncPathname() const;
     std::string getVsnapConfigPathname() const;
@@ -398,6 +408,8 @@ public:
     std::string getProtectedVolumes() const;
     void setProtectedVolumes(std::string protectedVolumes) const;
     std::string getInstallPath() const;
+    int getInstallPathReqSpace() const;
+    bool getUseDrscoutInstallPathSpace() const;
     std::string getAgentInstallPathOnCsPrimeApplianceToAzure() const;
     std::string getPSInstallPathOnCsPrimeApplianceToAzure() const;
     std::string getPSTelemetryFolderPathOnCsPrimeApplianceToAzure() const;
@@ -503,7 +515,7 @@ public:
     std::string getNotAllowedMountPointFileName()const;
     std::string getConsistencySettingsCachePath() const;
     std::string getResyncBatchCachePath() const;
-
+   
     SV_UINT getManualResyncStartThresholdInSecs() const;
     SV_UINT getInitialReplicationStartThresholdInSecs() const;
     SV_UINT getAutoResyncStartThresholdInSecs() const;
@@ -551,6 +563,12 @@ public:
     SV_ULONG    getDriverMinDppUsageInMB() const;
     SV_ULONG    getDriverMaxDppUsageInMB() const;
     SV_ULONG    getDriverDppAlignmentInMB() const;
+
+    SV_ULONG    getDriverDNpFreeRamUsageInPercent() const;
+    SV_ULONG    getDriverMinDNpUsageInMB() const;
+    SV_ULONG    getDriverMaxDNpUsageInMB() const;
+    SV_ULONG    getDriverDNpAlignmentInMB() const;
+
 
     //Added by BSR for parallelising HCD Process threads
     SV_UINT getMaxFastSyncProcessThreads() const;
@@ -673,6 +691,13 @@ public:
     /* churn-throughput CX session definitions start */
     SV_ULONGLONG getMaxDiskChurnSupportedMBps() const;
     SV_ULONGLONG getMaxVMChurnSupportedMBps() const;
+    SV_ULONGLONG getMaxDiskHighChurnSupportedMBps() const;
+    SV_ULONGLONG getMaxVMHighChurnSupportedMBps() const;
+    SV_ULONGLONG getHighChurnMinimumMemoryGB() const;
+#ifdef SV_UNIX
+    bool getIsHighChurnSupportedDistro() const;
+    bool getIsNVMeSupportedDistro() const;
+#endif
     SV_ULONGLONG getMaximumTimeJumpForwardAcceptableInMs() const;
     SV_ULONGLONG getMaximumTimeJumpBackwardAcceptableInMs() const;
     SV_ULONGLONG getMinConsecutiveTagFailures() const;
@@ -701,9 +726,12 @@ public:
 
     /*windows failover cluster configurations*/
     void setClusterId(const std::string& hostId) const;
+    void setClusterName(const std::string& clusterName) const;
 
     std::string getClusterId() const;
+    std::string getClusterName() const;
 
+    bool getIsScsiAttributeMandatory() const;
 public:
     //
     // ConfigureVxTransport
@@ -727,6 +755,7 @@ public:
     int getTransportResponseTimeoutSeconds() const;
     int getTransportLowSpeedTimeoutSeconds() const;
     int getTransportWriteMode() const;
+    int getAzureBlobClientMaxListResults() const;
     bool IsFilterDriverAvailable() const;
     bool IsVolpackDriverAvailable() const;
     bool IsVsnapDriverAvailable() const;
@@ -863,6 +892,14 @@ public:
     std::string getMigrationMinMARSVersion() const;
 
     std::string getAdditionalInstallPaths() const;
+    bool getVerifyIssuerCertExpiry() const;
+    void setVerifyIssuerCertExpiry(const bool& verifyIssuerCertExpiry) const;
+    int getClientCertPollTime() const;
+    int getClientCertRenewBufferInDays() const;
+    int getTenantMigrationLinearRetryInterval() const;
+    int getTenantMigrationMaxExponentialRetryInterval() const;
+    bool IsTenantMigrationAllowed() const;
+
 public:
     // Exposed default values for usage in other libraries that doesn't have
     // to depend on the config file to be read successfully.
@@ -954,6 +991,9 @@ public:
     SV_ULONGLONG getAzureBlockBlobParallelUploadChunkSize() const;
     SV_ULONGLONG getAzureBlockBlobMaxWriteSize() const;
     SV_UINT getAzureBlockBlobMaxParallelUploadThreads() const;
+    void setAzureBlockBlobParallelUploadChunkSize(SV_ULONGLONG ulChunkSize) const;
+    void setAzureBlockBlobMaxWriteSize(SV_ULONGLONG ulMaxWriteSize) const;
+    void setAzureBlockBlobMaxParallelUploadThreads(SV_UINT ulMaxParallelUploadThreads) const;
 
 };
 

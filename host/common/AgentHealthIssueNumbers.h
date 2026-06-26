@@ -49,6 +49,52 @@ namespace AgentHealthIssueCodes
             const std::string HealthCode = "AppConsistentReplicationExceeded";
             const std::string ReplicationInterval = "AppConsistentReplicationInterval";
         };
+
+        namespace VMTypeUnsupported
+        {
+            const std::string HealthCode = "UnSupportedVMSecurityType";
+            const std::string SecurityProfile = "VMSecurityType";
+        };
+
+        namespace VMTypeConversionRequired
+        {
+          const std::string HealthCode = "VMSecurityTypeConversionRequired";
+        };
+
+        namespace VMControllerUnsupported
+        {
+            const std::string HealthCode = "UnSupportedVMControllerType";
+            const std::string ControllerType = "VMControllerType";
+            const std::string AgentVersion = "AgentVersion";
+            const std::string OSType = "OSType";
+        };
+
+        namespace VMOSVersionUpgraded
+        {
+            // Note: For health code,  the "InMageRcmSourceAgent" string is prefixed by SRS, so we dont need to send that part
+            // The param name (ex: OldMajorVersion) must exactly match the string used when defining the health code in SRS repo
+            const std::string HealthCode = "ECH00036";
+            const std::string OldMajorVersion = "OldMajorVersion";
+            const std::string NewMajorVersion = "NewMajorVersion";
+        };
+
+        namespace A2ASourceAgentDiskRestoredFromBackup
+        {
+            const std::string HealthCode = "DiskRestoredFromBackup";
+            const std::string RestoredDisks = "RestoredDisks";
+        };
+
+        namespace A2ASourceAgentDiskPositionSwapped
+        {
+            const std::string HealthCode = "DiskPositionSwapped";
+            const std::string SwappedDisks = "SwappedDisks";
+        };
+
+        namespace AADTokenFailure
+        {
+            const std::string HealthCode = "AADCommunicationFailure";
+            const std::string TenantId = "TenantId";
+        };
     }; // VMLevelHealthIssues
 
     namespace DiskLevelHealthIssues
@@ -56,15 +102,15 @@ namespace AgentHealthIssueCodes
         namespace PeakChurn
         {
             const std::string HealthCode = "SourceAgentPeakChurnObserved";
-            const std::string ChurnRate = "ChurnRate";
-            const std::string UploadPending = "DataPendingForUpload";
+            const std::string PeakChurn = "PeakChurn";
+            const std::string AccumulatedChurnHigherThanThroughput = "Data pending for upload due to churn higher than the supported limits";
             const std::string ObservationTime = "ObservationTime";
         };
 
         namespace HighLatency
         {
             const std::string HealthCode = "SourceAgentHighLatencyObserved";
-            const std::string UploadPending = "DataPendingForUpload";
+            const std::string AccumulatedChurnHigherThanThroughput = "Data pending for upload due to churn higher than the supported limits";
             const std::string ObservationTime = "ObservationTime";
         };
 
@@ -136,7 +182,54 @@ namespace AgentHealthIssueCodes
 
     }; // DiskLevelHealthIssues
 
+    namespace AgentToAzureServicesHealthIssues
+    {
+        namespace AgentToAzureGatewayConnectionNotHealthy
+        {
+            const std::string HealthCode = "SourceAgentToAzureGatewayConnectionNotHealthy";
+            const std::string GatewayEndpointURI = "SourceAgentGatewayEndpointURI";
+            const std::string GatewayErrorCode = "SourceAgentGatewayErrorCode";
+            const std::string GatewayLatency = "SourceAgentGatewayLatency";
+        };
+
+        namespace AgentToAzureIMDSConnectionNotHealthy
+        {
+            const std::string HealthCode = "SourceAgentToAzureIMDSConnectionNotHealthy";
+            const std::string IMDSEndpointURI = "SourceAgentIMDSEndpointURI";
+            const std::string IMDSErrorCode = "SourceAgentIMDSErrorCode";
+        };
+    }; // AgentToAzureServicesHealthIssues
+
+    namespace DriverHealthIssues
+    {
+        namespace DriverDrainBlockUnsupported
+        {
+            const std::string HealthCode = "DriverDrainBlockUnsupported";
+            const std::string DriverVersion = "DriverVersion";
+        };
+    }; // DriverHealthIssues
+
 }; // AgentHealthIssueCodes
+
+namespace SharedDiskClusterHealthIssueCodes
+{
+    namespace ClusterLevelHealthIssues
+    {
+        namespace SharedDiskClusterDown
+        {
+            const std::string HealthCode = "SourceAgentSharedDiskClusterIsUnavailable";
+            const std::string ClusterName = "ClusterName";
+        };
+
+        namespace SharedDiskClusterUnProtectedMachinesInCluster
+        {
+            const std::string Healthcode = "SourceAgentSharedDiskClusterUnProtectedMachinesInCluster";
+            const std::string UnProtectedMachines = "UnProtectedMachinesNames";
+        };
+
+    }; // ClusterLevelHealthIssues
+
+}; // SharedDiskClusterHealthIssueCodes
 
 const std::string g_IRissueCodes[] = {
     AgentHealthIssueCodes::DiskLevelHealthIssues::IRThrottle::HealthCode,

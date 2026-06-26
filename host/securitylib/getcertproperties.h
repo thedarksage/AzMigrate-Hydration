@@ -18,6 +18,7 @@
 #define MD5_HASH            "MD5HASH"
 #define SHA1_HASH           "SHA1HASH"
 #define ISSUER_COMMON_NAME  "IssuerCommonName"
+#define EXPIRY_TIME         "ExpiryTime"
 
 typedef std::map<std::string, std::string> cert_properties_t;
 typedef cert_properties_t::iterator cert_properties_iterator;

@@ -72,7 +72,7 @@ Run the executable with following arguments:
 Sample Output for getInitialSettings:
 
 FTP_CONNECTION_SETTINGS:
-ipAddress: 10.0.1.98    password: svsHillview   port: 21
+ipAddress: 10.0.1.98    password: *******   port: 21
 
 -------------------------------------------------------------------
 CDP_SETTINGS:

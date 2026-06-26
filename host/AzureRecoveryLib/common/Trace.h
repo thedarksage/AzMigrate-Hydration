@@ -73,6 +73,8 @@ private:
     void SetLogLevel(LogLevel logLevel);
     void WriteToLog(const std::string& msg);
 
+    static std::string SanitizeTraceString(const std::string& inputStr);
+
     static Trace s_trace;
 
     ACE_Recursive_Thread_Mutex m_tout_mutex;

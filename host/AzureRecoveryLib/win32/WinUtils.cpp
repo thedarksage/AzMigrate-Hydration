@@ -25,6 +25,7 @@ History		:   1-6-2015 (Venu Sivanadham) - Created
 #include <boost/foreach.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
+#include <fstream>
 
 #pragma comment(lib, "version.lib")
 
@@ -442,6 +443,7 @@ namespace AzureRecovery
         HANDLE hVolume = INVALID_HANDLE_VALUE;
         TCHAR volumeName[MAX_PATH] = { 0 };
         bool bFoundVolume = false;
+        bool isVolCorrupted = false;
 
         if (osVolExtents.empty())
         {
@@ -461,6 +463,12 @@ namespace AzureRecovery
         do
         {
             TRACE_INFO("Verifying disk extents for the volume %s\n", volumeName);
+
+            if (!ValidateVolumeIntegrity(volumeName))
+            {
+                TRACE_WARNING("Volume %s might not be intact.\n", volumeName);
+                isVolCorrupted = true;
+            }
 
             //Get volume disk extents and compare
             disk_extents_t volExtents;
@@ -537,10 +545,101 @@ namespace AzureRecovery
 
         if (!bFoundVolume &&
             (dwRet == ERROR_NO_MORE_FILES || dwRet == ERROR_SUCCESS))
+        {
             dwRet = ERROR_FILE_NOT_FOUND;
+            if (isVolCorrupted)
+            {
+                dwRet = ERROR_FILE_CORRUPT;
+            }
+        }
 
         TRACE_FUNC_END;
         return dwRet;
+    }
+
+
+    /*
+    Method      : ValidateVolumeIntegrity
+
+    Description : Validated whether the volume is accessible and has valid file system.
+
+    Parameters  : [in] volumeUNC: volume UNC path.
+
+    Return      : true -> on valid structure
+                  false -> on corrupted volume structure.
+    */
+    bool ValidateVolumeIntegrity(const std::string& volumeUNC)
+    {
+        TRACE_FUNC_BEGIN;
+
+        try
+        {
+            DWORD serialNumber = 0;
+            DWORD maxComponentLen = 0;
+            DWORD fileSystemFlags = 0;
+            std::vector<TCHAR> volumeName(MAX_PATH + 1, 0);
+            std::vector<TCHAR> fileSystemName(MAX_PATH + 1, 0);
+
+            // Ensure the UNC path ends with a backslash, as required by GetVolumeInformation
+            std::string rootPathStr = volumeUNC;
+            if (!rootPathStr.empty() && rootPathStr.back() != '\\')
+                rootPathStr += '\\';
+
+            const TCHAR* rootPathName = _T(rootPathStr.c_str());
+
+            BOOL result = GetVolumeInformation(
+                rootPathName,
+                &volumeName[0],
+                MAX_PATH,
+                &serialNumber,
+                &maxComponentLen,
+                &fileSystemFlags,
+                &fileSystemName[0],
+                MAX_PATH
+            );
+
+            std::wstringstream strOut;
+
+            if (result)
+            {
+                strOut << L"The volume information for " << rootPathName << L" is:\n"
+                    << L"Volume name: " << &volumeName[0] << L"\n"
+                    << L"Serial number: " << serialNumber << L"\n"
+                    << L"Maximum component length: " << maxComponentLen << L"\n"
+                    << L"File system flags: " << fileSystemFlags << L"\n"
+                    << L"File system name: " << &fileSystemName[0] << L"\n";
+
+                TRACE_INFO("%ls", strOut.str().c_str());
+            }
+            else
+            {
+                DWORD error = GetLastError();
+                strOut << L"GetVolumeInformation failed with error " << error << L"\n";
+
+                if (error == ERROR_FILE_CORRUPT)
+                {
+                    strOut << L"The specified volume is corrupted and can not be mounted.\n";
+                }
+
+                TRACE_ERROR("%ls", strOut.str().c_str());
+                return false;
+            }
+        }
+        catch (const std::exception& e)
+        {
+            TRACE_ERROR("Exception occurred while validating volume integrity. Error: %s\n", e.what());
+            TRACE_FUNC_END;
+            return false;
+        }
+        catch (...)
+        {
+            TRACE_ERROR("Unknown exception occurred while validating volume integrity.\n");
+            TRACE_FUNC_END;
+            return false;
+        }
+
+        TRACE_FUNC_END;
+        return true;
     }
 
     /*
@@ -1078,6 +1177,284 @@ namespace AzureRecovery
         TRACE_FUNC_END;
     }
 
+    /// <summary>
+    /// Enables optional Bitlocker features for the VMs.
+    /// </summary>
+    /// <param name="srcOsVol">OS Volume for the Windows VM.</param>
+    /// <returns>ERROR_SUCCESS if successful, error code otherwise.</returns>
+    /// <remarks> https://learn.microsoft.com/en-us/powershell/module/dism/enable-windowsoptionalfeature?view=windowsserver2022-ps </remarks>
+    DWORD EnableBitlocker(const std::string& srcOsVol)
+    {
+        TRACE_FUNC_BEGIN;
+        DWORD dwRet = ERROR_SUCCESS;
+
+        std::stringstream enable_bitlocker_ps_cmd;
+        enable_bitlocker_ps_cmd
+            << SysConstants::POWERSHELL_EXE_NAME
+            << " Enable-WindowsOptionalFeature -Path "
+            << boost::trim_right_copy_if(srcOsVol, boost::is_any_of(DIRECOTRY_SEPERATOR))
+            << std::string(DIRECOTRY_SEPERATOR)
+            << " -FeatureName Bitlocker -All";
+
+        std::stringstream cmd_output;
+        dwRet = RunCommand(enable_bitlocker_ps_cmd.str(), "", cmd_output);
+
+        TRACE_INFO("Output:\n%s\n", cmd_output.str().c_str());
+
+        if (ERROR_SUCCESS != dwRet)
+        {
+            TRACE_ERROR("Command %s exited with exit code: %d\n",
+                enable_bitlocker_ps_cmd.str().c_str(),
+                dwRet);
+        }
+
+        TRACE_FUNC_END;
+        return dwRet;
+    }
+
+    /*
+    Method      : GetDiskNumber
+
+    Description : Gets the disk number for the specified OS volume.
+
+    Parameters  : [in] srcOsVol : Source OS volume name on Hydration-VM ( Ex: F:\ )
+                  [out] diskNumber: Offline basic disk number.
+
+    Return      : ERROR_SUCCESS if successful, ERROR_INVALID_DATA in case of string
+                  conversion failures, error code otherwise.
+    */
+    DWORD GetDiskNumber(const std::string& srcOsVol, int& diskNumber)
+    {
+        TRACE_FUNC_BEGIN;
+        DWORD result = ERROR_SUCCESS;
+
+        std::string srcOsVolMountPoint = srcOsVol;
+        if (!srcOsVolMountPoint.empty() &&
+            srcOsVolMountPoint[srcOsVolMountPoint.length() - 1] != '\\')
+            srcOsVolMountPoint += "\\";
+
+        std::stringstream getDiskNumberCmd;
+        getDiskNumberCmd
+            << SysConstants::POWERSHELL_EXE_NAME
+            << " -Command \"(Get-Partition | Where-Object {$_.AccessPaths -contains '"
+            << srcOsVolMountPoint
+            << "'}).DiskNumber\"";
+
+        std::stringstream diskNumberOutput;
+        result = RunCommand(getDiskNumberCmd.str(), "", diskNumberOutput);
+
+        if (ERROR_SUCCESS != result)
+        {
+            TRACE_ERROR("Command %s exited with exit code: %d\n",
+                getDiskNumberCmd.str().c_str(),
+                result);
+            TRACE_FUNC_END;
+            return result;
+        }
+
+        TRACE_INFO("Command %s executed successfully. Disk number: \"%s\"\n",
+            getDiskNumberCmd.str().c_str(),
+            diskNumberOutput.str().c_str());
+
+        try
+        {
+            std::string trimmedOutput = diskNumberOutput.str();
+            trimmedOutput.erase(trimmedOutput.find_last_not_of(" \n\r\t") + 1);
+            diskNumber = std::stoi(trimmedOutput);
+        }
+        catch (const std::exception& e)
+        {
+            TRACE_ERROR("Error: %s\n", e.what());
+            TRACE_FUNC_END;
+            return ERROR_INVALID_DATA;
+        }
+
+        TRACE_FUNC_END;
+        return result;
+    }
+
+    /*
+    Method      : PrepareDevicePathFileForCPT
+
+    Description : Prepares the device path file for the specified OS volume to be used by CPT tool.
+
+    Parameters  : [in] srcOsVol : Source OS volume name on Hydration-VM ( Ex: F:\ )
+                  [in] osVersion : OS version.
+
+    Return      : ERROR_SUCCESS if successful, ERROR_INVALID_DATA in case of string
+                  conversion failures, error code otherwise.
+    */
+    DWORD PrepareDevicePathFileForCPT(const std::string& srcOsVol, const std::string& osVersion)
+    {
+        TRACE_FUNC_BEGIN;
+        DWORD result = ERROR_SUCCESS;
+
+        std::string srcOsVolMountPoint = srcOsVol;
+        if (!srcOsVolMountPoint.empty() &&
+            srcOsVolMountPoint[srcOsVolMountPoint.length() - 1] != '\\')
+            srcOsVolMountPoint += "\\";
+
+        std::string deviceDir = "C:\\ProgramData\\Hydration";
+        std::string deviceFilePath = deviceDir + "\\devicePath";
+
+        // Create the directory if it doesn't exist
+        if (!boost::filesystem::exists(deviceDir)) {
+            boost::filesystem::create_directories(deviceDir);
+        }
+        // Write the device path information to the file
+        std::ofstream deviceFile(deviceFilePath);
+        if (!deviceFile.is_open()) {
+            TRACE_ERROR("Could not open file %s for writing.\n", deviceFilePath.c_str());
+            TRACE_FUNC_END;
+            return ERROR_INTERNAL_ERROR;
+        }
+        deviceFile << "driveLetter:" << srcOsVolMountPoint << "\n";
+        deviceFile << "sourceOS:Windows\n";
+        deviceFile << "sourceOSVersion:" << osVersion << "\n";
+        deviceFile.close();
+        TRACE_INFO("Device path file created at: \"%s\"\n", deviceFilePath.c_str());
+
+        TRACE_FUNC_END;
+        return result;
+    }
+
+    /*
+    Method      : GetPartitionStyle
+
+    Description : Gets the partition style for the specified disk number.
+
+    Parameters  : [in] diskNumber : Disk number.
+                  [out] partitionStyle: Partition style of the disk.
+
+    Return      : ERROR_SUCCESS if successful, ERROR_INVALID_DATA in case of empty
+                  string result, error code otherwise.
+    */
+    DWORD GetPartitionStyle(int diskNumber, std::string& partitionStyle)
+    {
+        TRACE_FUNC_BEGIN;
+        DWORD result = ERROR_SUCCESS;
+
+        std::stringstream checkPartitionStyleCmd;
+        checkPartitionStyleCmd
+            << SysConstants::POWERSHELL_EXE_NAME
+            << " -Command \"(Get-Disk -Number " 
+            << std::to_string(diskNumber)
+            << ").PartitionStyle\"";
+
+        std::stringstream partitionStyleOutput;
+        result = RunCommand(checkPartitionStyleCmd.str(), "", partitionStyleOutput);
+
+        if (ERROR_SUCCESS != result)
+        {
+            TRACE_ERROR("Command %s exited with exit code: %d\n",
+                checkPartitionStyleCmd.str().c_str(),
+                result);
+            TRACE_FUNC_END;
+            return result;
+        }
+
+        partitionStyle = partitionStyleOutput.str();
+
+        TRACE_INFO("Command %s executed successfully. Partition style output: \"%s\"\n",
+            checkPartitionStyleCmd.str().c_str(),
+            partitionStyle.c_str());
+
+        partitionStyle.erase(partitionStyle.find_last_not_of(" \n\r\t") + 1);
+
+        if (partitionStyle.empty())
+        {
+            TRACE_ERROR("Partition style is null or empty for disk number: %d\n", diskNumber);
+            TRACE_FUNC_END;
+            return ERROR_INVALID_DATA;
+        }
+
+        TRACE_FUNC_END;
+        return result;
+    }
+
+    /*
+    Method      : ValidateDiskConversionToGpt
+
+    Description : Performs disk validation steps and report whether the disk is eligible
+                  for conversion from MBR to GPT.
+
+    Parameters  : [in] srcOsVol : Source OS volume name on Hydration-VM ( Ex: F:\ )
+                  [in] diskNumber: Disk number for the source OS volume.
+
+    Return      : ERROR_SUCCESS if successful, error code otherwise.
+    */
+    DWORD ValidateDiskConversionToGpt(const std::string& srcOsVol, int diskNumber)
+    {
+        TRACE_FUNC_BEGIN;
+        DWORD result = ERROR_SUCCESS;
+
+        // Validate the disk using mbr2gpt
+        std::stringstream validateDiskCmd;
+        validateDiskCmd
+            << "MBR2GPT.exe /validate /disk:"
+            << std::to_string(diskNumber)
+            << " /allowFullOS";
+
+        std::stringstream validateOutput;
+        result = RunCommand(validateDiskCmd.str(), "", validateOutput);
+
+        if (ERROR_SUCCESS != result)
+        {
+            TRACE_ERROR("Command %s exited with exit code: %d\n",
+                validateDiskCmd.str().c_str(),
+                result);
+            TRACE_FUNC_END;
+            return result;
+        }
+        TRACE_INFO("Command %s executed successfully. Validation output: %s\n",
+            validateDiskCmd.str().c_str(),
+            validateOutput.str().c_str());
+
+        TRACE_FUNC_END;
+        return result;
+    }
+
+    /*
+    Method      : ConvertDiskToGpt
+
+    Description : Converts the system disk from MBR to GPT for the specified volume.
+
+    Parameters  : [in] srcOsVol : Source OS volume name on Hydration-VM ( Ex: F:\ )
+                  [in] diskNumber: Disk number for the source OS volume.
+
+    Return      : ERROR_SUCCESS if successful, error code otherwise.
+    */
+    DWORD ConvertDiskToGpt(const std::string& srcOsVol, int diskNumber)
+    {
+        TRACE_FUNC_BEGIN;
+        DWORD result = ERROR_SUCCESS;
+
+        // Convert the disk using mbr2gpt
+        std::stringstream convertDiskCmd;
+        convertDiskCmd
+            << "MBR2GPT.exe /convert /disk:"
+            << std::to_string(diskNumber)
+            << " /allowFullOS";
+
+        std::stringstream convertOutput;
+        result = RunCommand(convertDiskCmd.str(), "", convertOutput);
+
+        if (ERROR_SUCCESS != result)
+        {
+            TRACE_ERROR("Command %s exited with exit code: %d\n",
+                convertDiskCmd.str().c_str(),
+                result);
+            TRACE_FUNC_END;
+            return result;
+        }
+        TRACE_INFO("Command %s executed successfully. Conversion output: %s\n",
+            convertDiskCmd.str().c_str(),
+            convertOutput.str().c_str());
+
+        TRACE_FUNC_END;
+        return result;
+    }
+
     /*
     Method      : EnableSerialConsole
 
@@ -1201,7 +1578,6 @@ namespace AzureRecovery
         * bcdedit.exe /set "{bootmgr}" displaybootmenu yes
         * bcdedit.exe /set "{bootmgr}" timeout 5
         * bcdedit.exe /set "{bootmgr}" bootems yes
-        * bcdedit.exe /ems "{current}" ON
         * bcdedit.exe /emssettings EMSPORT:1 EMSBAUDRATE:115200
         */
 
@@ -1212,16 +1588,15 @@ namespace AzureRecovery
             << BCD_TOOLS::BCDEDIT_EXE
             << " /store " << bcd_file;
 
-        std::string serial_console_cmd_arr[5] =
+        std::string serial_console_cmd_arr[4] =
         {
             serialconsole_cmd_prefix.str() + " /set \"{bootmgr}\" displaybootmenu yes",
             serialconsole_cmd_prefix.str() + " /set \"{bootmgr}\" timeout 5",
             serialconsole_cmd_prefix.str() + " /set \"{bootmgr}\" bootems yes",
-            serialconsole_cmd_prefix.str() + " /ems \"{current}\" ON",
             serialconsole_cmd_prefix.str() + " /emssettings EMSPORT:1 EMSBAUDRATE:115200"
         };
 
-        for (int sc_cmd_itr = 0; sc_cmd_itr < 5; sc_cmd_itr++)
+        for (int sc_cmd_itr = 0; sc_cmd_itr < 4; sc_cmd_itr++)
         {
             std::stringstream cmd_output;
             dwRet = RunCommand(serial_console_cmd_arr[sc_cmd_itr], "", cmd_output);
@@ -1406,6 +1781,7 @@ namespace AzureRecovery
         HANDLE hVolume = INVALID_HANDLE_VALUE;
         std::vector<TCHAR> volumeNameBuff(MAX_PATH, 0);
         bool bFoundVolume = false;
+        bool isVolCorrupted = false;
         volumes.clear();
 
         hVolume = FindFirstVolume(&volumeNameBuff[0], volumeNameBuff.size());
@@ -1429,6 +1805,12 @@ namespace AzureRecovery
 
             TRACE_INFO("Verifying disk extents for the volume %s.\n",
                 volumeName.c_str());
+
+            if (!ValidateVolumeIntegrity(volumeName))
+            {
+                TRACE_WARNING("Volume %s is not in valid state.\n", volumeName.c_str());
+                isVolCorrupted = true;
+            }
 
             // Get volume disk extents.
             disk_extents_t volExtents;
@@ -1516,6 +1898,12 @@ namespace AzureRecovery
         {
             TRACE_ERROR("Could not enumerating all the volumes. Error %d.\n",
                 dwRet);
+        }
+
+        if (dwRet != ERROR_SUCCESS && isVolCorrupted)
+        {
+            TRACE_ERROR("OS Volume not found. One or more volumes found to be in corrupted state.\n");
+            dwRet = ERROR_FILE_CORRUPT;
         }
 
         // Close volume enumeration handle.

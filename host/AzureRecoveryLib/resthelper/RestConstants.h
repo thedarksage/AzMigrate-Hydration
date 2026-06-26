@@ -56,6 +56,7 @@ namespace AzureStorageRest
         const char QueryParamPrefix[]   = "prefix";
         const char QueryParamInclude[]  = "include";
         const char QueryParamMaxresults[] = "maxresults";
+        const char QueryParamMarker[] = "marker";
 
         const char BlockBlob[]          = "BlockBlob";
         const char PageBlob[]           = "PageBlob";

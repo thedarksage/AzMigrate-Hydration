@@ -220,9 +220,65 @@ function CheckLvmConfFile
         return $_retCode_
 }
 
+function VerifyUefiBootloaderFiles
+{
+    config_file_name=""
+    bootloader_folder_path="$mntpath/boot/efi/EFI/boot"
+
+    if [ "$firmware_type" = "UEFI" ]; then
+        if [ ! -f "$_grub2_efi_path/bootx64.efi" ]; then
+            if [ -f "$_grub2_efi_path/shimx64.efi" ]; then
+                CopyFile "$_grub2_efi_path/shimx64.efi" "$_grub2_efi_path/bootx64.efi"
+            elif [ -f "$_grub2_efi_path/grubx64.efi" ]; then
+                CopyFile "$_grub2_efi_path/grubx64.efi" "$_grub2_efi_path/bootx64.efi"
+            elif [ -f "$_grub2_efi_path/grub.efi" ]; then
+                CopyFile "$_grub2_efi_path/grub.efi" "$_grub2_efi_path/bootx64.efi"
+            else
+                if [ ! -d "$bootloader_folder_path" ] || [ ! -f "$bootloader_folder_path/bootx64.efi" ]; then
+                    echo "efi file is absent on source disk which will lead to boot failure in Gen2 vm."
+                    # Treat the VM as BIOS to increase chances of boot
+                    # This may happpen for customers who may have accidentally placed grub.cfg 
+                    # in /boot/efi/EFI/<distribution> folder. Warn the customer.
+                    firmware_type="BIOS"
+                    return
+                fi
+            fi
+        fi
+
+        if [ -f "$_grub2_efi_path/grub.cfg" ]; then
+            config_file_name="grub.cfg"
+            CopyFile "$_grub2_efi_path/grub.cfg" "$_grub2_efi_path/bootx64.cfg"
+        elif [ -f "$_grub2_efi_path/grub.conf" ]; then
+            config_file_name="grub.conf"
+            CopyFile "$_grub2_efi_path/grub.conf" "$_grub2_efi_path/bootx64.conf"
+        else
+            echo "grub config file not found in grub folder."
+        fi
+
+        # Folder needs to be explicitly added for Ubuntu/Debian/RHEL6/CENTOS6.
+        # Checking and adding for other distros too if not added.
+        if [ ! -d "$bootloader_folder_path" ]; then
+            CopyDirectory "$_grub2_efi_path/" "$bootloader_folder_path"
+        else
+            if [ ! -f  "$bootloader_folder_path/bootx64.efi" ]; then
+                CopyFile "$_grub2_efi_path/bootx64.efi" "$bootloader_folder_path/bootx64.efi"
+            fi
+
+            # bootx64.conf required for RHEL6/CENTOS6. Copying for other distros too.
+            if [ $config_file_name = "grub.cfg" ] && [ ! -f "$bootloader_folder_path/bootx64.cfg" ]; then
+                CopyFile "$_grub2_efi_path/bootx64.cfg" "$bootloader_folder_path/bootx64.cfg"
+            elif [ $config_file_name = "grub.conf" ] && [ ! -f "$bootloader_folder_path/bootx64.conf" ]; then
+                CopyFile "$_grub2_efi_path/bootx64.conf" "$bootloader_folder_path/bootx64.conf"
+            fi
+        fi
+    else
+        trace "Boot folder verification not required for BIOS."
+    fi
+}
+
 function UpdateVMRepositories()
 {
-    case $src_distro in
+    case $os_name in
         CENTOS6*)
             sources_list_file="$mntpath/etc/yum.repos.d/CentOS-Base.repo"
             BackupFile $sources_list_file
@@ -237,6 +293,29 @@ function UpdateVMRepositories()
             sources_list_file="$mntpath/etc/yum.repos.d/CentOS-Base.repo"
             BackupFile $sources_list_file
             copy_file "/usr/local/AzureRecovery/CentOS7-Base.repo" "$sources_list_file"
+        ;;
+        ROCKY8*)
+            sources_list_file="$mntpath/etc/yum.repos.d/Rocky-Sources.repo"
+            BackupFile $sources_list_file
+            copy_file "/usr/local/AzureRecovery/ROCKY8.repo" "$sources_list_file"
+        ;;
+        ROCKY9*)
+            sources_list_file="$mntpath/etc/yum.repos.d/rocky.repo"
+            BackupFile $sources_list_file
+            copy_file "/usr/local/AzureRecovery/ROCKY9.repo" "$sources_list_file"
+        ;;
+        ALMA8*)
+            sources_list_file="$mntpath/etc/yum.repos.d/almalinux.repo"
+            BackupFile $sources_list_file
+            copy_file "/usr/local/AzureRecovery/ALMA8.repo" "$sources_list_file"
+        ;;
+        ALMA9*)
+            baseos_repo_file="$mntpath/etc/yum.repos.d/almalinux-baseos.repo"
+            appstream_repo_file="$mntpath/etc/yum.repos.d/almalinux-appstream.repo"
+            BackupFile $baseos_repo_file
+            BackupFile $appstream_repo_file
+            copy_file "/usr/local/AzureRecovery/ALMA9-baseos.repo" "$baseos_repo_file"
+            copy_file "/usr/local/AzureRecovery/ALMA9-appstream.repo" "$appstream_repo_file"
         ;;
         OL6*)
             sources_list_file="$mntpath/etc/yum.repos.d/public-yum-ol6.repo"
@@ -375,11 +454,11 @@ function validate_guestagent_prereqs
     if [[ $pythonver -eq 1 ]]; then
         echo "Python not installed/ incompatible with linux guest agent requirements."
         add_telemetry_data "no-python"
-    elif [[ $$pythonver -eq 3 ]]; then
+    elif [[ $pythonver -eq 3 ]]; then
         echo "Python3 present on the source VM."
         add_telemetry_data "python2"
         test_setuptools_prereq "python3"
-    elif [[ $$pythonver -eq 2 ]]; then
+    elif [[ $pythonver -eq 2 ]]; then
         echo "Python 2.6+ installed on the source VM."
         add_telemetry_data "python3"
         test_setuptools_prereq "python"
@@ -468,7 +547,7 @@ function Enable_installga_chkconfig
 
     echo 'case "$1" in' >> $asr_installga_exfile_path
     echo "start)" >> $asr_installga_exfile_path
-    echo "bash /$base_linuxga_path/InstallLinuxGuestAgent.sh $src_distro \"$base_linuxga_path\" $setup_tool_install" >> $asr_installga_exfile_path
+    echo "bash /$base_linuxga_path/InstallLinuxGuestAgent.sh $os_name \"$base_linuxga_path\" $setup_tool_install" >> $asr_installga_exfile_path
     echo ";;" >> $asr_installga_exfile_path
     echo "*)" >> $asr_installga_exfile_path
     echo ";;" >> $asr_installga_exfile_path
@@ -1085,6 +1164,7 @@ function ConfigureDefaultNICForUBUNTUCloudInit
     echo "# This is generated for ASR to make NICs DHCP in Azure." > $dhcp_netplan_file
     echo "network:" >> $dhcp_netplan_file
     echo "    version: 2" >> $dhcp_netplan_file
+    echo "    renderer: networkd" >> $dhcp_netplan_file
     echo "    ethernets:" >> $dhcp_netplan_file
     echo "        ephemeral:" >> $dhcp_netplan_file
     echo "            dhcp4: true" >> $dhcp_netplan_file
@@ -1099,7 +1179,7 @@ function ConfigureDefaultNICForUBUNTUCloudInit
     echo "                name: 'eth0'" >> $dhcp_netplan_file
     
     echo "Applying the dhcp netplan configuration... "
-    chroot $mntpath netplan apply
+    chroot $mntpath netplan --debug apply
     if [[ $? -eq 0 ]]; then
         echo "netplan with dhcp settings applied!"
     else
@@ -1286,14 +1366,12 @@ echo "$os_name is being recovered now"
 cat $mntpath/etc/*release*
 
 _grub2_efi_path="$mntpath/boot/efi/EFI/"
-config_file_name=""
-bootloader_folder_path="$mntpath/boot/efi/EFI//boot"
 
 case "$os_name" in
     OL7*|RHEL6*|RHEL7*|RHEL8*|RHEL9*)
         _grub2_efi_path="${_grub2_efi_path}redhat"
         ;;
-    CENTOS6*|CENTOS7*)
+    CENTOS6*|CENTOS7*|CENTOS8*)
         _grub2_efi_path="${_grub2_efi_path}centos"
         ;;
     SLES12*|SLES15*)
@@ -1304,6 +1382,12 @@ case "$os_name" in
         ;;
     DEBIAN*)
         _grub2_efi_path="${_grub2_efi_path}debian"
+        ;;
+    ROCKY8*|ROCKY9*)
+        _grub2_efi_path="${_grub2_efi_path}rocky"
+        ;;
+    ALMA8*|ALMA9*)
+        _grub2_efi_path="${_grub2_efi_path}alma"
         ;;
     *)
         echo "Unidentified OS version - $os_name "
@@ -1363,7 +1447,7 @@ case $os_name in
             exit 1
         fi
     ;;
-    RHEL8* | CENTOS8* | OL8* | RHEL9* | OL9*)
+    RHEL8* | CENTOS8* | OL8* | RHEL9* | OL9* | ROCKY8* | ROCKY9* | ALMA8* | ALMA9*)
         _grub_config_options="console=tty1 console=ttyS0 earlyprintk=ttyS0 rootdelay=300"
         ModifyGrub_BLS "$_grub_config_options"
         if [ $? -ne $_SUCCESS_ ]; then
@@ -1385,47 +1469,7 @@ case $os_name in
         ;;
 esac
 
-if [ "$firmware_type" = "UEFI" ]; then
-    if [ ! -f "$_grub2_efi_path/bootx64.efi" ]; then
-        if [ -f "$_grub2_efi_path/shimx64.efi" ]; then
-            CopyFile "$_grub2_efi_path/shimx64.efi" "$_grub2_efi_path/bootx64.efi"
-        elif [ -f "$_grub2_efi_path/grubx64.efi" ]; then
-            CopyFile "$_grub2_efi_path/grubx64.efi" "$_grub2_efi_path/bootx64.efi"
-        elif [ -f "$_grub2_efi_path/grub.efi" ]; then
-            CopyFile "$_grub2_efi_path/grub.efi" "$_grub2_efi_path/bootx64.efi"
-        else
-            if [ ! -d "$bootloader_folder_path" ] || [ ! -f "$bootloader_folder_path/bootx64.efi" ]; then
-                echo "efi file is absent on source disk which will lead to boot failure in Gen2 vm."
-                exit 1
-            fi
-        fi
-    fi
-
-    if [ -f "$_grub2_efi_path/grub.cfg" ]; then
-        config_file_name="grub.cfg"
-        CopyFile "$_grub2_efi_path/grub.cfg" "$_grub2_efi_path/bootx64.cfg"
-    elif [ -f "$_grub2_efi_path/grub.conf" ]; then
-        config_file_name="grub.conf"            
-        CopyFile "$_grub2_efi_path/grub.conf" "$_grub2_efi_path/bootx64.conf"
-    fi
-
-    # Folder needs to be explicitly added for Ubuntu/Debian/RHEL6/CENTOS6.
-    # Checking and adding for other distros too if not added.
-    if [ ! -d "$bootloader_folder_path" ]; then
-        CopyDirectory "$_grub2_efi_path/" "$bootloader_folder_path"
-    else
-        if [ ! -f  "$bootloader_folder_path/bootx64.efi" ]; then
-            CopyFile "$_grub2_efi_path/bootx64.efi" "$bootloader_folder_path/bootx64.efi"
-        fi
-
-        # bootx64.conf required for RHEL6/CENTOS6. Copying for other distros too.
-        if [ $config_file_name = "grub.cfg" ] && [ ! -f "$bootloader_folder_path/bootx64.cfg" ]; then
-            CopyFile "$_grub2_efi_path/bootx64.cfg" "$bootloader_folder_path/bootx64.cfg"
-        elif [ $config_file_name = "grub.conf" ] && [ ! -f "$bootloader_folder_path/bootx64.conf" ]; then
-            CopyFile "$_grub2_efi_path/bootx64.conf" "$bootloader_folder_path/bootx64.conf"
-        fi
-    fi
-fi
+VerifyUefiBootloaderFiles
 
 echo "Rootfs mount point:$mntpath"
 
@@ -1506,7 +1550,7 @@ case $os_name in
         
         ConfigureDefaultNICForUBUNTU
     ;;
-    UBUNTU18-* | UBUNTU20-* | UBUNTU21-* |UBUNTU22-*)
+    UBUNTU18-* | UBUNTU20-* | UBUNTU21-* |UBUNTU22-* |UBUNTU24-*)
         
         touch $mntpath/etc/vxagent/setazureip
         touch $mntpath/etc/vxagent/prepareforazure
@@ -1527,7 +1571,7 @@ case $os_name in
         
         # TODO: Use UBUNTU case block for DEBIAN as well, as the changes are same.
     ;;
-    RHEL7*|RHEL8*|CENTOS8*|OL8*|RHEL9*|OL9*)
+    RHEL7*|RHEL8*|CENTOS8*|OL8*|RHEL9*|OL9*|ROCKY8*|ROCKY9*|ALMA8*|ALMA9*)
         touch $mntpath/etc/vxagent/setazureip
         touch $mntpath/etc/vxagent/prepareforazure
         

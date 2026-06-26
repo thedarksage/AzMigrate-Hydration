@@ -17,8 +17,8 @@ typedef unsigned int dev_t;
 
 typedef struct volinfo_tag
 {
-//public:
-    volinfo_tag() : systemvol(false), mounted(false), cachedirvol(false),locked(false),containpagefile(false),voltype(VolumeSummary::UNKNOWN_DEVICETYPE),capacity(0ULL),freespace(0ULL), rawcapacity(0ULL), devno(0), sectorsize(DEFAULT_SECTOR_SIZE), vendor(VolumeSummary::UNKNOWN_VENDOR), writecachestate(VolumeSummary::WRITE_CACHE_DONTKNOW), formatlabel(VolumeSummary::LABEL_UNKNOWN), volumegroupvendor(VolumeSummary::UNKNOWN_VENDOR) {};
+    //public:
+    volinfo_tag() : systemvol(false), mounted(false), cachedirvol(false), locked(false), containpagefile(false), voltype(VolumeSummary::UNKNOWN_DEVICETYPE), capacity(0ULL), freespace(0ULL), rawcapacity(0ULL), devno(0), sectorsize(DEFAULT_SECTOR_SIZE), vendor(VolumeSummary::UNKNOWN_VENDOR), writecachestate(VolumeSummary::WRITE_CACHE_DONTKNOW), formatlabel(VolumeSummary::LABEL_UNKNOWN), volumegroupvendor(VolumeSummary::UNKNOWN_VENDOR) {};
     std::string devname;
     std::string mountpoint;
     std::string fstype;
@@ -26,24 +26,24 @@ typedef struct volinfo_tag
     bool mounted;
     bool systemvol;
     bool cachedirvol;
-	bool containpagefile;
+    bool containpagefile;
     bool locked;
     VolumeSummary::Devicetype  voltype;
     unsigned int  sectorsize;
-	unsigned long long rawcapacity;
+    unsigned long long rawcapacity;
     unsigned long long capacity;
     unsigned long long freespace;
-	std::string volumelabel;
-	std::string deviceid;
+    std::string volumelabel;
+    std::string deviceid;
     VolumeSummary::Vendor vendor;
     VolumeSummary::WriteCacheState writecachestate;
-	VolumeSummary::FormatLabel formatlabel;
+    VolumeSummary::FormatLabel formatlabel;
     VolumeSummary::Vendor volumegroupvendor;
     std::string volumegroupname;
-	Attributes_t attributes;
+    Attributes_t attributes;
 
     std::string GetAttribute(Attributes_t const& attrs,
-        const char *key,
+        const char* key,
         bool throwIfNotFound)
     {
         ConstAttributesIter_t iter = attrs.find(key);
@@ -63,6 +63,15 @@ typedef struct volinfo_tag
         }
 
         return std::string("");
+    }
+
+    void SetAttribute(const std::string& key, const std::string& value)
+    {
+        if (attributes.end() != attributes.find(key)) {
+            attributes.erase(key);
+        }
+
+        attributes.insert(std::make_pair(key, value));
     }
 
 }volinfo;

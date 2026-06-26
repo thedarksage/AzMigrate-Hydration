@@ -167,6 +167,17 @@ void HostRecoveryManager::DisableEnableAzureServices(bool bEnable)
 
     DebugPrintf(SV_LOG_DEBUG, "Exiting %s\n", FUNCTION_NAME);
 }
+void HostRecoveryManager::StopFilteringAll()
+{
+    DebugPrintf(SV_LOG_DEBUG, "Entering %s\n", FUNCTION_NAME);
+
+    InmageDriverInterface   inmageDriverInterface;
+    if (!inmageDriverInterface.StopFilteringAll()) {
+        DebugPrintf(SV_LOG_ERROR, "%s: StopFilteringAll failed.\n", FUNCTION_NAME);
+    }
+
+    DebugPrintf(SV_LOG_DEBUG, "Exiting %s\n", FUNCTION_NAME);
+}
 
 void HostRecoveryManager::ResetReplicationState()
 {
@@ -177,13 +188,9 @@ void HostRecoveryManager::ResetReplicationState()
     //
 
     DebugPrintf(SV_LOG_DEBUG, "Entering %s\n", FUNCTION_NAME);
+    StopFilteringAll();
 
     InmageDriverInterface   inmageDriverInterface;
-    if (!inmageDriverInterface.StopFilteringAll()) {
-        THROW_HOST_REC_EXCEPTION(
-            "Replication state cleanup failed. Manual intervention is required."
-        );
-    }
 
     // Set Device Ids
     // Query with an invalid device id triggers device rescan

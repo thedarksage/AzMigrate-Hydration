@@ -356,11 +356,26 @@ extern BOOL GetDeviceAttributes(ULONG ulDiskIndex,
     std::string& serialNumber,
     std::string& errormessage);
 
+/// \brief Gets the disk handle from diskName  
+/// \returns the status of disk handle
+/// 
+/// \hDisk handle for the disk
+/// \diskName name of the disk for handle
+/// \errMsg                     : failure reason if any failure encountered
+SVSTATUS GetDiskHandle(HANDLE& hDisk, const std::string& diskName, std::string& errMsg);
+
 /// \brief For a given disk diskName
 /// \returns true if able to obtain cluster disk attribute, false otherwise
 ///
 /// \bClusterd flag             : true if disk is clustered else false
 /// \errMsg                     : failure reason if any failure encountered
 bool IsDiskClustered(const std::string& diskName, bool& bClustered, std::string& errMsg);
+
+/// \brief For a given disk diskName
+/// \returns true if the disk is online on the machine.
+///
+/// \bOnline flag               : true if disk is online
+/// \errMsg                     : failure reason if any failure encountered
+bool IsDiskOnline(const std::string& diskName, bool& bOnline, std::string& errMsg);
 
 #endif /* PORTABLEHELPERS__MAJORPORT__H_ */

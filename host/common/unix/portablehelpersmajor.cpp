@@ -6,7 +6,6 @@
 #include <sys/ioctl.h>   /* for _IO */
 #include <sys/statvfs.h> 
 #ifndef SV_AIX
-#include <sys/mount.h> 
 #endif
 #include <cerrno>
 #include <unistd.h>
@@ -37,6 +36,9 @@ ACE_Recursive_Thread_Mutex g_executecmdLock;
 
 std::string ParseGateways(std::stringstream &results, const int &destpos, 
                           const int &gwpos, const int &flagspos, const char &delim);
+
+static const std::string strBootDisk("/dev/");
+static const std::string strRootDisk("RootDisk");
 
 bool ParseSparseFileNameAndVolPackName(const std::string lineinconffile, std::string &sparsefilename, std::string &volpackname)
 {
@@ -2782,6 +2784,41 @@ std::string GetChassisAssetTag()
 	return assetTag;
 }
 
+bool GetOSDiskId(const VolumeSummaries_t & volumeSummaries, std::string & osDiskId, std::string & errormsg)
+{
+	DebugPrintf(SV_LOG_DEBUG, "ENTERED %s\n", FUNCTION_NAME);
+    bool retval = false;
+
+    osDiskId.clear();
+    errormsg.clear();
+
+    ConstVolumeSummariesIter itrVS(volumeSummaries.begin());
+    for (/*empty*/; itrVS != volumeSummaries.end(); ++itrVS)
+    {
+        VolumeReporterImp vrimp;
+        VolumeReporter::DiskReports_t drs;
+        std::string diskId = itrVS->name;
+        DebugPrintf(SV_LOG_DEBUG, "%s: Iterating over diskId: %s\n", FUNCTION_NAME, diskId.c_str());
+        if (boost::starts_with(diskId, strRootDisk))
+        {
+            DebugPrintf(SV_LOG_ALWAYS, "%s: Boot diskId found: %s\n", FUNCTION_NAME, diskId.c_str());
+            osDiskId = diskId;
+            retval = true;
+            break;
+        }
+    }
+
+    if (itrVS == volumeSummaries.end())
+    {
+        DebugPrintf(SV_LOG_ERROR, "%s: Root diskId not found\n", FUNCTION_NAME);
+        errormsg = "Root disk not found";
+        retval = false;
+    }
+
+    DebugPrintf(SV_LOG_DEBUG, "EXITED %s\n", FUNCTION_NAME);
+    return retval;
+}
+
 bool IsSystemAndBootDiskSame(const VolumeSummaries_t & volumeSummaries, std::string & errormsg)
 {
     DebugPrintf( SV_LOG_DEBUG, "ENTERED %s\n", FUNCTION_NAME ) ;
@@ -2918,4 +2955,106 @@ bool IsUEFIBoot(void)
 
     DebugPrintf(SV_LOG_DEBUG, "Firmware Type: BIOS Boot\n");
     return false;
+}
+
+bool GetOSDiskDisplayName(const VolumeSummaries_t& volumeSummaries, std::string& osDiskDisplayName, std::string& errormsg)
+{
+    DebugPrintf(SV_LOG_DEBUG, "ENTERED %s\n", FUNCTION_NAME);
+    bool retval = false;
+
+    osDiskDisplayName.clear();
+    errormsg.clear();
+
+    ConstVolumeSummariesIter itrVS(volumeSummaries.begin());
+    for (/*empty*/; itrVS != volumeSummaries.end(); ++itrVS)
+    {
+        VolumeReporterImp vrimp;
+        VolumeReporter::DiskReports_t drs;
+
+        if (boost::starts_with(itrVS->name, strRootDisk))
+        {
+            ConstAttributesIter_t it = itrVS->attributes.find(NsVolumeAttributes::DEVICE_NAME);
+            if (it != itrVS->attributes.end())
+            {
+                DebugPrintf(SV_LOG_ALWAYS, "Root disk display name is: %s\n", it->second.c_str());
+                osDiskDisplayName = it->second;
+                retval = true;
+                break;
+            }
+        }
+    }
+
+    if (itrVS == volumeSummaries.end())
+    {
+        DebugPrintf(SV_LOG_ERROR, "%s: Root diskId not found\n", FUNCTION_NAME);
+        errormsg = "Root disk not found";
+        retval = false;
+    }
+
+    DebugPrintf(SV_LOG_DEBUG, "EXITED %s\n", FUNCTION_NAME);
+    return retval;
+}
+
+bool GetPnameToDiskDisplayName(const VolumeSummaries_t& volumeSummaries, std::map<std::string, std::string>& pName, std::string& errormsg)
+{
+    DebugPrintf(SV_LOG_DEBUG, "ENTERED %s\n", FUNCTION_NAME);
+    bool retval = false;
+
+    pName.clear();
+    errormsg.clear();
+
+    ConstVolumeSummariesIter itrVS(volumeSummaries.begin());
+    for (/*empty*/; itrVS != volumeSummaries.end(); ++itrVS)
+    {
+        VolumeReporterImp vrimp;
+        VolumeReporter::DiskReports_t drs;
+
+        ConstAttributesIter_t it = itrVS->attributes.find(NsVolumeAttributes::DEVICE_NAME);
+        if (it != itrVS->attributes.end())
+        {
+            DebugPrintf(SV_LOG_ALWAYS, "Pname %s has disk display name is: %s\n", itrVS->name.c_str(), it->second.c_str());
+            pName[itrVS->name] = it->second;
+            retval = true;
+        }
+        else {
+            DebugPrintf(SV_LOG_ERROR, "Pname %s has no associated disk display name\n", itrVS->name.c_str());
+            errormsg = "Pname has no associated disk display name";
+            retval = false;
+        }
+    }
+
+    DebugPrintf(SV_LOG_DEBUG, "EXITED %s\n", FUNCTION_NAME);
+    return retval;
+}
+
+bool GetDirectorySize(const std::string& dirPath, uintmax_t &size)
+{
+    using namespace boost::filesystem;
+    DebugPrintf(SV_LOG_DEBUG, "ENTERED %s\n", FUNCTION_NAME);
+    bool status = false;
+
+    try {
+        size = 0;
+        path directory(dirPath);
+        recursive_directory_iterator dirIter(directory), end;
+        for (/*empty*/; dirIter != end ; dirIter++)
+        {
+            if (is_regular_file(*dirIter))
+            {
+                size += file_size(*dirIter);
+            }
+        }
+        status = true;
+    }
+    catch (const std::exception& e)
+    {
+        DebugPrintf(SV_LOG_ERROR, "%s Failed with an exception : %s.\n", FUNCTION_NAME, e.what());
+    }
+    catch (...)
+    {
+        DebugPrintf(SV_LOG_ERROR, "%s Failed with an unknown exception.\n", FUNCTION_NAME);
+    }
+
+    DebugPrintf(SV_LOG_DEBUG, "EXITED %s\n", FUNCTION_NAME);
+    return status;
 }

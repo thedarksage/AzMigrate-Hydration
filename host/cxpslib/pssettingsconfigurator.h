@@ -9,7 +9,6 @@
 #include <json_reader.h>
 #include <map>
 
-#include <inm_md5.h>
 #include <securityutils.h>
 
 class ServerOptions;
@@ -358,6 +357,13 @@ namespace PSSettings
         /// \brief renewal time of <c>TelemetryChannelUri</c>
         boost::posix_time::ptime TelemetryChannelUriRenewalTimeUtc;
 
+        /// \brief storage container sas uri when Event Hubs not supported to upload
+        /// logs and telemetry of all the connected components: Source(s), PS, MT', MARS
+        std::string TelemetryContainerSasUri;
+
+        /// \brief renewal time of <c>TelemetryContainerSasUri</c>
+        boost::posix_time::ptime TelemetryContainerSasUriRenewalTimeUtc;
+
         /// \brief message context to use for the communication about the PS
         std::string MessageContext;
 
@@ -366,6 +372,9 @@ namespace PSSettings
 
         /// \brief flag to detect if access control feature is enabled or not
         bool IsAccessControlEnabled;
+
+        /// \brief flag to detect if messaging through Event Hub is supported or not
+        bool SupportEventHubMessaging;
 
         /// \brief server provided values to override hardcoded settings in
         /// the PS components. Note that, these values don't supersede
@@ -394,9 +403,12 @@ namespace PSSettings
             InformationalChannelUriRenewalTimeUtc = ConvertDotNetDateTime(node, "InformationalChannelUriRenewalTimeUtc");
             JSON_P(node, TelemetryChannelUri);
             TelemetryChannelUriRenewalTimeUtc = ConvertDotNetDateTime(node, "TelemetryChannelUriRenewalTimeUtc");
+            JSON_P(node, TelemetryContainerSasUri);
+            TelemetryContainerSasUriRenewalTimeUtc = ConvertDotNetDateTime(node, "TelemetryContainerSasUriRenewalTimeUtc");
             JSON_P(node, MessageContext);
             JSON_P(node, IsPrivateEndpointEnabled);
             JSON_P(node, IsAccessControlEnabled);
+            JSON_P(node, SupportEventHubMessaging);
 
             StringMap tunables;
             JSON_KV_P_KEYNAME(node, "Tunables", tunables);
@@ -435,9 +447,12 @@ namespace PSSettings
                 lhs.InformationalChannelUriRenewalTimeUtc == rhs.InformationalChannelUriRenewalTimeUtc &&
                 lhs.TelemetryChannelUri == rhs.TelemetryChannelUri &&
                 lhs.TelemetryChannelUriRenewalTimeUtc == rhs.TelemetryChannelUriRenewalTimeUtc &&
+                lhs.TelemetryContainerSasUri == rhs.TelemetryContainerSasUri &&
+                lhs.TelemetryContainerSasUriRenewalTimeUtc == rhs.TelemetryContainerSasUriRenewalTimeUtc &&
                 lhs.MessageContext == rhs.MessageContext &&
                 lhs.IsPrivateEndpointEnabled == rhs.IsPrivateEndpointEnabled &&
-                lhs.IsAccessControlEnabled == rhs.IsAccessControlEnabled;
+                lhs.IsAccessControlEnabled == rhs.IsAccessControlEnabled &&
+                lhs.SupportEventHubMessaging == rhs.SupportEventHubMessaging;
         }
 
         bool leanNotEquals(const PSSettings& rhs)
@@ -454,7 +469,7 @@ namespace PSSettings
         std::string Checksum;
         std::string ChecksumType;
 
-        static const char* CHECKSUM_TYPE_MD5;
+        static const char* CHECKSUM_TYPE_SHA256;
         static const char* CURRENT_CACHED_DATA_VERSION;
         static const int CURRENT_CACHED_DATA_MAJOR_VERSION;
         static const int CURRENT_CACHED_DATA_MINOR_VERSION;
@@ -474,18 +489,11 @@ namespace PSSettings
         static CacheDataHeader BuildCacheDataHeader(const std::string& content)
         {
             CacheDataHeader toRet;
-
             toRet.Version = CURRENT_CACHED_DATA_VERSION;
-            toRet.ChecksumType = CHECKSUM_TYPE_MD5;
+            toRet.ChecksumType = CHECKSUM_TYPE_SHA256;
 
-            const int MD5_HASH_LENGTH = 16;
-            std::vector<unsigned char> currhash(MD5_HASH_LENGTH, 0);
-            INM_MD5_CTX ctx;
-            INM_MD5Init(&ctx);
-            INM_MD5Update(&ctx, (unsigned char*)content.c_str(), content.size());
-            INM_MD5Final(&currhash[0], &ctx);
-
-            toRet.Checksum = securitylib::base64Encode((const char*)&currhash[0], currhash.size());
+            std::string sha256Digest = securitylib::genSha256Mac(content.c_str(), static_cast<unsigned int>(content.size()), false);
+            toRet.Checksum = securitylib::base64Encode(sha256Digest.c_str(), sha256Digest.size());
 
             return toRet;
         }
@@ -532,14 +540,15 @@ namespace PSSettings
         PSSettingsPtr GetPSSettings() { return m_psSettings; }
 
         // Singleton pattern
-        static PSSettingsConfigurator& GetInstance()
-        {
-            return s_instance;
-        }
+        static PSSettingsConfigurator& GetInstance();
+
+        virtual ~PSSettingsConfigurator();
 
     private:
+
         // Singleton instance
-        static PSSettingsConfigurator s_instance;
+        static boost::shared_ptr<PSSettingsConfigurator> s_instancePtr;
+        static boost::shared_mutex s_instancePtrMutex;
 
         PSSettingsPtr m_psSettings;
         std::string   m_settingsFileContent;

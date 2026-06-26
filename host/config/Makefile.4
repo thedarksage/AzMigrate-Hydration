@@ -6,6 +6,7 @@
 # note: use the FROM_HEADER.cpp here so that it does a compile and link typically LINK.cpp 
 # does not have the link only option set
 $(X_ARCH)/config/fromheader: config/fromheader.cpp
+	$(VERBOSE)$(MKDIR) $(dir $@)
 	$(VERBOSE)$(FROM_HEADER.cpp) $(config_CFLAGS) -o '$@' '$<' 
 	$(RULE_SEPARATOR)
 

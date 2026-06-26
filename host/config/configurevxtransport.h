@@ -24,6 +24,7 @@ struct ConfigureVxTransport {
     virtual int getTransportConnectTimeoutSeconds() const = 0;
     virtual int getTransportResponseTimeoutSeconds() const = 0;
     virtual int getTransportWriteMode() const = 0;
+    virtual int getAzureBlobClientMaxListResults() const = 0;
     virtual bool IsHttps() const = 0;
 
     virtual ~ConfigureVxTransport() {}

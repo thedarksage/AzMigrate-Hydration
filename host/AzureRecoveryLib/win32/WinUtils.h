@@ -83,7 +83,21 @@ namespace AzureRecovery
 
     DWORD GetFileVersion(const std::string& file_path, std::string& version);
 
+    DWORD EnableBitlocker(const std::string& srcOsVol);
+    
+	DWORD GetDiskNumber(const std::string& driveLetter, int& diskNumber);
+
+    DWORD PrepareDevicePathFileForCPT(const std::string& srcOsVol, const std::string& osVersion);
+
+    DWORD GetPartitionStyle(int diskNumber, std::string& partitionStyle);
+
+    DWORD ValidateDiskConversionToGpt(const std::string& srcOsVol, int diskNumber);
+
+	DWORD ConvertDiskToGpt(const std::string& srcOsVol, int diskNumber);
+
     void PrintAllDiskPartitions();
+
+    bool ValidateVolumeIntegrity(const std::string& volumeUNC);
 }
 
 #endif AZURE_RECOVERY_VOLUME_UTILS_H

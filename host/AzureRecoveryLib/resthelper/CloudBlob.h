@@ -67,7 +67,7 @@ namespace AzureStorageRest
 
         blob_size_t Read(offset_t start_offset, blob_byte_t *out_buff, blob_size_t length, blob_properties& properties);
 
-        bool List(const std::string& prefix, const uint32_t maxResults, std::string &listOutput);
+        bool List(const std::string &prefix, const uint32_t maxResults, std::string &listOutput, const std::string &nextMarker);
 
         bool Delete();
 

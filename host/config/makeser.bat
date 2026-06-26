@@ -15,7 +15,7 @@ if "%IntDir%"=="Debug\" (
 			)	
 		)
 	)
-)	
+)
 
 
 set VS_UNICODE_OUTPUT=

@@ -480,6 +480,11 @@ SV_ULONG ConfigureVxAgentProxy::getResyncNoProgressThreshold() const
     return m_localConfigurator.getResyncNoProgressThreshold();
 }
 
+SV_ULONG ConfigureVxAgentProxy::getResyncStuckThreshold() const
+{
+    return m_localConfigurator.getResyncStuckThreshold();
+}
+
 bool ConfigureVxAgentProxy::updateAgentLog(std::string const& timestamp,std::string const& loglevel,
                                            std::string const& agentInfo,
                                            std::string const& errorString ) const 

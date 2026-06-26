@@ -43,7 +43,7 @@ namespace securitylib {
             if (0 == cert) {
                 return false;
             }
-            EVP_MD const* evpSha1 = EVP_sha1();
+            EVP_MD const* evpSha1 = EVP_sha1(); // CodeQL [SM02689] Changing crypto breaks existing functionality
             unsigned char md[EVP_MAX_MD_SIZE];
             unsigned int len;
             X509_digest(cert, evpSha1, md, &len);
@@ -56,7 +56,7 @@ namespace securitylib {
             return boost::algorithm::iequals(savedfingerprint, fingerprint.str());
         }
 
-        std::string getFingerprint(X509* cert, EVP_MD const* evpMd = EVP_sha1(), char separator = '\0')
+        std::string getFingerprint(X509* cert, EVP_MD const* evpMd = EVP_sha1(), char separator = '\0') // CodeQL [SM02689] Changing crypto breaks existing functionality
         {
             unsigned char md[EVP_MAX_MD_SIZE];
             unsigned int len;
@@ -147,6 +147,7 @@ namespace securitylib {
 
     const std::string SERVER_TYPE_RCM_PROXY = "RcmProxy";
     const std::string SERVER_TYPE_PROCESS_SERVER = "ProcessServer";
+    const std::string SERVER_TYPE_PROCESS_SERVER_ROLLOVER = "ProcessServerRollover";
 
     class InMemoryFingerprintMgr {
 
@@ -163,14 +164,24 @@ namespace securitylib {
             return getServerCertFingerprint(SERVER_TYPE_PROCESS_SERVER);
         }
 
-        bool setProcessServerCertFingerprint(const std::string& fingerprint)
+        std::string getProcessServerRolloverCertFingerprint()
         {
-            return setServerCertFingerprint(SERVER_TYPE_PROCESS_SERVER, fingerprint);
+            return getServerCertFingerprint(SERVER_TYPE_PROCESS_SERVER_ROLLOVER);
         }
 
         bool setRcmProxyServerCertFingerprint(const std::string& fingerprint)
         {
             return setServerCertFingerprint(SERVER_TYPE_RCM_PROXY, fingerprint);
+        }
+
+        bool setProcessServerCertFingerprint(const std::string& fingerprint)
+        {
+            return setServerCertFingerprint(SERVER_TYPE_PROCESS_SERVER, fingerprint);
+        }
+
+        bool setProcessServerRolloverCertFingerprint(const std::string& fingerprint)
+        {
+            return setServerCertFingerprint(SERVER_TYPE_PROCESS_SERVER_ROLLOVER, fingerprint);
         }
 
     private:
@@ -189,7 +200,7 @@ namespace securitylib {
         {
             if (server.empty() || fingerprint.empty())
                 return false;
-            
+
             boost::mutex::scoped_lock guard(m_mutex);
             m_fingerprints[server] = fingerprint;
             return true;

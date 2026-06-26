@@ -77,9 +77,11 @@ namespace AzureRecovery
 
     bool VerifyOSVersion(bool setError, std::string mntPath);
 
+    bool IsCommonHydrationOS(std::string mntPath);
+
     bool MountSourceSystemPartitions();
 
-    bool PrepareSourceOSForAzure();
+    bool PrepareSourceOSForAzure(std::string mntPath, std::string operationScenario, bool setErrorCode);
 
     bool FixSourceFstabEntries();
 

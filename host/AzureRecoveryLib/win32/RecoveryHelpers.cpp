@@ -162,9 +162,14 @@ int StartRecovery()
         {
             retcode = E_RECOVERY_VOL_NOT_FOUND;
 
-            errStream << "Could not prepare Source OS install path on Hydration VM.( "
+            errStream << "Could not prepare Source OS install path on Hydration VM. ("
                 << errorMessage
-                << " )";
+                << " ).";
+
+            if (boost::algorithm::contains(errorMessage, std::to_string(ERROR_FILE_CORRUPT)))
+            {
+                retcode = E_RECOVERY_VOL_CORRUPTED;
+            }
 
             TRACE_ERROR("%s\n", errStream.str().c_str());
 
@@ -262,13 +267,19 @@ int StartRecovery()
         }
 
         bool isWindows2008 = false;
-
-        OSVersion   osVersion;
-        if (GetOsVersion(osVersion)) {
-            isWindows2008 = ((osVersion.major == 6) && (osVersion.minor == 0));
-        }
+        bool isWindows2k12 = false;
+        bool isWindows2k12R2 = false;
 
         SetOSVersionDetails(srcOsInstallPath);
+        std::string osVersion = RecoveryStatus::Instance().GetUpdate().OsDetails;
+
+        // Check if it is Win2k8, if so then AutoMount should be disabled.
+        isWindows2008 = boost::starts_with(osVersion,
+            RegistryConstants::WIN2K8_VERSION_PREFIX);
+        isWindows2k12 = boost::starts_with(osVersion,
+            RegistryConstants::WIN2K12_VERSION_PREFIX);
+        isWindows2k12R2 = boost::starts_with(osVersion,
+            RegistryConstants::WIN2K12R2_VERSION_PREFIX);
 
         DWORD dwSanPolicy = (isWindows2008) ? VDS_SAN_POLICY::VDS_SP_OFFLINE : VDS_SAN_POLICY::VDS_SP_ONLINE;
 
@@ -337,11 +348,29 @@ int StartRecovery()
             break;
         }
 
+        if (isWindows2k12 || isWindows2k12R2)
+        {
+            curTaskDesc = TASK_DESCRIPTIONS::VERIFY_VMBUS_REGISTRY;
+            if (!VerifyWinVMBusRegistrySettings(errorMessage))
+            {
+                if (retcode == E_RECOVERY_SUCCESS)
+                {
+                    retcode = E_REQUIRED_VMBUS_REGISTRIES_MISSING;
+                }
+
+                errStream << "Could not find required VM Bus registry.( "
+                    << errorMessage
+                    << " )";
+
+                TRACE_ERROR("%s\n", errStream.str().c_str());
+            }
+        }
+
         std::stringstream wingaErrSteam;
         if (VerifyRegistrySettingsForWinGA(srcOsInstallPath.substr(0, srcOsInstallPath.size() - 17), wingaErrSteam))
         {
             // Not throwing any error since we do not have soft failures in DR.
-            errStream << "Guest agent installation was skipped as the VM already has a Guest Agent present. ";
+            errStream << "Guest agent installation was skipped as the VM already has a Guest Agent present.";
             TRACE_WARNING("%s\n", errStream.str().c_str());
 
             break;
@@ -365,7 +394,7 @@ int StartRecovery()
         {
             TRACE_INFO("No installation of version 4.0+ of Microsoft.NET found.\n");
             
-            if (retcode == 0)
+            if (retcode == E_RECOVERY_SUCCESS)
             {
                 retcode = E_RECOVERY_DOTNET_FRAMEWORK_INCOMPATIBLE;
             }
@@ -443,11 +472,16 @@ int StartMigration()
         {
             retcode = E_RECOVERY_VOL_NOT_FOUND;
 
-            errStream << "Could not prepare Source OS install path on Hydration VM.( "
+            errStream << "Could not prepare Source OS install path on Hydration VM. ("
                 << errorMessage
-                << " )";
+                << ").";
 
             TRACE_ERROR("%s\n", errStream.str().c_str());
+
+            if (boost::algorithm::contains(errorMessage, std::to_string(ERROR_FILE_CORRUPT)))
+            {
+                retcode = E_RECOVERY_VOL_CORRUPTED;
+            }
 
             //
             // OS volume is not identified, print all the partitions details.
@@ -479,6 +513,33 @@ int StartMigration()
             // Check if it is Win2k8, if so then AutoMount should be disabled.
             bool isWin2k8 = boost::starts_with(osVersion,
                 RegistryConstants::WIN2K8_VERSION_PREFIX);
+            bool isWin2k12 = boost::starts_with(osVersion,
+                RegistryConstants::WIN2K12_VERSION_PREFIX);
+            bool isWin2k12R2 = boost::starts_with(osVersion,
+                RegistryConstants::WIN2K12R2_VERSION_PREFIX);
+            bool isWin2k19 = boost::starts_with(osVersion,
+                RegistryConstants::WIN2K19_VERSION_PREFIX);
+            bool isWin2k22 = boost::starts_with(osVersion,
+                RegistryConstants::WIN2K22_VERSION_PREFIX);
+            bool verifyVMBusRegistry = isWin2k12 || isWin2k12R2;
+
+            if (boost::iequals(GetHydrationConfigValue(
+                GetHydrationConfigSettings(), HydrationConfig::IsConfidentialVmMigration), "true"))
+            {
+                if (!isWin2k19 && !isWin2k22)
+                {
+                    errStream << "Unsupported OS version. Only Windows Server 2019 and 2022 are supported for CVM migration scenario.\n";
+                    TRACE_ERROR("%s\n", errStream.str().c_str());
+
+                    retcode = E_RECOVERY_OS_UNSUPPORTED;
+                    RecoveryStatus::Instance().SetCustomErrorData(osVersion);
+                    break;
+                }
+            }
+            else
+            {
+                TRACE_INFO("Source distro version verification is not required for Non-Confidential VM migrations.\n");
+            }
 
             // TODO: UEFI commands need not to run on every OS volume found.
             if (AzureRecoveryConfig::Instance().IsUEFI())
@@ -492,7 +553,7 @@ int StartMigration()
 
                     errStream << "Could not prepare active partition drive for BCD update. ( "
                         << errorMessage
-                        << " )";
+                        << " )\n";
 
                     TRACE_ERROR("%s\n", errStream.str().c_str());
 
@@ -510,7 +571,7 @@ int StartMigration()
 
                     errStream << "Could not update BIOS boot records on active partition. ( "
                         << errorMessage
-                        << " )";
+                        << " )\n";
 
                     TRACE_ERROR("%s\n", errStream.str().c_str());
 
@@ -524,7 +585,7 @@ int StartMigration()
             {
                 // Log within HydrationLogs.
                 std::stringstream scErrStream;
-                scErrStream << "Could not update serial console for the VM. ";
+                scErrStream << "Could not update serial console for the VM.\n";
 
                 TRACE_ERROR("%s\n", scErrStream.str().c_str());
 
@@ -536,8 +597,9 @@ int StartMigration()
                 retcode,
                 curTaskDesc,
                 errStream,
-                isWin2k8);
-
+                isWin2k8, // Disable Automount only for Win2k8.
+                verifyVMBusRegistry); //VMBUS registry validation only for Win2k12 and Win2k12R2.
+                
             if (!IsDotNetFxVersionPresent(srcOsVol))
             {
                 TRACE_INFO("No installation of version 4.0+ of Microsoft.NET found.\n");
@@ -546,6 +608,83 @@ int StartMigration()
                 {
                     retcode = E_RECOVERY_DOTNET_FRAMEWORK_INCOMPATIBLE;
                 }
+            }
+
+            if (boost::iequals(GetHydrationConfigValue(
+                GetHydrationConfigSettings(), HydrationConfig::IsConfidentialVmMigration), "true"))
+            {
+                PrepareDevicePathFileForCPT(srcOsVol, isWin2k19 ? "Windows2019" : "Windows2022");
+            }
+
+            if (boost::iequals(GetHydrationConfigValue(
+                GetHydrationConfigSettings(), HydrationConfig::IsPartitionConversionRequired), "true"))
+            {
+                int diskNumber = 0;
+
+                retcode = GetDiskNumber(srcOsVol, diskNumber);
+                if (ERROR_SUCCESS != retcode)
+                {
+                    retcode = E_RECOVERY_CVM_INTERNAL;
+                    errStream << "Could not get the disk number of the source OS volume.\n";
+                    break;
+                }
+
+                std::string partitionStyle;
+                retcode = GetPartitionStyle(diskNumber, partitionStyle);
+                if (ERROR_SUCCESS != retcode)
+                {
+                    retcode = E_RECOVERY_CVM_INTERNAL;
+                    errStream << "Could not retrieve the partition style for the source OS disk.";
+                    break;
+                }
+
+                if (partitionStyle == "MBR")
+                {
+                    TRACE_INFO("Source OS disk is using MBR partition. Proceeding with the validation.\n");
+
+                    if (ValidateDiskConversionToGpt(srcOsVol, diskNumber) != ERROR_SUCCESS)
+                    {
+                        retcode = E_RECOVERY_DISK_CONVERSION_VALIDATION_FAILED;
+                        errStream << "Could not validate the disk for the Confidential VM Migration.\n";
+                        break;
+                    }
+
+                    if (ConvertDiskToGpt(srcOsVol, diskNumber) != ERROR_SUCCESS)
+                    {
+                        retcode = E_RECOVERY_DISK_CONVERSION_FAILED;
+                        errStream << "Could not convert the disk partition style for the Confidential VM Migration.\n";
+                        break;
+                    }
+                }
+                else if (partitionStyle == "GPT")
+                {
+                    TRACE_INFO("Source OS disk is already using GPT partition. No conversion needed.\n");
+                }
+                else
+                {
+                    retcode = E_RECOVERY_UNSUPPORTED_PARTITION_STYLE;
+                    errStream << "Unsupported partition style for disk partition style conversion. \n";
+                    TRACE_ERROR("%s\n", errStream.str().c_str());
+                    break;
+                }
+            }
+            else
+            {
+                TRACE_INFO("Conversion of the disk from MBR to GPT is not required for the specified volume.\n");
+            }
+
+            if (boost::iequals(GetHydrationConfigValue(
+                GetHydrationConfigSettings(), HydrationConfig::IsConfidentialVmMigration), "true"))
+            {
+                if (EnableBitlocker(srcOsVol) != ERROR_SUCCESS)
+                {
+                    errStream << "Could not enable BitLocker for the Confidential VM Migration. Boot will fail.\n";
+                    retcode = E_RECOVERY_ENABLE_BITLOCKER_FAILED;
+                }
+            }
+            else
+            {
+                TRACE_INFO("Enabling BitLocker is not required for Non-Confidential VM migrations.\n");
             }
 
             if (!errStream.str().empty())
@@ -620,6 +759,11 @@ int StartGenConversion()
             errStream << "Could not prepare Source OS install path on Hydration VM.( "
                 << errorMessage
                 << " )";
+
+            if (boost::algorithm::contains(errorMessage, std::to_string(ERROR_FILE_CORRUPT)))
+            {
+                retcode = E_RECOVERY_VOL_CORRUPTED;
+            }
 
             TRACE_ERROR("%s\n", errStream.str().c_str());
 
@@ -699,15 +843,25 @@ int StartGenConversion()
                 }
 
                 bool isWin2k8 = false;
-                OSVersion osVersion;
-                if (GetOsVersion(osVersion)) {
-                    isWin2k8 = ((osVersion.major == 6) && (osVersion.minor == 0));
-                }
+                bool isWin2k12 = false;
+                bool isWin2k12R2 = false;
+
+                SetOSVersionDetails(srcOsInstallPath.str());
+                std::string osVersion = RecoveryStatus::Instance().GetUpdate().OsDetails;
+
+                // Check if it is Win2k8, if so then AutoMount should be disabled.
+                isWin2k8 = boost::starts_with(osVersion,
+                    RegistryConstants::WIN2K8_VERSION_PREFIX);
+                isWin2k12 = boost::starts_with(osVersion,
+                    RegistryConstants::WIN2K12_VERSION_PREFIX);
+                isWin2k12R2 = boost::starts_with(osVersion,
+                    RegistryConstants::WIN2K12R2_VERSION_PREFIX);
 
                 // Since gen-conversion is a critical failure in protection service, using alternate retCode so hydration doesn't fail
                 // if any of the registry changes fail.
                 int regRetCode = 0;
                 std::stringstream regErrStr;
+                bool verifyVMBusRegistry = isWin2k12 || isWin2k12R2;
 
                 // Make registry changes, enable DHCP and install guest agent.
                 bool bSuccess = MakeRegistryChangesForMigration(srcOsInstallPath.str(),
@@ -715,7 +869,8 @@ int StartGenConversion()
                     regRetCode,
                     curTaskDesc,
                     regErrStr,
-                    isWin2k8);
+                    isWin2k8, // Disable Automount only for Win2k8.
+                    verifyVMBusRegistry); //VMBUS registry validation only for Win2k12 and Win2k12R2.
 
                 if (!IsDotNetFxVersionPresent(srcOsVol))
                 {
@@ -723,7 +878,7 @@ int StartGenConversion()
                     
                     if (retcode == 0)
                     {
-                        errStream << "Windows VM Agent requires .NET version 4.0+ .";
+                        errStream << "Windows VM Agent requires .NET version 4.0+ .\n";
                         retcode = E_RECOVERY_DOTNET_FRAMEWORK_INCOMPATIBLE;
                     }
                 }
@@ -814,6 +969,13 @@ namespace AzureRecovery
                 ACE_OS::sleep(20);
 
                 continue;
+            }
+            else if (ERROR_FILE_CORRUPT == dwRet)
+            {
+                std::string errMsg = "Source OS volume not found. The OS disk is in corrupted state. (ErrorCode: ERROR_FILE_CORRUPT).";
+
+                    TRACE_ERROR(errMsg.c_str());
+                    break;
             }
             else if (ERROR_SUCCESS != dwRet)
             {
@@ -907,7 +1069,7 @@ namespace AzureRecovery
                 std::string SystemHivePath = sourceSystemPath + SysConstants::CONFIG_SYSTEM_HIVE_PATH;
                 if (LoadRegistryHive(SystemHivePath, RegistryConstants::VM_SYSTEM_HIVE_NAME))
                 {
-                    errorStream << "Could not load the source system hive from the path: " << SystemHivePath
+                    errorStream << "Could not load the source machine's SYSTEM registry hive from the path: " << SystemHivePath
                         << ". " << GetLastErrorMsg();
                     break;
                 }
@@ -918,9 +1080,7 @@ namespace AzureRecovery
                 std::string SoftwareHivePath = sourceSystemPath + SysConstants::CONFIG_SOFTEARE_HIVE_PAHT;
                 if (LoadRegistryHive(SoftwareHivePath, RegistryConstants::VM_SOFTWARE_HIVE_NAME))
                 {
-                    errorStream << "Could not load the source software hive from the path: " << SoftwareHivePath
-                        << ". " << GetLastErrorMsg();
-                    break;
+                    TRACE_ERROR("Could not load the source machine's SOFTWARE registry hive from the path %s\n", SoftwareHivePath.c_str());
                 }
             }
 
@@ -965,15 +1125,15 @@ namespace AzureRecovery
             if ((hiveFlag & HiveFlags::System) &&
                 UnloadRegistryHive(RegistryConstants::VM_SYSTEM_HIVE_NAME))
             {
-                errorStream << "Could not unload source system registry hive.";
+                errorStream << "Could not unload source machine's SYSTEM registry hive.";
                 break;
             }
 
             if ((hiveFlag & HiveFlags::Software) &&
                 UnloadRegistryHive(RegistryConstants::VM_SOFTWARE_HIVE_NAME))
             {
-                errorStream << "Could not unload source software registry hive.";
-                break;
+                // Log the error and Do Not Fail the hydration process.
+                TRACE_ERROR("Could not unload source machine's SOFTWARE registry hive.");
             }
 
             //
@@ -1043,7 +1203,7 @@ namespace AzureRecovery
 
         OSVersion   winVer;
 
-        if (GetOsVersion(winVer)) {
+        if (GetOsVersion(winVer, srcOSInstallPath)) {
             TRACE_INFO("OS Version Major: %d Minor: %d\n", winVer.major, winVer.minor);
         }
 
@@ -1169,6 +1329,75 @@ namespace AzureRecovery
         TRACE_FUNC_END;
         return bSuccess;
     }
+
+    /*
+    Method     : VerifyWinVMBusRegistrySettings
+
+    Description: Verifies the existence of required Registry settings for the Windows Virtual Machine Bus in the attached disk.
+
+    Parameters : [out] errorMsg: Filled with error details on failure.
+
+    Return     : true if all required Registry settings exist in the attached disk, otherwise false.
+    */
+    bool VerifyWinVMBusRegistrySettings(std::string& errorMsg)
+    {
+        TRACE_FUNC_BEGIN;
+        std::stringstream errorStream;
+
+        // List of registry keys to check for existence in the attached disk
+        const std::vector<std::string> vmBusRegistryList = {
+            "\\Configurations\\VMBus_Device_WIN8_Child.NT",
+            "\\Configurations\\VMBus_Support_Device.NT",
+            "\\Descriptors\\ACPI\\VMBus",
+            "\\Descriptors\\VMBUS\\SUBCHANNEL",
+            "\\Strings"
+        };
+
+        // Registry key to check for the value of the Windows Virtual Machine Bus hive name
+        const std::string keyPath = "DriverDatabase\\DriverInfFiles\\wvmbus.inf";
+        const std::string keyValueName = "Active";
+        std::string vmBusRegistryHiveValue;
+        bool isSuccess = true;
+
+        if (RegGetKeyValue(RegistryConstants::VM_SYSTEM_HIVE_NAME, keyPath, keyValueName, errorStream, vmBusRegistryHiveValue))
+        {
+            for (const std::string& vmBusRegistryPath : vmBusRegistryList)
+            {
+                std::string vmBusRegistryHivePath = RegistryConstants::VM_SYSTEM_HIVE_NAME
+                    + (std::string)DIRECOTRY_SEPERATOR
+                    + "DriverDatabase\\DriverPackages"
+                    + (std::string)DIRECOTRY_SEPERATOR
+                    + vmBusRegistryHiveValue
+                    + vmBusRegistryPath;
+
+                // Check if the registry key exists in the source VM disk
+                if (!RegKeyExists(HKEY_LOCAL_MACHINE, vmBusRegistryHivePath))
+                {
+                    isSuccess = false;
+                    TRACE_ERROR("Registry Key missing. KeyPath: %s.\n",vmBusRegistryHivePath.c_str());
+                }
+            }
+        }
+        else
+        {
+            isSuccess = false;
+            TRACE_ERROR("Failed to get value of Windows Virtual Machine Bus hive name from registry in the attached disk.\n");
+        }
+
+        if (isSuccess)
+        {
+            TRACE_INFO("Successfully verified the existence of required Registry settings for the Windows Virtual Machine Bus in the attached disk.\n");
+        }
+        else
+        {
+            errorMsg = "Failed to verify the existence of required Registry settings for the Windows Virtual Machine Bus in the attached disk.\n";
+            TRACE_ERROR("%s", errorMsg.c_str());
+        }
+
+        TRACE_FUNC_END;
+        return isSuccess;
+    }
+
 
     /*
     Method      : MakeChangesForServicesOnRegistry
@@ -1596,8 +1825,8 @@ namespace AzureRecovery
                 errorStream << "Could not determine OS bits type. RegKeyOpen error " << lRetStatus
                     << " for the key " << vxInstallPath;
 
-                bSuccess = false;
-                break;
+                // Legacy Method, Do Not Fail.
+                TRACE_ERROR("ResetInvolflt failed while setting Software Registry Hive.");
             }
 
             vxInstallPath = RegistryConstants::VM_SOFTWARE_HIVE_NAME
@@ -1609,8 +1838,8 @@ namespace AzureRecovery
                 errorStream << "Could not open " << vxInstallPath
                     << ". Error " << lRetStatus;
 
-                bSuccess = false;
-                break;
+                // Log and Do Not Fail.
+                TRACE_ERROR("ResetInvolflt failed while setting Software Registry Hive.");
             }
 
             std::vector<std::string> contolSets;
@@ -2664,34 +2893,43 @@ namespace AzureRecovery
     Description : Get OS Version from recovering vm system hive.
 
     Parameters  : [out] winVer: Filled with OS Version Info.
+                  [in] srcOSInstallPath: OS Install Path of the source machine, to be used here as fallback.
 
     Return      : true on success, otherwise false.
 
     */
-    bool GetOsVersion(OSVersion& winVer)
+    bool GetOsVersion(OSVersion& winVer, const std::string& srcOsInstallPath)
     {
         std::string OsVersion;
         std::stringstream errorSteam;
 
-        if (ERROR_SUCCESS !=
-            RegGetOSCurrentVersion(RegistryConstants::VM_SOFTWARE_HIVE_NAME, OsVersion))
-        {
-            // Logging is done as part of above call. So no need to log.
-            return false;
-        }
-
         try
         {
-            winVer = OSVersion::FromString(OsVersion);
+            if (ERROR_SUCCESS !=
+                RegGetOSCurrentVersion(RegistryConstants::VM_SOFTWARE_HIVE_NAME, OsVersion))
+            {
+                // Logging is done as part of above call. So no need to log.
+                TRACE_WARNING("Failed to open SOFTWARE registry hive to check Windows OS Version. Using NTFS.sys Windows version.\n");
 
-            // Set OS Details in RecoveryStatus metadata for recovery scenario.
-            RecoveryStatus::Instance().SetSourceOSDetails(OsVersion);
+                SetOSVersionDetails(srcOsInstallPath);
+                winVer = OSVersion::FromString(RecoveryStatus::Instance().GetUpdate().OsDetails);
+            }
+            else
+            {
+                TRACE_INFO("Reading Windows Version from Software Registry Hive\n");
+                winVer = OSVersion::FromString(OsVersion);
+            }
+
+
+            TRACE_INFO("Windows Version. Major: %d, Minor %d\n", winVer.major, winVer.minor);
         }
         catch (const std::exception& e)
         {
-            // Logging is done as part of FromString call. So no need to log.
+            // Logging is done as part of FromString call. So no need to log.        
+
             return false;
         }
+
         return true;
     }
 
@@ -2925,6 +3163,7 @@ namespace AzureRecovery
             {
                 errorStream << "Could not mount OS volume. "
                     << GetLastErrorMsg();
+
                 break;
             }
 
@@ -3103,7 +3342,7 @@ namespace AzureRecovery
                 )
             {
                 errorMsg = "Cloud not get source OS volume disk drive extents or the extents information is missing in host information";
-                TRACE_ERROR("%s", errorMsg.c_str());
+                TRACE_ERROR("\n%s", errorMsg.c_str());
                 bSuccess = false;
                 break;
             }
@@ -3341,6 +3580,12 @@ namespace AzureRecovery
                     TRACE_ERROR("OS volume not found.");
 
                     errorMsg = "Could not find OS Volume.";
+
+                    if (dwRet == ERROR_FILE_CORRUPT)
+                    {
+                        errorMsg = errorMsg + " The OS disk is in corrupted state. (ErrorCode: ERROR_FILE_CORRUPT)";
+                    }
+
                     break;
                 }
             }
@@ -3369,6 +3614,7 @@ namespace AzureRecovery
     //              [out] curTaskDesc
     //              [out] errStream
     //              [in] disableAutomount
+    //              [in] verifyVMBusRegistry
     // 
     // Return : true on success, otherwise false.
     bool MakeRegistryChangesForMigration(
@@ -3377,7 +3623,8 @@ namespace AzureRecovery
         int& retcode,
         std::string& curTaskDesc,
         std::stringstream& errStream,
-        bool disableAutomount)
+        bool disableAutomount,
+        bool verifyVMBusRegistry)
     {
         TRACE_FUNC_BEGIN;
         bool bSuccess = false;
@@ -3391,7 +3638,7 @@ namespace AzureRecovery
 
                 errStream << "Could not prepare the source registry.( "
                     << errorMessage
-                    << " )";
+                    << " ).";
 
                 TRACE_ERROR("%s\n", errStream.str().c_str());
 
@@ -3403,7 +3650,7 @@ namespace AzureRecovery
             {
                 errStream << "Could not update required boot drivers on registry.( "
                     << errorMessage
-                    << " )";
+                    << " ).";
 
                 TRACE_ERROR("%s\n", errStream.str().c_str());
 
@@ -3417,7 +3664,7 @@ namespace AzureRecovery
 
                 errStream << "Could not update required services on registry.( "
                     << errorMessage
-                    << " )";
+                    << " ).";
 
                 TRACE_ERROR("%s\n", errStream.str().c_str());
 
@@ -3431,7 +3678,7 @@ namespace AzureRecovery
 
                 errStream << "Could not update SanPolicy on registry.( "
                     << errorMessage
-                    << " )";
+                    << " ).";
 
                 TRACE_ERROR("%s\n", errStream.str().c_str());
 
@@ -3444,11 +3691,29 @@ namespace AzureRecovery
 
                 errStream << "Could disable auto mount.( "
                     << errorMessage
-                    << " )";
+                    << " ).";
 
                 TRACE_ERROR("%s\n", errStream.str().c_str());
 
                 break;
+            }
+
+            if (verifyVMBusRegistry)
+            {
+                curTaskDesc = TASK_DESCRIPTIONS::VERIFY_VMBUS_REGISTRY;
+                if (!VerifyWinVMBusRegistrySettings(errorMessage))
+                {
+                    if (retcode == E_RECOVERY_SUCCESS)
+                    {
+                        retcode = E_REQUIRED_VMBUS_REGISTRIES_MISSING;
+                    }
+
+                    errStream << "Could not find required VM Bus registry.( "
+                        << errorMessage
+                        << " ).";
+
+                    TRACE_ERROR("%s\n", errStream.str().c_str());
+                }
             }
 
             // Mark Success here to not fail the call if further calls fail.

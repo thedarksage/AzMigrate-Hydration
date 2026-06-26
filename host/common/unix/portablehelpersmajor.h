@@ -91,4 +91,6 @@ void UpdateRepositoryAccess() ;
 std::string GetServiceStopReason() ;
 void UpdateServiceStopReason(std::string& reason) ; 
 unsigned int retrieveBusType(std::string volume) ;
+bool GetDirectorySize(const std::string& dirPath, uintmax_t &size);
+
 #endif /* PORTABLEHELPERS__MAJORPORT__H_ */

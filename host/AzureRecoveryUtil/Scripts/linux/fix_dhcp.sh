@@ -34,6 +34,8 @@ if [ -f /etc/oracle-release ] && [ -f /etc/redhat-release ] ; then
         _DISTRO_="OL8"
     elif grep -q 'Oracle Linux Server release 9.*' /etc/oracle-release ; then
         _DISTRO_="OL9"
+    elif grep -q 'Oracle Linux Server release 10.*' /etc/oracle-release ; then
+        _DISTRO_="OL10"
     fi
 elif [ -f /etc/redhat-release ]; then
     if grep -q 'Red Hat Enterprise Linux Server release 6.*' /etc/redhat-release || \
@@ -46,6 +48,8 @@ elif [ -f /etc/redhat-release ]; then
             _DISTRO_="RHEL8"
     elif grep -q 'Red Hat Enterprise Linux release 9.*' $mntpath/etc/redhat-release; then
             _DISTRO_="RHEL9"
+    elif grep -q 'Red Hat Enterprise Linux release 10.*' $mntpath/etc/redhat-release; then
+            _DISTRO_="RHEL10"
     elif grep -q 'CentOS Linux release 6.*' /etc/redhat-release || \
          grep -q 'CentOS release 6.*' /etc/redhat-release; then
             _DISTRO_="CENTOS6"
@@ -54,9 +58,23 @@ elif [ -f /etc/redhat-release ]; then
     elif grep -q 'CentOS Linux release 8.*' /etc/redhat-release ||
          grep -q 'CentOS Stream release 8.*' /etc/redhat-release; then
             _DISTRO_="CENTOS8"
+    elif grep -q 'Rocky Linux release 9.*' /etc/redhat-release; then
+            _DISTRO_="ROCKY9"
+    elif grep -q 'Rocky Linux release 10.*' /etc/redhat-release; then
+            _DISTRO_="ROCKY10"
+    elif grep -q 'AlmaLinux release 9.*' /etc/redhat-release; then
+            _DISTRO_="ALMA9"        
     elif grep -q 'CentOS Linux release 9.*' /etc/redhat-release ||
          grep -q 'CentOS Stream release 9.*' /etc/redhat-release; then
             _DISTRO_="CENTOS9"
+    elif grep -q 'Rocky Linux release 8.*' /etc/redhat-release; then
+            _DISTRO_="ROCKY8"
+    elif grep -q 'AlmaLinux release 8.*' /etc/redhat-release; then
+            _DISTRO_="ALMA8"
+    elif grep -q 'AlmaLinux release 9.*' /etc/redhat-release; then
+            _DISTRO_="ALMA9"
+    elif grep -q 'AlmaLinux release 10.*' /etc/redhat-release; then
+            _DISTRO_="ALMA10"
     fi
 elif ( [ -f /etc/SuSE-release ] && ( grep -q 'VERSION = 11' /etc/SuSE-release ||  grep -q 'VERSION = 12' /etc/SuSE-release )); then
     if grep -q 'VERSION = 11' /etc/SuSE-release; then
@@ -86,6 +104,8 @@ elif [ -f /etc/lsb-release ]; then
         _DISTRO_="UBUNTU21"
     elif grep -q 'Ubuntu 22.*' /etc/lsb-release ; then
         _DISTRO_="UBUNTU22"
+    elif grep -q 'Ubuntu 24.*' /etc/lsb-release ; then
+        _DISTRO_="UBUNTU24"
     fi
 elif [ -f /etc/debian_version ]; then
     if grep -q '^7.*' /etc/debian_version; then
@@ -161,45 +181,87 @@ set_dhcp_ip_for_ubuntu()
 
 set_dhcp_ip_for_rhel()
 {
-    local _nw_scripts_dir="/etc/sysconfig/network-scripts"
-    local host_name=`hostname`
-    ip -o link show | awk '{ print $2 }' | sed 's\:\\' | while read _line_
-    do
-        local name=`echo $_line_|awk '{ print $1 }'`
-        
-        if [ "$name" = "lo" ]; then
-            echo "Skipping the loopback nic."
-            continue
-        fi
-        
-        local _ifconfig_file="$_nw_scripts_dir/ifcfg-$name"
-        
-        echo "DHCP_HOSTNAME=$host_name" >$_ifconfig_file
-        echo "DEVICE=$name" >> $_ifconfig_file
-        echo "ONBOOT=yes" >> $_ifconfig_file
-        echo "DHCP=yes" >> $_ifconfig_file
-        echo "BOOTPROTO=dhcp" >> $_ifconfig_file
-        echo "TYPE=Ethernet" >>  $_ifconfig_file
-        echo "USERCTL=no" >>  $_ifconfig_file
-        echo "PEERDNS=yes" >>  $_ifconfig_file
-        echo "IPV6INIT=no" >> $_ifconfig_file
-        
-        #Restart the interfaces and NetworkManager for RHEL7/CentOS7
-        case $_DISTRO_ in
-            RHEL7|CENTOS7|OL7)
-                echo "Restarting $name ..."
-                ifdown "$name"
-                ifup "$name"
-                
-                echo "Restarting NetworkManager"
-                systemctl restart NetworkManager
-                echo "Exit code: $?"
-            ;;
-            *)
-                echo "Skipping $name interface restart"
-            ;;
-        esac        
-    done
+    if [ ! -d "/etc/sysconfig/network-scripts" ]; then
+        local _nm_connections_dir="/etc/NetworkManager/system-connections"
+        local host_name=$(hostname)
+
+        ip -o link show | awk '{ print $2 }' | sed 's/://g' | while read _line_; do
+            local name="$_line_"
+
+            if [ "$name" = "lo" ]; then
+                echo "Skipping the loopback nic."
+                continue
+            fi
+
+            local profile_file="$_nm_connections_dir/${name}.nmconnection"
+
+            echo "Creating NetworkManager profile for $name at $profile_file ..."
+
+            cat <<EOF > "$profile_file"
+[connection]
+id=$name
+type=ethernet
+interface-name=$name
+autoconnect=true
+
+[ipv4]
+method=auto
+dhcp-hostname=$host_name
+
+[ipv6]
+method=ignore
+EOF
+
+            # Proper permissions
+            chmod 600 "$profile_file"
+        done
+
+        # restart NetworkManager and reload so changes take effect
+        systemctl restart NetworkManager
+        nmcli connection reload
+
+    else
+        local _nw_scripts_dir="/etc/sysconfig/network-scripts"
+        local host_name=`hostname`
+        ip -o link show | awk '{ print $2 }' | sed 's\:\\' | while read _line_
+        do
+            local name=`echo $_line_|awk '{ print $1 }'`
+            
+            if [ "$name" = "lo" ]; then
+                echo "Skipping the loopback nic."
+                continue
+            fi
+            
+            local _ifconfig_file="$_nw_scripts_dir/ifcfg-$name"
+            
+            echo "DHCP_HOSTNAME=$host_name" >$_ifconfig_file
+            echo "DEVICE=$name" >> $_ifconfig_file
+            echo "ONBOOT=yes" >> $_ifconfig_file
+            echo "DHCP=yes" >> $_ifconfig_file
+            echo "BOOTPROTO=dhcp" >> $_ifconfig_file
+            echo "TYPE=Ethernet" >>  $_ifconfig_file
+            echo "USERCTL=no" >>  $_ifconfig_file
+            echo "PEERDNS=yes" >>  $_ifconfig_file
+            echo "IPV6INIT=no" >> $_ifconfig_file
+            
+            #Restart the interfaces and NetworkManager for RHEL7/CentOS7
+            case $_DISTRO_ in
+                RHEL7|CENTOS7|OL7)
+                    echo "Restarting $name ..."
+                    ifdown "$name"
+                    ifup "$name"
+                    
+                    echo "Restarting NetworkManager"
+                    systemctl restart NetworkManager
+                    echo "Exit code: $?"
+                ;;
+                *)
+                    echo "Skipping $name interface restart"
+                ;;
+            esac        
+        done
+
+    fi
 
     service network restart 
 }
@@ -232,7 +294,7 @@ set_dhcp_ip_for_suse()
 configure_nics_to_dhcp()
 {
     case $_DISTRO_ in
-        CENTOS*|OL*|RHEL*)
+        CENTOS*|OL*|RHEL*|ROCKY*|ALMA*)
             set_dhcp_ip_for_rhel
         ;;
         SLES*)
@@ -241,7 +303,7 @@ configure_nics_to_dhcp()
         UBUNTU14|UBUNTU16|DEBIAN*|KALI*)
             set_dhcp_ip_for_ubuntu
         ;;
-        UBUNTU18|UBUNTU20|UBUNTU21|UBUNTU22)
+        UBUNTU*)
             echo "No operation for $_DISTRO_"
         ;;
         *)
@@ -293,7 +355,7 @@ remove_startup_script()
         RHEL6|CENTOS6|OL6|SLES11|UBUNTU14|DEBIAN7)
             remove_chkconfig_startup_script
             ;;
-        RHEL7|CENTOS7|OL7|SLES12|DEBIAN8|UBUNTU16|KALI*|RHEL8|RHEL9|OL8|OL9|CENTOS8|CENTOS9|DEBIAN9|DEBIAN10|DEBIAN11)
+        RHEL*|CENTOS*|OL*|SLES*|DEBIAN*|UBUNTU*|KALI*|ROCKY*|ALMA*)
             remove_systemd_startup_script
             ;;
         *)

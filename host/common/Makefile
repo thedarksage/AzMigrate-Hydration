@@ -21,7 +21,8 @@ SRCS = \
 	proxysettings.cpp \
 	ErrorLogger.cpp \
 	ServiceHelper.cpp \
-	inmcertutil.cpp
+	inmcertutil.cpp \
+	imdshelpers.cpp
 
 X_CFLAGS = \
     -IAzureRcmLib \
@@ -57,7 +58,7 @@ X_CFLAGS = \
 	-Iservice \
 	-Idevicefilter \
     -Idevicefilter/$(X_MAJOR_ARCH) \
-    -Idrivers/InVolFlt/common \
+    -Idrivers/InVolFlt/InMage-ASRDFD/src/uapi \
 	-Idrivers/InVolFlt/$(X_MINOR_ARCH) \
 	-Idrivers/lib/$(X_MINOR_ARCH) \
     -Ideviceidinformer \
@@ -82,6 +83,7 @@ X_CFLAGS = \
 	-Isecuritylib \
 	-Isecuritylib/$(X_MAJOR_ARCH) \
     -Iinmuuid/$(X_MAJOR_ARCH) \
+    -IIMDSLib \
 	$(SQLITE_INCLUDE) \
 	$(ACE_INCLUDE) \
 	$(BOOST_INCLUDE) \

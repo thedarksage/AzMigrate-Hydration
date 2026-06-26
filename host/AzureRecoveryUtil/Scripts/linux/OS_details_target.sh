@@ -34,6 +34,8 @@ elif [ -f $mntpath/etc/oracle-release ] && [ -f $mntpath/etc/redhat-release ] ; 
 		OS="OL8-64"
     elif grep -q 'Oracle Linux Server release 9.*' $mntpath/etc/oracle-release ; then
         OS="OL9-64"
+	elif grep -q 'Oracle Linux Server release 10.*' $mntpath/etc/oracle-release ; then
+        OS="OL10-64"
 	fi
 	os_release_file=$mntpath/etc/oracle-release
 elif [ -f $mntpath/etc/redhat-release ]; then
@@ -41,25 +43,39 @@ elif [ -f $mntpath/etc/redhat-release ]; then
 	   grep -q 'CentOS release 5.*' $mntpath/etc/redhat-release; then
 			OS="RHEL5-64"
 	elif grep -q 'Red Hat Enterprise Linux Server release 6.*' $mntpath/etc/redhat-release || \
-		 grep -q 'Red Hat Enterprise Linux Workstation release 6.*' $mntpath/etc/redhat-release || \
-		 grep -q 'CentOS Linux release 6.*' $mntpath/etc/redhat-release || \
-		 grep -q 'CentOS release 6.*' $mntpath/etc/redhat-release; then
+             grep -q 'Red Hat Enterprise Linux Workstation release 6.*' $mntpath/etc/redhat-release || \
+             grep -q 'CentOS Linux release 6.*' $mntpath/etc/redhat-release || \
+	     grep -q 'CentOS release 6.*' $mntpath/etc/redhat-release; then
 			OS="RHEL6-64"
 	elif grep -q 'Red Hat Enterprise Linux Server release 7.*' $mntpath/etc/redhat-release ||
-		 grep -q 'Red Hat Enterprise Linux Workstation release 7.*' $mntpath/etc/redhat-release; then
+	     grep -q 'Red Hat Enterprise Linux Workstation release 7.*' $mntpath/etc/redhat-release; then
 			OS="RHEL7-64"
 	elif grep -q 'CentOS Linux release 7.*' $mntpath/etc/redhat-release; then
 			OS="CENTOS7-64"
 	elif grep -q 'Red Hat Enterprise Linux release 8.*' $mntpath/etc/redhat-release; then
 			OS="RHEL8-64"
+    elif grep -q 'AlmaLinux release 9.*' $mntpath/etc/redhat-release; then
+            OS="ALMA9-64"
+	elif grep -q 'AlmaLinux release 10.*' $mntpath/etc/redhat-release; then
+            OS="ALMA10-64"
 	elif grep -q 'Red Hat Enterprise Linux release 9.*' $mntpath/etc/redhat-release; then
             OS="RHEL9-64"
+	elif grep -q 'Red Hat Enterprise Linux release 10.*' $mntpath/etc/redhat-release; then
+            OS="RHEL10-64"
+    elif grep -q 'Rocky Linux release 9.*' $mntpath/etc/redhat-release; then
+            OS="ROCKY9-64"
+	elif grep -q 'Rocky Linux release 10.*' $mntpath/etc/redhat-release; then
+            OS="ROCKY10-64"
+    elif grep -q 'AlmaLinux release 8.*' $mntpath/etc/redhat-release; then
+            OS="ALMA8-64"
 	elif grep -q 'CentOS Linux release 8.*' $mntpath/etc/redhat-release ||
          grep -q 'CentOS Stream release 8.*' $mntpath/etc/redhat-release; then
-           OS="CENTOS8-64"
+            OS="CENTOS8-64"
+    elif grep -q 'Rocky Linux release 8.*' $mntpath/etc/redhat-release; then
+            OS="ROCKY8-64"
 	elif grep -q 'CentOS Linux release 9.*' $mntpath/etc/redhat-release ||
          grep -q 'CentOS Stream release 9.*' $mntpath/etc/redhat-release; then
-           OS="CENTOS9-64"
+            OS="CENTOS9-64"
 	fi
 	os_release_file=$mntpath/etc/redhat-release
 elif ( [ -f $mntpath/etc/SuSE-release ] && ( grep -q 'VERSION = 11' $mntpath/etc/SuSE-release || grep -q 'VERSION = 12' $mntpath/etc/SuSE-release ) ) ; then
@@ -73,6 +89,13 @@ elif ( [ -f $mntpath/etc/SuSE-release ] && ( grep -q 'VERSION = 11' $mntpath/etc
 	fi
 	os_release_file=$mntpath/etc/SuSE-release
 elif [ -f $mntpath/etc/os-release ] && grep -q 'SLES' $mntpath/etc/os-release; then
+	if grep -q 'VERSION="12' $mntpath/etc/os-release; then
+		OS="SLES12-64"
+	elif grep -q 'VERSION="15' $mntpath/etc/os-release; then
+		OS="SLES15-64"
+	fi
+	os_release_file=$mntpath/etc/os-release
+elif [ -f $mntpath/etc/os-release ] && grep -q 'openSUSE Leap' $mntpath/etc/os-release; then
 	if grep -q 'VERSION="12' $mntpath/etc/os-release; then
 		OS="SLES12-64"
 	elif grep -q 'VERSION="15' $mntpath/etc/os-release; then
@@ -96,6 +119,8 @@ elif [ -f $mntpath/etc/lsb-release ]; then
 		OS="UBUNTU21-64"
 	elif grep -q 'Ubuntu 22.*' $mntpath/etc/lsb-release ; then
 		OS="UBUNTU22-64"
+	elif grep -q 'Ubuntu 24.*' $mntpath/etc/lsb-release ; then
+		OS="UBUNTU24-64"
 	fi
 	os_release_file=$mntpath/etc/lsb-release
 elif [ -f $mntpath/etc/debian_version ]; then
@@ -109,6 +134,10 @@ elif [ -f $mntpath/etc/debian_version ]; then
         OS="DEBIAN10-64"
     elif grep -q '^11.*' $mntpath/etc/debian_version; then
         OS="DEBIAN11-64"
+    elif grep -q '^12.*' $mntpath/etc/debian_version; then
+        OS="DEBIAN12-64"
+	elif grep -q '^13.*' $mntpath/etc/debian_version; then
+        OS="DEBIAN13-64"
 	elif grep -q '^kali-rolling*' $mntpath/etc/debian_version; then
 	    OS="KALI-ROLLING-64"
     fi

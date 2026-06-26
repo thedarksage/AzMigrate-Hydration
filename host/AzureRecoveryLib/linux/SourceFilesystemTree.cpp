@@ -485,7 +485,7 @@ namespace AzureRecovery
                         std::string vnModifiedName = "/dev/" + (vol.name.substr(vn_mapPos + 7)).replace
                             ((vol.name.substr(vn_mapPos + 7)).find("-"), 1, "/");
 
-                        TRACE_INFO("Modified vol name: %s", vnModifiedName.c_str());
+                        TRACE_INFO("Modified vol name: %s\n", vnModifiedName.c_str());
 
                         bFound = boost::iequals(vnModifiedName, tgt_disk_part);
                     }
@@ -496,7 +496,7 @@ namespace AzureRecovery
                         std::string tgtDiskModifiedName = "/dev/" + (tgt_disk_part.substr(tgtDiskPart_mapPos + 7)).replace
                             ((tgt_disk_part.substr(tgtDiskPart_mapPos + 7)).find("-"), 1, "/");
 
-                        TRACE_INFO("Modified target disk name: %s", tgtDiskModifiedName.c_str());
+                        TRACE_INFO("Modified target disk name: %s\n", tgtDiskModifiedName.c_str());
 
                         bFound = boost::iequals(vol.name, tgtDiskModifiedName);
                     }
@@ -574,7 +574,7 @@ namespace AzureRecovery
             }
             else
             {
-                TRACE_INFO("File System Entry details %s",i_fs_entry.ToString().c_str());
+                TRACE_INFO("File System Entry details %s\n",i_fs_entry.ToString().c_str());
             }
         }
 
