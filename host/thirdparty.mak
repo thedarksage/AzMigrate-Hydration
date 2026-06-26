@@ -18,15 +18,15 @@ THIRDPARTY_MAK = thirdparty.mak
 # ----------------------------------------------------------------------
 ACE_ROOT := ../thirdparty/ace-6.4.6/ACE_wrappers
 CDK_ROOT := ../thirdparty/cdk-5.0.4
-CURL_ROOT := ../thirdparty/curl-7.83.1
-OPENSSL_ROOT := ../thirdparty/openssl-1.1.1n
+CURL_ROOT := ../thirdparty/curl-8.2.1
+OPENSSL_ROOT := ../thirdparty/openssl-3.1.2
 SQLITE_ROOT := ../thirdparty/sqlite-3.36.0
 SQLITE3X_ROOT := ../thirdparty/sqlite3x/sqlite3x
 ZLIB_ROOT := ../thirdparty/zlib-1.2.12
 LIBSSH2_ROOT := ../thirdparty/libssh2-1.10.0
 LIB_ROOT := ../thirdparty/lib
 BIN_ROOT := ../thirdparty/bin
-LIBXML2_ROOT := ../thirdparty/libxml2/libxml2-2.9.13
+LIBXML2_ROOT := ../thirdparty/libxml2/libxml2-2.11.1
 INM_MD5_ROOT := ../thirdparty/inm_md5
 SIGSLOT_ROOT := ../thirdparty/sigslot
 XENDETECT_ROOT := ../thirdparty/xendetect
@@ -64,7 +64,7 @@ ESJSON_INCLUDES := -I$(ESJSON_ROOT)
 # ----------------------------------------------------------------------
 ACE_LIBS := $(ACE_ROOT)/lib/$(X_SPECIFIC)/$(X_CONFIGURATION)/libACE.a
 CDK_LIBS := $(CDK_ROOT)/lib/$(X_SPECIFIC)/$(X_CONFIGURATION)/libcdk.a
-ARES_LIBS := $(CURL_ROOT)/../c-ares-1.18.1/install_$(X_CONFIGURATION)/lib/libcares.a
+ARES_LIBS := $(CURL_ROOT)/../c-ares-1.19.1/install_$(X_CONFIGURATION)/lib/libcares.a
 CURL_LIBS := $(CURL_ROOT)/lib/$(X_SPECIFIC)/$(X_CONFIGURATION)/libcurl.a
 OPENSSL_LIBS := $(OPENSSL_ROOT)/lib/$(X_SPECIFIC)/$(X_CONFIGURATION)/libssl.a $(OPENSSL_ROOT)/lib/$(X_SPECIFIC)/$(X_CONFIGURATION)/libcrypto.a
 SQLITE_LIBS := $(SQLITE3X_ROOT)/lib/$(X_SPECIFIC)/$(X_CONFIGURATION)/libsqlite3x.a $(SQLITE_ROOT)/lib/$(X_SPECIFIC)/$(X_CONFIGURATION)/libsqlite3.a
@@ -343,8 +343,8 @@ clean_curl:
 	$(VERBOSE)rm -f $(CURL_ROOT)/dep_dirs
 	$(VERBOSE)rm -f $(CURL_ROOT)/build_curl
 	$(VERBOSE)rm -f $(CURL_ROOT)/config_curl
-	$(VERBOSE)rm -f $(CURL_ROOT)/../c-ares-1.18.1/debug/ran_config
-	$(VERBOSE)rm -f $(CURL_ROOT)/../c-ares-1.18.1/release/ran_config
+	$(VERBOSE)rm -f $(CURL_ROOT)/../c-ares-1.19.1/debug/ran_config
+	$(VERBOSE)rm -f $(CURL_ROOT)/../c-ares-1.19.1/release/ran_config
 	$(RULE_SEPARATOR)
 
 #.PHONY: clean_libssh2
