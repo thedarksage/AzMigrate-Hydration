@@ -30,6 +30,28 @@ Some features may require additional internal tools such as:
 
 ## Usage
 
+The hydration tool itself (`AzureRecoveryUtil`) is built from `host/` and shipped
+as `AzureRecoveryTools.zip`. It is driven on the hydration VM by the guest-side
+start-up scripts in `host/AzureRecoveryUtil/Scripts/` (`StartupScript.ps1` for
+Windows, `StartupScript.sh` for Linux), which the Azure guest agent runs through
+the Custom Script Extension.
+
+To exercise the full flow end to end against real Azure managed disks, use the
+Az PowerShell test harness in
+[`host/AzureRecoveryUtil/TestRunner`](host/AzureRecoveryUtil/TestRunner/README.md):
+
+```powershell
+Connect-AzAccount
+cd host/AzureRecoveryUtil/TestRunner
+Copy-Item ./HydrationConfig.sample.psd1 ./my-run.psd1   # edit values
+./Invoke-AzureHydration.ps1 -ConfigPath ./my-run.psd1 -Operation migration -Verbose
+```
+
+The harness **dynamically generates the recovery-info (`.conf`) file** - including
+the disk-id to LUN `[DiskMap]` - from the live hydration VM, so disk GUIDs no
+longer have to be hand-authored. See the
+[TestRunner README](host/AzureRecoveryUtil/TestRunner/README.md) for details.
+
 ## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
